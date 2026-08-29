@@ -28,6 +28,19 @@ export const metadata: Metadata = {
   },
   // 검색 유입은 기대하지 않지만 막지도 않는다
   robots: { index: true, follow: true },
+  /**
+   * 검색엔진 소유확인.
+   *
+   * 파일 업로드 대신 메타태그를 쓴다 — public/ 에 확인용 파일을 흩뿌리면
+   * 어느 것이 무엇인지 나중에 알 수 없고, 지우면 소유확인이 조용히 풀린다.
+   * 여기 모아두면 한 파일만 보면 된다.
+   *
+   * 네이버는 서치어드바이저에서 발급받은 값을 other 에 넣는다:
+   *   other: { 'naver-site-verification': '발급값' }
+   */
+  verification: {
+    google: 'jg_M-Yy2R7r62UJFFUvHj6jrkmjG9qdLFTd9-ZEzm28',
+  },
 }
 
 export const viewport: Viewport = {
