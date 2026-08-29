@@ -8,6 +8,13 @@ import { Analytics } from '@vercel/analytics/next'
  * 서버 컴포넌트가 import 하면 값이 아니라 클라이언트 참조로 치환된다.
  * 실제로 그렇게 짰다가 배포에서 스크립트 URL 이
  * `gtag/js?id=function(){throw Error(...)}` 로 나갔다.
+ *
+ * ⚠ Vercel 환경변수는 반드시 Config 타입으로 넣는다. Secret(Sensitive) 로
+ * 저장하면 값이 런타임에만 주입되고 빌드 단계에는 노출되지 않는다. 그런데
+ * NEXT_PUBLIC_* 는 빌드 때 인라인되는 값이라 빈 문자열로 굳고, 아래 분기가
+ * 통째로 렌더되지 않아 계측이 조용히 죽는다. 에러도 경고도 안 난다.
+ * 한번 Secret 으로 만든 변수는 Edit 으로 Config 전환이 불가능하니
+ * ("Saved secrets are write-only") 지우고 다시 만들어야 한다.
  */
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID ?? ''
 const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? ''
