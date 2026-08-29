@@ -1,9 +1,9 @@
-# 모여라덕 — 작업 규칙
+# 덕모임 작업 규칙
 
 서울 생카·팝업을 **위치 축**으로 모아 보여주는 웹. 1주 수요 검증 PoC.
 
-- 기획: [poc-plan.md](poc-plan.md) — 지금 만드는 것
-- 전체 구상: [bridge-plan-full.md](bridge-plan-full.md) — PoC 이후
+- 기획: [poc-plan.md](poc-plan.md), 지금 만드는 것
+- 전체 구상: [bridge-plan-full.md](bridge-plan-full.md), PoC 이후
 
 ## 명령
 
@@ -68,7 +68,7 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 재지 않을 것을 쏘면 노이즈만 늘어난다.
 
 커스텀 이벤트는 **GA4에만** 쏜다. Vercel Analytics는 방문 수·유입 경로 전용이다
-(Hobby 이벤트 한도). 계측 스크립트는 `afterInteractive` — 첫 렌더를 늦추면
+(Hobby 이벤트 한도). 계측 스크립트는 `afterInteractive`, 첫 렌더를 늦추면
 그 자체가 이탈을 만들어 재려던 지표를 왜곡한다.
 
 ### 스타일
@@ -82,9 +82,9 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 ### 지도
 
 카카오 JS 키 도메인은 **포트까지 정확히 일치**해야 한다. `predev`가 3000 점유를
-검사하는 이유다. 키·도메인이 없으면 리스트로 폴백한다 — 정상 경로다.
+검사하는 이유다. 키·도메인이 없으면 리스트로 폴백한다. 정상 경로다.
 
-기본 마커를 쓰지 않는다. `CustomOverlay`로 대상명·유형 라벨을 얹는다 —
+기본 마커를 쓰지 않는다. `CustomOverlay`로 대상명·유형 라벨을 얹는다 
 핀만 찍으면 눌러보기 전에 무엇인지 알 수 없다.
 
 ## 데이터
@@ -101,14 +101,14 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 ## 커밋
 
 단계가 끝나면 **커밋과 푸시를 같이** 한다. 커밋 메시지에는 무엇을 했는지보다
-**왜 그렇게 했는지**를 남긴다 — 다음에 같은 결정을 다시 논쟁하지 않기 위해서다.
+**왜 그렇게 했는지**를 남긴다. 다음에 같은 결정을 다시 논쟁하지 않기 위해서다.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+This version has breaking changes, APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev`, verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
