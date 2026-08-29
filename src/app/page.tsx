@@ -114,6 +114,17 @@ export default function Page() {
     [route],
   )
 
+  // 커뮤니티에 뿌린 아티스트별 링크(#/q/정국)로 들어온 경우.
+  // 링크가 약속한 화면과 도착 화면이 달라지면 애써 만든 유입이 첫 화면에서 샌다
+  const routeQuery = route.name === 'query' ? route.q : null
+  useEffect(() => {
+    if (!routeQuery) return
+    setFilter((f) => ({ ...f, query: routeQuery, district: 'all' }))
+    setTab('list')
+    // 어느 갤에 뿌린 링크가 유입을 만들었는지 본다
+    track('arrive_query', { query: routeQuery })
+  }, [routeQuery])
+
   const goList = useCallback((district: DistrictFilter) => {
     setFilter((f) => ({ ...f, district }))
     setTab('list')

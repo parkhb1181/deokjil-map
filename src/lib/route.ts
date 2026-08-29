@@ -12,20 +12,34 @@ import { useEffect, useState } from 'react'
  * 사이트를 통째로 벗어나고, 커뮤니티에서 들어온 사람이 그대로 이탈한다.
  */
 
-export type Route = { name: 'home' } | { name: 'detail'; id: string }
+export type Route =
+  | { name: 'home' }
+  | { name: 'detail'; id: string }
+  /** 질의를 걸고 목록으로 진입한다. 커뮤니티에 아티스트별 링크를 뿌리기 위한 것 */
+  | { name: 'query'; q: string }
 
 const DETAIL_PREFIX = '#/e/'
+const QUERY_PREFIX = '#/q/'
 
 export function parseHash(hash: string): Route {
   if (hash.startsWith(DETAIL_PREFIX)) {
     const id = decodeURIComponent(hash.slice(DETAIL_PREFIX.length))
     if (id) return { name: 'detail', id }
   }
+  if (hash.startsWith(QUERY_PREFIX)) {
+    const q = decodeURIComponent(hash.slice(QUERY_PREFIX.length))
+    if (q) return { name: 'query', q }
+  }
   return { name: 'home' }
 }
 
 export function detailHref(id: string): string {
   return `${DETAIL_PREFIX}${encodeURIComponent(id)}`
+}
+
+/** 공유용 질의 링크. duckmoim.com/#/q/정국 처럼 쓴다 */
+export function queryHref(q: string): string {
+  return `${QUERY_PREFIX}${encodeURIComponent(q)}`
 }
 
 export function useRoute(): Route {

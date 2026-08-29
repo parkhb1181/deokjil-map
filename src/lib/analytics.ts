@@ -37,6 +37,8 @@ export type EventName =
   | 'report_submit'
   | 'save_course'
   | 'filter_change'
+  /** 공유 링크(#/q/정국)로 도착 — 어느 커뮤니티 링크가 먹혔는지 본다 */
+  | 'arrive_query'
 
 type Params = Record<string, string | number | boolean | undefined>
 
