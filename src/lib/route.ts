@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 /**
  * 해시 기반 라우팅.
  *
- * 라이브러리를 안 쓴다 — 경로가 사실상 "상세가 열렸나" 하나뿐이고,
+ * 라이브러리를 안 쓴다. 경로가 사실상 "상세가 열렸나" 하나뿐이고,
  * 정적 배포라 서버 라우팅도 필요 없다.
  *
  * 해시를 쓰는 이유는 모바일 뒤로가기다. 상세를 상태로만 열면 뒤로가기가
@@ -56,7 +56,7 @@ export function useRoute(): Route {
   return route
 }
 
-/** 상세 열기 — 히스토리에 쌓아 뒤로가기로 닫히게 한다 */
+/** 상세 열기, 히스토리에 쌓아 뒤로가기로 닫히게 한다 */
 export function openDetailRoute(id: string) {
   window.location.hash = detailHref(id).slice(1)
 }

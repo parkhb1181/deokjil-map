@@ -22,7 +22,7 @@ const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? ''
 /**
  * 계측 스크립트 삽입.
  *
- * 세 도구 모두 ID 가 없으면 아무것도 넣지 않는다 — 키 없이도 개발이 돌아가야 한다.
+ * 세 도구 모두 ID 가 없으면 아무것도 넣지 않는다. 키 없이도 개발이 돌아가야 한다.
  * Vercel Analytics 는 별도 키가 없고 Vercel 배포 환경에서만 실제로 전송된다.
  *
  * afterInteractive 로 넣는 이유는, 계측이 첫 렌더를 늦추면 그 자체가

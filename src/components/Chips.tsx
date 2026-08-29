@@ -15,7 +15,7 @@ interface Props<T extends string> {
 
 /**
  * 가로 스크롤 칩 그룹.
- * 구역이 늘어나면 줄바꿈 대신 옆으로 흐르게 한다 — 줄바꿈은 필터 영역 높이를
+ * 구역이 늘어나면 줄바꿈 대신 옆으로 흐르게 한다. 줄바꿈은 필터 영역 높이를
  * 들쭉날쭉하게 만들고, 그만큼 첫 화면의 콘텐츠가 밀려난다.
  */
 export default function Chips<T extends string>({ options, value, onChange, label }: Props<T>) {

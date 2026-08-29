@@ -7,7 +7,7 @@ import { siteUrl } from '@/lib/site'
  * 사이트맵.
  *
  * events.json 은 to-events.mjs 가 종료된 건을 걸러낸 결과라
- * 여기서 다시 거르지 않는다 (CLAUDE.md — 필터·정규화 양쪽에서 걸러진다).
+ * 여기서 다시 거르지 않는다 (CLAUDE.md, 필터·정규화 양쪽에서 걸러진다).
  * 빌드타임 정적 생성이므로 데이터가 갱신되면 재배포가 곧 사이트맵 갱신이다.
  */
 export default function sitemap(): MetadataRoute.Sitemap {

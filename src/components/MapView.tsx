@@ -76,7 +76,7 @@ interface Cluster {
  * 묶음의 좌표는 첫 항목의 좌표를 그대로 쓴다. 평균을 내면 실제로는
  * 아무것도 없는 지점을 가리키게 된다.
  *
- * 확대해 들어가면 접기를 멈춘다 — 그 구간의 질문은 "정확히 어디냐"로 바뀐다.
+ * 확대해 들어가면 접기를 멈춘다. 그 구간의 질문은 "정확히 어디냐"로 바뀐다.
  */
 function clusterPins(pins: EventItem[], kmPerPx: number | null): Cluster[] {
   const single = (e: EventItem): Cluster => ({
@@ -130,14 +130,14 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
   const [sheet, setSheet] = useState<SheetState | null>(null)
   // 지금 화면이 대략 몇 km를 담고 있는지. 확대·축소할 때마다 갱신된다
   const [radiusKm, setRadiusKm] = useState<number | null>(null)
-  // 축척. 확대 레벨이 같으면 값을 고정한다 — 지도를 움직일 때마다 묶음이
+  // 축척. 확대 레벨이 같으면 값을 고정한다. 지도를 움직일 때마다 묶음이
   // 다시 계산되면 핀이 깜빡인다
   const [scale, setScale] = useState<{ level: number; kmPerPx: number } | null>(null)
 
-  // 지역 칩의 건수는 지역 선택과 무관하게 유지한다 — 지금 보는 곳 말고
+  // 지역 칩의 건수는 지역 선택과 무관하게 유지한다. 지금 보는 곳 말고
   // 어디에 몇 개 더 있는지가 다음 목적지를 고르는 정보다.
   // 검색어는 그대로 건다. 지도에 검색 결과만 남기기로 했으므로 칩 건수도
-  // 같이 줄어야 한다 — 칩이 38곳이라 눌렀는데 핀이 3개면 그게 더 헷갈린다
+  // 같이 줄어야 한다. 칩이 38곳이라 눌렀는데 핀이 3개면 그게 더 헷갈린다
   const dayEvents = useMemo(
     () => filterEvents(events, { ...filter, district: 'all' }, today),
     [events, filter, today],
@@ -177,7 +177,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     const ne = map.getBounds().getNorthEast()
     const c = map.getCenter()
     const center = { lat: c.getLat(), lng: c.getLng() }
-    // 가로 반경 — 중심에서 동쪽 끝까지
+    // 가로 반경, 중심에서 동쪽 끝까지
     const half = distanceKm(center, { lat: center.lat, lng: ne.getLng() })
     // 세로가 더 짧으면(세로로 긴 화면) 그쪽이 실제 체감 반경이다
     const halfV = distanceKm(center, { lat: ne.getLat(), lng: center.lng })
@@ -190,7 +190,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     setScale((prev) => (prev && prev.level === level ? prev : { level, kmPerPx }))
   }, [])
 
-  // ① 지도 생성 — 한 번만 한다.
+  // ① 지도 생성, 한 번만 한다.
   // 필터가 바뀔 때마다 다시 만들면 사용자가 맞춰둔 확대·위치가 초기화되고,
   // 카카오 Map 에는 destroy 가 없어 옛 지도가 컨테이너에 그대로 쌓인다
   useEffect(() => {
@@ -226,7 +226,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     }
   }, [sync])
 
-  // ② 핀 그리기 — 묶음이 바뀔 때마다 다시 그린다
+  // ② 핀 그리기, 묶음이 바뀔 때마다 다시 그린다
   useEffect(() => {
     const map = mapRef.current
     const kakao = kakaoRef.current
@@ -282,7 +282,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     }
   }, [clusters, state])
 
-  // ③ 화면 맞추기 — 목록이 바뀔 때만.
+  // ③ 화면 맞추기, 목록이 바뀔 때만.
   // 확대할 때마다 다시 맞추면 사용자가 확대를 할 수 없다
   useEffect(() => {
     const map = mapRef.current
@@ -402,7 +402,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
         <div ref={containerRef} className="mapcanvas" />
         {state === 'loading' && <p className="placeholder mapwrap__loading">지도를 불러오는 중…</p>}
 
-        {/* 검색이 아무것도 못 찾으면 지도가 텅 빈다. 왜 비었는지 말해준다 —
+        {/* 검색이 아무것도 못 찾으면 지도가 텅 빈다. 왜 비었는지 말해준다 
             핀이 없는 지도는 로딩 실패와 구분되지 않는다 */}
         {pins.length === 0 && (
           <p className="mapempty">

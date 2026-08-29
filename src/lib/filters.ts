@@ -10,7 +10,7 @@ export type DateKey = string
 /**
  * 날짜 필터.
  * 'all' 이거나 특정 하루('YYYY-MM-DD')다.
- * 하루 단위로 좁히는 이유는 "오늘 뭐 열려?"가 제품의 질문이기 때문이다 —
+ * 하루 단위로 좁히는 이유는 "오늘 뭐 열려?"가 제품의 질문이기 때문이다 
  * 기간이 겹치는 이벤트를 전부 보여주면 오늘 갈 수 있는 곳을 고를 수가 없다.
  */
 export type DateFilter = 'all' | DateKey
@@ -72,7 +72,7 @@ function dayOfWeek(key: DateKey): number {
 
 /**
  * 다가오는 주말 [토, 일].
- * 오늘이 토·일이면 지금 속한 주말을 반환한다 — 주말 당일에 "이번 주말"을 눌렀는데
+ * 오늘이 토·일이면 지금 속한 주말을 반환한다. 주말 당일에 "이번 주말"을 눌렀는데
  * 다음 주가 나오면 안 된다.
  */
 export function weekendRange(today: DateKey = todayKey()): [DateKey, DateKey] {
@@ -108,7 +108,7 @@ export function daysLeft(ev: EventItem, today: DateKey = todayKey()): number {
 /**
  * 카드 기간 배지. D-데이 표기를 쓴다.
  * "3일 뒤 시작"보다 "시작 D-3"이 짧고, 팬덤 쪽에서 이미 통용되는 표기다.
- * 항상 '다음에 닥칠 마감'을 가리킨다 — 시작 전이면 시작까지, 진행 중이면 종료까지.
+ * 항상 '다음에 닥칠 마감'을 가리킨다. 시작 전이면 시작까지, 진행 중이면 종료까지.
  */
 export function periodLabel(ev: EventItem, today: DateKey = todayKey()): string {
   if (ev.ends_on < today) return '종료'
@@ -148,7 +148,7 @@ function matchesDate(ev: EventItem, date: DateFilter, today: DateKey): boolean {
   return overlaps(ev, date, date)
 }
 
-/** 날짜 이동. 오늘보다 과거로는 못 간다 — 지난 날짜엔 보여줄 것이 없다 */
+/** 날짜 이동. 오늘보다 과거로는 못 간다. 지난 날짜엔 보여줄 것이 없다 */
 export function shiftDate(date: DateKey, days: number, today: DateKey = todayKey()): DateKey {
   const next = shiftDays(date, days)
   return next < today ? today : next
@@ -182,7 +182,7 @@ export function monthGrid(year: number, month: number): (DateKey | null)[] {
  * 날짜별 행사 수.
  *
  * 달력에 "이날 몇 곳"을 찍기 위한 것이라, 날짜 조건만 빼고 나머지 필터
- * (지역·유형·검색어)는 그대로 적용한다 — 홍대만 보고 있는데 서울 전체
+ * (지역·유형·검색어)는 그대로 적용한다. 홍대만 보고 있는데 서울 전체
  * 건수를 보여주면 눌러 놓고 빈 화면을 만나게 된다.
  *
  * 행사는 기간을 가지므로 하루가 아니라 걸치는 모든 날에 더한다.

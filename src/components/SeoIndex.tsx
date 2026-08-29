@@ -4,7 +4,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS, groupByDistrict } from '@/lib/filte
 /**
  * 프리렌더 시점에 나가는 목록.
  *
- * 오늘 날짜는 마운트 이후에 확정된다(page.tsx 주석 — 빌드 시각을 쓰면 배포
+ * 오늘 날짜는 마운트 이후에 확정된다(page.tsx 주석, 빌드 시각을 쓰면 배포
  * 다음날부터 하이드레이션이 어긋난다). 그 결과 프리렌더된 HTML 이
  * "불러오는 중…" 한 줄이었고, 검색엔진이 보는 화면이 그것뿐이었다.
  * 실측으로 index.html 10KB 에 이벤트 192건 중 0건이 들어 있었다.
@@ -13,7 +13,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS, groupByDistrict } from '@/lib/filte
  * 각 상세로 가는 내부 링크를 보고, 사용자는 마운트 직후 오늘 기준 화면으로
  * 바뀐다. 하이드레이션은 서버와 클라이언트 첫 렌더가 같으므로 어긋나지 않는다.
  *
- * 내부 링크가 사이트맵만큼 중요하다 — 사이트맵은 발견을 돕고,
+ * 내부 링크가 사이트맵만큼 중요하다. 사이트맵은 발견을 돕고,
  * 링크는 그 페이지가 사이트의 일부라는 신호가 된다.
  */
 export default function SeoIndex({ events }: { events: EventItem[] }) {

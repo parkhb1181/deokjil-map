@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void
   onOpen: (id: string) => void
   /**
-   * 지도 탭에서만 넘어온다. 있으면 결과를 여는 대신 지도에 질의를 건다 —
+   * 지도 탭에서만 넘어온다. 있으면 결과를 여는 대신 지도에 질의를 건다 
    * 지도에서 검색하는 사람은 한 곳을 열려는 게 아니라 "어디쯤인지"를 보려는 것이다.
    */
   onQuery?: (query: string) => void
@@ -21,7 +21,7 @@ interface Props {
  * 검색은 화면 이동이 아니라 위에 덮는 레이어다.
  * 탭을 갈아치우면 홈에서 보던 자리(스크롤·필터)를 잃고, 닫을 방법도 애매해진다.
  *
- * 질의는 이 컴포넌트의 지역 상태다. 목록 탭의 필터와 공유하지 않는다 —
+ * 질의는 이 컴포넌트의 지역 상태다. 목록 탭의 필터와 공유하지 않는다 
  * 검색하고 닫았는데 목록 탭에 질의가 남아 있으면 그게 더 헷갈린다.
  */
 export default function SearchOverlay({ events, today, onClose, onOpen, onQuery }: Props) {

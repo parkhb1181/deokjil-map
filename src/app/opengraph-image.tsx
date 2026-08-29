@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-export const alt = '덕모임 — 서울 생카·팝업 지도'
+export const alt = '덕모임 · 서울 생카 팝업 지도'
 
 /**
  * 커뮤니티에 링크를 뿌릴 때 뜨는 미리보기 카드.
@@ -10,7 +10,7 @@ export const alt = '덕모임 — 서울 생카·팝업 지도'
  * OG 이미지가 없으면 커뮤니티 클릭률이 반토막 난다(poc-plan 8번).
  * 유입이 지표 0의 관문이므로 여기가 실질적으로 제품의 첫 화면이다.
  *
- * PNG 파일을 두는 대신 빌드 시점에 생성한다 — 문구나 색을 바꿀 때
+ * PNG 파일을 두는 대신 빌드 시점에 생성한다. 문구나 색을 바꿀 때
  * 이미지 편집기를 거치지 않아도 된다.
  */
 export const dynamic = 'force-static'
@@ -23,7 +23,7 @@ export const dynamic = 'force-static'
  * 구형 User-Agent 로 요청하면 woff2 대신 satori 가 읽을 수 있는 TTF 를 준다.
  */
 async function loadFont(text: string): Promise<ArrayBuffer | null> {
-  // 구형 UA — 이걸 안 보내면 woff2 가 오고, satori 는 woff2 를 읽지 못한다
+  // 구형 UA, 이걸 안 보내면 woff2 가 오고, satori 는 woff2 를 읽지 못한다
   const legacyUA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/533.17.9'
   const cssUrl =
     'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@800' +
@@ -68,7 +68,7 @@ export default async function Image() {
 
         <div style={{ display: 'flex', marginTop: 12, fontSize: 52, color: '#574149' }}>{SUB}</div>
 
-        {/* 지역 칩 — 위치 축 제품이라는 걸 이미지에서 바로 읽히게 한다 */}
+        {/* 지역 칩, 위치 축 제품이라는 걸 이미지에서 바로 읽히게 한다 */}
         <div style={{ display: 'flex', gap: 14, marginTop: 44 }}>
           {TAGS.map((t) => (
             <div

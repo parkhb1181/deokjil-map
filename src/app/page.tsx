@@ -33,7 +33,7 @@ export default function Page() {
   const [tab, setTab] = useState<Tab>('home')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
   const [searchOpen, setSearchOpen] = useState(false)
-  // 담은 이벤트 id. 담은 순서를 유지한다 — 코스는 순서가 의미를 가진다
+  // 담은 이벤트 id. 담은 순서를 유지한다. 코스는 순서가 의미를 가진다
   const [saved, setSaved] = useState<string[]>([])
 
   const route = useRoute()

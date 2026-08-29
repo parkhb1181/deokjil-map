@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
@@ -32,21 +33,20 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
   const sw = swatchFor(event)
 
   return (
-    /* 루트가 button 이면 안에 담기 버튼을 넣을 수 없다 — 중첩 버튼은 스펙 위반이고
+    /* 루트가 button 이면 안에 담기 버튼을 넣을 수 없다. 중첩 버튼은 스펙 위반이고
        실제로 클릭이 어느 쪽으로 갈지 브라우저마다 다르다.
        그래서 카드를 div 로 두고, 상세 열기는 카드 전체를 덮는 오버레이 버튼이 받는다.
        레이아웃 CSS 는 그대로 .card 에 남아 손댈 것이 없다 */
     <div className={`card card--${variant}`}>
       {showImage ? (
         <div className="card__visual card__visual--photo">
-          {/* next/image를 쓰지 않는다 — 외부 도메인이 수집 결과에 따라 계속 바뀌고,
-              images.unoptimized 설정이라 최적화 이득도 없다 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={event.image_url}
+          {/* 원본이 장당 수 MB 라 그대로 물리면 목록이 무너진다.
+              카드 크기로 줄여 받는다. 수집원이 원본을 내리면 폴백 색 블록으로 넘어간다 */}
+          <Image
+            src={event.image_url!}
             alt=""
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="240px"
             onError={() => setImageFailed(true)}
           />
         </div>

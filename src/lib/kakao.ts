@@ -3,7 +3,7 @@
 /**
  * 카카오맵 SDK 로더.
  *
- * 키가 없으면 조용히 실패하고 호출부가 리스트로 폴백한다 —
+ * 키가 없으면 조용히 실패하고 호출부가 리스트로 폴백한다 
  * 배포 URL이 확정돼야 도메인 등록이 되고, 그 전까지는 키가 없는 상태로 개발한다.
  *
  * autoload=false 로 받아 kakao.maps.load() 를 직접 부른다.
@@ -57,7 +57,7 @@ export interface KakaoNamespace {
         center: KakaoLatLng
         level: number
         // 상세 화면의 위치 지도는 스크롤 안에 들어간다. 켜 두면 모바일에서
-        // 지도가 스크롤을 먹어 시트를 내릴 수 없다 — 그래서 끌 수 있어야 한다
+        // 지도가 스크롤을 먹어 시트를 내릴 수 없다. 그래서 끌 수 있어야 한다
         draggable?: boolean
         zoomable?: boolean
       },
@@ -119,7 +119,7 @@ export function loadKakaoMaps(): Promise<KakaoNamespace> {
       window.kakao.maps.load(() => resolve(window.kakao!))
     }
     // 도메인 미등록이면 카카오가 스크립트를 막아 여기로 떨어진다
-    script.onerror = () => reject(new Error('SDK 로드 실패 — 도메인 등록을 확인하세요'))
+    script.onerror = () => reject(new Error('SDK 로드 실패. 도메인 등록을 확인하세요'))
     document.head.appendChild(script)
   })
 

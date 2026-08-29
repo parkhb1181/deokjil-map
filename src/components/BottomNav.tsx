@@ -4,14 +4,14 @@ export type Tab = 'home' | 'list' | 'map' | 'course'
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'home', label: '홈', icon: '⌂' },
-  { id: 'list', label: '전체', icon: '≡' },
+  { id: 'list', label: '찾기', icon: '⌕' },
   { id: 'map', label: '지도', icon: '◎' },
   { id: 'course', label: '내 코스', icon: '♡' },
 ]
 
 interface Props {
   active: Tab
-  /** 담은 개수. 0 이면 배지를 달지 않는다 — 빈 배지는 노이즈다 */
+  /** 담은 개수. 0 이면 배지를 달지 않는다. 빈 배지는 노이즈다 */
   savedCount: number
   onChange: (tab: Tab) => void
 }

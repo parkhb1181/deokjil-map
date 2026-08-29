@@ -17,6 +17,7 @@ import Chips, { type ChipOption } from './Chips'
 import DateNav from './DateNav'
 import Section from './Section'
 import EventCard from './EventCard'
+import TopSubjects from './TopSubjects'
 
 interface Props {
   events: EventItem[]
@@ -40,7 +41,7 @@ const KIND_OPTIONS: ChipOption<KindFilter>[] = [
 
 /**
  * 홈은 "어디서 오늘 뭐 하느냐"에 답한다.
- * 그래서 묶는 축이 날짜가 아니라 지역이다 — 날짜는 칩이 담당하고,
+ * 그래서 묶는 축이 날짜가 아니라 지역이다. 날짜는 칩이 담당하고,
  * 섹션은 전부 지역이다. 기존 서비스와 갈리는 지점이 여기다.
  */
 export default function HomeView({
@@ -56,7 +57,7 @@ export default function HomeView({
   onDistrictMap,
 }: Props) {
   // 지역은 섹션이 담당하므로 base 에서는 걸지 않는다.
-  // 지역 칩은 아래에서 섹션을 골라내는 데만 쓴다 — 그래야 "전 지역"으로 되돌릴 때
+  // 지역 칩은 아래에서 섹션을 골라내는 데만 쓴다. 그래야 "전 지역"으로 되돌릴 때
   // 다른 지역에 뭐가 있었는지 개수까지 그대로 보인다
   const base = useMemo<EventItem[]>(
     () =>
@@ -92,7 +93,7 @@ export default function HomeView({
     [allGroups],
   )
 
-  // 달력에 찍을 건수. 날짜만 빼고 지금 걸린 필터를 그대로 반영한다 —
+  // 달력에 찍을 건수. 날짜만 빼고 지금 걸린 필터를 그대로 반영한다 
   // 홍대만 보는 중에 서울 전체 건수를 보여주면 눌러 놓고 빈 화면을 만난다
   const dateCounts = useMemo(
     () => countsByDate(events, { date: 'all', kind, district, query: '' }, today, shiftDate(today, 60, today)),
@@ -101,6 +102,8 @@ export default function HomeView({
 
   return (
     <>
+      <TopSubjects events={events} today={today} />
+
       <div className="filterbar">
         <DateNav value={date} today={today} onChange={onDate} counts={dateCounts} />
         <Chips label="지역" options={districtOptions} value={district} onChange={onDistrict} />

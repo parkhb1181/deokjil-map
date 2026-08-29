@@ -3,7 +3,7 @@
    커뮤니티 스크린샷·OG 이미지와 실제 화면의 톤을 하나로 통제하기 위함.
    ------------------------------------------------------- */
 :root {
-  /* 배경 — 순백 대신 아주 옅은 웜 핑크를 깔아 전체 톤을 부드럽게 */
+  /* 배경, 순백 대신 아주 옅은 웜 핑크를 깔아 전체 톤을 부드럽게 */
   --bg:         #fffafc;
   --bg-sunk:    #fdf2f6;
   --surface:    #ffffff;
@@ -12,22 +12,22 @@
 
   --text:       #241a1f;
   --text-dim:   #574149;   /* 본문 보조. 배경 대비 8.2:1 */
-  --text-mute:  #7a6670;   /* 최소 대비 자리. 4.9:1 — 이보다 밝게 두지 않는다 */
+  --text-mute:  #7a6670;   /* 최소 대비 자리. 4.9:1, 이보다 밝게 두지 않는다 */
 
-  /* accent — 사랑스러운 핑크. 배지·활성 칩·강조 텍스트에 쓴다 */
+  /* accent, 사랑스러운 핑크. 배지·활성 칩·강조 텍스트에 쓴다 */
   --accent:      #ff4d8d;
   --accent-deep: #e93379;   /* hover / 대비가 더 필요한 자리 */
   --accent-soft: #ffe4ee;   /* 배경 칠 */
   --accent-ink:  #b41f5c;   /* soft 배경 위 텍스트. 4.5:1 확보 */
 
   /* 상태 3-state.
-     품절에 빨강을 쓰지 않는다 — accent 핑크와 인접해 배지가 안 읽힌다.
+     품절에 빨강을 쓰지 않는다. accent 핑크와 인접해 배지가 안 읽힌다.
      원안 F2의 "품절 항목은 취소선" 규칙을 그대로 살려 회색+취소선으로 처리. */
   --ok:        #16a34a;   /* 재고 있음 */
   --ok-soft:   #e7f6ed;
   --warn:      #d97706;   /* 수량 제한 */
   --warn-soft: #fdf1e0;
-  --gone:      #9aa2ab;   /* 품절 — 취소선과 함께 */
+  --gone:      #9aa2ab;   /* 품절, 취소선과 함께 */
   --gone-soft: #f1f3f5;
 
   /* 혼잡도. 1시간+ 의 빨강은 지도 핀에만 쓰고 카드 배지에는 쓰지 않는다 */
@@ -184,7 +184,7 @@ a { color: inherit; }
 }
 
 /* 가로 스크롤 레일.
-   scroll-snap을 쓰지 않는다 — 아이템이 컨테이너를 넘칠 때만 스냅이 걸려
+   scroll-snap을 쓰지 않는다. 아이템이 컨테이너를 넘칠 때만 스냅이 걸려
    개수(3개 vs 4개 이상)에 따라 첫 카드의 좌측 정렬이 달라진다. */
 .rail {
   display: flex;
@@ -253,8 +253,10 @@ a { color: inherit; }
 .card--row  .card__visual { width: 96px; align-self: stretch; font-size: 18px; }
 
 /* 사진이 들어오면 색 블록 자리를 그대로 채운다. 비율이 제각각이라 cover로 자른다 */
-.card__visual--photo { padding: 0; background: var(--bg-sunk); }
+.card__visual--photo { padding: 0; background: var(--bg-sunk); position: relative; overflow: hidden; }
 .card__visual--photo img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -291,7 +293,7 @@ a { color: inherit; }
 }
 .period--urgent { color: var(--accent-deep); font-weight: 800; }
 
-/* 대상명은 두 줄 자리를 항상 차지한다 — 한 줄짜리와 두 줄짜리가 섞여도 아래 행이 안 밀린다 */
+/* 대상명은 두 줄 자리를 항상 차지한다. 한 줄짜리와 두 줄짜리가 섞여도 아래 행이 안 밀린다 */
 .card__subject {
   font-size: 17.5px;
   font-weight: 700;
@@ -536,7 +538,7 @@ a { color: inherit; }
 .sheet__place { margin-top: 8px; font-size: 16px; color: var(--text); }
 .sheet__address { margin-top: 3px; font-size: 14px; color: var(--text-mute); }
 
-/* 정의 목록 — 라벨 폭을 고정해 값이 세로로 정렬되게 한다 */
+/* 정의 목록, 라벨 폭을 고정해 값이 세로로 정렬되게 한다 */
 .dlist {
   margin: 12px var(--gutter) 0;
   border-top: 1px solid var(--border);
@@ -704,7 +706,7 @@ a { color: inherit; }
 }
 
 /* 핀을 눌렀을 때 뜨는 미니 카드.
-   장소·기간·시간·특전까지 담는다 — 지도에서 다음 목적지를 고르는 데
+   장소·기간·시간·특전까지 담는다. 지도에서 다음 목적지를 고르는 데
    필요한 것이 그것이고, 상세로 넘기면 위치 맥락이 끊긴다. */
 .mapsheet {
   position: absolute;
@@ -747,7 +749,7 @@ a { color: inherit; }
   font-weight: 800;
   letter-spacing: -0.02em;
 }
-/* 핀 색과 맞춘다 — 방금 누른 그 핀이라는 걸 잇는다 */
+/* 핀 색과 맞춘다. 방금 누른 그 핀이라는 걸 잇는다 */
 .mapsheet__kind--birthday_cafe { background: #4a4fb5; }
 .mapsheet__subject {
   font-size: 16px;
@@ -899,7 +901,7 @@ a { color: inherit; }
   font-family: inherit;
 }
 
-/* 상세 지도의 핀은 누를 대상이 아니다 — 이미 그 행사를 보고 있다.
+/* 상세 지도의 핀은 누를 대상이 아니다. 이미 그 행사를 보고 있다.
    168px 제한은 핀이 여럿 겹치는 지도 탭 기준이라, 하나만 찍는 여기서는 넓힌다 */
 .pin--static {
   cursor: default;
@@ -925,7 +927,7 @@ a { color: inherit; }
   text-overflow: ellipsis;
 }
 
-/* 핀 꼬리 — 정확한 좌표를 가리킨다 */
+/* 핀 꼬리, 정확한 좌표를 가리킨다 */
 .pin__tail {
   position: absolute;
   left: 50%;
@@ -950,7 +952,7 @@ a { color: inherit; }
 
 /* 겹쳐서 접힌 핀.
    홍대는 반경 300m 안에 수십 곳이 몰려 라벨이 서로를 가린다.
-   흰 테를 둘러 낱개 핀과 구분한다 — 눌러서 펼치는 것이라는 신호다. */
+   흰 테를 둘러 낱개 핀과 구분한다. 눌러서 펼치는 것이라는 신호다. */
 .pin--cluster {
   box-shadow:
     0 0 0 3px var(--surface),
@@ -959,7 +961,7 @@ a { color: inherit; }
 .pin--cluster .pin__kind { font-size: 11px; }
 
 /* 지도 검색.
-   검색하면 걸린 것만 남긴다 — 지역 칩과 같은 방식이라 규칙이 하나로 모인다.
+   검색하면 걸린 것만 남긴다. 지역 칩과 같은 방식이라 규칙이 하나로 모인다.
 
    아래는 검색 중임을 남기는 띠. 지도를 옮겨 놓고 사라지면
    왜 이 화면인지, 어떻게 되돌리는지 알 수 없다 */
@@ -1046,7 +1048,7 @@ a { color: inherit; }
 
 /* ── 날짜 선택 달력 ──────────────────────────────────────
    화살표만으로는 먼 날짜가 멀다. 한 달을 펼쳐 짚게 한다.
-   날짜 옆의 숫자는 그날 열려 있는 곳의 수 — 없으면 어느 날이
+   날짜 옆의 숫자는 그날 열려 있는 곳의 수, 없으면 어느 날이
    볼 만한지 눌러보기 전에는 알 수 없다.
    ------------------------------------------------------- */
 .cal {
@@ -1126,7 +1128,7 @@ a { color: inherit; }
   min-height: 12px;
 }
 
-/* 행사가 없는 날은 흐리게. 지우지는 않는다 — 날짜 격자가 끊기면 세기 어렵다 */
+/* 행사가 없는 날은 흐리게. 지우지는 않는다. 날짜 격자가 끊기면 세기 어렵다 */
 .cal__day--empty .cal__n { color: var(--text-mute); font-weight: 500; }
 
 .cal__day--today { border-color: var(--border-mid); }
@@ -1189,7 +1191,7 @@ a { color: inherit; }
   color: var(--accent-ink);
 }
 
-/* 지도 위 컨트롤 — 지도가 화면을 꽉 채우므로 그 위에 얹지 않고 바로 위에 둔다 */
+/* 지도 위 컨트롤, 지도가 화면을 꽉 채우므로 그 위에 얹지 않고 바로 위에 둔다 */
 .mapcontrols { padding-top: 4px; padding-bottom: 6px; }
 
 .mapwrap__sep { margin: 0 5px; color: var(--border-mid); }
@@ -1197,7 +1199,7 @@ a { color: inherit; }
 
 /* ── 담기 / 내 코스 (P2) ─────────────────────────────────
    담기는 localStorage 라 Supabase 없이 첫날부터 돈다.
-   지표 3(담기 발생률)이 여기서 나온다 — 카드에서 바로 누를 수 있어야
+   지표 3(담기 발생률)이 여기서 나온다. 카드에서 바로 누를 수 있어야
    지표 2(상세 진입률)에 갇히지 않는다.
    ------------------------------------------------------- */
 .card__open {
@@ -1281,7 +1283,7 @@ a { color: inherit; }
 
 .course__n { font-size: 13px; font-weight: 700; color: var(--accent-ink); }
 
-/* 종료된 것은 지우지 않고 흐리게 남긴다 — 조용히 사라지면 잃어버린 것처럼 보인다 */
+/* 종료된 것은 지우지 않고 흐리게 남긴다. 조용히 사라지면 잃어버린 것처럼 보인다 */
 .course__group--ended { opacity: 0.6; }
 
 .course__endedlist {
@@ -1324,7 +1326,7 @@ a { color: inherit; }
   color: var(--text-mute);
 }
 
-/* 빈 상태는 "없음"이 아니라 다음 행동을 준다 — 제보 빈 상태와 같은 원칙(3.2) */
+/* 빈 상태는 "없음"이 아니라 다음 행동을 준다. 제보 빈 상태와 같은 원칙(3.2) */
 .course--empty {
   display: flex;
   flex-direction: column;
@@ -1349,4 +1351,112 @@ a { color: inherit; }
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
+}
+
+/* ── 홈 순위 레일 ──────────────────────────────────────
+   홈이 전체 목록과 갈리는 지점. 사진을 크게 걸고 옆으로 넘긴다.
+   순위 숫자는 사진 위에 겹쳐 얹는다. 따로 칸을 내주면 카드가 작아진다.
+   ------------------------------------------------------- */
+.rank { margin: 4px 0 18px; }
+
+.rank__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 var(--gutter);
+  margin-bottom: 10px;
+}
+.rank__title {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.rank__note { font-size: 13px; color: var(--text-mute); }
+
+.rank__rail {
+  display: flex;
+  gap: 10px;
+  list-style: none;
+  padding: 2px var(--gutter) 6px;
+  margin: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.rank__rail::-webkit-scrollbar { display: none; }
+
+.rank__item { flex: 0 0 auto; scroll-snap-align: start; }
+
+.rank__card {
+  position: relative;
+  display: block;
+  width: 268px;
+  height: 188px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-sunk);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+}
+
+.rank__photo { position: absolute; inset: 0; display: block; }
+.rank__photo img { object-fit: cover; }
+
+/* 사진 밝기가 제각각이라 글자가 묻힌다. 아래쪽에만 어둠을 깔아 대비를 고정한다 */
+.rank__card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20, 10, 14, 0.82) 0%,
+                                      rgba(20, 10, 14, 0.34) 42%,
+                                      rgba(20, 10, 14, 0) 68%);
+}
+
+.rank__num {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 1;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(20, 10, 14, 0.5);
+  backdrop-filter: blur(6px);
+}
+
+.rank__info {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+}
+.rank__name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+}
+.rank__sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rank__card { transition: transform 0.16s ease; }
+  .rank__card:active { transform: scale(0.98); }
 }

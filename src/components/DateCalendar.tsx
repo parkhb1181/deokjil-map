@@ -31,7 +31,7 @@ function monthKey(year: number, month: number): string {
  * 화살표는 하루씩만 움직여서 "다음 주 토요일"로 가려면 여러 번 눌러야 했다.
  * 달력을 열면 한 달을 한눈에 보고 바로 짚을 수 있다.
  *
- * 각 날에 행사 수를 같이 찍는다 — 날짜만 보여주면 어느 날이 볼 만한지
+ * 각 날에 행사 수를 같이 찍는다. 날짜만 보여주면 어느 날이 볼 만한지
  * 눌러보기 전에는 알 수 없고, 결국 빈 날을 계속 헛짚게 된다.
  */
 export default function DateCalendar({

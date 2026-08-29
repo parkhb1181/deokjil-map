@@ -23,7 +23,7 @@ const PREVIEW_COUNT = 8
  * 세로로 다 쌓으면 첫 화면에 섹션이 하나밖에 안 들어가고,
  * 그러면 "볼 게 많다"는 인상이 안 생겨 체류가 짧아진다.
  *
- * scroll-snap은 쓰지 않는다 — 아이템이 컨테이너를 넘칠 때만 스냅이 걸려
+ * scroll-snap은 쓰지 않는다. 아이템이 컨테이너를 넘칠 때만 스냅이 걸려
  * 개수에 따라 첫 카드의 좌측 정렬이 달라진다.
  */
 export default function Section({
