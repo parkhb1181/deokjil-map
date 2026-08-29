@@ -3,7 +3,7 @@ import './globals.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
 import { siteUrl } from '@/lib/site'
 
-const TITLE = '모여라덕 — 서울 생카·팝업 지도'
+const TITLE = '덕모임 — 서울 생카·팝업 지도'
 const DESCRIPTION =
   '오늘 서울 어디서 뭐 하는지 한눈에. 생일카페와 팝업을 지역·날짜로 모아 보여줍니다.'
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
-    siteName: '모여라덕',
+    siteName: '덕모임',
     title: TITLE,
     description: DESCRIPTION,
     url: siteUrl,

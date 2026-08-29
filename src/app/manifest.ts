@@ -9,8 +9,8 @@ import type { MetadataRoute } from 'next'
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '모여라덕 — 서울 생카·팝업 지도',
-    short_name: '모여라덕',
+    name: '덕모임 — 서울 생카·팝업 지도',
+    short_name: '덕모임',
     description: '오늘 서울 어디서 뭐 하는지 한눈에. 생일카페와 팝업을 지역·날짜로 모아 봅니다.',
     start_url: '/',
     display: 'standalone',

@@ -93,7 +93,7 @@ export default function Page() {
       <header className="header">
         <div className="header__row">
           <div className="header__text">
-            <h1 className="header__title">모여라덕</h1>
+            <h1 className="header__title">덕모임</h1>
             <p className="header__sub">오늘 서울 어디서 뭐 하지?</p>
           </div>
           {/* 목록 탭에는 자체 검색창이 있다. 여기까지 두면 같은 일을 하는

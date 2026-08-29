@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
-export const alt = '모여라덕 — 서울 생카·팝업 지도'
+export const alt = '덕모임 — 서울 생카·팝업 지도'
 
 /**
  * 커뮤니티에 링크를 뿌릴 때 뜨는 미리보기 카드.
@@ -40,7 +40,7 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
   }
 }
 
-const TITLE = '모여라덕'
+const TITLE = '덕모임'
 const SUB = '오늘 서울 어디서 뭐 하지?'
 const TAGS = ['홍대', '합정', '성수', '강남', '용산', '잠실']
 const FOOT = '생일카페 · 팝업 지도'
