@@ -1,0 +1,182 @@
+/* ── 동행 랜딩 전용 스타일 ──────────────────────────────────
+   globals.css 를 건드리지 않는다. 앱(지도)과 랜딩은 톤이 다르고,
+   같은 파일을 고치면 동료 작업과 충돌한다.
+   모든 규칙을 .lp 아래로 스코프해 전역 토큰을 덮어쓰지 않는다.
+
+   색·타입 근거: dontboardme.com 실측 (Awwwards SOTY 2024).
+   크림 바탕 + 강한 주색 하나 + 극단적 크기 대비.
+   ------------------------------------------------------- */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import url('https://fonts.googleapis.com/css2?family=Bayon&display=swap');
+
+.lp {
+  /* 흰색을 쓰지 않는다. 크림이 바탕이라 사진의 색이 더 살아난다 */
+  --cream:  #f6f6ed;
+  --ink:    #191713;
+  --accent: #f0431f;   /* 버밀리언. 파랑·보라를 피한 강한 색 */
+  --lemon:  #ffe629;
+  --ghost:  #e6e4d8;   /* 뒤층 초대형 글자 */
+
+  /* 12·14 와 200 사이를 비운다. 중간 크기가 화면을 밋밋하게 만든다 */
+  --t-sm:   12px;
+  --t-md:   14px;
+  --t-huge: clamp(56px, 12.5vw, 200px);
+
+  --pad: clamp(16px, 4vw, 56px);
+
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  min-height: 100dvh;
+  overflow-x: clip;          /* 화면 밖으로 넘긴 요소가 가로 스크롤을 만들지 않게 */
+  position: relative;
+}
+
+/* body 는 globals.css 에서 핑크다. 이 라우트에서만 되돌린다 */
+body:has(.lp) { background: #f6f6ed; }
+
+.lp__mono {
+  font-family: 'Bayon', system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-size: var(--t-sm);
+}
+
+/* ── 가장자리 배치 ── 가운데를 비우고 라벨을 네 귀퉁이로 민다 */
+.lp__top {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--pad) var(--pad) 0;
+}
+.lp__logo { font-family: 'Bayon', sans-serif; font-size: 20px; letter-spacing: .06em; }
+.lp__nav { display: flex; gap: 20px; }
+
+/* ── 히어로 ── 3층으로 겹친다: 고스트 글자 · 사진 · 검은 제목 ── */
+.lp__hero {
+  position: relative;
+  padding: clamp(24px, 6vw, 72px) var(--pad) clamp(48px, 9vw, 120px);
+}
+
+/* 뒤층 — 화면 밖으로 잘려나가게 둔다 */
+.lp__ghost {
+  position: absolute;
+  top: -2vw;
+  right: -8vw;
+  z-index: 0;
+  font-family: 'Bayon', sans-serif;
+  font-size: clamp(120px, 24vw, 380px);
+  line-height: .8;
+  color: var(--ghost);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* 중간층 — 사진. 살짝 기울여 격자에서 벗어난다 */
+.lp__photo {
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  background: var(--ghost);
+}
+.lp__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.lp__photo--main {
+  top: clamp(40px, 8vw, 90px);
+  right: clamp(-24px, 2vw, 80px);
+  width: clamp(180px, 32vw, 460px);
+  aspect-ratio: 3 / 4;
+  transform: rotate(-3deg);
+}
+.lp__photo--sub {
+  display: none;
+  bottom: -6%;
+  left: 46%;
+  width: clamp(120px, 16vw, 230px);
+  aspect-ratio: 4 / 5;
+  transform: rotate(4deg);
+}
+@media (min-width: 900px) { .lp__photo--sub { display: block; } }
+
+/* 앞층 — 제목. 사진 위로 올라탄다 */
+.lp__title {
+  position: relative;
+  z-index: 2;
+  font-size: var(--t-huge);
+  font-weight: 900;
+  line-height: .96;
+  letter-spacing: -.03em;
+  margin: 0;
+  max-width: 14ch;
+}
+.lp__title em { font-style: normal; color: var(--accent); }
+
+/* 형광 밑줄 — 글자 뒤로 깔린다. 색을 면으로 쓰는 자리 */
+.lp__mark {
+  background: linear-gradient(transparent 62%, var(--lemon) 62%, var(--lemon) 92%, transparent 92%);
+}
+
+.lp__lead {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(20px, 3vw, 36px);
+  font-size: var(--t-md);
+  line-height: 1.7;
+  max-width: 30ch;
+}
+.lp__lead b { font-weight: 700; }
+
+.lp__cta {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: clamp(20px, 3vw, 32px);
+}
+.lp__btn {
+  font-family: 'Bayon', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: var(--t-md);
+  padding: 14px 22px;
+  border: 2px solid var(--ink);
+  border-radius: 0;               /* 둥근 모서리를 쓰지 않는다 */
+  background: var(--ink);
+  color: var(--cream);
+  text-decoration: none;
+  line-height: 1;
+}
+.lp__btn--ghost { background: transparent; color: var(--ink); }
+
+/* ── 마퀴 ── 색을 면으로 쓰는 두 번째 자리 */
+.lp__marquee {
+  position: relative;
+  z-index: 3;
+  background: var(--accent);
+  color: var(--cream);
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  overflow: hidden;
+  padding: 14px 0;
+}
+.lp__track {
+  display: flex;
+  width: max-content;
+  gap: 40px;
+  animation: lp-slide 24s linear infinite;
+}
+.lp__track span {
+  font-family: 'Bayon', sans-serif;
+  font-size: clamp(20px, 3vw, 34px);
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+@keyframes lp-slide { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp__track { animation: none; }
+}
