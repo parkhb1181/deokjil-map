@@ -159,13 +159,13 @@ export default function HomeView({
                       </button>
                     </div>
                   </div>
-                  <div className="rows">
+                  <div className="grid">
                     {list.map((ev) => (
                       <EventCard
                         key={ev.id}
                         event={ev}
                         today={today}
-                        variant="row"
+                        variant="tile"
                         onOpen={onOpen}
                       />
                     ))}

@@ -12,6 +12,7 @@ import {
   type FilterState,
 } from '@/lib/filters'
 import { track, trackVisit } from '@/lib/analytics'
+import Logo from '@/components/Logo'
 import BottomNav, { type Tab } from '@/components/BottomNav'
 import HomeView from '@/components/HomeView'
 import ListView from '@/components/ListView'
@@ -140,10 +141,9 @@ export default function Page() {
       <div className="app">
         <header className="header">
           <div className="header__row">
-            <div className="header__text">
-              <h1 className="header__title">덕모임</h1>
-              <p className="header__sub">오늘 서울 어디서 뭐 하지?</p>
-            </div>
+            <h1 className="header__logo">
+              <Logo />
+            </h1>
             {/* 목록 탭에는 자체 검색창이 있다. 여기까지 두면 같은 일을 하는
                 입구가 둘이 되고, 어느 쪽이 목록에 반영되는지 헷갈린다 */}
             {tab !== 'list' && (

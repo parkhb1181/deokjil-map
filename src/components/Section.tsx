@@ -16,15 +16,13 @@ interface Props {
   onMap?: () => void
 }
 
-const PREVIEW_COUNT = 8
+const PREVIEW_COUNT = 4
 
 /**
- * 가로 스크롤 섹션.
- * 세로로 다 쌓으면 첫 화면에 섹션이 하나밖에 안 들어가고,
- * 그러면 "볼 게 많다"는 인상이 안 생겨 체류가 짧아진다.
+ * 지역 섹션. 2열 그리드로 네 칸까지 보여주고 나머지는 전체 보기로 넘긴다.
  *
- * scroll-snap은 쓰지 않는다. 아이템이 컨테이너를 넘칠 때만 스냅이 걸려
- * 개수에 따라 첫 카드의 좌측 정렬이 달라진다.
+ * 가로 레일을 쓰지 않는 이유는 옆으로 밀어야 보이는 카드는 안 본다는 것.
+ * 첫 화면에 실제로 보이는 카드 수가 곧 상세 진입률이다.
  */
 export default function Section({
   title,
@@ -60,16 +58,10 @@ export default function Section({
         </div>
       </div>
 
-      <div className="rail">
+      <div className="grid">
         {events.slice(0, PREVIEW_COUNT).map((ev) => (
           <EventCard key={ev.id} event={ev} today={today} variant="tile" onOpen={onOpen} />
         ))}
-        {events.length > PREVIEW_COUNT && onMore && (
-          <button type="button" className="rail__more" onClick={onMore}>
-            +{events.length - PREVIEW_COUNT}
-            <span>더 보기</span>
-          </button>
-        )}
       </div>
     </section>
   )
