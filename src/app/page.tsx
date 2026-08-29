@@ -18,6 +18,7 @@ import ListView from '@/components/ListView'
 import MapView from '@/components/MapView'
 import SearchOverlay from '@/components/SearchOverlay'
 import EventDetail from '@/components/EventDetail'
+import SeoIndex from '@/components/SeoIndex'
 import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
 
 const ALL_EVENTS = rawEvents as EventItem[]
@@ -112,7 +113,7 @@ export default function Page() {
 
       <main className={`main ${tab === 'map' ? 'main--map' : ''}`}>
         {!today ? (
-          <p className="placeholder">불러오는 중…</p>
+          <SeoIndex events={ALL_EVENTS} />
         ) : tab === 'home' ? (
           <HomeView
             events={ALL_EVENTS}

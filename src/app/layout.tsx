@@ -1,21 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
+import { siteUrl } from '@/lib/site'
 
 const TITLE = '모여라덕 — 서울 생카·팝업 지도'
 const DESCRIPTION =
   '오늘 서울 어디서 뭐 하는지 한눈에. 생일카페와 팝업을 지역·날짜로 모아 보여줍니다.'
 
-/**
- * 배포 URL. OG 이미지의 절대 경로를 만드는 데 쓰인다.
- * Vercel 이 넣어주는 VERCEL_PROJECT_PRODUCTION_URL 을 우선하고,
- * 없으면 로컬로 떨어진다 — 로컬에서도 미리보기를 확인할 수 있게.
- */
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  ? process.env.NEXT_PUBLIC_SITE_URL
-  : process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : 'http://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
