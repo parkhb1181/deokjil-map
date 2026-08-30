@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import rawEvents from '@/data/events.json'
 import type { EventItem } from '@/types'
 import { siteUrl } from '@/lib/site'
+import { shareSlug } from '@/lib/subject-slug'
 
 /**
  * 사이트맵.
@@ -20,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteUrl, changeFrequency: 'daily', priority: 1 },
     ...subjects.map((s) => ({
-      url: `${siteUrl}/a/${encodeURIComponent(s)}`,
+      url: `${siteUrl}/a/${shareSlug(s)}`,
       changeFrequency: 'daily' as const,
       priority: 0.8,
     })),

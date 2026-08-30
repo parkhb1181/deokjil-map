@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import rawEvents from '@/data/events.json'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
+import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
 
 /**
  * 대상별 목록, 공유와 검색에 쓰는 실주소.
@@ -39,11 +40,17 @@ function bySubject(): Map<string, EventItem[]> {
 }
 
 export function generateStaticParams() {
-  return [...bySubject().keys()].map((subject) => ({ subject }))
+  // 한글 주소와 ASCII 별칭 둘 다 만든다. X 가 한글 앞에서 링크를 끊는다
+  const keys = [...bySubject().keys()]
+  const out = keys.map((subject) => ({ subject }))
+  for (const [subject, slug] of Object.entries(SUBJECT_SLUGS)) {
+    if (keys.includes(subject)) out.push({ subject: slug })
+  }
+  return out
 }
 
 function find(raw: string): { subject: string; events: EventItem[] } | null {
-  const subject = decodeURIComponent(raw)
+  const subject = resolveSubject(raw)
   const events = bySubject().get(subject)
   if (!events) return null
   // 마감 임박 순. 목록 화면과 같은 축이라야 두 화면이 같은 것을 말한다

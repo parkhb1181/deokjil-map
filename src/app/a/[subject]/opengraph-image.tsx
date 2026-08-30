@@ -4,6 +4,7 @@ import { ImageResponse } from 'next/og'
 import rawEvents from '@/data/events.json'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
+import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -34,7 +35,12 @@ export function generateStaticParams() {
     const k = ev.subject.trim()
     if (k) seen.add(k)
   }
-  return [...seen].map((subject) => ({ subject }))
+  // 한글 주소와 ASCII 별칭 둘 다 만든다. X 가 한글 앞에서 링크를 끊는다
+  const out = [...seen].map((subject) => ({ subject }))
+  for (const [subject, slug] of Object.entries(SUBJECT_SLUGS)) {
+    if (seen.has(subject)) out.push({ subject: slug })
+  }
+  return out
 }
 
 /**
@@ -60,7 +66,7 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
 
 export default async function Image({ params }: { params: Promise<{ subject: string }> }) {
   const { subject: raw } = await params
-  const subject = decodeURIComponent(raw)
+  const subject = resolveSubject(raw)
   const events = ALL.filter((e) => e.subject.trim() === subject)
 
   const kinds = new Set(events.map((e) => e.kind))
