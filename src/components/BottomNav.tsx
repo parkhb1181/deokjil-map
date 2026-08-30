@@ -1,10 +1,9 @@
 'use client'
 
-export type Tab = 'home' | 'list' | 'map' | 'course'
+export type Tab = 'browse' | 'map' | 'course'
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'home', label: '홈', icon: '⌂' },
-  { id: 'list', label: '찾기', icon: '⌕' },
+  { id: 'browse', label: '목록', icon: '≡' },
   { id: 'map', label: '지도', icon: '◎' },
   { id: 'course', label: '내 코스', icon: '♡' },
 ]
@@ -17,11 +16,12 @@ interface Props {
 }
 
 /**
- * 레퍼런스 세 서비스(오프메이트·팝플리·팝가)가 모두 쓰는 하단 탭 구조.
- * 이 카테고리의 표준 문법이라 여기서 벗어나면 학습 비용만 생긴다.
+ * 하단 탭.
  *
- * '내 코스' 탭은 담기 기능(P2)과 함께 열었다. 빈 탭을 미리 노출하면
- * 첫인상에서 미완성으로 읽히므로 기능 없이 먼저 내보내지 않았다.
+ * 홈과 찾기를 하나로 합쳤다. 둘 다 같은 목록에 같은 필터를 걸고 있었고
+ * 차이는 검색창 하나뿐이라, 탭을 나눌 이유가 없었다.
+ * 검색창을 목록 위로 올리면서 탭이 셋으로 줄었고 각자 답하는 질문이 갈렸다.
+ * 목록은 "뭐가 있나", 지도는 "어디 붙어 있나", 내 코스는 "내가 담은 것".
  */
 export default function BottomNav({ active, savedCount, onChange }: Props) {
   return (

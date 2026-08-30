@@ -146,10 +146,14 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
   const districtOptions = useMemo<ChipOption<DistrictFilter>[]>(
     () => [
       { value: 'all', label: `전 지역 ${dayEvents.length}` },
-      ...groupByDistrict(dayEvents).map((g) => ({
-        value: g.district as DistrictFilter,
-        label: `${DISTRICT_LABELS[g.district]} ${g.events.length}`,
-      })),
+      // 많은 곳부터. 목록의 지역 칩과 같은 순서라야 두 화면이 같은 지도를 그린다
+      ...groupByDistrict(dayEvents)
+        .slice()
+        .sort((a, b) => b.events.length - a.events.length)
+        .map((g) => ({
+          value: g.district as DistrictFilter,
+          label: `${DISTRICT_LABELS[g.district]} ${g.events.length}`,
+        })),
     ],
     [dayEvents],
   )

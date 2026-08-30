@@ -5,19 +5,15 @@ import rawEvents from '@/data/events.json'
 import type { EventItem } from '@/types'
 import {
   defaultFilter,
-  availableDistricts,
   filterEvents,
   todayKey,
-  type DistrictFilter,
   type FilterState,
 } from '@/lib/filters'
 import { track, trackVisit } from '@/lib/analytics'
 import Logo from '@/components/Logo'
 import BottomNav, { type Tab } from '@/components/BottomNav'
-import HomeView from '@/components/HomeView'
-import ListView from '@/components/ListView'
+import BrowseView from '@/components/BrowseView'
 import MapView from '@/components/MapView'
-import SearchOverlay from '@/components/SearchOverlay'
 import EventDetail from '@/components/EventDetail'
 import SeoIndex from '@/components/SeoIndex'
 import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
@@ -31,9 +27,8 @@ export default function Page() {
   // 오늘 날짜는 클라이언트에서만 확정한다.
   // 서버 프리렌더 시점(빌드 시각)을 쓰면 배포 다음날부터 하이드레이션이 어긋난다.
   const [today, setToday] = useState<string | null>(null)
-  const [tab, setTab] = useState<Tab>('home')
+  const [tab, setTab] = useState<Tab>('browse')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
-  const [searchOpen, setSearchOpen] = useState(false)
   // 담은 이벤트 id. 담은 순서를 유지한다. 코스는 순서가 의미를 가진다
   const [saved, setSaved] = useState<string[]>([])
 
@@ -82,8 +77,6 @@ export default function Page() {
     [saved],
   )
 
-  const districts = useMemo(() => availableDistricts(ALL_EVENTS), [])
-
   const setField = useCallback(
     <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
       setFilter((f) => ({ ...f, [key]: value }))
@@ -121,20 +114,10 @@ export default function Page() {
   useEffect(() => {
     if (!routeQuery) return
     setFilter((f) => ({ ...f, query: routeQuery, district: 'all' }))
-    setTab('list')
+    setTab('browse')
     // 어느 갤에 뿌린 링크가 유입을 만들었는지 본다
     track('arrive_query', { query: routeQuery })
   }, [routeQuery])
-
-  const goList = useCallback((district: DistrictFilter) => {
-    setFilter((f) => ({ ...f, district }))
-    setTab('list')
-  }, [])
-
-  const goMap = useCallback((district: DistrictFilter) => {
-    setFilter((f) => ({ ...f, district }))
-    setTab('map')
-  }, [])
 
   return (
     <SaveProvider value={save}>
@@ -144,39 +127,25 @@ export default function Page() {
             <h1 className="header__logo">
               <Logo />
             </h1>
-            {/* 목록 탭에는 자체 검색창이 있다. 여기까지 두면 같은 일을 하는
-                입구가 둘이 되고, 어느 쪽이 목록에 반영되는지 헷갈린다 */}
-            {tab !== 'list' && (
-              <button
-                type="button"
-                className="header__search"
-                aria-label="검색"
-                onClick={() => setSearchOpen(true)}
-              >
-                검색
-              </button>
-            )}
+
+            {/* 검색 입구는 하나다. 목록과 지도가 같은 질의를 공유하므로
+                어느 화면에서 쳐도 양쪽이 같이 움직인다 */}
+            <input
+              className="header__searchinput"
+              type="search"
+              value={filter.query}
+              placeholder="대상 · 카페명 검색"
+              onChange={(e) => setField('query', e.target.value)}
+              aria-label="검색"
+            />
           </div>
         </header>
 
         <main className={`main ${tab === 'map' ? 'main--map' : ''}`}>
           {!today ? (
             <SeoIndex events={ALL_EVENTS} />
-          ) : tab === 'home' ? (
-            <HomeView
-              events={ALL_EVENTS}
-              today={today}
-              date={filter.date}
-              kind={filter.kind}
-              district={filter.district}
-              onDate={(v) => setField('date', v)}
-              onKind={(v) => setField('kind', v)}
-              onDistrict={(v) => setField('district', v)}
-              onOpen={openDetail}
-              onDistrictMap={goMap}
-            />
-          ) : tab === 'list' ? (
-            <ListView
+          ) : tab === 'browse' ? (
+            <BrowseView
               events={ALL_EVENTS}
               today={today}
               filter={filter}
@@ -198,10 +167,11 @@ export default function Page() {
               saved={saved}
               onOpen={openDetail}
               onToggleSave={save.toggle}
-              onBrowse={() => setTab('home')}
+              onBrowse={() => setTab('browse')}
             />
           )}
         </main>
+
 
         <footer className="footer">
           <p>주최자 공지 기반 · 방문 전 원문 확인 권장</p>
@@ -230,26 +200,6 @@ export default function Page() {
           />
         )}
 
-        {searchOpen && today && (
-          <SearchOverlay
-            events={ALL_EVENTS}
-            today={today}
-            onClose={() => setSearchOpen(false)}
-            onOpen={(id) => {
-              setSearchOpen(false)
-              openDetail(id)
-            }}
-            // 지도 탭에서만 질의를 건다. 홈에서는 예전처럼 상세로 바로 간다
-            {...(tab === 'map'
-              ? {
-                  onQuery: (q: string) => {
-                    setField('query', q)
-                    setSearchOpen(false)
-                  },
-                }
-              : {})}
-          />
-        )}
       </div>
     </SaveProvider>
   )

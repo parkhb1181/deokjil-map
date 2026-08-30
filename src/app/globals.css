@@ -1357,146 +1357,229 @@ a { color: inherit; }
   cursor: pointer;
 }
 
-/* ── 홈 순위 레일 ──────────────────────────────────────
-   홈이 전체 목록과 갈리는 지점. 사진을 크게 걸고 옆으로 넘긴다.
-   순위 숫자는 사진 위에 겹쳐 얹는다. 따로 칸을 내주면 카드가 작아진다.
+/* ── 로고 ─────────────────────────────────────────────── */
+.header__logo { display: flex; align-items: center; min-width: 0; }
+.logo { display: inline-flex; align-items: center; gap: 7px; }
+.logo__mark { display: block; height: 32px; width: auto; image-rendering: pixelated; }
+.logo__word {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--accent-ink);
+}
+
+/* 헤더 검색. 목록과 지도가 같은 질의를 쓰므로 입구를 하나로 둔다 */
+.header__searchinput {
+  flex: 1;
+  min-width: 0;
+  margin-left: auto;
+  height: 38px;
+  padding: 0 13px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  color: var(--text);
+  /* iOS Safari 는 16px 미만 입력에 확대를 건다 */
+  font-size: 16px;
+}
+.header__searchinput::placeholder { color: var(--text-mute); }
+.header__searchinput:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── 필터 한 줄 ────────────────────────────────────────
+   유형과 지역을 한 줄에 둔다. 예전에는 날짜·유형·지역이 세 줄이라
+   세로로 140px 를 먹었고, 첫 화면에 카드가 한 장도 안 들어왔다.
+   날짜 칩은 뺐다. "오늘 뭐 하지"가 이 서비스의 질문이라 기본값이 곧 답이다.
    ------------------------------------------------------- */
-.rank { margin: 4px 0 18px; }
+.filterrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 2px var(--gutter) 10px;
+  scrollbar-width: none;
+}
+.filterrow::-webkit-scrollbar { display: none; }
+.filterrow__sep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 20px;
+  margin: 0 3px;
+  background: var(--border-mid);
+}
+
+.count__sort {
+  margin-left: 7px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border-mid);
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+/* 특전은 갈지 말지를 가르는 정보라 시간과 같은 줄에 붙인다 */
+.card__perks {
+  margin-left: 6px;
+  padding-left: 7px;
+  border-left: 1px solid var(--border);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+/* ── 대상 순위 ─────────────────────────────────────────
+   목록에서 유일하게 어두운 구간이다. 여기가 1차 축이라는 것을
+   색으로 못 박는다. 밝은 카드 목록 사이에 어두운 띠가 하나 있으면
+   훑어 내릴 때 그 지점이 기준점이 된다.
+   ------------------------------------------------------- */
+.rank {
+  margin: 0 0 14px;
+  padding: 14px 0 15px;
+  background: #1c1a20;
+  border-bottom: 2px solid var(--accent);
+}
 
 .rank__head {
   display: flex;
   align-items: baseline;
   gap: 8px;
   padding: 0 var(--gutter);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .rank__title {
   font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.03em;
+  color: #ffffff;
 }
-.rank__note { font-size: 13px; color: var(--text-mute); }
+/* 어두운 바탕에서 --text-mute 는 3.36:1 로 모자란다. 연분홍이 8.94:1 */
+.rank__note { font-size: 13px; color: #f5a3c1; font-weight: 600; }
 
-.rank__rail {
-  display: flex;
-  gap: 10px;
-  list-style: none;
-  padding: 2px var(--gutter) 6px;
-  margin: 0;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.rank__rail::-webkit-scrollbar { display: none; }
-
-.rank__item { flex: 0 0 auto; scroll-snap-align: start; }
-
-.rank__card {
+/* 1위. 나머지와 같은 크기로 두면 순위로 안 읽힌다 */
+.rank__hero {
   position: relative;
   display: block;
-  width: 268px;
-  height: 188px;
+  width: calc(100% - var(--gutter) * 2);
+  margin: 0 var(--gutter) 12px;
+  height: 168px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--bg-sunk);
-  cursor: pointer;
+  background: #26232b;
   text-align: left;
-  box-shadow: var(--shadow-card);
+  cursor: pointer;
 }
 
 .rank__photo { position: absolute; inset: 0; display: block; }
 .rank__photo img { object-fit: cover; }
 
 /* 사진 밝기가 제각각이라 글자가 묻힌다. 아래쪽에만 어둠을 깔아 대비를 고정한다 */
+.rank__hero::after,
 .rank__card::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(20, 10, 14, 0.82) 0%,
-                                      rgba(20, 10, 14, 0.34) 42%,
-                                      rgba(20, 10, 14, 0) 68%);
+  background: linear-gradient(to top, rgba(16, 12, 18, 0.88) 0%,
+                                      rgba(16, 12, 18, 0.36) 46%,
+                                      rgba(16, 12, 18, 0) 74%);
 }
 
-.rank__num {
+.rank__badge {
   position: absolute;
   top: 10px;
   left: 12px;
   z-index: 1;
-  font-size: 15px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--accent-deep);
+  color: #ffffff;
+  font-size: 12.5px;
   font-weight: 800;
   line-height: 1;
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(20, 10, 14, 0.5);
-  backdrop-filter: blur(6px);
 }
 
 .rank__info {
   position: absolute;
   left: 14px;
   right: 14px;
-  bottom: 12px;
+  bottom: 13px;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  color: #fff;
+  gap: 3px;
+  color: #ffffff;
 }
 .rank__name {
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 800;
   letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+.rank__sub { font-size: 13.5px; font-weight: 700; color: #ffe9f0; }
+.rank__more { font-size: 12.5px; color: rgba(255, 255, 255, 0.82); }
+
+/* 2위 이하 */
+.rank__rail {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0 var(--gutter);
+  margin: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rank__rail::-webkit-scrollbar { display: none; }
+.rank__item { flex: 0 0 auto; }
+
+.rank__card {
+  position: relative;
+  display: block;
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #26232b;
+  text-align: left;
+  cursor: pointer;
+}
+.rank__num {
+  position: absolute;
+  top: 6px;
+  left: 7px;
+  z-index: 1;
+  min-width: 20px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(16, 12, 18, 0.62);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+.rank__cardinfo {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: 8px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  color: #ffffff;
+}
+.rank__cardname {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   line-height: 1.15;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.rank__sub {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.88);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
-}
+.rank__cardsub { font-size: 11.5px; font-weight: 700; color: #ffe9f0; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .rank__card { transition: transform 0.16s ease; }
-  .rank__card:active { transform: scale(0.98); }
+  .rank__hero, .rank__card { transition: transform 0.16s ease; }
+  .rank__hero:active, .rank__card:active { transform: scale(0.985); }
 }
-
-/* ── 메인 배치 ─────────────────────────────────────────
-   헤더(로고) → 큰 히어로 → 가로 바(필터) → 2열 그리드.
-   가로 레일을 걷어낸 이유는 옆으로 밀어야 보이는 카드는 안 본다는 것.
-   첫 화면에 실제로 보이는 카드 수가 곧 상세 진입률이다.
-   ------------------------------------------------------- */
-.header__logo { display: flex; align-items: center; min-width: 0; }
-.logo__img { height: 30px; width: auto; display: block; }
-.logo__word {
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--accent-ink);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 0 var(--gutter);
-}
-/* 레일용 고정 폭을 풀어 칸을 채우게 한다 */
-.grid .card--tile { width: 100%; }
-.grid .card--tile .card__visual { height: 116px; }
-
-@media (min-width: 620px) {
-  .grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 900px) {
-  .grid { grid-template-columns: repeat(4, 1fr); }
-}
-
-/* 히어로는 한 장씩 넘긴다. 여러 장을 반쯤 걸치게 두면 무엇이 1위인지 흐려진다 */
-.rank__item { width: min(86vw, 440px); }
-.rank__card { width: 100%; height: 232px; }
-.rank__name { font-size: 26px; }

@@ -267,3 +267,39 @@ export function baseForSections(
     today,
   )
 }
+
+/**
+ * 마감 임박 순.
+ *
+ * 목록을 지역으로 묶던 것을 하나로 합치면서 기본 정렬이 된다.
+ * 지역으로 묶여 있을 때는 '오늘 마감'이 섹션마다 흩어져 눈에 안 들어왔다.
+ * 사람을 실제로 움직이는 축은 지역이 아니라 남은 날짜다.
+ */
+export function sortByDeadline(events: EventItem[], today: DateKey = todayKey()): EventItem[] {
+  return [...events].sort((a, b) => {
+    // 아직 시작 안 한 것은 뒤로. 오늘 갈 수 있는 것이 먼저다
+    const ao = isOngoing(a, today) ? 0 : 1
+    const bo = isOngoing(b, today) ? 0 : 1
+    if (ao !== bo) return ao - bo
+    if (a.ends_on !== b.ends_on) return a.ends_on < b.ends_on ? -1 : 1
+    if (a.starts_on !== b.starts_on) return a.starts_on < b.starts_on ? -1 : 1
+    return a.id < b.id ? -1 : 1
+  })
+}
+
+/** 카드용 짧은 기간 표기. 연도는 뺀다. 지난 것은 싣지 않으니 올해가 아닌 것이 없다 */
+export function shortRange(ev: EventItem): string {
+  const md = (d: DateKey) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`
+  return `${md(ev.starts_on)} ~ ${md(ev.ends_on)}`
+}
+
+/**
+ * 카드에 실을 만큼 짧은 특전만 통과시킨다.
+ * 175건 중 170건이 "특전 N종" 형태고, 나머지 5건은 팝업 MD 특전이라
+ * 한 문단짜리 서술형이다. 그대로 넣으면 카드가 무너진다.
+ */
+export function shortPerks(ev: EventItem): string | null {
+  const p = ev.perks?.trim()
+  if (!p || p.length > 12 || p.includes('\n')) return null
+  return p
+}

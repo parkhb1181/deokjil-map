@@ -6,7 +6,6 @@ import type { EventItem } from '@/types'
 import { DISTRICT_LABELS } from '@/lib/filters'
 import { queryHref } from '@/lib/route'
 import { track } from '@/lib/analytics'
-import { swatchFor } from '@/lib/visual'
 
 interface Props {
   events: EventItem[]
@@ -17,22 +16,22 @@ interface Rank {
   subject: string
   count: number
   districts: string[]
+  place: string
   image?: string
-  event: EventItem
 }
 
 const MAX = 10
 
 /**
- * 홈 맨 위에 놓이는 순위 레일.
+ * 대상 순위.
  *
- * 홈과 전체의 차이를 만드는 자리다. 전체는 "전부 훑기"고,
- * 홈은 "지금 뭐가 제일 크냐"에 먼저 답한다. 순위는 지어내지 않고
- * 진행 중인 건수를 그대로 센다.
+ * 목록의 1차 축이다. 지역은 191건 중 134건이 홍대라 눌러도 거의 안 걸러지는 반면,
+ * 대상은 29 / 22 / 13 / 11 로 잘 갈린다. 직접 경쟁하는 두 서비스도 지역이 아니라
+ * 대상과 큐레이션을 앞에 둔다.
  *
- * 누르면 그 대상만 걸린 목록으로 간다. 커뮤니티에 뿌리는 링크와
- * 같은 경로(#/q/이름)를 써서, 밖에서 들어온 사람과 안에서 누른 사람이
- * 똑같은 화면을 본다.
+ * 1위만 크게 내고 나머지는 작게 흘린다. 열 칸을 같은 크기로 두면 순위로 안 읽힌다.
+ * 누르면 커뮤니티에 뿌리는 링크와 같은 경로(#/q/이름)로 가서,
+ * 밖에서 들어온 사람과 안에서 누른 사람이 똑같은 화면을 본다.
  */
 export default function TopSubjects({ events, today }: Props) {
   const ranks = useMemo<Rank[]>(() => {
@@ -47,21 +46,20 @@ export default function TopSubjects({ events, today }: Props) {
     }
     return [...bucket.entries()]
       .map(([subject, list]) => {
-        // 지역은 많이 열린 순으로 두 개까지. 세 개를 넘기면 한 줄을 넘겨 읽히지 않는다
         const byDistrict = new Map<string, number>()
         for (const ev of list) {
           byDistrict.set(ev.place.district, (byDistrict.get(ev.place.district) ?? 0) + 1)
         }
-        const districts = [...byDistrict.entries()]
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 2)
-          .map(([d]) => DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d)
         return {
           subject,
           count: list.length,
-          districts,
+          // 지역은 많이 열린 순으로 두 개까지. 셋을 넘기면 한 줄을 넘겨 안 읽힌다
+          districts: [...byDistrict.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 2)
+            .map(([d]) => DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d),
+          place: list[0].place.name,
           image: list.find((e) => e.image_url)?.image_url,
-          event: list[0],
         }
       })
       .sort((a, b) => b.count - a.count || a.subject.localeCompare(b.subject, 'ko'))
@@ -70,6 +68,9 @@ export default function TopSubjects({ events, today }: Props) {
 
   // 한 명뿐이면 순위가 아니다. 줄 세울 게 있을 때만 내보낸다
   if (ranks.length < 3) return null
+
+  const total = events.filter((e) => e.ends_on >= today).length
+  const [top, ...rest] = ranks
 
   const go = (r: Rank, i: number) => {
     track('rank_open', { query: r.subject, rank: i + 1, count: r.count })
@@ -80,37 +81,41 @@ export default function TopSubjects({ events, today }: Props) {
     <section className="rank">
       <div className="rank__head">
         <h2 className="rank__title">지금 제일 많이 열려요</h2>
-        <p className="rank__note">진행 중인 행사 기준</p>
+        <p className="rank__note">진행 중 {total}곳</p>
       </div>
 
+      <button type="button" className="rank__hero" onClick={() => go(top, 0)}>
+        <span className="rank__photo">
+          {top.image && <Image src={top.image} alt="" fill sizes="420px" priority />}
+        </span>
+        <span className="rank__badge">1위</span>
+        <span className="rank__info">
+          <strong className="rank__name">{top.subject}</strong>
+          <span className="rank__sub">
+            {top.count}곳
+            {top.districts.length > 0 && ` · ${top.districts.join('·')}`}
+          </span>
+          <span className="rank__more">
+            {top.place} 외 {top.count - 1}곳 보기
+          </span>
+        </span>
+      </button>
+
       <ol className="rank__rail">
-        {ranks.map((r, i) => {
-          const sw = swatchFor(r.event)
-          return (
-            <li key={r.subject} className="rank__item">
-              <button type="button" className="rank__card" onClick={() => go(r, i)}>
-                <span
-                  className="rank__photo"
-                  style={{ background: `linear-gradient(135deg, ${sw.from}, ${sw.to})` }}
-                >
-                  {r.image && (
-                    <Image src={r.image} alt="" fill sizes="260px" priority={i < 2} />
-                  )}
-                </span>
-
-                <span className="rank__num">{i + 1}</span>
-
-                <span className="rank__info">
-                  <strong className="rank__name">{r.subject}</strong>
-                  <span className="rank__sub">
-                    {r.count}곳
-                    {r.districts.length > 0 && ` · ${r.districts.join('·')}`}
-                  </span>
-                </span>
-              </button>
-            </li>
-          )
-        })}
+        {rest.map((r, i) => (
+          <li key={r.subject} className="rank__item">
+            <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
+              <span className="rank__photo">
+                {r.image && <Image src={r.image} alt="" fill sizes="120px" />}
+              </span>
+              <span className="rank__num">{i + 2}</span>
+              <span className="rank__cardinfo">
+                <strong className="rank__cardname">{r.subject}</strong>
+                <span className="rank__cardsub">{r.count}곳</span>
+              </span>
+            </button>
+          </li>
+        ))}
       </ol>
     </section>
   )

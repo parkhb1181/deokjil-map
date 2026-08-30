@@ -3,7 +3,14 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { EventItem } from '@/types'
-import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
+import {
+  DISTRICT_LABELS,
+  EVENT_KIND_LABELS,
+  daysLeft,
+  periodLabel,
+  shortPerks,
+  shortRange,
+} from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
 import { useSave } from './SaveContext'
 
@@ -31,6 +38,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
   const urgent = left >= 0 && left <= 1
   const showImage = Boolean(event.image_url) && !imageFailed
   const sw = swatchFor(event)
+  const perks = shortPerks(event)
 
   return (
     /* 루트가 button 이면 안에 담기 버튼을 넣을 수 없다. 중첩 버튼은 스펙 위반이고
@@ -76,7 +84,9 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
         </div>
 
         <div className="card__meta">
-          {event.open_hours ?? `${event.starts_on} ~ ${event.ends_on}`}
+          {event.open_hours ?? shortRange(event)}
+          {/* 특전은 이 카테고리에서 갈지 말지를 가르는 정보다. 상세까지 숨기지 않는다 */}
+          {perks && <span className="card__perks">{perks}</span>}
         </div>
 
         <div className="card__foot">
