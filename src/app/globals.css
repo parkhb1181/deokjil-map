@@ -1410,13 +1410,10 @@ a { color: inherit; }
 
 /* 헤더 검색. 목록과 지도가 같은 질의를 쓰므로 입구를 하나로 둔다 */
 .header__searchinput {
-  /* 남는 폭을 다 먹지 않는다. 대상명·카페명만 치는 자리라
-     길 필요가 없고, 그만큼 로고에 준다 */
-  flex: 0 1 auto;
-  width: 100%;
-  max-width: 220px;
+  /* 로고가 제 크기를 가져가고 남는 폭을 전부 채운다.
+     상한을 두면 로고와 검색창 사이가 빈다 */
+  flex: 1;
   min-width: 0;
-  margin-left: auto;
   height: 38px;
   padding: 0 13px;
   border: 1px solid var(--border-mid);
