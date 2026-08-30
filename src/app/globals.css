@@ -1404,7 +1404,9 @@ a { color: inherit; }
 /* ── 로고 ─────────────────────────────────────────────── */
 .header__logo { display: flex; align-items: center; min-width: 0; }
 /* 락업 이미지 하나로 쓴다. 세로만 맞추고 가로는 비율대로 */
-.logo { display: block; height: 34px; width: auto; }
+/* 락업 이미지 하나로 쓴다. 세로만 맞추고 가로는 비율대로.
+   그림자 글자가 세로 공간을 크게 쓰는 로고라 34px 로는 글자가 안 읽힌다 */
+.logo { display: block; height: 44px; width: auto; }
 
 /* 헤더 검색. 목록과 지도가 같은 질의를 쓰므로 입구를 하나로 둔다 */
 .header__searchinput {

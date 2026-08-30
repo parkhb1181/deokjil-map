@@ -10,6 +10,6 @@
 export default function Logo() {
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
-    <img className="logo" src="/logo.png" alt="덕모임" width={266} height={120} />
+    <img className="logo" src="/logo.png" alt="덕모임" width={182} height={136} />
   )
 }
