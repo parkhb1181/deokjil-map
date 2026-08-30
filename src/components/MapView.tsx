@@ -266,7 +266,9 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
               .join('·')
       // 대상명은 사용자 데이터라 textContent 로 넣는다
       el.querySelector('.pin__name')!.textContent =
-        count > 1 ? `${head.subject} 외 ${count - 1}` : head.subject
+        // '외 N' 은 이 자리에서 어색하게 읽힌다. 앞칸이 이미 유형을 말하므로
+        // 뒤칸은 대상과 개수만 있으면 된다
+        count > 1 ? `${head.subject} ${count}곳` : head.subject
       el.setAttribute(
         'aria-label',
         count > 1 ? `이 지점 ${count}곳 목록 열기` : `${head.subject} 요약 열기`,
@@ -351,6 +353,21 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     [events, filter.kind, filter.district, today],
   )
 
+  /**
+   * 지역 칩.
+   * 지도가 뜰 때는 지도 위로 띄운다. 날짜 줄과 세로로 쌓으면 둘이 100px 가까이
+   * 먹고, 그만큼 지도가 줄어 핀 사이 거리를 못 읽는다.
+   * 지도가 없는 폴백에서는 얹을 데가 없으니 그냥 컨트롤 줄에 둔다.
+   */
+  const districtChips = (
+    <Chips
+      label="지역"
+      options={districtOptions}
+      value={filter.district}
+      onChange={(v) => onFilter('district', v)}
+    />
+  )
+
   const controls = (
     <div className="filterbar mapcontrols">
       <DateNav
@@ -358,12 +375,6 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
         today={today}
         onChange={(v) => onFilter('date', v)}
         counts={dateCounts}
-      />
-      <Chips
-        label="지역"
-        options={districtOptions}
-        value={filter.district}
-        onChange={(v) => onFilter('district', v)}
       />
 
       {/* 검색은 지도를 옮겨 놓고 사라지면 안 된다. 왜 이 화면인지,
@@ -390,6 +401,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     return (
       <div className="mapfallback">
         {controls}
+        {districtChips}
         <p className="placeholder">
           {state === 'no-key'
             ? '지도는 카카오 JS 키가 설정되면 표시됩니다.'
@@ -414,6 +426,8 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
           바깥(.mapwrap) 기준으로 두면 컨트롤 바 위로 올라탄다 */}
       <div className="mapcanvaswrap">
         <div ref={containerRef} className="mapcanvas" />
+
+        <div className="mapchips">{districtChips}</div>
         {state === 'loading' && <p className="placeholder mapwrap__loading">지도를 불러오는 중…</p>}
 
         {/* 검색이 아무것도 못 찾으면 지도가 텅 빈다. 왜 비었는지 말해준다 

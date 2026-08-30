@@ -377,7 +377,8 @@ a { color: inherit; }
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 640px;
+  /* .app 과 같은 값이어야 한다. 다르면 탭만 본문보다 넓게 삐져나온다 */
+  max-width: 480px;
   display: flex;
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -704,7 +705,8 @@ a { color: inherit; }
 .mapwrap__count {
   position: absolute;
   z-index: 1;
-  top: 10px;
+  /* 위는 지역 칩이 쓴다 */
+  bottom: 12px;
   left: var(--gutter);
   padding: 5px 11px;
   border-radius: 999px;
@@ -1206,6 +1208,23 @@ a { color: inherit; }
 /* 지도 위 컨트롤, 지도가 화면을 꽉 채우므로 그 위에 얹지 않고 바로 위에 둔다 */
 .mapcontrols { padding-top: 4px; padding-bottom: 6px; }
 
+/* 지역 칩을 지도 위로 띄운다. 날짜 줄과 세로로 쌓으면 둘이 100px 가까이 먹고,
+   그만큼 지도가 줄어 핀 사이 거리를 못 읽는다 */
+.mapchips {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 0 16px;
+  /* 지도 위에 그대로 얹으면 지도 글씨와 칩 글씨가 섞인다. 위쪽만 흐린 막을 깐다 */
+  background: linear-gradient(to bottom, rgba(255, 252, 253, 0.92) 0%,
+                                         rgba(255, 252, 253, 0.72) 58%,
+                                         rgba(255, 252, 253, 0) 100%);
+  pointer-events: none;
+}
+.mapchips .chips { pointer-events: auto; }
+
 .mapwrap__sep { margin: 0 5px; color: var(--border-mid); }
 .mapwrap__radius { font-weight: 600; color: var(--text-mute); }
 
@@ -1371,11 +1390,16 @@ a { color: inherit; }
 .logo__mark { display: block; height: 32px; width: auto; image-rendering: pixelated; }
 .logo__word {
   font-family: var(--font-logo), 'Apple SD Gothic Neo', sans-serif;
-  font-size: 25px;
+  font-size: 26px;
   font-weight: 400;
   letter-spacing: -0.01em;
   line-height: 1;
-  color: var(--accent-ink);
+  /* 오리에서 뽑은 노랑. 흰 배경 대비 1.45:1 이라 글자만으로는 안 읽힌다.
+     그림 속 오리가 검은 테두리를 두르고 있으니 글자도 같은 방식으로 두른다.
+     로고타입은 WCAG 대비 규정 대상이 아니다 (1.4.3 예외) */
+  color: #fbd101;
+  -webkit-text-stroke: 2.5px #241a1f;
+  paint-order: stroke fill;
 }
 
 /* 헤더 검색. 목록과 지도가 같은 질의를 쓰므로 입구를 하나로 둔다 */
