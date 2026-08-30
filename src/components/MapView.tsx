@@ -252,8 +252,13 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
       el.className = `pin ${kindClass}${count > 1 ? ' pin--cluster' : ''}`
       el.innerHTML =
         '<span class="pin__kind"></span><span class="pin__name"></span><span class="pin__tail"></span>'
+      // 앞칸은 항상 유형이다. 묶였을 때만 '2곳' 으로 바뀌면 옆 핀은 '생카',
+      // 이 핀은 '2곳' 이라 같은 자리에 다른 종류의 말이 들어가 읽는 축이 흔들린다.
+      // 개수는 뒤칸의 '외 N' 이 이미 말해준다
       el.querySelector('.pin__kind')!.textContent =
-        count > 1 ? `${count}곳` : EVENT_KIND_LABELS[head.kind]
+        kinds.size === 1
+          ? EVENT_KIND_LABELS[head.kind]
+          : [...kinds].map((k) => EVENT_KIND_LABELS[k]).join('·')
       // 대상명은 사용자 데이터라 textContent 로 넣는다
       el.querySelector('.pin__name')!.textContent =
         count > 1 ? `${head.subject} 외 ${count - 1}` : head.subject

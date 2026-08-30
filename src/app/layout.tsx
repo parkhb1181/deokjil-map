@@ -1,7 +1,17 @@
 import type { Metadata, Viewport } from 'next'
+import { Jua } from 'next/font/google'
 import './globals.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
 import { siteUrl } from '@/lib/site'
+
+/**
+ * 로고 전용 글꼴. 본문에는 쓰지 않는다.
+ * 본문까지 이걸로 깔면 정보를 읽는 화면이 놀이 화면이 된다.
+ * 글자 세 개만 쓰므로 한글 서브셋 중 필요한 조각만 내려온다.
+ */
+// subsets 를 지정하지 않는다. next/font 타입은 Jua 에 latin 만 열어두는데
+// 실제로 필요한 건 한글 글리프다. preload 를 끄면 전체를 받아 쓴다
+const jua = Jua({ weight: '400', display: 'swap', variable: '--font-logo', preload: false })
 
 const TITLE = '덕모임 - 생카·팝업 정보 및 모임'
 const DESCRIPTION =
@@ -55,7 +65,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>
+      <body className={jua.variable}>
         {children}
         <AnalyticsScripts />
       </body>
