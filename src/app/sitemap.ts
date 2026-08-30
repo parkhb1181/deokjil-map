@@ -13,8 +13,17 @@ import { siteUrl } from '@/lib/site'
 export default function sitemap(): MetadataRoute.Sitemap {
   const events = rawEvents as EventItem[]
 
+  // 대상별 목록. 롱테일 검색("정국 생일카페")이 홈이 아니라 여기로 들어와야 한다.
+  // 개별 이벤트보다 상위로 둔다. 한 대상에 여러 곳이 걸리는 쪽이 답에 가깝다
+  const subjects = [...new Set(events.map((e) => e.subject.trim()).filter(Boolean))]
+
   return [
     { url: siteUrl, changeFrequency: 'daily', priority: 1 },
+    ...subjects.map((s) => ({
+      url: `${siteUrl}/a/${encodeURIComponent(s)}`,
+      changeFrequency: 'daily' as const,
+      priority: 0.8,
+    })),
     ...events.map((e) => ({
       url: `${siteUrl}/e/${encodeURIComponent(e.id)}`,
       changeFrequency: 'daily' as const,
