@@ -74,7 +74,9 @@ export async function generateMetadata({
   const kindLabel =
     kinds.size === 1 ? EVENT_KIND_LABELS[events[0].kind] : '생카·팝업'
 
-  const title = `${subject} ${kindLabel} ${events.length}곳`
+  // 이름 뒤에 단위를 붙이지 않는다. 세는 대상은 카페인데 '정국 22곳' 은
+  // 정국을 센 것처럼 읽힌다. 유형을 사이에 넣어 무엇을 세는지 분명히 한다
+  const title = `${subject} ${kindLabel} ${events.length}`
   const description = `${districtSummary(events)}. 장소와 기간을 지도와 목록으로 모아 봅니다. 매일 갱신.`
 
   return {
@@ -96,6 +98,8 @@ export default async function SubjectPage({
   if (!hit) notFound()
 
   const { subject, events } = hit
+  const kinds = new Set(events.map((e) => e.kind))
+  const kindLabel = kinds.size === 1 ? EVENT_KIND_LABELS[events[0].kind] : '생카·팝업'
 
   // 목록형 구조화 데이터. 개별 이벤트의 상세는 /e/{id} 가 이미 Event 로 내보내고
   // 있으므로 여기서는 그쪽을 가리키기만 한다. 같은 사실을 두 번 주장하지 않는다
@@ -123,7 +127,8 @@ export default async function SubjectPage({
         <article className="sheet">
           <div className="sheet__head">
             <h1>
-              {subject} {events.length}곳
+              {subject} {kindLabel}
+              <span className="sheet__n">{events.length}</span>
             </h1>
             <p className="sheet__address">{districtSummary(events)}</p>
           </div>

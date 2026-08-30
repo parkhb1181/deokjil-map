@@ -1634,3 +1634,20 @@ a { color: inherit; }
   .rank__hero, .rank__card { transition: transform 0.16s ease; }
   .rank__hero:active, .rank__card:active { transform: scale(0.985); }
 }
+
+/* 대상 페이지 제목 옆 개수. 이름 뒤에 단위를 붙이지 않기 위해 배지로 뗀다 */
+.sheet__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  margin-left: 8px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--accent-deep);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  vertical-align: middle;
+}
