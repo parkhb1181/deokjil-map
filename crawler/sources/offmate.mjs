@@ -1,11 +1,11 @@
 /**
- * 오프메이트(offmate.kr) 수집기 — 생일카페.
+ * 오프메이트(offmate.kr) 수집기, 생일카페.
  *
  * robots.txt 가 `User-agent: * / Allow: /` 이고 차단 경로가 없다. 사이트맵도 공개한다.
  *
  * 상세 페이지는 Next.js SSR 이고 __NEXT_DATA__ 에 레코드가 통째로 들어 있다.
  * 좌표(cafeAddressLat/Lng)와 아티스트(memberName/groupName)가 구조화돼 있어
- * 지오코딩도, K-pop 화이트리스트도 필요 없다 — 팝가에서 겪은 두 문제가 여기선 없다.
+ * 지오코딩도, K-pop 화이트리스트도 필요 없다. 팝가에서 겪은 두 문제가 여기선 없다.
  */
 import { fetchText } from '../lib/http.mjs'
 
@@ -76,7 +76,7 @@ export function extract(html, url) {
     groupName: cafe.artist?.groupName ?? null,
     birthDate: cafe.artist?.birthDate ?? null,
 
-    // 특전. ID 배열이라 이름 매핑은 아직 없다 — 개수만으로도 "특전 N종" 표기가 된다
+    // 특전. ID 배열이라 이름 매핑은 아직 없다. 개수만으로도 "특전 N종" 표기가 된다
     specialGoods: cafe.specialGoods ?? [],
     firstComeGoods: cafe.firstComeGoods ?? [],
     optionalSpecialGoods: cafe.optionalSpecialGoods ?? [],

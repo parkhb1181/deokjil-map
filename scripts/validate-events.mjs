@@ -5,7 +5,7 @@
  * 팝가가 페이로드 형식을 바꾸면 crawler/sources/popga.mjs 의 정규식 추출이
  * 조용히 빈 값을 뱉는데, 그대로 커밋되면 틀린 데이터가 배포된다.
  *
- * 여기서 걸러 실패시킨다 — 낡은 데이터가 남는 편이 틀린 데이터보다 낫다.
+ * 여기서 걸러 실패시킨다. 낡은 데이터가 남는 편이 틀린 데이터보다 낫다.
  */
 import { readFileSync } from 'node:fs'
 
@@ -22,13 +22,13 @@ if (events.length < FLOOR) {
 for (const e of events) {
   const at = `${e.id} (${e.subject})`
 
-  // 출처를 속이지 않는다 — CLAUDE.md 1번 규칙.
+  // 출처를 속이지 않는다. CLAUDE.md 1번 규칙.
   // source_url 은 주최자 원문이어야 한다. 리스팅이 여기 오면 화면의
   // "공식 공지 보기" 가 경쟁 리스팅으로 연결된다
   if (!e.source_url) {
     problems.push(`${at}: source_url 이 없다`)
   } else if (/popga\.co\.kr|offmate/.test(e.source_url)) {
-    problems.push(`${at}: source_url 이 리스팅이다 — ${e.source_url}`)
+    problems.push(`${at}: source_url 이 리스팅이다. ${e.source_url}`)
   }
 
   if (e.trust === 'official') {
@@ -40,15 +40,15 @@ for (const e of events) {
   }
 
   if (!Number.isFinite(e.place?.lat) || !Number.isFinite(e.place?.lng)) {
-    problems.push(`${at}: 좌표가 없다 — 지도에 안 뜬다`)
+    problems.push(`${at}: 좌표가 없다. 지도에 안 뜬다`)
   }
 }
 
 if (problems.length) {
-  console.error(`검증 실패 — ${problems.length}건\n`)
+  console.error(`검증 실패, ${problems.length}건\n`)
   for (const p of problems.slice(0, 40)) console.error('  ' + p)
   if (problems.length > 40) console.error(`  ... 외 ${problems.length - 40}건`)
   process.exit(1)
 }
 
-console.log(`검증 통과 — ${events.length}건`)
+console.log(`검증 통과, ${events.length}건`)

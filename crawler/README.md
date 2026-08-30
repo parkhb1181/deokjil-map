@@ -24,7 +24,7 @@ node crawler/to-events.mjs --all             # K-pop 필터 없이 전부
 5. **원본을 재게시하지 않는다.** 수집 원본은 `data/raw/` 에만 두고 커밋하지 않는다.
    앱에는 사실 정보(장소·기간·시간)만 싣고 **원문 링크를 반드시 노출**한다.
 6. **출처를 속이지 않는다.** 팝가에서 온 데이터의 `source_url` 은 팝가 링크이고
-   `trust` 는 `parsed` 다. 확인하지 않은 것을 `official` 로 올리지 않는다 —
+   `trust` 는 `parsed` 다. 확인하지 않은 것을 `official` 로 올리지 않는다 
    그 표기가 틀리면 poc-plan 1번의 정합성 방어가 통째로 무너진다.
 
 ## robots.txt 확인 결과 (2026-08-27)
@@ -39,7 +39,7 @@ node crawler/to-events.mjs --all             # K-pop 필터 없이 전부
 
 ### popga (`sources/popga.mjs`)
 
-- 색인: `sitemap/2.xml` — 팝업 상세 2,800건 이상, `lastmod` 포함
+- 색인: `sitemap/2.xml`, 팝업 상세 2,800건 이상, `lastmod` 포함
 - 상세는 서버 렌더링. Next.js RSC 페이로드 안에 팝업 레코드가 JSON 으로 들어 있다
 - **좌표(`latitude`/`longitude`)가 포함돼 지오코딩이 필요 없다**
 - 뽑는 필드: `title` `periodType` `openDate` `closeDate` `operationTime`
@@ -50,13 +50,13 @@ RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 �
 
 ### 검토했으나 쓰지 않는 것
 
-- **팝플리** — 상세 페이지에 schema.org `Event` JSON-LD 가 있어 품질이 좋지만,
+- **팝플리**, 상세 페이지에 schema.org `Event` JSON-LD 가 있어 품질이 좋지만,
   사이트맵에 상세 URL 이 없어 색인을 만들 수 없다. 검색 페이지는 JS 렌더링이고
   내부 API 는 robots.txt 가 막았다. ID 순회는 무차별 스캔이라 하지 않는다
-- **덕플레이스** — robots.txt 가 일부 크롤러를 막고 있고 403 을 반환한다
-- **카카오 검색 API** — REST 키로 동작 확인. 생일카페 관련 문서가 잡히지만
+- **덕플레이스**, robots.txt 가 일부 크롤러를 막고 있고 403 을 반환한다
+- **카카오 검색 API**, REST 키로 동작 확인. 생일카페 관련 문서가 잡히지만
   커뮤니티 잡담이 섞여 정밀도가 낮다. 생카 보강용으로 남겨둔다
-- **X / 인스타그램** — 로그인 벽. poc-plan 5.3 대로 X API 는 쓰지 않는다
+- **X / 인스타그램**, 로그인 벽. poc-plan 5.3 대로 X API 는 쓰지 않는다
 
 ## 수집과 가공의 분리
 
@@ -66,8 +66,8 @@ RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 �
 `to-events.mjs` 가 하는 일:
 
 - 서울 밖 제외, 좌표 없는 것 제외
-- **종료된 것 제외** — 지난 정보는 없는 정보보다 나쁘다 (poc-plan 4.3)
-- K-pop 판정 — 카테고리(`연예인/셀럽` 등) 또는 태그로 1차 필터.
+- **종료된 것 제외**, 지난 정보는 없는 정보보다 나쁘다 (poc-plan 4.3)
+- K-pop 판정, 카테고리(`연예인/셀럽` 등) 또는 태그로 1차 필터.
   팝가는 K-pop 여부를 구분하지 않으므로 **재현율을 우선**하고 정밀도는 사람이 올린다
 - 주소·태그로 구역(`hongdae`/`hapjeong`/`seongsu`/…) 판정
 

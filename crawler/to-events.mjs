@@ -30,11 +30,11 @@ const SEOUL_PREFIX = '서울'
 /**
  * 구역 판정.
  *
- * 순서가 중요하다 — 세부 구역(홍대·합정·성수)이 구(區) 단위보다 먼저 걸려야 한다.
+ * 순서가 중요하다. 세부 구역(홍대·합정·성수)이 구(區) 단위보다 먼저 걸려야 한다.
  * 팬덤의 동선 단위가 "마포구"가 아니라 "홍대"이기 때문이다.
  * 세부 구역에 안 걸리는 것만 구 단위로 떨어진다.
  *
- * 도로명은 동(洞) 이름과 다르다. '동교동'만 넣으면 '동교로34길'이 통째로 샌다 —
+ * 도로명은 동(洞) 이름과 다르다. '동교동'만 넣으면 '동교로34길'이 통째로 샌다 
  * 실제로 홍대 권역 23건이 'etc'에 쌓여 있었다. 도로명을 따로 나열하는 이유다.
  *
  * 반대로 넓게 잡으면 다른 구의 같은 이름에 걸린다. 광진구에도 뚝섬로가 있고
@@ -44,7 +44,7 @@ const DISTRICT_RULES = [
   {
     district: 'hongdae',
     // 연남·동교는 홍대와 걸어서 이어지는 한 동선이라 따로 가르지 않는다.
-    // 마포구 신촌로는 홍대입구역 권역이다 — 서대문구 신촌로(진짜 신촌)와 다르다
+    // 마포구 신촌로는 홍대입구역 권역이다. 서대문구 신촌로(진짜 신촌)와 다르다
     test: (a) =>
       /서교동|홍대|홍익로|와우산로|어울마당로|동교동|동교로|성미산로|월드컵북로|연남/.test(a) ||
       (/마포구/.test(a) && /신촌로/.test(a)) ||
@@ -78,13 +78,13 @@ const DISTRICT_RULES = [
 ]
 
 /**
- * K-pop 판정 — 아티스트 화이트리스트 대조.
+ * K-pop 판정, 아티스트 화이트리스트 대조.
  *
  * 팝가 카테고리는 "연예인/셀럽"까지만 구분하고 K-pop 여부를 알려주지 않는다.
  * 카테고리만 쓰면 브랜드 팝업(앰버서더 태그)·일본 가수·게임 IP 가 전부 섞여 들어온다.
  * 실제로 재현율 우선 필터에서는 43건 중 실제 K-pop 이 5~8건이었다.
  *
- * 그래서 화이트리스트로 간다. 커버리지가 줄어드는 것은 감수한다 —
+ * 그래서 화이트리스트로 간다. 커버리지가 줄어드는 것은 감수한다 
  * "K-pop 만" 이라는 요구와 높은 재현율은 이 데이터로는 양립하지 않는다.
  * 누락이 보이면 crawler/kpop-artists.json 에만 추가하면 되고,
  * 수집 원본이 남아 있어 다시 긁지 않아도 된다.
@@ -137,7 +137,7 @@ function matchArtist(rec) {
  * 제목이 "정국 생일카페 - 24시 꾸꾸 편의점" 형태라 대상과 장소를 여기서 가른다.
  */
 function parseBirthdayCafe(title) {
-  const m = title.match(/^(.+?)\s*생일\s*카페\s*(?:[-–—]\s*(.+))?$/)
+  const m = title.match(/^(.+?)\s*생일\s*카페\s*(?:[-–]\s*(.+))?$/)
   if (!m) return null
   return { subject: m[1].trim(), place: m[2]?.trim() || null }
 }
@@ -150,7 +150,7 @@ function parseBirthdayCafe(title) {
  * 태그에 지점명이 전부 들어 있어서다.
  *
  * 그래서 주소로 먼저 판정하고, 주소만으로 못 가른 것에만 태그를 본다.
- * 태그에는 구(區)가 없으므로 구 조건이 붙은 규칙은 태그로 걸리지 않는다 —
+ * 태그에는 구(區)가 없으므로 구 조건이 붙은 규칙은 태그로 걸리지 않는다 
  * 그게 의도한 동작이다.
  */
 function districtOf(address, tags = '') {
@@ -206,7 +206,7 @@ function toEvent(rec, artist) {
       kind: cafe ? 'cafe' : 'popup_venue',
     },
     // 카드에는 대상명이 앞에 와야 한다.
-    // 생카는 제목 앞쪽이 대상명이고, 팝업은 매칭된 아티스트명을 쓴다 —
+    // 생카는 제목 앞쪽이 대상명이고, 팝업은 매칭된 아티스트명을 쓴다 
     // 팝업 제목은 "아임도넛 X 키스오브라이프 팝업 @홍대"처럼 브랜드가 앞서는 경우가 많다
     subject: cafe?.subject ?? artist ?? rec.title.replace(/\s*팝업(\s*스토어)?\s*$/, '').trim(),
     title: rec.title,
@@ -215,7 +215,7 @@ function toEvent(rec, artist) {
     starts_on: rec.openDate,
     ends_on: rec.closeDate,
     ...(rec.operationTime?.length ? { open_hours: rec.operationTime.join(' / ') } : {}),
-    // 공식 원문이 있으면 그쪽으로 보낸다. 팝가 링크는 백업으로 남긴다 —
+    // 공식 원문이 있으면 그쪽으로 보낸다. 팝가 링크는 백업으로 남긴다 
     // 사용자를 공급처로 보내는 것이 정합성 방어의 핵심이다 (poc-plan 1번)
     source_url: rec.instagram || rec.website || rec.source_url,
     ...(rec.instagram || rec.website ? { listing_url: rec.source_url } : {}),
@@ -302,7 +302,7 @@ const rows = inSeoulAndOpen
 /**
  * 화이트리스트 누락 후보.
  *
- * 화이트리스트에 없는 팀은 조용히 사라진다 — 그게 이 방식의 대가다.
+ * 화이트리스트에 없는 팀은 조용히 사라진다. 그게 이 방식의 대가다.
  * 문제는 "빠졌다"는 사실 자체가 아무 신호도 내지 않는다는 것이다.
  * 신인이 데뷔할 때마다 커버리지가 깎이는데 아무도 모른다.
  *
@@ -335,7 +335,7 @@ const all = [...rows.map(({ rec, artist }) => toEvent(rec, artist)), ...cafeEven
  * 원문을 못 찾은 것은 싣지 않는다.
  *
  * 두 소스 모두 주최자 계정이 없으면 `source_url` 이 리스팅 주소로 떨어진다.
- * 그대로 두면 화면의 "공식 공지 보기" 가 경쟁 리스팅으로 연결된다 — 출처를
+ * 그대로 두면 화면의 "공식 공지 보기" 가 경쟁 리스팅으로 연결된다. 출처를
  * 속이는 것이고, 앱에 원문 링크를 반드시 노출한다는 규칙도 깨진다.
  *
  * 빼는 쪽을 고른 이유: 링크 없이 정보만 실으면 사용자가 확인할 방법이 없다.
@@ -363,12 +363,12 @@ console.log(
 // 조용히 줄어들면 수집이 깨진 것과 구분되지 않는다. 항상 드러낸다
 if (dropped) console.log(`원문 없어 제외: ${dropped}건`)
 
-// 후보는 파일로도 남긴다 — 자동 갱신이 새벽에 돌아 로그를 아무도 안 볼 때,
+// 후보는 파일로도 남긴다. 자동 갱신이 새벽에 돌아 로그를 아무도 안 볼 때,
 // 워크플로가 이 파일을 읽어 실행 요약에 붙인다
 writeFileSync(MISS_OUT, JSON.stringify(missCandidates, null, 2) + '\n', 'utf8')
 
 if (missCandidates.length) {
-  console.log(`\n화이트리스트 누락 후보 ${missCandidates.length}건 — ${MISS_OUT}`)
+  console.log(`\n화이트리스트 누락 후보 ${missCandidates.length}건, ${MISS_OUT}`)
   console.log('  (K-pop 이면 crawler/kpop-artists.json 에 추가하고 이 스크립트만 다시 돌린다)')
   for (const c of missCandidates) console.log(`  - ${c.title}`)
 }

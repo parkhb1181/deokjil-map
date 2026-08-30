@@ -12,7 +12,7 @@ import { setTimeout as sleep } from 'node:timers/promises'
 export const USER_AGENT =
   'deokjil-map-poc/0.1 (+https://github.com/Aru428/deokjil-map; research prototype)'
 
-/** 요청 간 최소 간격(ms). 낮추지 말 것 — 예의이자 차단 회피의 반대다 */
+/** 요청 간 최소 간격(ms). 낮추지 말 것, 예의이자 차단 회피의 반대다 */
 export const POLITE_DELAY_MS = 700
 
 let lastRequestAt = 0
@@ -84,7 +84,7 @@ export async function isAllowed(origin, path) {
 
   if (!applicable) return { allowed: true, reason: '해당 규칙 없음 (기본 허용)' }
 
-  // 가장 긴 경로 규칙이 이긴다 — 표준 우선순위
+  // 가장 긴 경로 규칙이 이긴다. 표준 우선순위
   let best = null
   for (const rule of applicable.rules) {
     if (rule.path === '') continue

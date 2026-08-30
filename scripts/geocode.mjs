@@ -7,7 +7,7 @@
  * place.lat / place.lng 가 비어 있는 항목만 카카오 로컬 API로 채운다.
  * 이미 좌표가 있으면 건너뛰므로 여러 번 돌려도 안전하다.
  *
- * 좌표가 틀리면 지도 제품은 통째로 죽는다 — 정합성 비검증 원칙의 유일한 예외라
+ * 좌표가 틀리면 지도 제품은 통째로 죽는다. 정합성 비검증 원칙의 유일한 예외라
  * 실패 항목을 조용히 넘기지 않고 끝에 모아 보고한다.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -97,7 +97,7 @@ for (const ev of events) {
   try {
     // 도로명·지번이 있는 주소만 address 검색에 쓴다.
     // "서울 성동구"처럼 구 단위까지만 있으면 구청 좌표가 잡혀서 서로 다른 장소가
-    // 같은 점에 찍힌다 — 서울 안이라 경계 검사로도 안 걸리는 조용한 오류다
+    // 같은 점에 찍힌다. 서울 안이라 경계 검사로도 안 걸리는 조용한 오류다
     if (p.address && hasStreetLevel(p.address)) {
       hit = await lookup(p.address, 'address')
     }
@@ -116,7 +116,7 @@ for (const ev of events) {
     failures.push({
       id: ev.id,
       name: p.name,
-      reason: `서울 밖 좌표 (${hit.lat}, ${hit.lng}) — 주소 확인 필요`,
+      reason: `서울 밖 좌표 (${hit.lat}, ${hit.lng}), 주소 확인 필요`,
     })
   } else {
     p.lat = hit.lat
@@ -145,7 +145,7 @@ writeFileSync(TARGET, JSON.stringify(events, null, 2) + '\n', 'utf8')
 console.log(`\n채움 ${filled} · 건너뜀 ${skipped} · 실패 ${failures.length}`)
 
 if (collisions.length) {
-  console.log('\n같은 좌표에 뭉친 장소 — 주소가 구 단위까지만 있는지 확인하세요:')
+  console.log('\n같은 좌표에 뭉친 장소, 주소가 구 단위까지만 있는지 확인하세요:')
   for (const [point, list] of collisions) {
     console.log(`  ${point}`)
     for (const item of list) console.log(`    ${item}`)
@@ -154,7 +154,7 @@ if (collisions.length) {
 }
 
 if (failures.length) {
-  console.log('\n좌표를 못 채운 항목 — 수동 확인이 필요합니다:')
+  console.log('\n좌표를 못 채운 항목, 수동 확인이 필요합니다:')
   for (const f of failures) console.log(`  ${f.id} ${f.name}: ${f.reason}`)
   process.exitCode = 1
 }

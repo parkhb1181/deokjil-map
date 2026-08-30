@@ -8,7 +8,7 @@
  * 3) 각 상세를 예의 있는 간격으로 가져와 원본 레코드를 저장한다
  *
  * 결과는 data/raw/crawl/<source>.json 에 쌓인다 (커밋되지 않는다).
- * 정규화·필터는 to-events.mjs 가 맡는다 — 수집과 가공을 분리해두면
+ * 정규화·필터는 to-events.mjs 가 맡는다. 수집과 가공을 분리해두면
  * 필터 기준을 바꿀 때 다시 긁지 않아도 된다.
  */
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -59,7 +59,7 @@ for (const name of targets) {
   console.log(`\n[${name}]`)
 
   const gate = await isAllowed(src.origin, src.path)
-  console.log(`  robots.txt: ${gate.allowed ? '허용' : '차단'} — ${gate.reason}`)
+  console.log(`  robots.txt: ${gate.allowed ? '허용' : '차단'}, ${gate.reason}`)
   if (!gate.allowed) {
     console.error(`  robots.txt 가 ${src.path} 를 허용하지 않는다. 이 소스를 건너뛴다.`)
     continue
@@ -90,5 +90,5 @@ for (const name of targets) {
     'utf8',
   )
   console.log(`  저장: ${OUT_DIR}/${name}.json (${records.length}건)`)
-  if (failures.length) console.log(`  실패 ${failures.length}건 — 같은 파일의 failures 참조`)
+  if (failures.length) console.log(`  실패 ${failures.length}건, 같은 파일의 failures 참조`)
 }
