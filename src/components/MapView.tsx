@@ -258,7 +258,12 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
       el.querySelector('.pin__kind')!.textContent =
         kinds.size === 1
           ? EVENT_KIND_LABELS[head.kind]
-          : [...kinds].map((k) => EVENT_KIND_LABELS[k]).join('·')
+          : // 순서를 고정한다. Set 순회 순서를 그대로 쓰면 묶음마다
+            // '생카·팝업' 과 '팝업·생카' 가 섞여 나온다
+            (['birthday_cafe', 'popup'] as const)
+              .filter((k) => kinds.has(k))
+              .map((k) => EVENT_KIND_LABELS[k])
+              .join('·')
       // 대상명은 사용자 데이터라 textContent 로 넣는다
       el.querySelector('.pin__name')!.textContent =
         count > 1 ? `${head.subject} 외 ${count - 1}` : head.subject
