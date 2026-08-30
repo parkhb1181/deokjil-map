@@ -33,3 +33,6 @@ data/miss-candidates.json
 
 # OG 카드용 축소 사진. 빌드마다 다시 만든다
 public/og/
+
+# IndexNow 키. 도메인 소유 증명이라 public/ 의 키 파일과 짝이다
+.indexnow-key

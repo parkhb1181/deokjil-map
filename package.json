@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "predev": "node scripts/check-port.mjs",
     "dev:lan": "next dev -p 3000 -H 0.0.0.0",
-    "prebuild": "node scripts/og-shots.mjs"
+    "prebuild": "node scripts/og-shots.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
