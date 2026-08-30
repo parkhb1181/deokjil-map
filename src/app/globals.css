@@ -940,6 +940,23 @@ a { color: inherit; }
   text-overflow: ellipsis;
 }
 
+/* 묶인 개수. 숫자만 떼어 놓으면 단위가 필요 없다 */
+.pin__n {
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  border: 1px solid var(--border-mid);
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+}
+.pin__n:empty { display: none; }
+
 /* 핀 꼬리, 정확한 좌표를 가리킨다 */
 .pin__tail {
   position: absolute;

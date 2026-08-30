@@ -251,7 +251,8 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
       el.type = 'button'
       el.className = `pin ${kindClass}${count > 1 ? ' pin--cluster' : ''}`
       el.innerHTML =
-        '<span class="pin__kind"></span><span class="pin__name"></span><span class="pin__tail"></span>'
+        '<span class="pin__kind"></span><span class="pin__name"></span>' +
+        '<span class="pin__n"></span><span class="pin__tail"></span>'
       // 앞칸은 항상 유형이다. 묶였을 때만 '2곳' 으로 바뀌면 옆 핀은 '생카',
       // 이 핀은 '2곳' 이라 같은 자리에 다른 종류의 말이 들어가 읽는 축이 흔들린다.
       // 개수는 뒤칸의 '외 N' 이 이미 말해준다
@@ -265,10 +266,11 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
               .map((k) => EVENT_KIND_LABELS[k])
               .join('·')
       // 대상명은 사용자 데이터라 textContent 로 넣는다
-      el.querySelector('.pin__name')!.textContent =
-        // '외 N' 은 이 자리에서 어색하게 읽힌다. 앞칸이 이미 유형을 말하므로
-        // 뒤칸은 대상과 개수만 있으면 된다
-        count > 1 ? `${head.subject} ${count}곳` : head.subject
+      el.querySelector('.pin__name')!.textContent = head.subject
+      // 개수는 글자로 붙이지 않는다. '정국 3곳' 은 세는 대상이 카페인데
+      // 단위가 사람 이름에 붙어 정국을 센 것처럼 읽힌다.
+      // 숫자만 배지로 떼어 놓으면 단위 자체가 필요 없다
+      el.querySelector('.pin__n')!.textContent = count > 1 ? String(count) : ''
       el.setAttribute(
         'aria-label',
         count > 1 ? `이 지점 ${count}곳 목록 열기` : `${head.subject} 요약 열기`,
@@ -441,7 +443,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
         )}
 
         <p className="mapwrap__count">
-          핀 {pins.length}곳
+          {pins.length}곳
           {clusters.length < pins.length && (
             <span className="mapwrap__folded"> · {clusters.length}묶음</span>
           )}
