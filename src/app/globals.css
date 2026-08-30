@@ -400,7 +400,7 @@ a { color: inherit; }
   cursor: pointer;
 }
 .bottomnav__item--on { color: var(--accent-deep); font-weight: 700; }
-.bottomnav__icon { font-size: 17px; line-height: 1; }
+.bottomnav__icon { width: 22px; height: 22px; display: block; }
 
 .footer__notice {
   margin-top: 6px;
@@ -1403,21 +1403,8 @@ a { color: inherit; }
 
 /* ── 로고 ─────────────────────────────────────────────── */
 .header__logo { display: flex; align-items: center; min-width: 0; }
-.logo { display: inline-flex; align-items: center; gap: 7px; }
-.logo__mark { display: block; height: 32px; width: auto; image-rendering: pixelated; }
-.logo__word {
-  font-family: var(--font-logo), 'Apple SD Gothic Neo', sans-serif;
-  font-size: 26px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  /* 노랑은 오리만 쓴다.
-     글자까지 노랑으로 두면 화면에 노랑이 둘이라 서로 소리치고,
-     노랑은 흰 배경 대비가 1.45:1 이라 테두리를 둘러야만 읽혀서
-     그 테두리가 스티커처럼 보였다.
-     마스코트 색과 UI 색을 나눠 두면 노랑이 화면에서 유일해져 오히려 눈에 띈다 */
-  color: var(--accent-ink);
-}
+/* 락업 이미지 하나로 쓴다. 세로만 맞추고 가로는 비율대로 */
+.logo { display: block; height: 34px; width: auto; }
 
 /* 헤더 검색. 목록과 지도가 같은 질의를 쓰므로 입구를 하나로 둔다 */
 .header__searchinput {
