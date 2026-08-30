@@ -19,6 +19,7 @@ export const SUBJECT_SLUGS: Record<string, string> = {
   성호: 'sungho', // @targetsungho, #sungho
   장원영: 'wonyoung', // #JANGWONYOUNG, #WONYOUNG
   준규: 'junkyu', // #JUNKYU
+  안유진: 'anyujin', // 디시 안유진 마이너갤 id=anyujin
 }
 
 /** 별칭 → 대상명 */
