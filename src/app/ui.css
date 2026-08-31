@@ -736,3 +736,57 @@
   border-radius: 999px;
   font-size: 12px;
 }
+
+/* ── 로그인 ───────────────────────────────────────────── */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px var(--gutter) 40px;
+  min-height: calc(100dvh - 52px);
+}
+.login__mark { width: 132px; height: 132px; object-fit: contain; }
+
+.login__title {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.36;
+  color: var(--text);
+}
+.login__desc {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+/* 버튼을 화면 아래쪽에 붙인다. 엄지가 닿는 곳이다 */
+.login__acts {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login__terms {
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.login__terms a { color: var(--text-dim); }
+
+.login__skip {
+  margin-top: 18px;
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-mute);
+  text-decoration: underline;
+}
