@@ -62,9 +62,19 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
 /* 스크롤로 한 번 떠오르고 마는 것으로는 눈에 안 띈다.
    천천히 오르내리게 둔다. 스크롤 등장 애니메이션은 transform 을 쓰므로
    그것과 부딪히지 않도록 안쪽에 감싼 요소를 따로 움직인다 */
-@keyframes in-bob { 0%,100% { transform: translateY(0) rotate(-.6deg) } 50% { transform: translateY(-18px) rotate(.6deg) } }
-.in-bob { animation: in-bob 5.5s ease-in-out infinite; will-change: transform }
-@media (prefers-reduced-motion: reduce) { .in-bob { animation: none } }
+</style>
+<style>
+/* 프레임을 겹쳐 쌓고 보이는 것만 바꾼다. 첫 장이 자리를 잡고
+   나머지는 그 위에 절대 위치로 올라간다 */
+.in-duck { position: relative; width: 100%; height: 100%; }
+.in-duckf {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  filter: drop-shadow(0 24px 30px rgba(0,0,0,.5));
+}
+.in-duckf--on { opacity: 1; }
 </style>
 </head>
 <body>
@@ -318,8 +328,8 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
   <!-- ABOUT -->
   <section data-screen-label="About" style="position:relative;background:#171717;padding:110px 26px 90px;overflow:hidden">
     <div style="position:relative;max-width:1148px;margin:0 auto">
-      <div style="position:absolute;left:0;top:-30px;width:640px;height:520px;opacity:.9">
-        <div style="width:100%;height:100%"><img class="in-bob" src="duck.png" alt="덕모임 오리" style="width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 24px 30px rgba(0,0,0,.5))"></div>
+      <div style="position:absolute;left:0;top:0;width:380px;height:494px;opacity:.95">
+        <div class="in-duck"><img class="in-duckf" data-i="0" src="turn/000.webp" alt="덕모임 오리" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="1" src="turn/001.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="2" src="turn/002.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="3" src="turn/003.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="4" src="turn/004.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="5" src="turn/005.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="6" src="turn/006.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="7" src="turn/007.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="8" src="turn/008.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="9" src="turn/009.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="10" src="turn/010.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="11" src="turn/011.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="12" src="turn/012.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="13" src="turn/013.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="14" src="turn/014.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="15" src="turn/015.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="16" src="turn/016.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="17" src="turn/017.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="18" src="turn/018.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="19" src="turn/019.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="20" src="turn/020.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="21" src="turn/021.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="22" src="turn/022.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="23" src="turn/023.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="24" src="turn/024.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="25" src="turn/025.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="26" src="turn/026.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="27" src="turn/027.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="28" src="turn/028.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="29" src="turn/029.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="30" src="turn/030.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="31" src="turn/031.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="32" src="turn/032.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="33" src="turn/033.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="34" src="turn/034.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="35" src="turn/035.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="36" src="turn/036.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="37" src="turn/037.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="38" src="turn/038.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="39" src="turn/039.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="40" src="turn/040.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="41" src="turn/041.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="42" src="turn/042.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="43" src="turn/043.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="44" src="turn/044.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="45" src="turn/045.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="46" src="turn/046.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="47" src="turn/047.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="48" src="turn/048.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="49" src="turn/049.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="50" src="turn/050.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="51" src="turn/051.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="52" src="turn/052.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="53" src="turn/053.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="54" src="turn/054.webp" alt="" loading="eager" fetchpriority="low" decoding="async"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,23,23,0) 46%,rgba(23,23,23,.55) 78%,rgba(23,23,23,.85) 100%);pointer-events:none"></div>
       </div>
       <div style="position:relative;max-width:460px;margin-left:auto;margin-right:0;padding-top:20px">
@@ -619,6 +629,47 @@ class Component extends DCLogic {
     }).length >= 3
     return cards && quotes
   })
+
+  /* ── 오리 각도 ──────────────────────────────────────────
+     소개 구간을 지나는 동안 위에서 내려다보는 각도에서
+     아래에서 올려다보는 각도로 넘어간다.
+     진행도는 요소가 화면을 지나간 정도로 잰다. 페이지 전체 스크롤량으로
+     재면 위아래 섹션이 늘어날 때마다 타이밍이 어긋난다 */
+  ;(function () {
+    var last = -1
+    function draw() {
+      /* 런타임이 이 구간을 다시 그리면 잡아둔 요소가 문서에서 떨어진다.
+         떨어진 요소에 클래스를 붙여도 화면은 그대로다. 매번 다시 찾는다 */
+      var wrap = document.querySelector('.in-duck')
+      if (!wrap) return
+      var fs = [].slice.call(wrap.querySelectorAll('.in-duckf'))
+      if (!fs.length) return
+      /* 오리 자리만 기준으로 재면 그 작은 상자가 화면을 지나는 동안
+         55장이 다 지나가 버린다. 섹션 전체가 지나가는 동안으로 넓힌다 */
+      var sec = wrap.closest ? wrap.closest('section') : null
+      var r = (sec || wrap).getBoundingClientRect()
+      var vh = innerHeight
+      var p = (vh - r.top) / (vh + r.height)
+      p = Math.max(0, Math.min(1, p))
+      var i = Math.round(p * (fs.length - 1))
+      if (i === last && fs[i].classList.contains('in-duckf--on')) return
+      fs.forEach(function (el, k) {
+        if (k !== i) el.classList.remove('in-duckf--on')
+      })
+      fs[i].classList.add('in-duckf--on')
+      last = i
+    }
+    var raf = 0
+    function onScroll() {
+      if (!raf) raf = requestAnimationFrame(function () { raf = 0; draw() })
+    }
+    draw()
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('resize', onScroll)
+    // 런타임이 다시 그린 직후를 놓치지 않도록 잠깐 되묻는다
+    var n = 0
+    var t = setInterval(function () { draw(); if (++n > 25) clearInterval(t) }, 200)
+  })()
 })()
 </script>
 </body></html>
