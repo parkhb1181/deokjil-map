@@ -1,0 +1,160 @@
+name: PR ↔ Jira 동기화
+
+# Everything in the GitHub → Jira direction lives here rather than in Jira
+# Automation: Actions runs are effectively unmetered, Jira Free rule runs are
+# capped at 100 a month for the whole site.
+# No `synchronize`: the only thing that needed refreshing on every push was the
+# commit-derived checklist, and that is gone. Jira titles and descriptions rarely
+# change mid-PR, so re-running on each push would rewrite an identical block.
+# Reopening a PR re-runs the hydration if it ever needs a retry.
+on:
+  pull_request:
+    types: [opened, reopened, closed]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 티켓 키 추출
+        id: key
+        env:
+          BRANCH: ${{ github.head_ref }}
+          PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+        run: |
+          key=$(printf '%s' "$BRANCH" | grep -oE "${PROJECT_KEY}-[0-9]+" | head -n 1 || true)
+
+          # No key means a hotfix or a bot PR. Those must not be blocked, so the
+          # rest of the job simply skips rather than failing.
+          if [ -z "$key" ]; then
+            echo "::notice::'$BRANCH' 에 ${PROJECT_KEY} 키가 없어 건너뜁니다 (핫픽스·봇 PR은 정상 통과)"
+          fi
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+
+      - name: 체크아웃
+        if: steps.key.outputs.key != ''
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      # Runs before the body is composed, so the status in the Jira block reads
+      # 검토 중 rather than the value from a moment ago. After this the status
+      # only changes at merge, by which point nobody reads the body for it.
+      - name: Jira → 검토 중
+        if: |
+          steps.key.outputs.key != '' &&
+          (github.event.action == 'opened' || github.event.action == 'reopened')
+        env:
+          KEY: ${{ steps.key.outputs.key }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          . .github/scripts/jira.sh
+          jira_transition "$KEY" "10002"   # 검토 중
+
+      - name: PR 본문 보강
+        if: steps.key.outputs.key != '' && github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEY: ${{ steps.key.outputs.key }}
+          PR: ${{ github.event.pull_request.number }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          . .github/scripts/jira.sh
+
+          jira_get "$KEY" > issue.json
+          gh pr view "$PR" --json body --jq '.body // ""' > body.txt
+
+          # The mirrored GitHub issue, so the body can carry `Closes #N` and the
+          # issue closes itself on merge.
+          num=$(gh issue list --state all --search "\"[$KEY]\" in:title" \
+                  --json number,title \
+                  --jq "first(.[] | select(.title | startswith(\"[$KEY]\")) | .number) // empty")
+
+          jq -n --slurpfile issue issue.json \
+                --rawfile body body.txt \
+                --arg num "$num" \
+                '{issue: $issue[0], body: $body,
+                  issue_number: (if $num == "" then null else ($num | tonumber) end)}' \
+            > payload.json
+
+          python3 .github/scripts/pr_body.py < payload.json > new_body.md
+          gh pr edit "$PR" --body-file new_body.md
+
+          echo "::notice::PR #$PR 본문 갱신 (Jira $KEY${num:+, closes #$num})"
+
+      # Without this the ticket is stranded in 검토 중 with no PR to review —
+      # the board claims it is under review and nobody is told otherwise.
+      # The branch and assignee are still there, so 진행 중 is the honest state;
+      # opening another PR moves it back to 검토 중 on its own.
+      - name: Jira → 진행 중 (PR 병합 없이 닫힘)
+        if: |
+          steps.key.outputs.key != '' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == false
+        env:
+          KEY: ${{ steps.key.outputs.key }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          . .github/scripts/jira.sh
+          jira_transition "$KEY" "10001"   # 진행 중
+
+      - name: Jira → 완료
+        if: |
+          steps.key.outputs.key != '' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        env:
+          KEY: ${{ steps.key.outputs.key }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          . .github/scripts/jira.sh
+          jira_transition "$KEY" "10003"   # 완료
+
+      - name: Slack 완료 알림
+        if: |
+          steps.key.outputs.key != '' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WEBHOOK: ${{ secrets.SLACK_WEBHOOK_TICKETS }}
+          KEY: ${{ steps.key.outputs.key }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          [ -n "$WEBHOOK" ] || { echo "::notice::SLACK_WEBHOOK_TICKETS 미설정 — 알림 건너뜀"; exit 0; }
+
+          # The Jira summary, not the PR title: the PR title already carries the
+          # [STAR-12] prefix from the commit, which would print the key twice.
+          # This also keeps the 시작 and 완료 messages reading identically.
+          . .github/scripts/jira.sh
+          summary=$(jira_get "$KEY" | jq -r '.fields.summary')
+
+          issue_url=$(gh issue list --state all --search "\"[$KEY]\" in:title" \
+                        --json number,title,url \
+                        --jq "first(.[] | select(.title | startswith(\"[$KEY]\")) | .url) // empty")
+
+          meta="$AUTHOR 님이 병합 | <${JIRA_BASE_URL%/}/browse/$KEY|Jira 티켓>"
+          [ -n "$issue_url" ] && meta="$meta | <$issue_url|GitHub 이슈>"
+
+          text=$(printf '✅ *%s 완료* — %s\n%s' "$KEY" "$summary" "$meta")
+
+          curl -sS --fail-with-body -X POST "$WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "$(jq -nc --arg t "$text" \
+                  '{text: $t, unfurl_links: false, unfurl_media: false}')"
