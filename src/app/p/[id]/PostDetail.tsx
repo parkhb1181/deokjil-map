@@ -139,16 +139,14 @@ export default function PostDetail({ post, comments, hostId }: {
           <PlaceMap lat={post.meet_lat} lng={post.meet_lng} label={post.meet_place} />
         </div>
 
-        {/* 약속이라 언제·어디서가 본문보다 먼저 눈에 들어와야 한다.
-            표로 만들면 읽는 흐름이 끊겨 두 줄로 눌렀다 */}
+        {/* 두 줄로 끝낸다. 날짜와 인원이 위, 장소와 마감이 아래다.
+            넷을 다 굵게 쓰면 제목과 무게가 비슷해져 둘 다 안 읽힌다 */}
         <p className="post__when">
           {whenText(post.meet_at)}
-          <br />
-          {post.meet_place}
+          {post.capacity ? ` · ${post.capacity}명 모집` : ''}
         </p>
         <p className="post__sub">
-          {post.capacity ? `${post.capacity}명 모집 · ` : ''}
-          {dateOnly(post.closes_at)} 마감
+          {post.meet_place} · {dateOnly(post.closes_at)} 마감
         </p>
 
         <div className="post__body">{post.body}</div>
