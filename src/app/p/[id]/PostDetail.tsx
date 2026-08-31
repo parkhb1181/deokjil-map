@@ -32,6 +32,12 @@ function whenText(iso: string) {
   return `${m}월 ${day}일 (${dow}) ${ampm} ${h12}:${String(mm).padStart(2, '0')}`
 }
 
+/** '2026-08-30T09:12' → '8월 30일' */
+function dateOnly(iso: string) {
+  const [, m, d] = iso.split('T')[0].split('-')
+  return `${Number(m)}월 ${Number(d)}일`
+}
+
 /** '2026-08-30T09:12' → '8/30 09:12' */
 function shortTime(iso: string) {
   const [d, t] = iso.split('T')
@@ -102,43 +108,38 @@ export default function PostDetail({ post, comments, hostId }: {
         ))}
       </div>
 
+      {/* 당근 동네생활 글의 순서를 그대로 쓴다.
+          칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
       <article className="post">
-        <div className="post__top">
+        <div className="post__tags">
           <Badge state={post.state} />
-          {post.state === 'done' && (
-            <span className="thread__hint">더 이상 댓글을 받지 않아요</span>
+          {post.event_id && post.event_title && (
+            <a className="post__event" href={`/e/${post.event_id}`}>
+              {post.event_title}
+            </a>
           )}
         </div>
-
-        <h1 className="post__title">{post.title}</h1>
-
-        {post.event_id && post.event_title && (
-          <a className="post__event" href={`/e/${post.event_id}`}>
-            {post.event_title}
-          </a>
-        )}
 
         <div className="post__who">
           <Who
             name={post.author.nickname}
-            sub={post.author.done_count ? `동행 ${post.author.done_count}회` : '첫 동행'}
+            sub={`${post.author.done_count ? `동행 ${post.author.done_count}회` : '첫 동행'} · ${dateOnly(post.created_at)}`}
           />
         </div>
 
-        <dl className="post__facts">
-          <dt>언제</dt>
-          <dd>{whenText(post.meet_at)}</dd>
-          <dt>어디서</dt>
-          <dd>{post.meet_place}</dd>
-          {post.capacity && (
-            <>
-              <dt>몇 명</dt>
-              <dd>{post.capacity}명 (방장 포함)</dd>
-            </>
-          )}
-          <dt>마감</dt>
-          <dd>{whenText(post.closes_at)}</dd>
-        </dl>
+        <h1 className="post__title">{post.title}</h1>
+
+        {/* 약속이라 언제·어디서가 본문보다 먼저 눈에 들어와야 한다.
+            표로 만들면 읽는 흐름이 끊겨 두 줄로 눌렀다 */}
+        <p className="post__when">
+          {whenText(post.meet_at)}
+          <br />
+          {post.meet_place}
+        </p>
+        <p className="post__sub">
+          {post.capacity ? `${post.capacity}명 모집 · ` : ''}
+          {dateOnly(post.closes_at)} 마감
+        </p>
 
         <div className="post__body">{post.body}</div>
 
@@ -146,14 +147,15 @@ export default function PostDetail({ post, comments, hostId }: {
           연락처는 본문이나 비밀 댓글로 주고받습니다. 비밀 댓글은 방장과 글쓴이만
           볼 수 있어요. 처음 만나는 자리인 만큼 공개된 장소에서 만나세요.
         </p>
+
+        <div className="post__count">
+          <span>댓글 <b>{post.comment_count}</b></span>
+          {post.state === 'done' && <span>모집이 끝났어요</span>}
+        </div>
       </article>
 
       <section className="thread">
-        <div className="thread__head">
-          <h2 className="thread__title">댓글</h2>
-          <span className="thread__count">{post.comment_count}</span>
-          <span className="thread__hint">비밀 댓글은 방장과 글쓴이만 봐요</span>
-        </div>
+        <p className="thread__head">비밀 댓글은 방장과 글쓴이만 볼 수 있어요</p>
 
         {list.length === 0 ? (
           <Blank
