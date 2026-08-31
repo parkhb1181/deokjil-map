@@ -9,7 +9,7 @@
  */
 import { useState } from 'react'
 import { Field, TextInput, TextArea, Select, Checkbox } from '@/components/ui/Field'
-import { Button, Badge, Avatar, Who, Blank, Skeleton, Sheet, Tabs } from '@/components/ui/Basics'
+import { Button, Badge, Avatar, Who, Blank, Skeleton, Sheet, Tabs, KakaoMark } from '@/components/ui/Basics'
 import { PostCard, Comment } from '@/components/ui/Post'
 
 function Row({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
@@ -105,17 +105,6 @@ export default function Gallery() {
           </Field>
         </Case>
 
-        <Case label="선택">
-          <Field label="연령대" required>
-            <Select defaultValue="">
-              <option value="" disabled>골라주세요</option>
-              <option>20대 초반</option>
-              <option>20대 후반</option>
-              <option>30대</option>
-            </Select>
-          </Field>
-        </Case>
-
         <Case label="체크">
           <Checkbox label="비밀 댓글로 남기기" defaultChecked />
         </Case>
@@ -143,7 +132,7 @@ export default function Gallery() {
           </div>
         </Case>
         <Case label="넓게">
-          <Button block tone="kakao">카카오로 시작하기</Button>
+          <Button block tone="kakao"><KakaoMark />카카오로 시작하기</Button>
         </Case>
       </Row>
 

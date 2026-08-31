@@ -6,6 +6,22 @@ import type { ReactNode, ButtonHTMLAttributes } from 'react'
 
 /* ── 버튼 ─────────────────────────────────────────────── */
 
+/**
+ * 카카오 말풍선. 카카오 로그인 버튼에는 심볼을 함께 두라는 것이
+ * 카카오 쪽 안내다. 실제 연동할 때는 카카오 디벨로퍼스에서 받은
+ * 공식 파일로 바꾼다. 지금은 모양만 맞춰 둔 것이다.
+ */
+export function KakaoMark() {
+  return (
+    <svg className="btn__mark" viewBox="0 0 18 18" aria-hidden focusable="false">
+      <path
+        fill="currentColor"
+        d="M9 1.7C4.6 1.7 1 4.5 1 8c0 2.2 1.5 4.2 3.7 5.3l-.8 3.1c-.1.3.2.5.5.3l3.7-2.4c.3 0 .6.1.9.1 4.4 0 8-2.8 8-6.4S13.4 1.7 9 1.7z"
+      />
+    </svg>
+  )
+}
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   tone?: 'primary' | 'ghost' | 'danger' | 'kakao'
   size?: 'md' | 'sm'
