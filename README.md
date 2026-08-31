@@ -1,4 +1,4 @@
-# youstar-frontend
+# duckmoim-frontend
 
 덕모임. 서울에서 열리는 생일카페와 팝업을 위치 축으로 모아 보여주는 웹.
 [duckmoim.com](https://duckmoim.com)
@@ -114,6 +114,7 @@ Vercel 이 `main` 푸시를 받아 배포한다. 도메인과 환경변수는 Ve
 크롤러 원칙, 날짜 다루는 법 같은 **어기면 사용자가 헛걸음하는 것들**이
 적혀 있으니 코드 고치기 전에 한 번 읽는 편이 낫다.
 
+- [docs/FRONTEND.md](docs/FRONTEND.md) **화면 작업 현황.** 다른 컴퓨터에서 이어받을 때 여기부터
 - [poc-plan.md](poc-plan.md) 지금 만드는 것
 - [bridge-plan-full.md](bridge-plan-full.md) PoC 이후 구상
 - [docs/design/](docs/design/) 소개 사이트 자료와 사진 출처
