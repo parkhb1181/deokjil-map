@@ -114,7 +114,6 @@ Vercel 이 `main` 푸시를 받아 배포한다. 도메인과 환경변수는 Ve
 크롤러 원칙, 날짜 다루는 법 같은 **어기면 사용자가 헛걸음하는 것들**이
 적혀 있으니 코드 고치기 전에 한 번 읽는 편이 낫다.
 
-- [docs/harness/frontend.md](docs/harness/frontend.md) 프론트 하네스. 규칙을 어디에 두고 무엇이 자동인지
 - [poc-plan.md](poc-plan.md) 지금 만드는 것
 - [bridge-plan-full.md](bridge-plan-full.md) PoC 이후 구상
 - [docs/design/](docs/design/) 소개 사이트 자료와 사진 출처
