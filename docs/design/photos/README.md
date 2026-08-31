@@ -19,3 +19,17 @@
 
 - `rooftop.webp` 아직 안 쓴다. 동행 매칭 섹션을 만들 때 쓸 후보다.
   public/ 에 두면 안 쓰는 파일이 배포에 실려 나간다.
+
+## 화면에서 걷어낸 출처 표기
+
+시안 원본은 사진마다 "Photo by ... on Unsplash" 칩을 얹는다.
+Unsplash 라이선스는 표기 의무가 없고, 히어로 카드 위에 얹히면
+읽는 데 방해가 되어 화면에서는 걷어냈다. 어디서 온 사진인지는
+여기에 남긴다.
+
+- Melissa Askew  히어로 배경 (들판)
+- Joel Muniz     하는 일 배경 (굿즈 매대)
+- Aditya Chinchure  (콘서트, 지금은 안 씀)
+- Vitaly Gariev  (노래하는 두 사람, 지금은 안 씀)
+- Polina Kuzovkova, Yeon Lee  안내 카드
+- photo-1597571063304 (하늘)
