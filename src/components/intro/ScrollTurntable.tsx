@@ -76,8 +76,11 @@ export default function ScrollTurntable({
           src={src}
           alt={n === 0 ? alt : ''}
           // 스크롤하다 도착했을 때 이미 받아둔 상태여야 한다. 지연 로딩하면
-          // 그 프레임에서 한 칸 비어 보인다
+          // 그 프레임에서 한 칸 비어 보인다.
+          // 다만 우선순위는 낮춘다. 스물다섯 장이 히어로 이미지와 대역폭을
+          // 다투면 첫 화면이 늦게 뜬다
           loading="eager"
+          fetchPriority="low"
           decoding="async"
         />
       ))}

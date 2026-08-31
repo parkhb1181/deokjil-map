@@ -25,20 +25,20 @@ import './intro.css'
 const ALL = rawEvents as EventItem[]
 
 /**
- * 회전 프레임. 뒷모습에서 정면을 지나 옆모습까지 한 방향으로 돈다.
+ * 회전 프레임. 위에서 내려다보는 각도로 시작해 눈높이를 지나
+ * 아래에서 올려다보는 각도로 끝난다. 좌우가 아니라 상하 궤도다.
  *
- * 이 여섯 장은 턴테이블로 뽑은 게 아니라 뷰어를 손으로 돌려가며 잡은 컷이라
- * 각도 간격이 고르지 않다. 특히 00 과 01 사이가 크게 벌어진다.
- * 매끄럽게 하려면 같은 높이·같은 거리에서 30도씩 열두 장을 다시 떠야 한다.
+ * 뷰어 화면 녹화에서 상하로만 움직이는 구간(17~25초)을 골라
+ * 초당 세 장씩 뽑았다. 손으로 잡은 정지 컷과 달리 카메라 거리와
+ * 좌우 각도가 그대로라 크기가 튀지 않는다.
+ *
+ * 잘라내기 상자는 25컷 전체의 합집합 하나를 쓴다. 컷마다 따로 자르면
+ * 오리가 프레임마다 튀어서 회전이 아니라 흔들림으로 보인다.
  */
-const TURN = [
-  '/intro/turn/00.webp', // 뒤
-  '/intro/turn/01.webp',
-  '/intro/turn/02.webp',
-  '/intro/turn/03.webp', // 정면
-  '/intro/turn/04.webp',
-  '/intro/turn/05.webp', // 옆
-]
+const TURN = Array.from(
+  { length: 25 },
+  (_, i) => `/intro/turn/${String(i).padStart(2, '0')}.webp`,
+)
 
 /** 건수가 많은 대상부터. 링 둘레에 들어가는 만큼만 쓴다 */
 function topSubjects(n: number): string[] {
@@ -88,8 +88,8 @@ export default function IntroPage() {
               className="in-duck-hero"
               src="/intro/duck-hero.png"
               alt=""
-              width={448}
-              height={539}
+              width={460}
+              height={597}
               priority
             />
           </div>
