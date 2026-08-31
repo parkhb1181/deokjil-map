@@ -10,5 +10,19 @@
     "ask": [
       "Edit(/src/data/events.json)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-shared.mjs",
+            "statusMessage": "팀 공용 파일 확인"
+          }
+        ]
+      }
+    ]
   }
 }
