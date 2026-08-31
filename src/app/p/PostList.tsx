@@ -89,12 +89,12 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
 
         {view === '기다리는 중' && (
           <div className="plist__body">
-            {/* 포스터 카드 한 칸의 높이. 자리를 실제 크기로 잡아둬야
-                그림이 들어올 때 목록이 밀리지 않는다 */}
-            <Skeleton h={296} />
-            <Skeleton h={296} />
-            <Skeleton h={296} />
-            <Skeleton h={296} />
+            {/* 행 하나의 높이. 자리를 실제 크기로 잡아둬야 그림이
+                들어올 때 목록이 밀리지 않는다 */}
+            <Skeleton h={130} />
+            <Skeleton h={130} />
+            <Skeleton h={130} />
+            <Skeleton h={130} />
           </div>
         )}
 

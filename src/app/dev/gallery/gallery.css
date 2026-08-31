@@ -30,8 +30,9 @@
 .g-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .g-stack { display: flex; flex-direction: column; gap: 10px; }
 
-/* 모집글 카드는 실제 목록과 같은 2열 그리드로 깐다 */
-.g-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
+/* 모집글 행은 사진이 왼쪽 끝에 붙는다. 갤러리에서도 그렇게 보여야
+   실제 모습과 같다 */
+.g-stack--bleed { margin-inline: calc(var(--gutter) * -1); }
 
 .g-thread {
   background: var(--surface);

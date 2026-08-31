@@ -148,10 +148,8 @@ export default function Gallery() {
             <Badge state="off">방장</Badge>
           </div>
         </Case>
-        <Case label="모집중 · 완료 · 포스터 없음">
-          {/* 실제 목록과 같은 2열로 깐다. 한 칸을 화면 폭으로 늘려
-              보여주면 실제보다 두 배 크게 보여 크기를 가늠할 수 없다 */}
-          <div className="g-grid">
+        <Case label="모집중 · 완료 · 사진 없음">
+          <div className="g-stack g-stack--bleed">
             <PostCard
               state="open"
               title="아이유 콘서트 같이 가실 분"

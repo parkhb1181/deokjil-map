@@ -298,17 +298,31 @@
    하고(요약을 목록에 넣는 경쟁 서비스가 하나도 없다), 인원은 신청·
    수락을 두지 않아 정원이 아니라 희망사항이며, 댓글 수는 초기에
    0~2 라 신호가 되지 않는다. 남은 것은 포스터·제목·언제·어디서다 */
-.pcard { transition: transform .06s; }
-.pcard__thumb { position: relative; }
+/* 사진이 화면 왼쪽 끝에 붙는다. gutter 안쪽에 두고 모서리를 굴리면
+   사진이 "카드에 담긴 그림" 이 되어 행사 카탈로그처럼 읽힌다. 끝까지
+   붙이고 직각으로 자르면 글에 딸린 사진으로 읽힌다.
+
+   사진 높이가 곧 행 높이다. 위아래 여백을 두지 않아 사진이 구분선에
+   그대로 닿는다. 여백을 주면 그만큼 사진이 작아지고, 목록에서 사진을
+   키운 이유가 사라진다 */
+.pcard {
+  display: flex;
+  gap: 12px;
+  padding: 0 var(--gutter) 0 0;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.pcard__thumb { position: relative; flex: 0 0 auto; }
 
 .pcard__photo {
   display: block;
-  width: 100%;
-  aspect-ratio: 2 / 3;
+  width: 130px;
+  /* 정사각이다. 세로 포스터를 그대로 세우면 행 하나가 너무 높아져
+     한 화면에 서너 개밖에 안 들어온다. 목록은 훑는 화면이다 */
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   /* 포스터는 위쪽에 제목과 인물이 있다. 잘린다면 아래가 잘려야 한다 */
   object-position: center top;
-  border-radius: 12px;
   background: var(--bg-sunk);
 }
 
@@ -317,15 +331,17 @@
    색이라 목록을 훑을 때 색만으로 다시 알아본다 (lib/visual.ts) */
 .pcard__photo--none { box-shadow: inset 0 0 0 1px rgba(36, 26, 31, .05); }
 
-/* 완료는 포스터 왼쪽 위에 얹는다. 제목 앞에 붙이면 165px 밖에 안 되는
-   칸에서 제목이 한 줄을 더 먹는다 */
+/* 완료는 사진 왼쪽 위에 얹는다. 제목 앞에 붙이면 제목이 한 줄을
+   더 먹는다. 당근도 거래완료를 썸네일 위에 올린다 */
 .pcard__state { position: absolute; left: 8px; top: 8px; }
 .pcard__state .state { box-shadow: 0 1px 4px rgba(36, 26, 31, .18); }
 
-.pcard__main { margin-top: 8px; }
+/* 글은 위에서 시작한다. 세로 가운데로 맞추면 제목이 한 줄인 글과 두
+   줄인 글의 첫 줄 높이가 달라져 목록이 들쭉날쭉해 보인다 */
+.pcard__main { flex: 1; min-width: 0; padding: 12px 0; }
 
 .pcard__title {
-  font-size: var(--t-strong);
+  font-size: var(--t-body);
   font-weight: 700;
   color: var(--text);
   line-height: 1.4;
@@ -748,24 +764,13 @@
 /* 마지막 줄이 글쓰기 버튼에 가리지 않을 만큼 띄운다 */
 .plist { padding-bottom: 96px; }
 
-/* 2열. 375px 에서 카드 한 칸이 165px 이고 포스터가 165×248 이 된다.
-   한 화면에 넉 장이 들어와 훑을 수 있으면서 포스터가 알아볼 만큼
-   크다. 1열로 키우면 한 화면에 한 장이라 191건을 훑을 수 없다 */
-.plist__body {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px 12px;
-  padding: 16px var(--gutter) 0;
-}
-/* 넓어지면 칸을 늘린다. 폭이 늘어난 만큼 포스터를 키우면 한 장이
-   화면을 다 먹는다 */
-@media (min-width: 520px) {
-  .plist__body { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
+/* 좌우 여백을 두지 않는다. 사진이 화면 왼쪽 끝까지 가야 하기
+   때문이다. 오른쪽 여백은 행 안에서 준다 */
+.plist__body { padding: 0; }
 
-/* 카드 전체가 링크다. 제목만 누르게 하면 손가락으로 맞히기 어렵다 */
+/* 행 전체가 링크다. 제목만 누르게 하면 손가락으로 맞히기 어렵다 */
 .plist__link { display: block; text-decoration: none; color: inherit; }
-.plist__link:active .pcard { transform: scale(.985); }
+.plist__link:active .pcard { background: var(--bg-sunk); }
 
 /* ── 폼 ───────────────────────────────────────────────── */
 
@@ -1031,6 +1036,6 @@
 .adm__by { margin-top: 6px; }
 .adm__acts { display: flex; gap: 8px; margin-top: 10px; }
 
-/* 완료된 카드는 지우지 않고 회색으로 눌러 둔다. 목록에서 지나치되
+/* 완료된 글은 지우지 않고 회색으로 눌러 둔다. 목록에서 지나치되
    기록은 남는다 */
 .pcard.is-done .pcard__photo { opacity: .55; }
