@@ -80,11 +80,15 @@ npm run dev                     # localhost:3000
 src/
 ├─ types.ts                   데이터 계약. CompanionPost · PostComment · Viewer
 │                             이게 그대로 백엔드에 넘길 응답 명세다
-├─ lib/comment-perm.ts        비밀 댓글 권한 판정. 규칙이 여기 한 곳에만 있다
+├─ lib/
+│  ├─ comment-perm.ts         비밀 댓글 권한 판정. 규칙이 여기 한 곳에만 있다
+│  ├─ filters.ts              DISTRICT_LABELS · EVENT_KIND_LABELS. 행사 고르기도 쓴다
+│  └─ visual.ts               사진 없을 때 까는 색. swatchOf(제목) → 늘 같은 색
 ├─ components/ui/             공용 조각
 │  ├─ Field.tsx               Field · TextInput · TextArea · Select · Checkbox
 │  ├─ Basics.tsx              Button · Badge · Avatar · Who · Blank · Sheet · Tabs
 │  ├─ Post.tsx                PostCard · Comment
+│  ├─ EventPicker.tsx         행사 고르기. 접힘 + 검색. events.json 에서 고른다
 │  ├─ PageShell.tsx           페이지 껍데기. 모든 화면이 이걸 쓴다
 │  ├─ ReportSheet.tsx         신고. 유저·글·댓글 셋을 하나가 맡는다
 │  └─ PlaceMap.tsx            지도. 키 없으면 개발에서만 자리표시자
@@ -93,7 +97,9 @@ src/
 │  ├─ p/                      모집글 목록 · 상세 · 쓰기
 │  ├─ me/                     내 활동 내역
 │  └─ dev/gallery/            조각 갤러리
-└─ data/*.sample.json         목데이터. API 붙으면 지운다
+└─ data/
+   ├─ *.sample.json           목데이터. API 붙으면 지운다
+   └─ events.json             실데이터 204건. 행사 고르기가 읽는다 (앱 전체가 쓰는 소스)
 
 public/
 ├─ font/                      Pretendard 92조각. 자체 호스팅
@@ -257,6 +263,27 @@ License 라 재배포가 허용된다. 직접 자르지 않고 **공식 dynamic-
 
 **`/admin` 은 인증이 붙기 전에 배포하면 안 된다.** 지금은 아무나 열 수
 있다. 별도 계정과 접근 제한이 필요한데 구현 방식이 미결이다 (Q-13).
+
+## 이어받는 사람이 먼저 볼 것
+
+### 아직 눈으로 확인 못 한 것
+
+**행사 고르기(`EventPicker`)를 실제로 눌러본 적이 없다.** 타입체크와
+`next build` 는 통과했지만 브라우저 확인을 못 한 채로 커밋했다.
+`npm run dev` → [/p/new](http://localhost:3000/p/new) 에서 이것부터 본다.
+
+- 펼침·접힘이 되는가
+- 검색이 아티스트명·행사명 둘 다로 걸리는가
+- 고른 뒤 포스터와 행사명이 뜨고 ✕ 로 지워지는가
+- 끝난 행사가 목록에서 빠지는가 (오늘 날짜는 `useEffect` 에서 확정한다)
+
+### 배포 전에 정해야 하는 것
+
+| 항목 | 상태 |
+|---|---|
+| `/p/[id]` · `/u/[id]` 가 **동적 렌더(ƒ)** | `next build` 로 확인됨. PROGRESS.md 의 "서버리스 함수 0" 원칙과 어긋난다. MVP 화면을 만들 때부터 그랬고 아직 `generateStaticParams` 가 없다 |
+| 가입 때 **성별**을 받을지 | 참여 조건(PO-04)을 빼면서 쓸 데가 없어졌다. 남는 이유는 미성년 차단 하나인데 그건 연령만으로 된다. 빼기로 하면 `Welcome.tsx` 에서 `Field` 하나만 들어내면 된다 |
+| `/admin` 접근 제한 방식 (Q-13) | 미결 |
 
 ## 백엔드에 넘길 것
 
