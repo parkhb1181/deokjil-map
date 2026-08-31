@@ -1,6 +1,6 @@
 # 프론트엔드 하네스
 
-팀 하네스 문서의 프론트엔드 절. `youstar-frontend` 저장소 기준.
+팀 하네스 문서의 프론트엔드 절. `duckmoim-frontend` 저장소 기준.
 
 하네스는 "에이전트에게 잘 부탁하는 법"이 아니다. **사람이 매번 다시 설명하지
 않아도 되게 만드는 저장소 설정**이다. 부탁은 지켜지지 않을 수 있고, 설정은
@@ -230,8 +230,8 @@ Bash 명령에 보호 경로와 쓰기 표현이 같이 나오면 exit 2 로 막
 ## 새로 들어온 사람
 
 ```bash
-git clone https://github.com/potenup-final/youstar-frontend.git
-cd youstar-frontend
+git clone https://github.com/potenup-final/duckmoim-frontend.git
+cd duckmoim-frontend
 npm install                          # 커밋 훅이 여기서 켜진다
 git config core.hooksPath            # .githooks 가 나와야 한다
 cp .env.example .env.local           # 키 없으면 지도가 리스트로 폴백한다
