@@ -1,0 +1,347 @@
+/* ─────────────────────────────────────────────────────────
+   공용 조각. globals.css 와 같은 BEM 관습을 쓴다.
+   globals.css 가 이미 1600줄을 넘어 파일만 나눴다.
+
+   여기 있는 것은 전부 갤러리(/dev/gallery)에서 모든 상태를
+   한 번에 볼 수 있다. 상태를 빼먹지 않으려고 그렇게 둔다.
+   ───────────────────────────────────────────────────────── */
+
+/* ── 입력 ─────────────────────────────────────────────── */
+
+.fld { display: flex; flex-direction: column; gap: 6px; }
+
+.fld__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.fld__label span { color: var(--accent-ink); margin-left: 2px; }   /* 필수 표시 */
+
+.fld__box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 10px 12px;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  transition: border-color .12s, box-shadow .12s;
+}
+
+/* iOS Safari 는 16px 미만 입력에 진입할 때 화면을 확대한다.
+   확대되면 되돌아오지 않아 레이아웃이 깨진 것처럼 보인다 */
+.fld__input,
+.fld__area {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+}
+.fld__area { resize: vertical; min-height: 96px; line-height: 1.5; }
+
+.fld__input::placeholder,
+.fld__area::placeholder { color: var(--text-mute); }
+
+.fld__box:focus-within {
+  border-color: var(--focus);
+  box-shadow: var(--focus-ring);
+}
+
+.fld--err .fld__box { border-color: var(--danger); }
+.fld--err .fld__box:focus-within { box-shadow: 0 0 0 3px rgba(200, 30, 30, .18); }
+
+.fld--off .fld__box {
+  background: var(--field-off-bg);
+  border-color: var(--border);
+}
+.fld--off .fld__input,
+.fld--off .fld__area { color: var(--field-off-ink); }
+
+.fld__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-mute);
+}
+.fld__msg { color: var(--text-dim); }
+.fld--err .fld__msg { color: var(--danger); font-weight: 600; }
+.fld__count { margin-left: auto; font-variant-numeric: tabular-nums; }
+.fld__count--over { color: var(--danger); font-weight: 700; }
+
+/* 셀렉트는 기본 화살표를 지우고 직접 그린다.
+   OS 마다 모양이 달라 폼 전체의 톤이 흐트러진다 */
+.fld__select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  appearance: none;
+}
+.fld__box--select { position: relative; padding-right: 34px; }
+.fld__box--select::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--text-mute);
+  border-bottom: 2px solid var(--text-mute);
+  transform: translateY(-2px) rotate(45deg);
+  pointer-events: none;
+}
+
+/* 체크박스. 기본 요소는 색을 못 바꿔서 가리고 새로 그린다 */
+.chk { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; min-height: var(--tap); }
+.chk input { position: absolute; opacity: 0; width: 0; height: 0; }
+.chk__box {
+  width: 20px; height: 20px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  background: var(--field-bg);
+  display: grid;
+  place-items: center;
+  transition: background .12s, border-color .12s;
+}
+.chk__box::after {
+  content: '';
+  width: 5px; height: 9px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(45deg) translate(-1px, -1px);
+  opacity: 0;
+}
+.chk input:checked + .chk__box { background: var(--accent); border-color: var(--accent); }
+.chk input:checked + .chk__box::after { opacity: 1; }
+.chk input:focus-visible + .chk__box { box-shadow: var(--focus-ring); }
+.chk__text { font-size: 15px; color: var(--text); }
+
+/* ── 버튼 ─────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--tap);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, transform .06s;
+}
+.btn:active { transform: scale(.985); }
+.btn:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+
+.btn--primary { background: var(--accent); color: #fff; }
+.btn--primary:hover { background: var(--accent-deep); }
+
+.btn--ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-mid);
+}
+.btn--ghost:hover { background: var(--bg-sunk); }
+
+.btn--danger { background: var(--danger-soft); color: var(--danger); border-color: #f3c9c5; }
+.btn--danger:hover { background: #fbdfdc; }
+
+.btn--sm { min-height: 34px; padding: 0 12px; font-size: 14px; }
+.btn--block { width: 100%; }
+
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  background: var(--field-off-bg);
+  color: var(--field-off-ink);
+  border-color: var(--border);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── 상태 배지 ────────────────────────────────────────── */
+
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.state--open { background: var(--accent-soft); color: var(--accent-ink); }
+.state--done { background: var(--gone-soft); color: var(--gone); }
+.state--off  { background: var(--gone-soft); color: var(--gone); }
+
+/* 완료 도장. 카드 전체를 회색으로 눌러 목록에서 지나치게 한다.
+   지운 글이 아니라 끝난 글이므로 없애지 않고 낮춘다 */
+.is-done { filter: grayscale(1); opacity: .62; }
+
+/* ── 사람 ─────────────────────────────────────────────── */
+
+.avatar {
+  width: 32px; height: 32px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--lg { width: 48px; height: 48px; font-size: 17px; }
+
+.who { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.who__name { font-size: 14px; font-weight: 700; color: var(--text); }
+.who__sub  { font-size: 13px; color: var(--text-mute); }
+
+/* ── 모집글 카드 ──────────────────────────────────────── */
+
+.pcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.pcard__top { display: flex; align-items: center; gap: 8px; }
+.pcard__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+}
+/* 본문 요약. 두 줄까지만 보이고 잘린다 */
+.pcard__body {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pcard__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: 13px;
+  color: var(--text-mute);
+}
+.pcard__meta b { color: var(--text-dim); font-weight: 700; }
+
+/* ── 댓글 ─────────────────────────────────────────────── */
+
+.cmt { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+.cmt__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cmt__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cmt__time { font-size: 12px; color: var(--text-mute); }
+.cmt__text { font-size: 15px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+.cmt__acts { display: flex; gap: 12px; font-size: 13px; color: var(--text-mute); }
+.cmt__acts button { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+
+/* 대댓글은 깊이 1단계로 고정이다. 들여쓰기도 한 번만 */
+.cmt--reply { padding-left: 42px; background: var(--bg-sunk); }
+
+/* 비밀 댓글. 채팅이 없어 이것이 유일한 사적 통로다 */
+.cmt__lock { font-size: 12px; font-weight: 700; color: var(--accent-ink); }
+
+/* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
+.cmt__hidden { font-size: 14px; color: var(--text-mute); font-style: italic; }
+
+/* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
+.cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
+
+/* ── 시트 ─────────────────────────────────────────────── */
+
+.ask {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(36, 26, 31, .38);
+}
+.ask__panel {
+  width: 100%;
+  max-width: 480px;
+  max-height: 84vh;
+  overflow: auto;
+  padding: 20px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-radius: 18px 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ask__title { font-size: 18px; font-weight: 700; color: var(--text); }
+.ask__desc  { font-size: 14px; color: var(--text-dim); line-height: 1.55; }
+.ask__foot  { display: flex; gap: 8px; }
+.ask__foot .btn { flex: 1; }
+
+@media (min-width: 560px) {
+  .ask { align-items: center; }
+  .ask__panel { border-radius: 18px; max-width: 420px; }
+}
+
+/* ── 빈 화면 · 실패 ───────────────────────────────────── */
+
+.blank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  text-align: center;
+}
+.blank__mark { font-size: 30px; }
+.blank__title { font-size: 16px; font-weight: 700; color: var(--text); }
+.blank__desc  { font-size: 14px; color: var(--text-mute); line-height: 1.6; }
+
+/* 뼈대. 목록을 기다리는 동안 자리를 잡아둔다 */
+.skel {
+  background: linear-gradient(90deg, var(--bg-sunk) 25%, #f7e9ef 37%, var(--bg-sunk) 63%);
+  background-size: 400% 100%;
+  border-radius: var(--radius-sm);
+  animation: skel 1.3s ease-in-out infinite;
+}
+@keyframes skel { from { background-position: 100% 0 } to { background-position: 0 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; }
+}
+
+/* ── 탭 ───────────────────────────────────────────────── */
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.tabs__item {
+  flex: 1;
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-mute);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tabs__item--on { color: var(--accent-ink); border-bottom-color: var(--accent); }

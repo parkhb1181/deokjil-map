@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Jua } from 'next/font/google'
 import './globals.css'
+import './ui.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
 import { siteUrl } from '@/lib/site'
 

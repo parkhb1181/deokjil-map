@@ -1,0 +1,61 @@
+/* 갤러리 페이지 전용 껍데기. 조각 자체의 스타일은 ui.css 에 있다.
+   여기 있는 것은 배포되는 화면에 쓰지 않는다 */
+
+.g { max-width: 900px; margin: 0 auto; padding: 24px var(--gutter) 80px; }
+
+.g-top { padding-bottom: 20px; border-bottom: 2px solid var(--border-mid); }
+.g-top__title { font-size: 26px; font-weight: 800; color: var(--text); }
+.g-top__desc { margin-top: 6px; font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+.g-top__desc code { background: var(--bg-sunk); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+.g-row { padding: 26px 0; border-bottom: 1px solid var(--border); }
+.g-row__title { font-size: 18px; font-weight: 800; color: var(--text); }
+.g-row__note { margin-top: 4px; font-size: 13px; color: var(--text-mute); line-height: 1.6; }
+.g-row__body { margin-top: 16px; display: flex; flex-direction: column; gap: 18px; }
+
+/* 각 조각에 무슨 상태인지 꼬리표를 붙인다.
+   꼬리표가 없으면 무엇이 무엇인지 물어봐야 한다 */
+.g-case { display: flex; flex-direction: column; gap: 8px; }
+.g-case__tag {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--text-mute);
+  background: var(--bg-sunk);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+.g-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.g-stack { display: flex; flex-direction: column; gap: 10px; }
+
+.g-thread {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 14px;
+}
+.g-thread .cmt:first-child { border-top: 0; }
+
+.g-hint { margin-top: 8px; font-size: 13px; color: var(--text-mute); line-height: 1.6; }
+.g-hint b { color: var(--text-dim); }
+
+.g-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.g-swatch { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.g-swatch__chip {
+  width: 26px; height: 26px;
+  flex: 0 0 auto;
+  border-radius: 7px;
+  border: 1px solid var(--border-mid);
+}
+.g-swatch code { font-size: 12px; font-weight: 700; color: var(--text); }
+.g-swatch small { width: 100%; font-size: 12px; color: var(--text-mute); }
+
+@media (max-width: 560px) {
+  .g-swatches { grid-template-columns: 1fr 1fr; }
+}
