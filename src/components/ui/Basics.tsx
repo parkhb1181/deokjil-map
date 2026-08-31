@@ -61,11 +61,41 @@ export function Badge({ state, children }: { state: PostState | 'off'; children?
 
 /* ── 사람 ─────────────────────────────────────────────── */
 
-/** 이미지가 없으면 닉네임 첫 글자를 쓴다. 회색 실루엣보다 구분이 쉽다 */
+/**
+ * 사진이 없는 사람의 자리를 채우는 색.
+ *
+ * 전부 같은 분홍이면 댓글 열 개가 한 덩어리로 보인다. 닉네임에서
+ * 색을 뽑아 사람마다 다르게 한다. 같은 사람은 어느 화면에서든 같은
+ * 색이라 이름을 안 읽어도 알아본다.
+ *
+ * 회색 실루엣을 쓰지 않는 이유도 같다. 모두가 같은 그림이면
+ * 구분하는 데 아무 도움이 안 된다.
+ */
+function hueOf(name: string) {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360
+  return h
+}
+
+/** 이미지가 없으면 닉네임 첫 글자에 사람마다 다른 색을 깐다 */
 export function Avatar({ name, src, lg }: { name: string; src?: string; lg?: boolean }) {
+  if (src) {
+    return (
+      <span className={`avatar${lg ? ' avatar--lg' : ''}`}>
+        <img src={src} alt="" />
+      </span>
+    )
+  }
+  const h = hueOf(name)
   return (
-    <span className={`avatar${lg ? ' avatar--lg' : ''}`}>
-      {src ? <img src={src} alt="" /> : name.slice(0, 1)}
+    <span
+      className={`avatar${lg ? ' avatar--lg' : ''}`}
+      style={{
+        background: `linear-gradient(140deg, hsl(${h} 68% 88%), hsl(${(h + 34) % 360} 62% 78%))`,
+        color: `hsl(${h} 55% 30%)`,
+      }}
+    >
+      {name.slice(0, 1)}
     </span>
   )
 }
