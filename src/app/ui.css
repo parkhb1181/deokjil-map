@@ -30,7 +30,9 @@
 }
 
 /* iOS Safari 는 16px 미만 입력에 진입할 때 화면을 확대한다.
-   확대되면 되돌아오지 않아 레이아웃이 깨진 것처럼 보인다 */
+   확대되면 되돌아오지 않아 레이아웃이 깨진 것처럼 보인다.
+   여기 16px 은 글자 계단을 따르는 값이 아니라 그 규칙 자체다.
+   --t-body 로 바꾸면 나중에 계단을 조정하다 규칙이 깨진다 */
 .fld__input,
 .fld__area {
   width: 100%;
@@ -65,7 +67,7 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--t-sub);
   color: var(--text-mute);
 }
 .fld__msg { color: var(--text-dim); }
@@ -121,7 +123,7 @@
 .chk input:checked + .chk__box { background: var(--accent); border-color: var(--accent); }
 .chk input:checked + .chk__box::after { opacity: 1; }
 .chk input:focus-visible + .chk__box { box-shadow: var(--focus-ring); }
-.chk__text { font-size: 15px; color: var(--text); }
+.chk__text { font-size: var(--t-strong); font-weight: 400; color: var(--text); }
 
 /* ── 버튼 ─────────────────────────────────────────────── */
 
@@ -134,7 +136,7 @@
   padding: 0 18px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  font-size: 15px;
+  font-size: var(--t-strong);
   font-weight: 700;
   cursor: pointer;
   transition: background .12s, border-color .12s, transform .06s;
@@ -184,7 +186,7 @@
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: var(--t-small);
   font-weight: 700;
   line-height: 1.45;
   white-space: nowrap;
@@ -216,7 +218,9 @@
 
 .who { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
 .who__name { font-size: 14px; font-weight: 700; color: var(--text); }
-.who__sub  { font-size: 13px; color: var(--text-mute); }
+/* 아바타 옆 이름은 14px 로 둔다. 계단의 strong(15) 과 sub(13.5) 사이인데,
+   아바타 32px 에 15px 을 붙이면 글자가 원보다 커 보인다 */
+.who__sub  { font-size: var(--t-sub); color: var(--text-mute); }
 
 /* ── 모집글 카드 ──────────────────────────────────────── */
 
@@ -232,14 +236,14 @@
 }
 .pcard__top { display: flex; align-items: center; gap: 8px; }
 .pcard__title {
-  font-size: 16px;
+  font-size: var(--t-strong);
   font-weight: 700;
   color: var(--text);
   line-height: 1.35;
 }
 /* 본문 요약. 두 줄까지만 보이고 잘린다 */
 .pcard__body {
-  font-size: 14px;
+  font-size: var(--t-sub);
   color: var(--text-dim);
   line-height: 1.5;
   display: -webkit-box;
@@ -251,7 +255,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 10px;
-  font-size: 13px;
+  font-size: var(--t-small);
+  font-weight: 400;
   color: var(--text-mute);
 }
 .pcard__meta b { color: var(--text-dim); font-weight: 700; }
@@ -261,9 +266,9 @@
 .cmt { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
 .cmt__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .cmt__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.cmt__time { font-size: 12px; color: var(--text-mute); }
-.cmt__text { font-size: 15px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
-.cmt__acts { display: flex; gap: 12px; font-size: 13px; color: var(--text-mute); }
+.cmt__time { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
+.cmt__text { font-size: var(--t-strong); font-weight: 400; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+.cmt__acts { display: flex; gap: 12px; font-size: var(--t-sub); color: var(--text-mute); }
 .cmt__acts button { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
 
 /* 대댓글은 깊이 1단계로 고정이다. 들여쓰기도 한 번만 */
@@ -274,14 +279,14 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 12px;
+  font-size: var(--t-small);
   font-weight: 700;
   color: var(--accent-ink);
 }
 .cmt__lockmark { width: 11px; height: 11px; }
 
 /* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
-.cmt__hidden { font-size: 14px; color: var(--text-mute); font-style: italic; }
+.cmt__hidden { font-size: var(--t-sub); color: var(--text-mute); font-style: italic; }
 
 /* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
 .cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
@@ -309,8 +314,8 @@
   flex-direction: column;
   gap: 14px;
 }
-.ask__title { font-size: 18px; font-weight: 700; color: var(--text); }
-.ask__desc  { font-size: 14px; color: var(--text-dim); line-height: 1.55; }
+.ask__title { font-size: 18px; font-weight: 800; line-height: 1.4; color: var(--text); }
+.ask__desc  { font-size: var(--t-sub); color: var(--text-dim); line-height: 1.55; }
 .ask__foot  { display: flex; gap: 8px; }
 .ask__foot .btn { flex: 1; }
 
@@ -337,8 +342,8 @@
   object-fit: contain;
   margin-bottom: -6px;
 }
-.blank__title { font-size: 16px; font-weight: 700; color: var(--text); }
-.blank__desc  { font-size: 14px; color: var(--text-mute); line-height: 1.6; }
+.blank__title { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.blank__desc  { font-size: var(--t-sub); color: var(--text-mute); line-height: 1.6; }
 
 /* 뼈대. 목록을 기다리는 동안 자리를 잡아둔다 */
 .skel {
@@ -362,7 +367,7 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: 15px;
+  font-size: var(--t-strong);
   font-weight: 700;
   color: var(--text-mute);
   cursor: pointer;
@@ -401,7 +406,7 @@
 .shell__back svg { width: 22px; height: 22px; }
 .shell__back:active { background: var(--bg-sunk); }
 .shell__title {
-  font-size: 16px;
+  font-size: var(--t-body);
   font-weight: 700;
   color: var(--text);
   overflow: hidden;
@@ -472,7 +477,7 @@
   background: var(--accent);
   color: #fff;
   border-radius: 999px;
-  font-size: 12.5px;
+  font-size: var(--t-small);
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
@@ -516,7 +521,7 @@
 
 .post__title {
   margin-top: 12px;
-  font-size: 21px;
+  font-size: var(--t-title);
   font-weight: 800;
   line-height: 1.36;
   color: var(--text);
@@ -527,14 +532,14 @@
    날짜만 눈에 걸리게 두고 나머지는 한 줄로 눌렀다 */
 .post__when {
   margin-top: 10px;
-  font-size: 15px;
+  font-size: var(--t-strong);
   font-weight: 700;
   color: var(--accent-ink);
   line-height: 1.5;
 }
 .post__sub {
   margin-top: 1px;
-  font-size: 13.5px;
+  font-size: var(--t-sub);
   font-weight: 400;
   color: var(--text-dim);
   line-height: 1.5;
@@ -542,21 +547,10 @@
 
 .post__body {
   margin-top: 16px;
-  font-size: 16px;
+  font-size: var(--t-body);
   line-height: 1.72;
   color: var(--text);
   white-space: pre-wrap;
-}
-
-/* 연락처가 본문에 적힌다. 그래서 본문 아래에 주의를 한 줄 둔다 */
-.post__warn {
-  margin-top: 18px;
-  padding: 10px 12px;
-  background: var(--bg-sunk);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: var(--text-dim);
-  line-height: 1.6;
 }
 
 /* 당근의 공감·댓글·조회 줄 */
@@ -696,11 +690,11 @@
   color: inherit;
 }
 .mine__head { display: flex; align-items: center; gap: 6px; }
-.mine__when { font-size: 12.5px; color: var(--text-mute); }
+.mine__when { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
 
 /* 어느 글에 단 댓글인지. 댓글 본문보다 먼저 나와야 맥락이 잡힌다 */
 .mine__on {
-  font-size: 12.5px;
+  font-size: var(--t-small);
   font-weight: 700;
   color: var(--text-mute);
   overflow: hidden;
@@ -710,19 +704,20 @@
 
 .mine__title {
   margin-top: 5px;
-  font-size: 15.5px;
+  font-size: var(--t-strong);
   font-weight: 700;
   color: var(--text);
   line-height: 1.45;
 }
-.mine__title--sm { font-weight: 400; font-size: 15px; }
+.mine__title--sm { font-weight: 400; }
 
 .mine__sub {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 5px;
-  font-size: 13px;
+  font-size: var(--t-small);
+  font-weight: 400;
   color: var(--text-mute);
 }
 
@@ -751,15 +746,15 @@
 
 .login__title {
   margin-top: 6px;
-  font-size: 26px;
+  font-size: var(--t-hero);
   font-weight: 800;
   line-height: 1.36;
   color: var(--text);
 }
 .login__desc {
   margin-top: 12px;
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: var(--t-body);
+  line-height: 1.72;
   color: var(--text-dim);
 }
 
@@ -775,7 +770,8 @@
 
 .login__terms {
   margin-top: 14px;
-  font-size: 12.5px;
+  font-size: var(--t-small);
+  font-weight: 400;
   line-height: 1.6;
   color: var(--text-mute);
 }
@@ -793,7 +789,7 @@
 
 /* 폼 맨 위의 안내. 무엇을 왜 묻는지 한 줄로 알려준다 */
 .form__lead {
-  font-size: 14.5px;
+  font-size: var(--t-sub);
   line-height: 1.65;
   color: var(--text-dim);
   margin-bottom: 2px;
@@ -811,14 +807,20 @@
 }
 .prof .avatar { width: 72px; height: 72px; font-size: 26px; }
 
-.prof__name { margin-top: 12px; font-size: 20px; font-weight: 800; color: var(--text); }
-.prof__meta { margin-top: 5px; font-size: 13.5px; color: var(--text-mute); }
+.prof__name {
+  margin-top: 12px;
+  font-size: var(--t-title);
+  font-weight: 800;
+  line-height: 1.36;
+  color: var(--text);
+}
+.prof__meta { margin-top: 5px; font-size: var(--t-sub); color: var(--text-mute); }
 
 .prof__bio {
   margin-top: 12px;
   max-width: 30em;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: var(--t-body);
+  line-height: 1.72;
   color: var(--text-dim);
 }
 .prof__bio--none { color: var(--text-mute); }
@@ -828,7 +830,7 @@
 .prof__posts { padding-top: 4px; }
 .prof__h2 {
   padding: 14px var(--gutter) 0;
-  font-size: 15px;
+  font-size: var(--t-strong);
   font-weight: 800;
   color: var(--text);
 }
@@ -845,8 +847,8 @@
   min-height: 100dvh;
   padding: 40px var(--gutter);
 }
-.nf__title { font-size: 20px; font-weight: 800; color: var(--text); }
-.nf__desc { font-size: 14.5px; line-height: 1.7; color: var(--text-mute); }
+.nf__title { font-size: var(--t-title); font-weight: 800; line-height: 1.36; color: var(--text); }
+.nf__desc { font-size: var(--t-body); line-height: 1.72; color: var(--text-mute); }
 .nf__acts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; margin-top: 14px; }
 .nf__acts .btn { width: 100%; text-decoration: none; }
 
@@ -896,17 +898,17 @@
   padding-inline: var(--gutter);
   background: var(--danger-soft);
 }
-.adm__hot { font-size: 12px; font-weight: 700; color: var(--danger); }
+.adm__hot { font-size: var(--t-small); font-weight: 700; color: var(--danger); }
 
 .adm__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .adm__subject {
   margin-top: 6px;
-  font-size: 15.5px;
+  font-size: var(--t-strong);
   font-weight: 700;
   color: var(--text);
   line-height: 1.45;
 }
-.adm__reason { margin-top: 3px; font-size: 14px; color: var(--text-dim); }
+.adm__reason { margin-top: 3px; font-size: var(--t-sub); color: var(--text-dim); }
 .adm__detail { color: var(--text-mute); }
-.adm__by { margin-top: 3px; font-size: 12.5px; color: var(--text-mute); }
+.adm__by { margin-top: 3px; font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
 .adm__acts { display: flex; gap: 8px; margin-top: 10px; }
