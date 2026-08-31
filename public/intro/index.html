@@ -76,6 +76,16 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
 }
 .in-duckf--on { opacity: 1; }
 </style>
+<style>
+/* 사진이 넘어갈 때 한 번 돌아간다. 절반에서 사진을 갈아끼운다 */
+@keyframes in-flip {
+  0%   { transform: perspective(900px) rotateY(0deg);   opacity: 1 }
+  50%  { transform: perspective(900px) rotateY(88deg);  opacity: .35 }
+  100% { transform: perspective(900px) rotateY(0deg);   opacity: 1 }
+}
+.in-flip { animation: in-flip .48s cubic-bezier(.4,0,.2,1) }
+@media (prefers-reduced-motion: reduce) { .in-flip { animation: none } }
+</style>
 </head>
 <body>
 <x-dc>
@@ -293,10 +303,10 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
 
     <div style="position:relative;text-align:center;margin-top:70px">
       <div style="font-family:'Gaegu','Caveat',cursive;font-size:38px;color:#141414;line-height:1">Let's go together</div>
-      <h1 style="margin:2px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;color:#ff4d8d;font-size:118px;line-height:1.0;letter-spacing:-.035em;word-spacing:-.16em;text-shadow:0 10px 30px rgba(20,20,20,.12)">
-        <span style="display:block;transform:translateX(-8px)">같이</span>
-        <span style="display:block;transform:translateX(10px)">갈 사람</span>
-        <span style="display:block;transform:translateX(-4px)">덕모임</span>
+      <h1 style="margin:2px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;color:#ff4d8d;font-size:118px;line-height:.98;letter-spacing:-.02em;word-spacing:-.06em;text-shadow:0 10px 30px rgba(20,20,20,.12)">
+        <span style="display:block">같이</span>
+        <span style="display:block">갈 사람</span>
+        <span style="display:block">덕모임</span>
       </h1>
       
     </div>
@@ -310,19 +320,7 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
 
     
 
-    <div style="position:absolute;right:26px;bottom:36px;width:352px">
-      <div style="height:12px;margin:0 14px;background:#fff;border-radius:14px 14px 0 0;opacity:.75"></div>
-      <div style="display:flex;gap:14px;background:#fff;border-radius:14px;padding:14px">
-        <div style="width:150px;height:78px;flex:none;border-radius:8px;overflow:hidden">
-          <image-slot id="hero-work" shape="rounded" radius="8" src="3450542c-6756-4e04-9b12-0b15aaaf91e3.jpg" style="filter:saturate(1.05) contrast(1.03)" placeholder="Project thumb"></image-slot>
-        </div>
-        <div>
-          <div style="font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.12em;color:#8a8a8a">이번 주 서울</div>
-          <div style="margin-top:6px;font-size:14px;line-height:1.35;color:#141414">어디서 열리는지 모아 둡니다…</div>
-        </div>
-      </div>
-      <a href="/" style="display:flex;align-items:center;justify-content:center;margin-top:10px;background:#141414;border-radius:999px;padding:15px;font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.14em;color:#fff">어디서 열리는지 보기</a>
-    </div>
+    
   </section>
 
   <!-- ABOUT -->
@@ -332,9 +330,9 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
         <div class="in-duck"><img class="in-duckf" data-i="0" src="turn/000.webp" alt="덕모임 오리" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="1" src="turn/001.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="2" src="turn/002.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="3" src="turn/003.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="4" src="turn/004.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="5" src="turn/005.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="6" src="turn/006.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="7" src="turn/007.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="8" src="turn/008.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="9" src="turn/009.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="10" src="turn/010.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="11" src="turn/011.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="12" src="turn/012.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="13" src="turn/013.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="14" src="turn/014.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="15" src="turn/015.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="16" src="turn/016.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="17" src="turn/017.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="18" src="turn/018.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="19" src="turn/019.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="20" src="turn/020.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="21" src="turn/021.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="22" src="turn/022.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="23" src="turn/023.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="24" src="turn/024.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="25" src="turn/025.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="26" src="turn/026.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="27" src="turn/027.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="28" src="turn/028.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="29" src="turn/029.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="30" src="turn/030.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="31" src="turn/031.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="32" src="turn/032.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="33" src="turn/033.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="34" src="turn/034.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="35" src="turn/035.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="36" src="turn/036.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="37" src="turn/037.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="38" src="turn/038.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="39" src="turn/039.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="40" src="turn/040.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="41" src="turn/041.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="42" src="turn/042.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="43" src="turn/043.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="44" src="turn/044.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="45" src="turn/045.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="46" src="turn/046.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="47" src="turn/047.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="48" src="turn/048.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="49" src="turn/049.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="50" src="turn/050.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="51" src="turn/051.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="52" src="turn/052.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="53" src="turn/053.webp" alt="" loading="eager" fetchpriority="low" decoding="async"><img class="in-duckf" data-i="54" src="turn/054.webp" alt="" loading="eager" fetchpriority="low" decoding="async"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,23,23,0) 46%,rgba(23,23,23,.55) 78%,rgba(23,23,23,.85) 100%);pointer-events:none"></div>
       </div>
-      <div style="position:relative;max-width:460px;margin-left:auto;margin-right:0;padding-top:20px">
+      <div style="position:relative;max-width:540px;margin-left:410px;margin-right:auto;padding-top:36px">
         <div style="font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:#cfcfcf">▪ 덕모임</div>
-        <h2 style="margin:22px 0 0;font-size:44px;line-height:1.13;letter-spacing:-.02em;font-weight:700;color:#fff">덕모임은<br>콘서트와 생일카페에<br><span style="color:#6a6a6a">같이 갈 사람을<br>찾는 곳입니다.</span></h2>
+        <h2 style="margin:22px 0 0;font-size:58px;line-height:1.12;letter-spacing:-.03em;font-weight:700;color:#fff">덕모임은<br>콘서트와 생일카페에<br><span style="color:#6a6a6a">같이 갈 사람을<br>찾는 곳입니다.</span></h2>
       </div>
       <p style="position:relative;max-width:250px;margin:150px 0 0 auto;font-size:15px;line-height:1.5;color:#9a9a9a">어디서 뭐가 열리는지 매일 모읍니다. 동행 찾기는 만드는 중입니다.</p>
     </div>
@@ -353,7 +351,7 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
         <div style="width:290px;padding:22px;border-radius:20px;background:#2a2a2a;color:#c9c9c9;transform:rotate(8deg) translateY(60px);opacity:.55;padding:0;overflow:hidden;height:420px"><img src="app-course.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"></div>
       </div>
 
-      <div style="position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);display:flex;gap:12px">
+      <div style="position:absolute;left:50%;bottom:-58px;transform:translateX(-50%);display:flex;gap:12px">
         <button style="width:46px;height:38px;border:none;border-radius:10px;background:#ff4d8d;color:#141414;font-size:16px;cursor:pointer">‹</button>
         <button style="width:46px;height:38px;border:none;border-radius:10px;background:#ff4d8d;color:#141414;font-size:16px;cursor:pointer">›</button>
       </div>
@@ -365,8 +363,8 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
     <div style="position:absolute;inset:0">
       <image-slot id="powers-bg" shape="rect" src="6bfcf04a-75dc-488c-8187-616ab610f317.jpg" style="filter:saturate(1.1) contrast(1.05)" placeholder="Drop the backdrop image"></image-slot>
     </div>
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,14,26,.5),rgba(12,14,26,.3));pointer-events:none"></div>
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1c1c1c 0%,rgba(28,28,28,.6) 9%,rgba(28,28,28,0) 20%,rgba(45,95,140,0) 74%,rgba(31,86,131,.5) 90%,#22587f 100%);pointer-events:none"></div>
+    <div style="position:absolute;inset:0;background:rgba(12,14,26,.46);pointer-events:none"></div>
+    <div style="position:absolute;inset:0;background:transparent;pointer-events:none"></div>
     <div style="position:relative;max-width:1148px;margin:0 auto;pointer-events:none">
       <h2 style="margin:0;text-align:center;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:46px;line-height:1.06;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.35)">덕모임이<br>하는 일</h2>
       <div style="display:flex;justify-content:center;align-items:flex-start;gap:18px;margin-top:80px">
@@ -414,8 +412,8 @@ h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px">
         <div>
           <div style="font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7a7a7a">▪ 안내</div>
-          <h2 style="margin:18px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-.02em;color:#141414">자주 묻는<br>것들</h2>
-          <p style="margin:16px 0 0;font-size:15px;line-height:1.45;color:#5c5c5c">가기 전에<br>한 번 보세요.</p>
+          <h2 style="margin:18px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-.02em;color:#141414">자주 묻는 것들</h2>
+          <p style="margin:16px 0 0;font-size:15px;line-height:1.45;color:#5c5c5c">가기 전에 한 번 보세요.</p>
         </div>
         <a href="/" style="display:block;background:#141414;border-radius:999px;padding:14px 26px;font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.14em;color:#fff">둘러보기</a>
       </div>
@@ -549,28 +547,42 @@ class Component extends DCLogic {
   ;(function () {
     var SHOTS = ['app-list.jpg', 'app-map.jpg', 'app-course.jpg']
     var at = 0
+    var busy = false
     function shots() {
       return [].slice.call(document.querySelectorAll('img[src^="app-"]'))
     }
-    // document 에 한 번만 건다. 런타임이 화살표를 다시 그려도 계속 먹는다
-    document.addEventListener('click', function (ev) {
-      var b = ev.target && ev.target.closest ? ev.target.closest('button') : null
-      if (!b) return
-      var t = (b.textContent || '').trim()
-      if (t !== '\u2039' && t !== '\u203a') return
+    /* 돌아가며 바뀌게 한다. 절반쯤 돌아갔을 때 사진을 갈아끼우면
+       뒤집히면서 다른 면이 나오는 것처럼 보인다 */
+    function step(dir) {
       var imgs = shots()
-      if (imgs.length !== 3) return
-      at += t === '\u203a' ? 1 : -1
-      imgs.forEach(function (im, k) {
-        im.setAttribute('src', SHOTS[((k + at) % 3 + 3) % 3])
-      })
+      if (imgs.length !== 3 || busy) return
+      busy = true
+      at += dir
+      imgs.forEach(function (im) { im.classList.add('in-flip') })
+      setTimeout(function () {
+        shots().forEach(function (im, k) {
+          im.setAttribute('src', SHOTS[((k + at) % 3 + 3) % 3])
+        })
+      }, 210)
+      setTimeout(function () {
+        shots().forEach(function (im) { im.classList.remove('in-flip') })
+        busy = false
+      }, 480)
+    }
+    // document 에 한 번만 건다. 런타임이 다시 그려도 계속 먹는다
+    document.addEventListener('click', function (ev) {
+      var t = ev.target
+      if (!t || !t.closest) return
+      var img = t.closest('img')
+      if (img && /^app-/.test(img.getAttribute('src') || '')) { step(1); return }
+      var b = t.closest('button')
+      if (!b) return
+      var s = (b.textContent || '').trim()
+      if (s !== '\u2039' && s !== '\u203a') return
+      step(s === '\u203a' ? 1 : -1)
     })
-    // 손 모양은 미리 바꿔 둔다. 눌리는 것임을 알려야 한다
     setTimeout(function () {
-      [].slice.call(document.querySelectorAll('button')).forEach(function (b) {
-        var t = (b.textContent || '').trim()
-        if (t === '\u2039' || t === '\u203a') b.style.cursor = 'pointer'
-      })
+      shots().forEach(function (im) { im.style.cursor = 'pointer' })
     }, 500)
   })()
 
@@ -609,17 +621,36 @@ class Component extends DCLogic {
       el.style.transform = 'translateY(34px) ' + base
     })
 
+    if (!('IntersectionObserver' in window)) return
+    var ioFired = false
     var io = new IntersectionObserver(function (entries) {
+      ioFired = true
       entries.forEach(function (e) {
-        if (!e.isIntersecting) return
         var el = e.target
-        el.style.opacity = '1'
-        el.style.transform = el.dataset.baseTransform || 'none'
-        io.unobserve(el)
+        var base = el.dataset.baseTransform || ''
+        if (e.isIntersecting) {
+          el.style.opacity = '1'
+          el.style.transform = base || 'none'
+        } else {
+          /* 한 번 보고 마는 게 아니라, 위로 올렸다가 다시 내리면
+             처음부터 다시 떠오르게 한다. 그래서 unobserve 하지 않는다 */
+          el.style.opacity = '0'
+          el.style.transform = 'translateY(34px) ' + base
+        }
       })
-    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' })
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' })
 
     targets.forEach(function (el) { io.observe(el) })
+
+    /* 관찰자가 한 번도 안 불리는 환경이 있다. 숨긴 채로 두면 내용이
+       영영 안 보이므로, 그때는 애니메이션을 포기하고 전부 보여준다 */
+    setTimeout(function () {
+      if (ioFired) return
+      targets.forEach(function (el) {
+        el.style.opacity = '1'
+        el.style.transform = el.dataset.baseTransform || 'none'
+      })
+    }, 1500)
   }, function () {
     var s = document.querySelectorAll('section')
     if (!s[3] || !s[4]) return false
