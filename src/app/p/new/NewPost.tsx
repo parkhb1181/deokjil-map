@@ -13,30 +13,33 @@
  *
  * 좌표는 받지 않는다 (Q-03). 장소는 글로 적고 서버가 지오코딩한다.
  * 성별·연령 조건도 받지 않는다. 조건이 필요하면 본문에 적는다.
+ *
+ * 묻는 것은 다섯뿐이다. 제목 · 내용 · 언제 · 어디서 · 몇 명.
+ * 한때 일곱 칸이었는데 시각과 모집 마감이 따로 있었다. 시각은 날짜와
+ * 같은 것을 두 칸에서 물은 것이고, 마감은 기본값이 곧 정답이라
+ * 보여줄 이유가 없었다.
  */
 import { useState } from 'react'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Sheet } from '@/components/ui/Basics'
 import { Field, TextInput, TextArea, Select } from '@/components/ui/Field'
+import { EventPicker, type PickableEvent } from '@/components/ui/EventPicker'
 
 type Form = {
   title: string
   body: string
   capacity: string
-  meetDate: string
-  meetTime: string
+  /** 'YYYY-MM-DDTHH:mm'. 날짜와 시각을 한 칸에서 받는다 */
+  meetAt: string
   place: string
-  closeDate: string
 }
 
 const EMPTY: Form = {
   title: '',
   body: '',
   capacity: '',
-  meetDate: '',
-  meetTime: '',
+  meetAt: '',
   place: '',
-  closeDate: '',
 }
 
 /** 화면과 서버가 같은 규칙을 봐야 한다. 서버에도 같은 검증이 있다 */
@@ -47,18 +50,16 @@ function validate(f: Form) {
   if (!f.body.trim()) e.body = '어떤 동행인지 적어주세요'
   else if (f.body.length > 500) e.body = '500자를 넘었어요'
   if (!f.capacity) e.capacity = '몇 명 모을지 골라주세요'
-  if (!f.meetDate || !f.meetTime) e.meetDate = '만나는 날짜와 시각을 정해주세요'
+  if (!f.meetAt) e.meetAt = '언제 만날지 정해주세요'
   if (!f.place.trim()) e.place = '어디서 만날지 적어주세요'
-
-  /* 마감이 만남보다 늦으면 아무도 못 온다 */
-  if (f.closeDate && f.meetDate && f.closeDate > f.meetDate) {
-    e.closeDate = '만나는 날보다 앞이어야 해요'
-  }
   return e
 }
 
-export default function NewPost() {
+export default function NewPost({ events }: { events: PickableEvent[] }) {
   const [f, setF] = useState<Form>(EMPTY)
+  /* 고른 행사. 필수가 아니다 — 콘서트처럼 우리 데이터에 없는 행사도
+     있어서 안 고르고도 올릴 수 있어야 한다 (검증에 넣지 않는 이유) */
+  const [event, setEvent] = useState<PickableEvent | null>(null)
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
@@ -83,6 +84,10 @@ export default function NewPost() {
   return (
     <PageShell title="모집글 쓰기">
       <div className="form">
+        {/* 무슨 행사인지부터 정하고 제목·내용을 쓴다. 당근도 동네생활
+            글쓰기에서 카테고리를 맨 위에서 고른다 */}
+        <EventPicker all={events} picked={event} onPick={setEvent} />
+
         <Field label="제목" required error={show('title')} count={[f.title.length, 40]}>
           <TextInput
             placeholder="에이티즈 팝업 오픈런 같이 하실 분"
@@ -91,69 +96,66 @@ export default function NewPost() {
           />
         </Field>
 
+        {/* 안내를 힌트 줄로 빼지 않고 placeholder 안에 넣었다. 칸마다
+            힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
         <Field
           label="어떤 동행인가요"
           required
           error={show('body')}
-          hint="연락 받을 방법도 같이 적어주세요. 비밀 댓글로 받아도 좋아요"
           count={[f.body.length, 500]}
         >
           <TextArea
-            placeholder={'혼자 가려니 막막해서 같이 가실 분 찾아요.\n\n몇 시에 만나서 무엇을 할지 적으면 사람이 더 잘 모여요.'}
+            placeholder={'혼자 가려니 막막해서 같이 가실 분 찾아요.\n\n몇 시에 만나서 무엇을 할지, 연락은 어떻게 받을지 적으면 사람이 더 잘 모여요. 연락처는 비밀 댓글로 받아도 좋아요.'}
             value={f.body}
             onChange={(e) => set('body')(e.target.value)}
-            rows={7}
+            rows={5}
           />
         </Field>
 
-        <div className="form__row">
-          <Field label="만나는 날" required error={show('meetDate')}>
-            <TextInput
-              type="date"
-              value={f.meetDate}
-              onChange={(e) => set('meetDate')(e.target.value)}
-            />
-          </Field>
-          <Field label="시각" required>
-            <TextInput
-              type="time"
-              value={f.meetTime}
-              onChange={(e) => set('meetTime')(e.target.value)}
-            />
-          </Field>
-        </div>
+        {/* 날짜·시각·모집 마감 세 칸을 한 칸으로 합쳤다.
+
+            시각을 따로 받을 이유가 없었다. 어차피 둘 다 필수였고 서버에
+            들어갈 때 meet_at 하나로 붙는다. 칸만 둘이었지 묻는 것은
+            하나였다.
+
+            모집 마감은 아예 뺐다. 비우면 만나는 날까지였는데, 그러면
+            기본값이 곧 정답인 칸을 하나 더 보여준 셈이다. 만나는 날이
+            지나면 아무도 못 오므로 마감은 만나는 날이다. 서버가
+            closes_at 을 meet_at 으로 채운다 */}
+        <Field
+          label="언제 만나요"
+          required
+          error={show('meetAt')}
+          hint="모집은 이 날까지 받아요"
+        >
+          <TextInput
+            type="datetime-local"
+            value={f.meetAt}
+            onChange={(e) => set('meetAt')(e.target.value)}
+          />
+        </Field>
 
         {/* 좌표를 받지 않는다. 글로 적으면 서버가 지오코딩해 지도를 그린다 */}
         <Field
           label="어디서 만나요"
           required
           error={show('place')}
-          hint="지하철역 출구처럼 찾기 쉬운 곳이 좋아요"
         >
           <TextInput
-            placeholder="성수역 3번 출구"
+            placeholder="성수역 3번 출구처럼 찾기 쉬운 곳"
             value={f.place}
             onChange={(e) => set('place')(e.target.value)}
           />
         </Field>
 
-        <div className="form__row">
-          <Field label="몇 명" required error={show('capacity')}>
-            <Select value={f.capacity} onChange={(e) => set('capacity')(e.target.value)}>
-              <option value="" disabled>골라주세요</option>
-              {[2, 3, 4, 5].map((n) => (
-                <option key={n} value={n}>{n}명 (나 포함)</option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="모집 마감" error={show('closeDate')} hint="비우면 만나는 날까지">
-            <TextInput
-              type="date"
-              value={f.closeDate}
-              onChange={(e) => set('closeDate')(e.target.value)}
-            />
-          </Field>
-        </div>
+        <Field label="몇 명" required error={show('capacity')}>
+          <Select value={f.capacity} onChange={(e) => set('capacity')(e.target.value)}>
+            <option value="" disabled>골라주세요</option>
+            {[2, 3, 4, 5].map((n) => (
+              <option key={n} value={n}>{n}명 (나 포함)</option>
+            ))}
+          </Select>
+        </Field>
 
         <div className="form__foot">
           <Button block disabled={sending} onClick={submit}>

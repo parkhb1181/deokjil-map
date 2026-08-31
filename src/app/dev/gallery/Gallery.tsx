@@ -156,6 +156,7 @@ export default function Gallery() {
               when="9/14 (토) 18:00"
               where="잠실 주경기장"
               image="/dev/map-sample.webp"
+              comments={7}
             />
             <PostCard
               state="done"
@@ -163,12 +164,14 @@ export default function Gallery() {
               when="9/7 (일) 08:00"
               where="성수동"
               image="/dev/map-sample.webp"
+              comments={12}
             />
             <PostCard
               state="open"
               title="붙은 행사가 없어 포스터가 없는 글"
               when="9/20 (일) 13:00"
               where="홍대입구역 9번 출구"
+              comments={0}
             />
           </div>
         </Case>

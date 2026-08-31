@@ -27,9 +27,14 @@ export type PostCardProps = {
   /** 만남 정보. "9/14 (월) 09:00", "잠실역 2번 출구" */
   when?: string
   where?: string
+  /**
+   * 댓글 수. 글자 줄이 아니라 오른쪽 말풍선으로 세운다. 채팅이 없어
+   * 댓글이 사람을 구하는 유일한 통로라, 이 숫자가 곧 "말이 오갔는가" 다.
+   */
+  comments?: number
 }
 
-export function PostCard({ title, state, when, where, image }: PostCardProps) {
+export function PostCard({ title, state, when, where, image, comments }: PostCardProps) {
   const sw = swatchOf(title)
   return (
     <article className={`pcard${state === 'done' ? ' is-done' : ''}`}>
@@ -57,6 +62,15 @@ export function PostCard({ title, state, when, where, image }: PostCardProps) {
         {when && <p className="pcard__when">{when}</p>}
         {where && <p className="pcard__where">{where}</p>}
       </div>
+
+      {comments !== undefined && (
+        <span
+          className={`pcard__talk${comments > 0 ? ' pcard__talk--on' : ''}`}
+          aria-label={`댓글 ${comments}개`}
+        >
+          {comments}
+        </span>
+      )}
     </article>
   )
 }
