@@ -148,25 +148,29 @@ export default function Gallery() {
             <Badge state="off">방장</Badge>
           </div>
         </Case>
-        <Case label="완료 도장 (당근 방식)">
-          <div className="g-stack">
+        <Case label="모집중 · 완료 · 포스터 없음">
+          {/* 실제 목록과 같은 2열로 깐다. 한 칸을 화면 폭으로 늘려
+              보여주면 실제보다 두 배 크게 보여 크기를 가늠할 수 없다 */}
+          <div className="g-grid">
             <PostCard
               state="open"
               title="아이유 콘서트 같이 가실 분"
-              excerpt="혼자 가는데 굿즈 줄도 같이 서면 좋을 것 같아서요. 편하게 댓글 주세요."
-              when="9/14 토 18:00"
+              when="9/14 (토) 18:00"
               where="잠실 주경기장"
-              cap="2/4명"
-              comments={7}
+              image="/dev/map-sample.webp"
             />
             <PostCard
               state="done"
               title="세븐틴 팝업 오전에 같이 가요"
-              excerpt="성수 팝업 오픈런 같이 하실 분 찾아요. 8시쯤 만나면 될 것 같아요."
-              when="9/7 일 08:00"
+              when="9/7 (일) 08:00"
               where="성수동"
-              cap="3/3명"
-              comments={12}
+              image="/dev/map-sample.webp"
+            />
+            <PostCard
+              state="open"
+              title="붙은 행사가 없어 포스터가 없는 글"
+              when="9/20 (일) 13:00"
+              where="홍대입구역 9번 출구"
             />
           </div>
         </Case>

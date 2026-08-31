@@ -89,9 +89,12 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
 
         {view === '기다리는 중' && (
           <div className="plist__body">
-            <Skeleton h={112} />
-            <Skeleton h={112} />
-            <Skeleton h={112} />
+            {/* 포스터 카드 한 칸의 높이. 자리를 실제 크기로 잡아둬야
+                그림이 들어올 때 목록이 밀리지 않는다 */}
+            <Skeleton h={296} />
+            <Skeleton h={296} />
+            <Skeleton h={296} />
+            <Skeleton h={296} />
           </div>
         )}
 
@@ -115,14 +118,16 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
           <div className="plist__body">
             {list.map((p) => (
               <Link key={p.id} href={`/p/${p.id}`} className="plist__link">
+                {/* 본문 요약·인원·댓글 수를 넘기지 않는다. 요약은 제목과
+                    같은 말을 두 번 하고, 인원은 신청·수락을 두지 않아
+                    정원이 아니라 희망사항이라 목록에서 거를 근거가 안
+                    된다. 댓글 수는 초기에 0~2 라 신호가 되지 않는다.
+                    셋 다 상세에는 그대로 있다 */}
                 <PostCard
                   state={p.state}
                   title={p.title}
-                  excerpt={p.excerpt}
                   when={whenShort(p.meet_at)}
                   where={p.meet_place}
-                  cap={p.capacity ? `${p.capacity}명` : undefined}
-                  comments={p.comment_count}
                   image={p.image_url}
                 />
               </Link>

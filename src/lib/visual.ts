@@ -27,8 +27,16 @@ function hash(text: string): number {
   return Math.abs(h)
 }
 
+/**
+ * 텍스트 하나로 색을 고른다. 이벤트가 안 붙은 모집글처럼 대상명이
+ * 없는 자리에서도 같은 팔레트를 쓰려고 갈라 뒀다.
+ */
+export function swatchOf(text: string): Swatch {
+  return PALETTE[hash(text) % PALETTE.length]
+}
+
 export function swatchFor(event: EventItem): Swatch {
-  return PALETTE[hash(event.subject) % PALETTE.length]
+  return swatchOf(event.subject)
 }
 
 /**

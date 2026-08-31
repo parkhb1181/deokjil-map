@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react'
 import { Avatar, Badge, type PostState } from './Basics'
+import { swatchOf } from '@/lib/visual'
 
 /* ── 모집글 카드 ──────────────────────────────────────── */
 
@@ -17,50 +18,44 @@ export type PostCardProps = {
    * 서버 주소를 그대로 들고 있는다. 포스터는 저작물이라 재게시하지
    * 않는다 (CLAUDE.md).
    *
-   * 이벤트에 안 붙은 글도 있어서 없을 수 있다. 그때는 자리를
-   * 비우지 않고 글자만으로 채운다. 빈 회색 네모를 두면 사진이
-   * 안 불러와진 것처럼 보인다.
+   * 이벤트에 안 붙은 글도 있어서 없을 수 있다. 그때는 회색 네모를
+   * 두지 않고 제목에서 뽑은 색을 깐다. 회색이면 사진이 안
+   * 불러와진 것처럼 보인다.
    */
   image?: string | null
-  /** 본문 앞부분. 두 줄에서 잘린다 */
-  excerpt?: string
   state: PostState
-  /** 만남 정보. "9/14 토 18:00", "잠실역 2번 출구" */
+  /** 만남 정보. "9/14 (월) 09:00", "잠실역 2번 출구" */
   when?: string
   where?: string
-  /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
-  cap?: string
-  comments?: number
 }
 
-export function PostCard({ title, excerpt, state, when, where, cap, comments, image }: PostCardProps) {
+export function PostCard({ title, state, when, where, image }: PostCardProps) {
+  const sw = swatchOf(title)
   return (
-    <article className={`pcard${state === 'done' ? ' is-done' : ''}${image ? ' pcard--photo' : ''}`}>
-      {image && (
-        <img className="pcard__photo" src={image} alt="" loading="lazy" />
-      )}
-      <div className="pcard__main">
-        {/* 모집중 배지를 달지 않는다. 기본값이 모집중이라 모든 행에
-            같은 배지가 붙어 아무것도 구분해주지 못한다. 당근도
-            판매중에는 배지가 없고 예약중·거래완료에만 붙인다 */}
-        <h3 className="pcard__title">
-          {state === 'done' && <Badge state={state} />}
-          {title}
-        </h3>
-        {excerpt && <p className="pcard__body">{excerpt}</p>}
-
-        {/* 확인하는 값은 한 줄에 가운뎃점으로 잇는다. 어디서 →
-            언제 → 몇 명 순서다. 장소를 앞에 두는 이유는 갈 수 있는
-            곳인지가 갈 수 있는 시간인지보다 먼저 걸러지기 때문이다 */}
-        <div className="pcard__meta meta">
-          {where && <span>{where}</span>}
-          {when && <span><b>{when}</b></span>}
-          {cap && <span>{cap}</span>}
-        </div>
-
-        {comments !== undefined && (
-          <div className="pcard__react meta"><span>댓글 {comments}</span></div>
+    <article className={`pcard${state === 'done' ? ' is-done' : ''}`}>
+      <div className="pcard__thumb">
+        {image ? (
+          <img className="pcard__photo" src={image} alt="" loading="lazy" />
+        ) : (
+          <span
+            className="pcard__photo pcard__photo--none"
+            style={{ background: `linear-gradient(150deg, ${sw.from}, ${sw.to})` }}
+          />
         )}
+        {/* 완료는 포스터 왼쪽 위에 얹는다. 제목 앞에 붙이면 165px
+            밖에 안 되는 칸에서 제목이 한 줄을 더 먹는다. 오프메이트·
+            팝가도 상태 표시를 포스터 위에 올린다 */}
+        {state === 'done' && (
+          <span className="pcard__state"><Badge state={state} /></span>
+        )}
+      </div>
+
+      <div className="pcard__main">
+        <h3 className="pcard__title">{title}</h3>
+        {/* 팝가와 같은 순서로 언제가 위, 어디서가 아래 한 줄이다.
+            둘을 한 줄에 몰면 165px 안에서 어디가 잘릴지 예측할 수 없다 */}
+        {when && <p className="pcard__when">{when}</p>}
+        {where && <p className="pcard__where">{where}</p>}
       </div>
     </article>
   )
