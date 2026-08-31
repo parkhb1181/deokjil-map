@@ -143,7 +143,7 @@ export default function Gallery() {
           </div>
         </Case>
         <Case label="넓게">
-          <Button block>카카오로 시작하기</Button>
+          <Button block tone="kakao">카카오로 시작하기</Button>
         </Case>
       </Row>
 
@@ -256,7 +256,6 @@ export default function Gallery() {
       >
         <Case label="빈 목록">
           <Blank
-            mark="🐣"
             title="아직 모집글이 없어요"
             desc="이 공연에 처음으로 동행을 구해보세요"
             action={<Button size="sm">모집글 쓰기</Button>}
@@ -264,14 +263,13 @@ export default function Gallery() {
         </Case>
         <Case label="조회 실패">
           <Blank
-            mark="😵"
             title="목록을 불러오지 못했어요"
             desc="잠시 뒤 다시 시도해주세요"
             action={<Button size="sm" tone="ghost">다시 시도</Button>}
           />
         </Case>
         <Case label="권한 없음">
-          <Blank mark="🔒" title="로그인이 필요해요" desc="모집글 작성과 댓글은 로그인 후에 할 수 있어요" />
+          <Blank title="로그인이 필요해요" desc="모집글 작성과 댓글은 로그인 후에 할 수 있어요" />
         </Case>
         <Case label="기다리는 중">
           <div className="g-stack">

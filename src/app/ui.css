@@ -155,6 +155,11 @@
 .btn--danger { background: var(--danger-soft); color: var(--danger); border-color: #f3c9c5; }
 .btn--danger:hover { background: #fbdfdc; }
 
+/* 카카오 브랜드 색. 이 노랑은 카카오만 쓰므로 토큰으로 올리지 않고
+   버튼에만 묶어둔다. 다른 자리에 새면 브랜드가 섞인다 */
+.btn--kakao { background: #fee500; color: rgba(0, 0, 0, .85); }
+.btn--kakao:hover { background: #f2d900; }
+
 .btn--sm { min-height: 34px; padding: 0 12px; font-size: 14px; }
 .btn--block { width: 100%; }
 
@@ -260,7 +265,15 @@
 .cmt--reply { padding-left: 42px; background: var(--bg-sunk); }
 
 /* 비밀 댓글. 채팅이 없어 이것이 유일한 사적 통로다 */
-.cmt__lock { font-size: 12px; font-weight: 700; color: var(--accent-ink); }
+.cmt__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.cmt__lockmark { width: 11px; height: 11px; }
 
 /* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
 .cmt__hidden { font-size: 14px; color: var(--text-mute); font-style: italic; }
@@ -311,7 +324,14 @@
   padding: 48px 24px;
   text-align: center;
 }
-.blank__mark { font-size: 30px; }
+/* 로고의 3D 오리에서 얼굴만 떼어낸 그림. 가장자리가 서서히 사라지게
+   구워둬서 배경이 무엇이든 네모로 잘린 티가 나지 않는다 */
+.blank__art {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  margin-bottom: -6px;
+}
 .blank__title { font-size: 16px; font-weight: 700; color: var(--text); }
 .blank__desc  { font-size: 14px; color: var(--text-mute); line-height: 1.6; }
 

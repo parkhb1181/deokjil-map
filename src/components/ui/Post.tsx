@@ -43,6 +43,22 @@ export function PostCard({ title, excerpt, state, when, where, cap, comments }: 
 
 /* ── 댓글 ─────────────────────────────────────────────── */
 
+/** 이모티콘은 기기마다 모양이 달라 톤이 흐트러진다. 직접 그린다 */
+function LockMark() {
+  return (
+    <svg className="cmt__lockmark" viewBox="0 0 12 12" aria-hidden focusable="false">
+      <path
+        d="M3.6 5.2V4a2.4 2.4 0 0 1 4.8 0v1.2"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+      <rect x="2.4" y="5.2" width="7.2" height="5.2" rx="1.3" fill="currentColor" />
+    </svg>
+  )
+}
+
 export type CommentProps = {
   name: string
   time: string
@@ -78,7 +94,11 @@ export function Comment({ name, time, text, reply, secret, gone, host, acts }: C
         <div className="cmt__head">
           <span className="who__name">{name}</span>
           {host && <Badge state="off">방장</Badge>}
-          {secret && <span className="cmt__lock">🔒 비밀</span>}
+          {secret && (
+            <span className="cmt__lock">
+              <LockMark />비밀
+            </span>
+          )}
           <span className="cmt__time">{time}</span>
         </div>
         {/* 권한이 없으면 서버 응답에 본문 필드 자체가 없다.

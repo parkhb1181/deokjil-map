@@ -7,7 +7,7 @@ import type { ReactNode, ButtonHTMLAttributes } from 'react'
 /* ── 버튼 ─────────────────────────────────────────────── */
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  tone?: 'primary' | 'ghost' | 'danger'
+  tone?: 'primary' | 'ghost' | 'danger' | 'kakao'
   size?: 'md' | 'sm'
   block?: boolean
 }
@@ -71,16 +71,22 @@ export function Who({ name, sub, src }: { name: string; sub?: string; src?: stri
 /**
  * 알림이 없는 서비스라 사용자가 직접 들어와서 확인한다.
  * 빈 화면이 자주 보이므로 "왜 비었는지"까지 적는다.
+ *
+ * 그림은 로고의 3D 오리에서 얼굴만 떼어냈다. 가장자리가 서서히
+ * 사라지도록 만들어서 네모로 잘린 티가 나지 않는다.
  */
-export function Blank({ mark, title, desc, action }: {
-  mark?: string
+export function Blank({ title, desc, action, art = true }: {
   title: string
   desc?: string
   action?: ReactNode
+  /** 좁은 자리에서는 그림을 뺀다 */
+  art?: boolean
 }) {
   return (
     <div className="blank">
-      {mark && <span className="blank__mark" aria-hidden>{mark}</span>}
+      {art && (
+        <img className="blank__art" src="/duck-face.webp" alt="" width={112} height={112} />
+      )}
       <p className="blank__title">{title}</p>
       {desc && <p className="blank__desc">{desc}</p>}
       {action}
