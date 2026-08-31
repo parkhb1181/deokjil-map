@@ -85,32 +85,19 @@ export function PlaceMap({ lat, lng, label }: {
 }
 
 /**
- * 지도가 있을 자리를 보여주는 그림. 개발 중에만 쓴다.
+ * 지도가 있을 자리. 개발 중에만 쓴다.
  *
- * 길과 블록을 대충 그린 것이지 실제 지형이 아니다. 배치와 무게를
- * 보려는 것이라 그 이상은 필요 없다.
+ * 카카오 키가 없는 로컬에서 배치를 확인하려고 캡처 한 장을 깔았다.
+ * public/dev/ 아래에 두고 이 컴포넌트는 개발에서만 그리므로 배포된
+ * 화면에는 나오지 않는다. 배포에는 키가 있어 진짜 지도가 그려진다.
+ *
+ * 캡처는 지도 서비스의 화면이라 우리 것이 아니다. 임시로 쓰는
+ * 자리표시자이고 실제 화면에 싣지 않는다.
  */
 function FakeMap({ label }: { label: string }) {
   return (
     <div className="fmap">
-      <svg viewBox="0 0 320 200" aria-hidden focusable="false">
-        <rect width="320" height="200" fill="#eef1ec" />
-        {/* 블록 */}
-        {[
-          [12, 14, 78, 52], [104, 10, 60, 40], [178, 16, 52, 46], [244, 12, 64, 38],
-          [10, 84, 66, 46], [92, 92, 74, 38], [182, 88, 58, 50], [254, 86, 56, 44],
-          [16, 148, 84, 40], [116, 152, 62, 36], [194, 150, 52, 38], [260, 146, 48, 42],
-        ].map(([x, y, w, h], i) => (
-          <rect key={i} x={x} y={y} width={w} height={h} rx="3" fill="#e2e6df" />
-        ))}
-        {/* 큰길 */}
-        <path d="M0 78 H320" stroke="#fff" strokeWidth="13" />
-        <path d="M0 140 H320" stroke="#fff" strokeWidth="9" />
-        <path d="M96 0 V200" stroke="#fff" strokeWidth="11" />
-        <path d="M240 0 V200" stroke="#fff" strokeWidth="7" />
-        {/* 지하철 */}
-        <path d="M0 78 H320" stroke="#c9d8c2" strokeWidth="3" strokeDasharray="14 8" />
-      </svg>
+      <img src="/dev/map-sample.webp" alt="" />
       <span className="fmap__pin">
         <b>{label}</b>
       </span>
