@@ -66,7 +66,11 @@ export default function PostDetail({ post, comments, hostId }: {
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
-  const [ask, setAsk] = useState<null | 'login' | 'done' | 'report'>(null)
+  /* 'report' 는 모집글 신고, 'report-comment' 는 댓글 신고다. 하나로
+     묶어 뒀더니 댓글의 신고를 눌러도 모집글 신고 시트가 떴다.
+     ReportSheet 는 처음부터 셋(유저·글·댓글)을 받게 되어 있었고
+     부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
+  const [ask, setAsk] = useState<null | 'login' | 'done' | 'report' | 'report-comment'>(null)
 
   const isHost = viewer.user_id === hostId
   const isGuest = !viewer.user_id
@@ -187,7 +191,7 @@ export default function PostDetail({ post, comments, hostId }: {
                     {c.author.id === viewer.user_id ? (
                       <button>삭제</button>
                     ) : (
-                      <button onClick={() => setAsk(isGuest ? 'login' : 'report')}>신고</button>
+                      <button onClick={() => setAsk(isGuest ? 'login' : 'report-comment')}>신고</button>
                     )}
                   </>
                 )
@@ -269,6 +273,10 @@ export default function PostDetail({ post, comments, hostId }: {
 
       {ask === 'report' && (
         <ReportSheet target="post" onClose={() => setAsk(null)} />
+      )}
+
+      {ask === 'report-comment' && (
+        <ReportSheet target="comment" onClose={() => setAsk(null)} />
       )}
     </PageShell>
   )

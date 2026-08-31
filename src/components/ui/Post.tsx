@@ -40,17 +40,27 @@ export function PostCard({ title, excerpt, state, when, where, cap, comments, im
         <img className="pcard__photo" src={image} alt="" loading="lazy" />
       )}
       <div className="pcard__main">
-      <div className="pcard__top">
-        <Badge state={state} />
-        <h3 className="pcard__title">{title}</h3>
-      </div>
-      {excerpt && <p className="pcard__body">{excerpt}</p>}
-      <div className="pcard__meta">
-        {when && <span><b>{when}</b></span>}
-        {where && <span>{where}</span>}
-        {cap && <span>{cap}</span>}
-        {comments !== undefined && <span>댓글 {comments}</span>}
-      </div>
+        {/* 모집중 배지를 달지 않는다. 기본값이 모집중이라 모든 행에
+            같은 배지가 붙어 아무것도 구분해주지 못한다. 당근도
+            판매중에는 배지가 없고 예약중·거래완료에만 붙인다 */}
+        <h3 className="pcard__title">
+          {state === 'done' && <Badge state={state} />}
+          {title}
+        </h3>
+        {excerpt && <p className="pcard__body">{excerpt}</p>}
+
+        {/* 확인하는 값은 한 줄에 가운뎃점으로 잇는다. 어디서 →
+            언제 → 몇 명 순서다. 장소를 앞에 두는 이유는 갈 수 있는
+            곳인지가 갈 수 있는 시간인지보다 먼저 걸러지기 때문이다 */}
+        <div className="pcard__meta meta">
+          {where && <span>{where}</span>}
+          {when && <span><b>{when}</b></span>}
+          {cap && <span>{cap}</span>}
+        </div>
+
+        {comments !== undefined && (
+          <div className="pcard__react meta"><span>댓글 {comments}</span></div>
+        )}
       </div>
     </article>
   )

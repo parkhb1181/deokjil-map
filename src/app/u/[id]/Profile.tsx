@@ -54,14 +54,22 @@ export default function Profile({ user }: { user: ProfileData }) {
         <button aria-pressed={mine} onClick={() => setMine(true)}>나</button>
       </div>
 
+      {/* 당근 중고거래 상세의 판매자 행과 같은 배치다. 아바타가 왼쪽,
+          이름과 숫자가 그 오른쪽. 가운데 정렬을 쓰지 않는 이유는 다른
+          화면이 전부 왼쪽에서 시작하기 때문이다 */}
       <header className="prof">
-        <Avatar name={user.nickname} src={user.image_url ?? undefined} lg />
-        <h1 className="prof__name">{user.nickname}</h1>
+        <div className="prof__id">
+          <Avatar name={user.nickname} src={user.image_url ?? undefined} lg />
+          <div className="prof__idmain">
+            <h1 className="prof__name">{user.nickname}</h1>
 
-        {/* 보여줄 숫자가 이것 하나뿐이다. 크게 부풀리지 않는다 */}
-        <p className="prof__meta">
-          동행 {user.done_count}회 · {monthOf(user.joined_at)}부터
-        </p>
+            {/* 보여줄 숫자가 이것 하나뿐이다. 크게 부풀리지 않는다 */}
+            <p className="prof__meta meta">
+              <span>동행 {user.done_count}회</span>
+              <span>{monthOf(user.joined_at)}부터</span>
+            </p>
+          </div>
+        </div>
 
         {user.bio ? (
           <p className="prof__bio">{user.bio}</p>
@@ -91,11 +99,13 @@ export default function Profile({ user }: { user: ProfileData }) {
             {user.posts.map((p) => (
               <li key={p.id}>
                 <Link href={`/p/${p.id}`} className="mine__row">
-                  <div className="mine__head">
-                    <Badge state={p.state} />
-                    <span className="mine__when">{whenShort(p.meet_at)}</span>
-                  </div>
-                  <p className="mine__title">{p.title}</p>
+                  <p className="mine__title">
+                    {p.state === 'done' && <Badge state={p.state} />}
+                    {p.title}
+                  </p>
+                  <p className="mine__sub meta">
+                    <span>{whenShort(p.meet_at)}</span>
+                  </p>
                 </Link>
               </li>
             ))}

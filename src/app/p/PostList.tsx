@@ -63,14 +63,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
   )
 
   return (
-    <PageShell
-      title="동행 구해요"
-      right={
-        <Button size="sm" onClick={() => setAsk(true)}>
-          글쓰기
-        </Button>
-      }
-    >
+    <PageShell title="동행 구해요">
       <div className="whoami">
         <b>화면</b>
         {VIEWS.map((v) => (
@@ -137,6 +130,22 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
           </div>
         )}
       </div>
+
+      {/* 글쓰기는 헤더가 아니라 오른쪽 아래다. 당근이 그 자리에 둔다.
+          헤더 오른쪽은 한 손으로 쥔 엄지에서 가장 먼 자리라, 가장 자주
+          누를 것을 거기 두면 매번 손을 고쳐 잡아야 한다 */}
+      <button type="button" className="fab" onClick={() => setAsk(true)}>
+        <svg viewBox="0 0 18 18" aria-hidden focusable="false">
+          <path
+            d="M9 3.5v11M3.5 9h11"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+        글쓰기
+      </button>
 
       {ask && (
         <Sheet

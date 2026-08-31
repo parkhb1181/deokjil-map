@@ -108,7 +108,7 @@ export default function Admin() {
                     {r.reason}
                     {r.detail && <span className="adm__detail"> · {r.detail}</span>}
                   </p>
-                  <p className="adm__by">신고 {r.reporter}</p>
+                  <p className="adm__by meta"><span>신고 {r.reporter}</span></p>
 
                   {!r.done && (
                     <div className="adm__acts">

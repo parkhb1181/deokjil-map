@@ -115,18 +115,18 @@ export default function MyActivity() {
           {tab === 0 &&
             POSTS.map((p) => (
               <li key={p.id}>
+                {/* 목록 행과 같은 순서다. 제목 → 메타 한 줄.
+                    화면마다 순서를 바꾸면 같은 글이 다른 물건으로 보인다 */}
                 <Link href={`/p/${p.id}`} className="mine__row">
-                  <div className="mine__head">
-                    <Badge state={p.state} />
-                    <span className="mine__when">{whenShort(p.meet_at)}</span>
-                  </div>
-                  <p className="mine__title">{p.title}</p>
-                  <p className="mine__sub">
-                    댓글 {p.comment_count}
-                    {/* 알림이 없으니 이 점이 알림 노릇을 한다 */}
-                    {p.new_comments > 0 && (
-                      <em className="mine__new">새 댓글 {p.new_comments}</em>
-                    )}
+                  <p className="mine__title">
+                    {p.state === 'done' && <Badge state={p.state} />}
+                    {p.title}
+                  </p>
+                  <p className="mine__sub meta">
+                    <span>{whenShort(p.meet_at)}</span>
+                    <span>댓글 {p.comment_count}</span>
+                    {/* 알림이 없으니 이 표시가 알림 노릇을 한다 */}
+                    {p.new_comments > 0 && <em>새 댓글 {p.new_comments}</em>}
                   </p>
                 </Link>
               </li>
@@ -142,9 +142,9 @@ export default function MyActivity() {
                   <p className="mine__title mine__title--sm">
                     {c.secret && <span className="cmt__lock">비밀</span>} {c.body}
                   </p>
-                  <p className="mine__sub">
-                    {whenShort(c.created_at)}
-                    {c.replied && <em className="mine__new">답글 옴</em>}
+                  <p className="mine__sub meta">
+                    <span>{whenShort(c.created_at)}</span>
+                    {c.replied && <em>답글 옴</em>}
                   </p>
                 </Link>
               </li>

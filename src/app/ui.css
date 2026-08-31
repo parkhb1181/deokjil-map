@@ -222,44 +222,106 @@
    아바타 32px 에 15px 을 붙이면 글자가 원보다 커 보인다 */
 .who__sub  { font-size: var(--t-sub); color: var(--text-mute); }
 
-/* ── 모집글 카드 ──────────────────────────────────────── */
-
-.pcard {
+/* ── 메타 줄 ──────────────────────────────────────────────
+   장소·날짜·시각처럼 "확인하는 값" 을 잇는 한 줄. 당근은 목록에서도
+   상세에서도 이 줄을 12px 회색에 가운뎃점으로만 잇는다. 화면마다
+   구분자와 간격을 다르게 두면 같은 성격의 정보가 다르게 읽힌다.
+   ------------------------------------------------------- */
+.meta {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-card);
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-mute);
 }
-.pcard__top { display: flex; align-items: center; gap: 8px; }
-.pcard__title {
+.meta > * + *::before { content: '·'; margin-right: 4px; }
+.meta b { color: var(--text-dim); font-weight: 700; }
+/* 알림이 없어서 이 표시가 알림 노릇을 한다. 메타 줄 안에서 혼자 살아난다 */
+.meta em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.meta em::before { content: none; }
+
+/* ── 글쓰기 버튼 ──────────────────────────────────────────
+   헤더가 아니라 오른쪽 아래에 둔다. 당근이 그렇게 둔다. 헤더
+   오른쪽은 한 손으로 쥔 엄지에서 가장 먼 자리라, 가장 자주 누를
+   것을 거기 두면 매번 손을 고쳐 잡아야 한다.
+   ------------------------------------------------------- */
+.fab {
+  position: fixed;
+  right: max(var(--gutter), calc(50vw - 320px + var(--gutter)));
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 48px;
+  padding: 0 18px 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
   font-size: var(--t-strong);
   font-weight: 700;
-  color: var(--text);
-  line-height: 1.35;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(233, 51, 121, .3);
 }
-/* 본문 요약. 두 줄까지만 보이고 잘린다 */
-.pcard__body {
-  font-size: var(--t-sub);
-  color: var(--text-dim);
-  line-height: 1.5;
+.fab:hover { background: var(--accent-deep); }
+.fab:active { transform: scale(.97); }
+.fab:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+.fab svg { width: 18px; height: 18px; }
+
+/* ── 모집글 행 ────────────────────────────────────────── */
+
+/* 당근은 목록에 카드를 쓰지 않는다. 테두리·라운드·그림자를 두면
+   상자가 제목보다 먼저 보이고, 카드 사이 여백까지 더해져 한 화면에
+   두세 개밖에 안 들어온다. 전체폭 행에 1px 선 하나로 나눈다.
+
+   행 안의 크기와 간격은 당근 동네생활 목록을 그대로 잰 값이다.
+     제목 16/700 → 요약 14/400 → 메타 12.5 회색 → 반응
+   제목과 요약 사이는 2px 로 붙이고, 반응 줄만 8px 을 띄운다.
+   그래야 "한 덩어리 + 아래 붙은 숫자" 로 보인다 */
+.pcard { display: flex; gap: 12px; padding: 14px 0; }
+.pcard__main { flex: 1; min-width: 0; }
+
+.pcard__title {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.pcard__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  font-size: var(--t-small);
-  font-weight: 400;
-  color: var(--text-mute);
+/* 상태는 제목 앞에 인라인으로 붙는다. 당근 중고거래의 "예약중" 과
+   같은 자리다. 윗줄을 따로 만들면 제목이 한 단 밀려난다 */
+.pcard__title .state,
+.mine__title .state { margin-right: 5px; vertical-align: 1px; }
+/* 본문 요약. 두 줄까지만 보이고 잘린다 */
+.pcard__body {
+  margin-top: 2px;
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.pcard__meta b { color: var(--text-dim); font-weight: 700; }
+.pcard__meta { margin-top: 4px; }
+/* 댓글 수를 메타 줄에 섞지 않는다. 당근도 줄을 나누고 8px 을 띄운다.
+   섞으면 장소·날짜와 댓글 수가 같은 무게로 읽혀 둘 다 안 걸린다 */
+.pcard__react { margin-top: 8px; }
 
 /* ── 댓글 ─────────────────────────────────────────────── */
 
@@ -387,7 +449,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  height: 52px;
+  height: 56px;
   padding-inline: 4px var(--gutter);
   background: var(--bg);
   border-bottom: 1px solid var(--border);
@@ -628,7 +690,7 @@
 /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 지운다 */
 .whoami {
   position: sticky;
-  top: 52px;
+  top: 56px;
   z-index: 19;
   display: flex;
   align-items: center;
@@ -653,18 +715,16 @@
 
 /* ── 모집글 목록 ──────────────────────────────────────── */
 
-.plist { padding-bottom: 32px; }
-.plist__body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px var(--gutter) 0;
-}
+/* 마지막 행이 글쓰기 버튼에 가리지 않을 만큼 띄운다 */
+.plist { padding-bottom: 88px; }
+.plist__body { padding: 0 var(--gutter); }
 
-/* 카드 전체가 링크다. 제목만 누르게 하면 손가락으로 맞히기 어렵다 */
+/* 행 전체가 링크다. 제목만 누르게 하면 손가락으로 맞히기 어렵다.
+   행 사이는 1px 선 하나로만 나눈다. 선을 gutter 안쪽에 두는 것도
+   당근과 같다 — 화면 끝까지 긋는 선은 구간을 나누는 뜻이 된다 */
 .plist__link { display: block; text-decoration: none; color: inherit; }
-.plist__link:active .pcard { transform: scale(0.99); }
-.pcard { transition: transform .06s; }
+.plist__link + .plist__link .pcard { border-top: 1px solid var(--border); }
+.plist__link:active { background: var(--bg-sunk); }
 
 /* ── 폼 ───────────────────────────────────────────────── */
 
@@ -679,7 +739,20 @@
 .form__row { display: flex; gap: 10px; }
 .form__row > .fld { flex: 1; min-width: 0; }
 
-.form__foot { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+/* 제출은 화면 아래에 붙인다. 당근도 글쓰기와 가입 폼의 완료 버튼을
+   맨 아래 고정한다. 흐름 안에 두면 긴 폼에서는 끝까지 내려보기 전엔
+   제출할 수 있는 상태인지조차 알 수 없다 */
+.form__foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px calc(var(--gutter) * -1) 0;
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
 .form__cancel {
   min-height: var(--tap);
   border: 0;
@@ -692,14 +765,17 @@
 
 /* ── 내 활동 내역 ─────────────────────────────────────── */
 
+/* 목록 행은 화면이 달라도 같은 모양이어야 한다. 내 활동과 프로필도
+   모집글 목록과 같은 규칙을 쓴다 — 전체폭 행, 사이에 1px 선 */
 .mine { list-style: none; margin: 0; padding: 0 var(--gutter) 40px; }
 .mine__row {
   display: block;
   padding: 14px 0;
-  border-bottom: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
 }
+.mine li + li .mine__row { border-top: 1px solid var(--border); }
+.mine__row:active { background: var(--bg-sunk); }
 .mine__head { display: flex; align-items: center; gap: 6px; }
 .mine__when { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
 
@@ -714,46 +790,34 @@
 }
 
 .mine__title {
-  margin-top: 5px;
-  font-size: var(--t-strong);
+  margin-top: 2px;
+  font-size: var(--t-body);
   font-weight: 700;
   color: var(--text);
-  line-height: 1.45;
+  line-height: 1.4;
 }
-.mine__title--sm { font-weight: 400; }
-
-.mine__sub {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 5px;
-  font-size: var(--t-small);
+/* 내가 쓴 댓글은 제목이 아니라 읽는 글이다. 굵기를 빼고 한 단 낮춘다 */
+.mine__title--sm {
+  font-size: 14px;
   font-weight: 400;
-  color: var(--text-mute);
+  line-height: 1.45;
+  color: var(--text-dim);
 }
 
-/* 알림이 없어서 이 표시가 알림 노릇을 한다. 눈에 걸려야 한다 */
-.mine__new {
-  font-style: normal;
-  font-weight: 700;
-  color: var(--accent-ink);
-  background: var(--accent-soft);
-  padding: 2px 7px;
-  border-radius: 999px;
-  font-size: 12px;
-}
+.mine__sub { margin-top: 8px; }
 
 /* ── 로그인 ───────────────────────────────────────────── */
 
+/* 왼쪽에서 시작한다. 다른 화면이 전부 그렇다. 로그인만 가운데
+   정렬이면 들어오자마자 시작선이 한 번 흔들리고, 그 다음 화면부터
+   계속 왼쪽이라 첫 화면만 다른 앱처럼 보인다 */
 .login {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 32px var(--gutter) 40px;
-  min-height: calc(100dvh - 52px);
+  padding: 28px var(--gutter) 32px;
+  min-height: calc(100dvh - 56px);
 }
-.login__mark { width: 132px; height: 132px; object-fit: contain; }
+.login__mark { width: 104px; height: 104px; object-fit: contain; margin-left: -8px; }
 
 .login__title {
   margin-top: 6px;
@@ -789,6 +853,7 @@
 .login__terms a { color: var(--text-dim); }
 
 .login__skip {
+  align-self: center;
   margin-top: 18px;
   min-height: var(--tap);
   display: inline-flex;
@@ -808,39 +873,39 @@
 
 /* ── 공개 프로필 ──────────────────────────────────────── */
 
-.prof {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 24px var(--gutter) 22px;
-  border-bottom: 8px solid var(--bg-sunk);
-}
-.prof .avatar { width: 72px; height: 72px; font-size: 26px; }
+/* 당근 중고거래 상세의 판매자 행과 같은 배치다. 아바타가 왼쪽,
+   이름과 숫자가 그 오른쪽, 행동은 아래 한 줄.
+
+   가운데 정렬을 버린 이유는 다른 화면이 전부 왼쪽에서 시작하기
+   때문이다. 프로필만 가운데면 화면을 오갈 때 시작선이 흔들린다 */
+.prof { padding: 18px var(--gutter); border-bottom: 8px solid var(--bg-sunk); }
+.prof__id { display: flex; align-items: center; gap: 12px; }
+.prof .avatar { width: 56px; height: 56px; font-size: 21px; }
+.prof__idmain { flex: 1; min-width: 0; }
 
 .prof__name {
-  margin-top: 12px;
   font-size: var(--t-title);
   font-weight: 800;
   line-height: 1.36;
   color: var(--text);
 }
-.prof__meta { margin-top: 5px; font-size: var(--t-sub); color: var(--text-mute); }
+.prof__meta { margin-top: 2px; }
 
 .prof__bio {
-  margin-top: 12px;
-  max-width: 30em;
+  margin-top: 14px;
   font-size: var(--t-body);
   line-height: 1.72;
   color: var(--text-dim);
 }
 .prof__bio--none { color: var(--text-mute); }
 
-.prof__acts { display: flex; gap: 8px; margin-top: 16px; }
+.prof__acts { display: flex; gap: 8px; margin-top: 14px; }
+.prof__acts .btn { flex: 1; }
 
-.prof__posts { padding-top: 4px; }
+.prof__posts { padding-bottom: 24px; }
+/* 구간 제목. 당근은 목록 위에 작은 제목만 두고 선을 긋지 않는다 */
 .prof__h2 {
-  padding: 14px var(--gutter) 0;
+  padding: 16px var(--gutter) 4px;
   font-size: var(--t-strong);
   font-weight: 800;
   color: var(--text);
@@ -901,7 +966,8 @@
 }
 
 .adm__list { list-style: none; margin: 0; padding: 0 var(--gutter); }
-.adm__row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.adm__row { padding: 14px 0; }
+.adm__list li + li .adm__row { border-top: 1px solid var(--border); }
 
 /* 자동 제한이 걸린 건. 야간·주말에 사람이 없어도 이것만은 먼저 본다 */
 .adm__row--hot {
@@ -921,22 +987,21 @@
 }
 .adm__reason { margin-top: 3px; font-size: var(--t-sub); color: var(--text-dim); }
 .adm__detail { color: var(--text-mute); }
-.adm__by { margin-top: 3px; font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
+.adm__by { margin-top: 6px; }
 .adm__acts { display: flex; gap: 8px; margin-top: 10px; }
 
-/* 카드에 사진이 붙으면 가로로 눕는다. 세로로 쌓으면 카드 하나가
-   화면 절반을 먹어 한 번에 두 개밖에 안 보인다. 목록은 훑는
-   화면이라 한눈에 여러 개가 들어와야 한다 */
-.pcard--photo { flex-direction: row; gap: 12px; }
+/* 사진은 왼쪽에 세운다. 당근도 썸네일이 왼쪽, 글이 오른쪽이다.
+   정사각으로 두면 세로형 포스터가 위아래로 잘려 무슨 행사인지
+   알아볼 수 없어서 상세와 같은 4:5 로 맞췄다 */
 .pcard__photo {
-  width: 88px;
-  height: 88px;
+  width: 76px;
+  aspect-ratio: 4 / 5;
   flex: 0 0 auto;
   object-fit: cover;
-  border-radius: var(--radius-sm);
+  object-position: center top;
+  border-radius: 8px;
   background: var(--bg-sunk);
 }
-.pcard__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 
 /* 사진이 있으면 본문 요약을 한 줄로 줄인다. 옆으로 좁아져서
    두 줄을 두면 제목과 붙어 덩어리로 보인다 */
