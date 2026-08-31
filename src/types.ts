@@ -94,3 +94,83 @@ export interface EventItem {
   trust: Trust
   goods: Goods[]
 }
+
+/* ── 동행 모집 ─────────────────────────────────────────────
+   1차 MVP. 아직 API 가 없어 화면이 목데이터를 읽지만, 이 타입이
+   그대로 백엔드에 넘길 응답 명세다. 필드를 늘리거나 이름을 바꾸면
+   양쪽이 어긋나므로 여기를 먼저 고치고 넘긴다.
+   ------------------------------------------------------- */
+
+/**
+ * 모집글 상태.
+ *
+ * 명세의 OPEN·FULL·CLOSED·CANCELED 네 개가 아니라 둘이다.
+ * 신청·수락을 두지 않기로 해서 정원이 차서 자동으로 마감되는 경로가
+ * 없다. 방장이 완료를 누르는 것뿐이다.
+ */
+export type PostState = 'open' | 'done'
+
+export interface PostAuthor {
+  id: string
+  nickname: string
+  image_url?: string | null
+  /** 완료한 동행 횟수. 처음이면 0 */
+  done_count?: number
+}
+
+export interface CompanionPost {
+  id: string
+  /** 이벤트에 붙지 않은 글도 있다 */
+  event_id: string | null
+  event_title?: string | null
+  title: string
+  body: string
+  state: PostState
+  /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
+  capacity: number | null
+  /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */
+  meet_at: string
+  /** 좌표를 받지 않기로 해서 텍스트뿐이다 */
+  meet_place: string
+  closes_at: string
+  created_at: string
+  author: PostAuthor
+  comment_count: number
+}
+
+/**
+ * 댓글.
+ *
+ * 채팅이 없어 사람 구하는 일이 전부 여기서 일어난다. 비밀 댓글이
+ * 연락처를 주고받는 유일한 통로다.
+ */
+export interface PostComment {
+  id: string
+  /** 대댓글의 부모. 깊이는 1단계로 고정이라 이 아래는 없다 */
+  parent_id: string | null
+  author: PostAuthor
+  /**
+   * 비밀 댓글인데 볼 권한이 없으면 **서버가 이 필드를 빼고 보낸다.**
+   * 화면에서 가리는 게 아니다. 클라이언트가 가리면 응답에 본문이
+   * 남아 있어 개발자 도구로 그냥 보인다.
+   */
+  body?: string | null
+  secret: boolean
+  /** 지운 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
+  deleted: boolean
+  created_at: string
+}
+
+/**
+ * 보는 사람.
+ *
+ * 로그인이 아직 없어 화면이 이 값을 받아 분기한다. 인증이 붙으면
+ * 서버 세션에서 채운다.
+ */
+export type ViewerRole = 'guest' | 'member' | 'host'
+
+export interface Viewer {
+  role: ViewerRole
+  /** 비회원이면 null */
+  user_id: string | null
+}
