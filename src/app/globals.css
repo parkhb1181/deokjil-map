@@ -69,8 +69,12 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
-               "Pretendard", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  /* Pretendard 를 자체 호스팅한다. 당근이 쓰는 것과 같은 글꼴이고
+     SIL Open Font License 라 자체 호스팅과 재배포가 허용된다.
+     맥은 Apple SD Gothic Neo 로도 비슷하게 보이지만 윈도우와
+     안드로이드는 맑은 고딕·Roboto 로 떨어져 톤이 갈렸다 */
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont,
+               "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.55;
   word-break: keep-all;      /* 한국어 줄바꿈 */

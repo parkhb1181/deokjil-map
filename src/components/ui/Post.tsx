@@ -71,10 +71,12 @@ export type CommentProps = {
   gone?: boolean
   /** 방장 표시. 비밀 댓글을 볼 수 있는 사람이라 눈에 띄어야 한다 */
   host?: boolean
+  /** 프로필 사진. 없으면 닉네임 첫 글자에 색을 깐다 */
+  src?: string
   acts?: ReactNode
 }
 
-export function Comment({ name, time, text, reply, secret, gone, host, acts }: CommentProps) {
+export function Comment({ name, time, text, reply, secret, gone, host, src, acts }: CommentProps) {
   const cls = ['cmt', reply && 'cmt--reply', gone && 'cmt--gone'].filter(Boolean).join(' ')
 
   if (gone) {
@@ -89,7 +91,7 @@ export function Comment({ name, time, text, reply, secret, gone, host, acts }: C
 
   return (
     <div className={cls}>
-      <Avatar name={name} />
+      <Avatar name={name} src={src} />
       <div className="cmt__main">
         <div className="cmt__head">
           <span className="who__name">{name}</span>

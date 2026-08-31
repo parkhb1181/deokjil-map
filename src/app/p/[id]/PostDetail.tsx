@@ -128,6 +128,7 @@ export default function PostDetail({ post, comments, hostId }: {
         <div className="post__who">
           <Who
             name={post.author.nickname}
+            src={post.author.image_url ?? undefined}
             sub={`${post.author.done_count ? `동행 ${post.author.done_count}회` : '첫 동행'} · ${dateOnly(post.created_at)}`}
           />
         </div>
@@ -173,6 +174,7 @@ export default function PostDetail({ post, comments, hostId }: {
             <Comment
               key={c.id}
               name={c.deleted ? '' : c.author.nickname}
+              src={c.author.image_url ?? undefined}
               time={shortTime(c.created_at)}
               text={c.body ?? undefined}
               reply={!!c.parent_id}

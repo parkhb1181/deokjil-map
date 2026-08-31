@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Jua } from 'next/font/google'
+import '../../public/font/pretendard.css'
 import './globals.css'
 import './ui.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
