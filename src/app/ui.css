@@ -870,3 +870,43 @@
   opacity: .82;
 }
 .withus__go { margin-top: 12px; text-decoration: none; }
+
+/* ── 백오피스 ─────────────────────────────────────────── */
+
+/* 명세가 최소한만 만들라고 했다. 꾸미지 않고 읽기만 되게 둔다 */
+.adm { padding-bottom: 40px; }
+
+.adm__filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--tap);
+  padding: 0 var(--gutter);
+  font-size: 14px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.adm__list { list-style: none; margin: 0; padding: 0 var(--gutter); }
+.adm__row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+
+/* 자동 제한이 걸린 건. 야간·주말에 사람이 없어도 이것만은 먼저 본다 */
+.adm__row--hot {
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  background: var(--danger-soft);
+}
+.adm__hot { font-size: 12px; font-weight: 700; color: var(--danger); }
+
+.adm__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.adm__subject {
+  margin-top: 6px;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.45;
+}
+.adm__reason { margin-top: 3px; font-size: 14px; color: var(--text-dim); }
+.adm__detail { color: var(--text-mute); }
+.adm__by { margin-top: 3px; font-size: 12.5px; color: var(--text-mute); }
+.adm__acts { display: flex; gap: 8px; margin-top: 10px; }
