@@ -32,25 +32,37 @@
 <script src="6b6e194e-7e8e-4f9b-960a-b8b87766ef30.js"></script>
 <title>덕모임 · 콘서트와 생카, 같이 갈 사람을 찾는 곳</title>
 <meta name="robots" content="noindex,nofollow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gaegu:wght@700&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
 /* 원본 행간은 라틴 대문자 기준이라 한글 제목의 윗부분이 잘린다.
    인라인 스타일이라 !important 가 있어야 이긴다 */
-h2[style*="Archivo Black"], h3[style*="Archivo Black"] { line-height: 1.16 !important; }
+h2[style*="Wanted Sans"], h3[style*="Wanted Sans"] { line-height: 1.16 !important; }
 /* Black Han Sans 는 속공간이 아주 좁다. 흰 글자를 밝은 하늘 사진 위에
    올리면 ㅇ 이나 ㅐ 의 구멍이 메워져 글자가 덩어리로 뭉갠다.
    원본은 라틴 대문자라 구멍이 커서 이 문제가 없었다 */
-h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,40,66,.5); }
+h2[style*="Wanted Sans"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(12,40,66,.5); }
+</style>
+<style>
+/* 자체 호스팅. 셋 다 SIL OFL 1.1 이라 서브셋과 재배포가 허용된다.
+   Wanted Sans (c) 2024 The Wanted Sans Project Authors
+   Pretendard  (c) 2021 Kil Hyung-jin
+   Gaegu       (c) 2018 The Gaegu Project Authors
+   페이지에 쓰인 324자만 남긴 서브셋이다. 원고를 고치면 다시 잘라야 한다 */
+@font-face{font-family:'Wanted Sans';font-weight:900;font-style:normal;font-display:swap;
+  src:url('fonts/WantedSans-ExtraBlack.subset.woff2') format('woff2')}
+@font-face{font-family:'Pretendard';font-weight:400;font-style:normal;font-display:swap;
+  src:url('fonts/Pretendard-Regular.subset.woff2') format('woff2')}
+@font-face{font-family:'Pretendard';font-weight:600;font-style:normal;font-display:swap;
+  src:url('fonts/Pretendard-SemiBold.subset.woff2') format('woff2')}
+@font-face{font-family:'Pretendard';font-weight:700;font-style:normal;font-display:swap;
+  src:url('fonts/Pretendard-Bold.subset.woff2') format('woff2')}
+@font-face{font-family:'Gaegu';font-weight:700;font-style:normal;font-display:swap;
+  src:url('fonts/Gaegu-Bold.subset.woff2') format('woff2')}
 </style>
 </head>
 <body>
 <x-dc>
 <helmet>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <style>/* latin-ext */
 @font-face {
   font-family: 'Archivo Black';
@@ -235,7 +247,7 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
 <script src="32503646-622b-4bb5-a255-50b710193573.js"></script>
 <style>
   html, body { margin: 0; padding: 0; background: #141414; }
-  body { font-family: 'DM Sans', 'Noto Sans KR', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Pretendard', 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
   a:hover { opacity: .65; }
   * { box-sizing: border-box; }
@@ -253,31 +265,22 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
 
     <!-- nav -->
     <header style="position:relative;display:flex;align-items:flex-start;justify-content:space-between;padding:22px 26px;gap:20px">
-      <a href="/" style="display:block;background:#141414;color:#fff;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:17px;line-height:1.08;letter-spacing:-.02em;padding:7px 9px 8px">덕모임<br>DUCKMOIM <span style="font-size:10px;vertical-align:top">™</span></a>
-      <div style="display:flex;align-items:center;gap:0;background:#232323;border-radius:999px;padding:14px 20px;color:#fff;margin-top:2px">
-        <span style="font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:14px;letter-spacing:.01em">메뉴</span>
-        <span style="width:1px;height:18px;background:rgba(255,255,255,.28);margin:0 18px"></span>
-        <span style="font-size:14px;color:#dcdcdc">콘서트 · 생카 · 팝업</span>
-        <span style="display:flex;flex-direction:column;gap:3px;margin-left:18px">
-          <span style="display:block;width:15px;height:2px;background:#fff"></span>
-          <span style="display:block;width:15px;height:2px;background:#fff"></span>
-          <span style="display:block;width:15px;height:2px;background:#fff"></span>
-        </span>
-      </div>
+      <a href="/" style="display:block;background:#141414;color:#fff;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:17px;line-height:1.08;letter-spacing:-.02em;padding:7px 9px 8px">덕모임<br>DUCKMOIM <span style="font-size:10px;vertical-align:top">™</span></a>
+      
       <a href="/" style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:999px;padding:6px 6px 6px 20px;margin-top:2px">
-        <span style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.14em;color:#141414">둘러보기</span>
+        <span style="font-family:'Pretendard',sans-serif;font-size:14px;font-weight:700;letter-spacing:-.01em;color:#141414">둘러보기</span>
         <span style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:999px;background:#141414;color:#fff;font-size:15px">→</span>
       </a>
     </header>
 
     <div style="position:relative;text-align:center;margin-top:70px">
-      <div style="font-family:'Caveat','Gaegu',cursive;font-size:38px;color:#141414;line-height:1">같이 갈까</div>
-      <h1 style="margin:2px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;color:#ff4d8d;font-size:118px;line-height:.86;letter-spacing:-.03em;text-shadow:0 10px 30px rgba(20,20,20,.12)">
+      <div style="font-family:'Gaegu','Caveat',cursive;font-size:38px;color:#141414;line-height:1">Let's go together</div>
+      <h1 style="margin:2px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;color:#ff4d8d;font-size:118px;line-height:.86;letter-spacing:-.03em;text-shadow:0 10px 30px rgba(20,20,20,.12)">
         <span style="display:block;transform:translateX(-8px)">같이</span>
         <span style="display:block;transform:translateX(10px)">갈 사람</span>
         <span style="display:block;transform:translateX(-4px)">덕모임</span>
       </h1>
-      <p style="margin:52px auto 0;max-width:320px;font-size:16px;line-height:1.35;color:#fff;text-shadow:0 1px 12px rgba(0,0,0,.6)">혼자 가긴 뻘쭘하고<br>안 가긴 아쉬울 때</p>
+      
     </div>
 
     <!-- rotated client fan -->
@@ -296,11 +299,11 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
           <image-slot id="hero-work" shape="rounded" radius="8" src="3450542c-6756-4e04-9b12-0b15aaaf91e3.jpg" credit="Photo by Melissa Askew on Unsplash" credit-href="https://unsplash.com/@melissaaskew" style="filter:saturate(1.05) contrast(1.03)" placeholder="Project thumb"></image-slot>
         </div>
         <div>
-          <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.12em;color:#8a8a8a">이번 주 서울</div>
-          <div style="margin-top:6px;font-size:14px;line-height:1.35;color:#141414">콘서트, 팝업, 생일카페가 어디서 열리는지 모아 둡니다…</div>
+          <div style="font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.12em;color:#8a8a8a">이번 주 서울</div>
+          <div style="margin-top:6px;font-size:14px;line-height:1.35;color:#141414">어디서 열리는지 모아 둡니다…</div>
         </div>
       </div>
-      <a href="/" style="display:flex;align-items:center;justify-content:center;margin-top:10px;background:#141414;border-radius:999px;padding:15px;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.14em;color:#fff">어디서 열리는지 보기</a>
+      <a href="/" style="display:flex;align-items:center;justify-content:center;margin-top:10px;background:#141414;border-radius:999px;padding:15px;font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.14em;color:#fff">어디서 열리는지 보기</a>
     </div>
   </section>
 
@@ -308,73 +311,28 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
   <section data-screen-label="About" style="position:relative;background:#171717;padding:110px 26px 90px;overflow:hidden">
     <div style="position:relative;max-width:1148px;margin:0 auto">
       <div style="position:absolute;left:0;top:-30px;width:640px;height:520px;opacity:.9">
-        <image-slot id="about-visual" shape="rounded" radius="18" fit="cover" src="6bfcf04a-75dc-488c-8187-616ab610f317.jpg" credit="Photo by Joel Muniz on Unsplash" credit-href="https://unsplash.com/@jmuniz" style="filter:brightness(.55) contrast(1.05) saturate(.9)" placeholder="Drop the hero object shot"></image-slot>
-        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,23,23,0) 18%,rgba(23,23,23,.8) 58%,rgba(23,23,23,.95) 100%);pointer-events:none"></div>
+        <img src="duck.png" alt="덕모임 오리" style="width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 24px 30px rgba(0,0,0,.5))">
+        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(23,23,23,0) 46%,rgba(23,23,23,.55) 78%,rgba(23,23,23,.85) 100%);pointer-events:none"></div>
       </div>
-      <div style="position:relative;max-width:520px;margin-left:340px;padding-top:20px">
-        <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.16em;color:#cfcfcf">▪ 덕모임</div>
+      <div style="position:relative;max-width:300px;margin-left:auto;margin-right:0;padding-top:20px">
+        <div style="font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:#cfcfcf">▪ 덕모임</div>
         <h2 style="margin:22px 0 0;font-size:44px;line-height:1.13;letter-spacing:-.02em;font-weight:700;color:#fff">덕모임은 콘서트와 생일카페에 <span style="color:#6a6a6a">같이 갈 사람을 찾는 곳입니다.</span></h2>
       </div>
-      <p style="position:relative;max-width:250px;margin:150px 0 0 auto;font-size:15px;line-height:1.5;color:#9a9a9a">어디서 뭐가 열리는지는 매일 모읍니다. 그 위에서 같이 갈 사람을 찾습니다. 동행 찾기는 지금 만들고 있고, 지도와 목록과 코스는 이미 열려 있습니다.</p>
+      <p style="position:relative;max-width:250px;margin:150px 0 0 auto;font-size:15px;line-height:1.5;color:#9a9a9a">어디서 뭐가 열리는지 매일 모읍니다. 동행 찾기는 만드는 중입니다.</p>
     </div>
   </section>
 
   <!-- RECENT PROJECTS -->
   <section data-screen-label="Recent projects" style="background:#1c1c1c;padding:80px 0 70px;overflow:hidden">
-    <h2 style="margin:0;text-align:center;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:46px;letter-spacing:-.02em;color:#fff">어떻게 쓰나요</h2>
+    <h2 style="margin:0;text-align:center;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:46px;letter-spacing:-.02em;color:#fff">어떻게 쓰나요</h2>
 
     <div style="position:relative;height:420px;margin-top:70px">
       <div style="position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;align-items:center;gap:44px">
-        <div style="width:290px;padding:22px;border-radius:20px;background:#2a2a2a;color:#c9c9c9;transform:rotate(-8deg) translateY(60px);opacity:.55">
-          <div style="display:flex;gap:8px;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em">
-            <span style="padding:5px 11px;border-radius:999px;background:#3a3a3a">목록</span>
-            <span style="padding:5px 11px;border-radius:999px;background:#3a3a3a">오늘</span>
-          </div>
-          <div style="margin-top:16px;font-size:16px;font-weight:700;color:#eee">뭐가 열리는지 본다</div>
-          <p style="margin:8px 0 0;font-size:14px;line-height:1.45">오늘 서울에서 열리는 것을 인기 순으로 봅니다. 제일 많이 열린 대상이 위로 올라옵니다.</p>
-          <div style="display:flex;gap:10px;margin-top:16px">
-            <div style="flex:1;height:110px;border-radius:10px;overflow:hidden;background:#2a2a2a"><img src="app-list.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top"></div>
-            <div style="flex:1;padding:10px;border-radius:10px;background:#3a3a3a">
-              <div style="font-size:22px;font-weight:700;color:#fff">목록</div>
-              <div style="font-size:11px;line-height:1.3;margin-top:4px">오늘 마감인 것부터 보여줍니다</div>
-            </div>
-          </div>
-        </div>
+        <div style="width:290px;padding:22px;border-radius:20px;background:#2a2a2a;color:#c9c9c9;transform:rotate(-8deg) translateY(60px);opacity:.55;padding:0;overflow:hidden;height:420px"><img src="app-list.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"></div>
 
-        <div style="width:330px;padding:22px;border-radius:22px;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.45);z-index:2">
-          <div style="display:flex;gap:8px;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em;color:#3a2b12">
-            <span style="padding:6px 12px;border-radius:999px;background:#f6e3bc">지도</span>
-            <span style="padding:6px 12px;border-radius:999px;background:#f6e3bc">위치</span>
-            <span style="padding:6px 12px;border-radius:999px;background:#f6e3bc">동선</span>
-          </div>
-          <div style="margin-top:18px;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:15px;letter-spacing:.01em;color:#141414">어디 있는지 본다</div>
-          <p style="margin:10px 0 0;font-size:14px;line-height:1.5;color:#333">핀으로 봅니다. 같은 동네끼리 묶여서 하루에 몇 군데를 돌지 먼저 정할 수 있습니다.</p>
-          <div style="display:flex;gap:10px;margin-top:18px">
-            <div style="width:132px;height:96px;flex:none;border-radius:10px;overflow:hidden">
-              <img src="app-map.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:10px">
-            </div>
-            <div style="flex:1;padding:12px;border-radius:10px;background:#f6e3bc">
-              <div style="font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:24px;color:#141414">지도</div>
-              <div style="margin-top:8px;font-size:11px;line-height:1.35;color:#4a3a1c">25개 구를 한 화면에서 봅니다</div>
-            </div>
-          </div>
-        </div>
+        <div style="width:330px;padding:22px;border-radius:22px;background:#fff;box-shadow:0 30px 60px rgba(0,0,0,.45);z-index:2;padding:0;overflow:hidden;height:420px"><img src="app-map.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"></div>
 
-        <div style="width:290px;padding:22px;border-radius:20px;background:#2a2a2a;color:#c9c9c9;transform:rotate(8deg) translateY(60px);opacity:.55">
-          <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em;color:#dfe3ff">
-            <span style="padding:5px 11px;border-radius:999px;background:#2f3a8f">코스</span>
-            <span style="padding:5px 11px;border-radius:999px;background:#2f3a8f">저장</span>
-            <span style="padding:5px 11px;border-radius:999px;background:#2f3a8f">공유</span>
-          </div>
-          <p style="margin:16px 0 0;font-size:14px;line-height:1.45">갈 곳을 하트로 담으면 내 코스가 됩니다. 그 코스를 같이 갈 사람에게 보여줍니다.</p>
-          <div style="display:flex;gap:10px;margin-top:16px">
-            <div style="flex:1;height:110px;border-radius:10px;overflow:hidden;background:#2a2a2a"><img src="app-course.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top"></div>
-            <div style="flex:1;padding:10px;border-radius:10px;background:#2f3a8f;color:#fff">
-              <div style="font-size:22px;font-weight:700">내 코스</div>
-              <div style="font-size:11px;line-height:1.3;margin-top:4px;color:#d5d9ff">담아 두고 같이 갈 사람을 찾습니다</div>
-            </div>
-          </div>
-        </div>
+        <div style="width:290px;padding:22px;border-radius:20px;background:#2a2a2a;color:#c9c9c9;transform:rotate(8deg) translateY(60px);opacity:.55;padding:0;overflow:hidden;height:420px"><img src="app-course.jpg" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"></div>
       </div>
 
       <div style="position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);display:flex;gap:12px">
@@ -387,17 +345,17 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
   <!-- SUPERPOWERS -->
   <section data-screen-label="Superpowers" style="position:relative;padding:70px 26px 120px;overflow:hidden;background:#2b1712">
     <div style="position:absolute;inset:0">
-      <image-slot id="powers-bg" shape="rect" src="17a2c44d-8563-4a66-a122-ba11e05f1e4c.jpg" credit="Photo by Aditya Chinchure on Unsplash" credit-href="https://unsplash.com/@adityachinchure" style="filter:saturate(1.1) contrast(1.05)" placeholder="Drop the backdrop image"></image-slot>
+      <image-slot id="powers-bg" shape="rect" src="6bfcf04a-75dc-488c-8187-616ab610f317.jpg" credit="Photo by Joel Muniz on Unsplash" credit-href="https://unsplash.com/@jmuniz" style="filter:saturate(1.1) contrast(1.05)" placeholder="Drop the backdrop image"></image-slot>
     </div>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,14,26,.5),rgba(12,14,26,.3));pointer-events:none"></div>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1c1c1c 0%,rgba(28,28,28,.6) 9%,rgba(28,28,28,0) 20%,rgba(45,95,140,0) 74%,rgba(31,86,131,.5) 90%,#22587f 100%);pointer-events:none"></div>
     <div style="position:relative;max-width:1148px;margin:0 auto;pointer-events:none">
-      <h2 style="margin:0;text-align:center;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:46px;line-height:1.06;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.35)">덕모임이<br>하는 일</h2>
+      <h2 style="margin:0;text-align:center;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:46px;line-height:1.06;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 24px rgba(0,0,0,.35)">덕모임이<br>하는 일</h2>
       <div style="display:flex;justify-content:center;align-items:flex-start;gap:18px;margin-top:80px">
         <sc-for list="{{ powers }}" as="p" hint-placeholder-count="4">
           <div style="{{ p.style }}">
-            <div style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:#141414;color:#fff;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px">{{ p.num }}</div>
-            <div style="margin-top:18px;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:19px;line-height:1.16;letter-spacing:-.01em;color:#141414">{{ p.title }}</div>
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:#141414;color:#fff;font-family:'Pretendard','DM Mono',monospace;font-size:11px">{{ p.num }}</div>
+            <div style="margin-top:18px;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:19px;line-height:1.16;letter-spacing:-.01em;color:#141414">{{ p.title }}</div>
             <p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:#2a2a2a">{{ p.body }}</p>
           </div>
         </sc-for>
@@ -412,9 +370,9 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
     </div>
     <div style="position:absolute;inset:0;background:linear-gradient(180deg,#22587f 0%,rgba(34,88,127,.72) 6%,rgba(35,96,148,.3) 24%,rgba(120,170,205,.1) 52%,rgba(255,255,255,0) 100%);pointer-events:none"></div>
     <div style="position:relative;max-width:1148px;margin:0 auto">
-      <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.16em;color:#eaf3f8">▪ 후기 (예시)</div>
-      <h2 style="margin:18px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:42px;line-height:1.06;letter-spacing:-.02em;color:#fff">이럴 때<br>씁니다</h2>
-      <p style="margin:20px 0 0;font-size:15px;line-height:1.45;color:#eaf3f8">팀 공유용으로 채워 둔 예시 문구입니다.<br>실제 후기가 쌓이면 이 자리를 갈아 끼웁니다.</p>
+      <div style="font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:#eaf3f8">▪ 후기 (예시)</div>
+      <h2 style="margin:18px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:42px;line-height:1.06;letter-spacing:-.02em;color:#fff">이럴 때<br>씁니다</h2>
+      <p style="margin:20px 0 0;font-size:15px;line-height:1.45;color:#eaf3f8">팀 공유용 예시입니다.<br>실제 후기가 쌓이면 갈아 끼웁니다.</p>
 
       <div style="display:flex;flex-direction:column;gap:56px;margin-top:150px">
         <sc-for list="{{ quotes }}" as="q" hint-placeholder-count="5">
@@ -437,11 +395,11 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
     <div style="max-width:1148px;margin:0 auto">
       <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:30px">
         <div>
-          <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.16em;color:#7a7a7a">▪ 안내</div>
-          <h2 style="margin:18px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-.02em;color:#141414">자주 묻는<br>것들</h2>
-          <p style="margin:16px 0 0;font-size:15px;line-height:1.45;color:#5c5c5c">가기 전에 한 번 보시면<br>헛걸음을 줄일 수 있습니다.</p>
+          <div style="font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.16em;color:#7a7a7a">▪ 안내</div>
+          <h2 style="margin:18px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:40px;line-height:1.08;letter-spacing:-.02em;color:#141414">자주 묻는<br>것들</h2>
+          <p style="margin:16px 0 0;font-size:15px;line-height:1.45;color:#5c5c5c">가기 전에<br>한 번 보세요.</p>
         </div>
-        <a href="/" style="display:block;background:#141414;border-radius:999px;padding:14px 26px;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:12px;letter-spacing:.14em;color:#fff">둘러보기</a>
+        <a href="/" style="display:block;background:#141414;border-radius:999px;padding:14px 26px;font-family:'Pretendard','DM Mono',monospace;font-size:12px;letter-spacing:.14em;color:#fff">둘러보기</a>
       </div>
 
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:56px">
@@ -449,25 +407,25 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
           <div style="height:222px;border-radius:14px;overflow:hidden">
             <image-slot id="blog-1" shape="rounded" radius="14" src="1e714307-a0e6-4f45-bd29-3e9bc855b52b.jpg" credit="Photo by Polina Kuzovkova on Unsplash" credit-href="https://unsplash.com/@polina_kuzovkova" style="filter:saturate(1.04) contrast(1.03)" placeholder="Article image"></image-slot>
           </div>
-          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">01</div>
-          <h3 style="margin:14px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">같이 갈 사람은 어떻게 찾나요</h3>
-          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">지금 만들고 있습니다. 먼저 어디서 뭐가 열리는지 모으고, 그 위에 동행 찾기를 얹습니다…</p>
+          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">01</div>
+          <h3 style="margin:14px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">같이 갈 사람은 어떻게 찾나요</h3>
+          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">만드는 중입니다. 어디서 뭐가 열리는지부터 모으고 있습니다…</p>
         </a>
         <a href="/" style="display:block">
           <div style="height:222px;border-radius:14px;overflow:hidden">
             <image-slot id="blog-2" shape="rounded" radius="14" src="5b7c7028-f789-4737-a561-465b38c587b7.jpg" credit="Photo by Yeon Lee on Unsplash" credit-href="https://unsplash.com/@yeonlee" style="filter:saturate(1.04) contrast(1.03)" placeholder="Article image"></image-slot>
           </div>
-          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">02</div>
-          <h3 style="margin:14px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">정보는 어디서 가져오나요</h3>
-          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">주최자와 운영사의 공지에서 가져옵니다. 각 상세 화면에 원문 링크를 그대로 답니다…</p>
+          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">02</div>
+          <h3 style="margin:14px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">정보는 어디서 가져오나요</h3>
+          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">주최자 공지에서 가져옵니다. 원문 링크를 그대로 답니다…</p>
         </a>
         <a href="/" style="display:block">
           <div style="height:222px;border-radius:14px;overflow:hidden">
             <image-slot id="blog-3" shape="rounded" radius="14" src="6bfcf04a-75dc-488c-8187-616ab610f317.jpg" credit="Photo by Joel Muniz on Unsplash" credit-href="https://unsplash.com/@jmuniz" style="filter:saturate(1.04) contrast(1.03)" placeholder="Article image"></image-slot>
           </div>
-          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">03</div>
-          <h3 style="margin:14px 0 0;font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">서울 말고 다른 지역도 되나요</h3>
-          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">지금은 서울만 모읍니다. 부산과 대구는 준비 중입니다…</p>
+          <div style="display:inline-block;margin-top:22px;padding:6px 12px;border-radius:8px;background:#ececea;font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.1em;color:#3a3a3a">03</div>
+          <h3 style="margin:14px 0 0;font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:19px;line-height:1.18;letter-spacing:-.01em;color:#141414">서울 말고 다른 지역도 되나요</h3>
+          <p style="margin:12px 0 0;font-size:14.5px;line-height:1.5;color:#6f6f6f">지금은 서울만 모읍니다…</p>
         </a>
       </div>
     </div>
@@ -477,15 +435,15 @@ h2[style*="Archivo Black"][style*="color:#fff"] { text-shadow: 0 2px 16px rgba(1
   <footer data-screen-label="Footer" style="position:relative;background:#161616;padding:80px 26px 30px;overflow:hidden">
     <div style="position:absolute;inset:0;background:radial-gradient(70% 90% at 40% 40%,rgba(255,255,255,.06),rgba(255,255,255,0) 70%)"></div>
     <div style="position:relative;max-width:1148px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;gap:50px">
-      <div style="font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:112px;line-height:.86;letter-spacing:-.035em;color:#fff">같이<br>갈 사람<br>덕모임<span style="font-size:44px;vertical-align:top">™</span></div>
+      <div style="font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:112px;line-height:.86;letter-spacing:-.035em;color:#fff">같이<br>갈 사람<br>덕모임<span style="font-size:44px;vertical-align:top">™</span></div>
       <div style="position:relative;width:300px;flex:none;padding:26px;border-radius:16px;background:#f2efe6;overflow:hidden">
         <svg sc-camel-view-box="0 0 200 160" style="position:absolute;right:-40px;top:-6px;width:220px;opacity:.9" fill="none" stroke="#2d3ce0" stroke-width="4"><path d="M40 120 C-10 60 60 0 90 30 C120 60 40 110 70 130 C100 150 150 110 130 70 C115 40 60 60 80 100"></path><circle cx="150" cy="105" r="34"></circle></svg>
         <div style="position:relative">
-          <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.16em;color:#8a8779">바로가기</div>
+          <div style="font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.16em;color:#8a8779">바로가기</div>
           <nav style="display:flex;flex-direction:column;gap:9px;margin-top:16px;font-size:15px;color:#141414">
             <a href="/">목록</a><a href="/">지도</a><a href="/">내 코스</a><a href="/">대상별</a><a href="/">소개</a>
           </nav>
-          <div style="font-family:'DM Mono','IBM Plex Sans KR',monospace;font-size:11px;letter-spacing:.16em;color:#8a8779;margin-top:34px">안내</div>
+          <div style="font-family:'Pretendard','DM Mono',monospace;font-size:11px;letter-spacing:.16em;color:#8a8779;margin-top:34px">안내</div>
           <nav style="display:flex;flex-direction:column;gap:9px;margin-top:16px;font-size:15px;color:#141414">
             <a href="/">주최자 공지 기반</a><a href="/">가기 전 원문 확인</a><a href="/">매일 갱신</a>
           </nav>
@@ -507,27 +465,27 @@ class Component extends DCLogic {
     const fanLabels = clients.map((name, i) => ({
       name,
       num: String((i % 9) + 1).padStart(2, '0'),
-      style: `position:absolute;left:120px;top:150px;transform-origin:left center;transform:rotate(${-58 + i * 11}deg) translateX(30px);font-family:'Archivo Black','Black Han Sans',sans-serif;font-size:15px;letter-spacing:-.01em;color:#141414;white-space:nowrap`
+      style: `position:absolute;left:120px;top:150px;transform-origin:left center;transform:rotate(${-58 + i * 11}deg) translateX(30px);font-family:'Wanted Sans','Archivo Black',sans-serif;font-size:15px;letter-spacing:-.01em;color:#141414;white-space:nowrap`
     }));
 
     const cardBase = 'width:246px;padding:22px;border-radius:20px;box-shadow:0 24px 50px rgba(0,0,0,.28);';
     const powers = [
-      { num: '01', title: '뭐가 열리는지 본다', body: '오늘 서울에서 열리는 콘서트, 팝업, 생일카페를 한 곳에 모읍니다.',
+      { num: '01', title: '뭐가 열리는지 본다', body: '오늘 열리는 것을 한 곳에 모읍니다.',
         style: cardBase + 'background:#ffe4ee;transform:rotate(-4deg) translateY(78px)' },
-      { num: '02', title: '어디 있는지 본다', body: "같은 동네끼리 묶어 보여줍니다. 하루에 몇 군데를 돌지 먼저 정할 수 있습니다.",
+      { num: '02', title: '어디 있는지 본다', body: "같은 동네끼리 묶어 보여줍니다.",
         style: cardBase + 'background:#ffffff;transform:rotate(-3deg) translateY(0)' },
-      { num: '03', title: '내 코스로 묶는다', body: '갈 곳을 하트로 담으면 코스가 됩니다. 로그인 없이 이 기기에 남습니다.',
+      { num: '03', title: '내 코스로 묶는다', body: '하트로 담으면 코스가 됩니다. 로그인 없습니다.',
         style: cardBase + 'background:#fdf2f6;transform:rotate(1deg) translateY(46px)' },
-      { num: '04', title: '같이 갈 사람을 찾는다', body: '코스가 겹치는 사람과 이어 줍니다. 지금 만들고 있는 부분입니다.',
+      { num: '04', title: '같이 갈 사람을 찾는다', body: '코스가 겹치는 사람과 이어 줍니다. 만드는 중입니다.',
         style: cardBase + 'background:#ffd3e3;transform:rotate(-2deg) translateY(12px)' }
     ];
 
     const raw = [
-      ["\u201C혼자 가면 사진 찍어줄 사람이 없어서 늘 아쉬웠는데, 같은 날 같은 카페 가는 사람이랑 만나서 서로 찍어줬어요.\u201D", '홍대 다녀옴', '#c9a27a'],
-      ["\u201C홍대에 세 군데가 몰려 있는 줄 몰랐어요. 지도 보고 하루에 다 돌았습니다.\u201D", '서울 · 20대', '#6f7f9c'],
-      ["\u201C지방에서 올라가는 거라 동선이 제일 걱정이었는데, 코스를 짜놓고 가니까 훨씬 편했어요.\u201D", '대구에서', '#a37f8c'],
-      ["\u201C특전이 몇 종인지까지 나와 있어서 어디부터 갈지 정하기 좋았습니다.\u201D", '용산 다녀옴', '#8a8f6e'],
-      ["\u201C친구들이 다 시험 기간이라 같이 갈 사람이 없었는데 여기서 구했어요.\u201D", '성수 다녀옴', '#7b8ca0']
+      ["\u201C혼자 가면 사진 찍어줄 사람이 없었는데, 같은 날 가는 사람이랑 만나서 서로 찍어줬어요.\u201D", '홍대 다녀옴', '#c9a27a'],
+      ["\u201C홍대에 세 군데가 몰려 있는 줄 몰랐어요. 하루에 다 돌았습니다.\u201D", '서울 · 20대', '#6f7f9c'],
+      ["\u201C지방에서 올라가는 거라 코스를 짜놓고 가니 편했어요.\u201D", '대구에서', '#a37f8c'],
+      ["\u201C특전까지 나와 있어서 어디부터 갈지 정하기 좋았어요.\u201D", '용산 다녀옴', '#8a8f6e'],
+      ["\u201C친구들이 시험 기간이라 혼자였는데 여기서 구했어요.\u201D", '성수 다녀옴', '#7b8ca0']
     ];
     const offsets = ['margin-left:210px', 'margin-left:auto;margin-right:180px', 'margin-left:230px', 'margin-left:auto;margin-right:150px', 'margin-left:210px'];
     const quotes = raw.map(([text, name, c], i) => ({
@@ -549,4 +507,107 @@ class Component extends DCLogic {
 </script>
 
 
+<script>
+/* 받아온 시안에 없던 두 가지를 뒤에서 얹는다. 원본 마크업은 건드리지 않는다.
+   1) 어떻게 쓰나요의 화살표로 사진 돌리기
+   2) 스크롤로 들어올 때 박스가 떠오르기 */
+(function () {
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  /* 카드 일부는 원본 런타임이 나중에 그린다. 고정 시간으로 기다리면
+     느린 기기에서 빈손으로 끝난다. 나타날 때까지 짧게 되묻는다 */
+  function ready(fn, probe) {
+    var tries = 0
+    ;(function tick() {
+      if (!probe || probe()) return fn()
+      if (++tries > 40) return
+      setTimeout(tick, 150)
+    })()
+  }
+
+  /* ── 사진 돌리기 ────────────────────────────────────────
+     카드 자리는 그대로 두고 사진만 한 칸씩 옮긴다. 카드마다 크기와
+     기울기가 달라서 카드를 옮기면 배치가 깨진다 */
+  ;(function () {
+    var SHOTS = ['app-list.jpg', 'app-map.jpg', 'app-course.jpg']
+    var at = 0
+    function shots() {
+      return [].slice.call(document.querySelectorAll('img[src^="app-"]'))
+    }
+    // document 에 한 번만 건다. 런타임이 화살표를 다시 그려도 계속 먹는다
+    document.addEventListener('click', function (ev) {
+      var b = ev.target && ev.target.closest ? ev.target.closest('button') : null
+      if (!b) return
+      var t = (b.textContent || '').trim()
+      if (t !== '\u2039' && t !== '\u203a') return
+      var imgs = shots()
+      if (imgs.length !== 3) return
+      at += t === '\u203a' ? 1 : -1
+      imgs.forEach(function (im, k) {
+        im.setAttribute('src', SHOTS[((k + at) % 3 + 3) % 3])
+      })
+    })
+    // 손 모양은 미리 바꿔 둔다. 눌리는 것임을 알려야 한다
+    setTimeout(function () {
+      [].slice.call(document.querySelectorAll('button')).forEach(function (b) {
+        var t = (b.textContent || '').trim()
+        if (t === '\u2039' || t === '\u203a') b.style.cursor = 'pointer'
+      })
+    }, 500)
+  })()
+
+  /* ── 떠오르기 ──────────────────────────────────────────
+     transform 을 통째로 덮으면 카드에 박힌 회전이 사라진다.
+     원래 값 앞에 translateY 를 덧붙였다가 빼는 식으로 움직인다 */
+  ready(function () {
+    if (reduce) return
+    var secs = document.querySelectorAll('section')
+    var targets = []
+    if (secs[1]) targets = targets.concat([].slice.call(secs[1].querySelectorAll('img[src="duck.png"]')))
+    if (secs[3]) targets = targets.concat([].slice.call(secs[3].querySelectorAll('[style*="rotate"]')))
+    if (secs[4]) targets = targets.concat(
+      [].slice.call(secs[4].querySelectorAll('div')).filter(function (d) {
+        /* 런타임이 style 을 넣으면 'width: 246px' 처럼 공백이 붙는다.
+           공백을 지우고 비교해야 두 형태를 다 잡는다 */
+        /* 런타임이 style 을 넣으면 'width: 246px' 처럼 공백이 붙는다.
+           공백을 지우고 비교해야 두 형태를 다 잡는다.
+           같은 폭이 바깥 줄과 안쪽 카드에 둘 다 있어서, 줄만 골라야
+           이동량이 두 배가 되지 않는다 */
+        var s = (d.getAttribute('style') || '').replace(/\s+/g, '')
+        return s.indexOf('width:246px') >= 0 && s.indexOf('display:flex') >= 0
+      }),
+    )
+    if (!targets.length) return
+
+    targets.forEach(function (el, i) {
+      var base = getComputedStyle(el).transform
+      if (base === 'none') base = ''
+      el.dataset.baseTransform = base
+      el.style.transition = 'opacity .62s cubic-bezier(.2,.7,.2,1) ' + (i % 5) * 90 + 'ms, transform .62s cubic-bezier(.2,.7,.2,1) ' + (i % 5) * 90 + 'ms'
+      el.style.opacity = '0'
+      el.style.transform = 'translateY(34px) ' + base
+    })
+
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return
+        var el = e.target
+        el.style.opacity = '1'
+        el.style.transform = el.dataset.baseTransform || 'none'
+        io.unobserve(el)
+      })
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' })
+
+    targets.forEach(function (el) { io.observe(el) })
+  }, function () {
+    var s = document.querySelectorAll('section')
+    if (!s[3] || !s[4]) return false
+    var cards = s[3].querySelectorAll('[style*="rotate"]').length >= 4
+    var quotes = [].slice.call(s[4].querySelectorAll('div')).filter(function (d) {
+      return (d.getAttribute('style') || '').replace(/\s+/g, '').indexOf('width:246px') >= 0
+    }).length >= 3
+    return cards && quotes
+  })
+})()
+</script>
 </body></html>
