@@ -17,7 +17,8 @@ import { useMemo, useState } from 'react'
 import type { CompanionPost, PostComment, Viewer, ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
-import { Field, TextArea, Select, Checkbox } from '@/components/ui/Field'
+import { Field, TextArea, Checkbox } from '@/components/ui/Field'
+import { ReportSheet } from '@/components/ui/ReportSheet'
 import { Comment } from '@/components/ui/Post'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
@@ -267,28 +268,7 @@ export default function PostDetail({ post, comments, hostId }: {
       )}
 
       {ask === 'report' && (
-        <Sheet
-          title="신고하기"
-          desc="검토 후 조치합니다. 신고 사실은 상대에게 알리지 않아요."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(null)}>취소</Button>
-              <Button tone="danger" onClick={() => setAsk(null)}>신고</Button>
-            </>
-          }
-        >
-          <Field label="사유" required>
-            <Select defaultValue="">
-              <option value="" disabled>골라주세요</option>
-              <option>허위 정보</option>
-              <option>광고 · 홍보</option>
-              <option>부적절한 내용</option>
-            </Select>
-          </Field>
-          <Field label="자세히" count={[0, 300]}>
-            <TextArea placeholder="어떤 점이 문제였는지 적어주세요" />
-          </Field>
-        </Sheet>
+        <ReportSheet target="post" onClose={() => setAsk(null)} />
       )}
     </PageShell>
   )

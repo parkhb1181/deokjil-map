@@ -38,7 +38,6 @@ npm run dev                     # localhost:3000
 ## 남은 화면
 
 관리자 · 404 · 이벤트 상세의 동행글 블록.
-신고 시트는 상세와 프로필에 붙어 있어 공용으로 떼어내면 된다.
 
 **신청 폼과 신청자 목록은 만들지 않는다.** 신청·수락을 빼기로 해서
 사라진 화면이다. 아래 "명세에서 뺀 것" 참고.
@@ -72,6 +71,7 @@ src/
 │  ├─ Basics.tsx              Button · Badge · Avatar · Who · Blank · Sheet · Tabs
 │  ├─ Post.tsx                PostCard · Comment
 │  ├─ PageShell.tsx           페이지 껍데기. 모든 화면이 이걸 쓴다
+│  ├─ ReportSheet.tsx         신고. 유저·글·댓글 셋을 하나가 맡는다
 │  └─ PlaceMap.tsx            지도. 키 없으면 개발에서만 자리표시자
 ├─ app/
 │  ├─ ui.css                  공용 조각 스타일. globals.css 와 같은 BEM
