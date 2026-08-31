@@ -123,6 +123,12 @@ export interface CompanionPost {
   /** 이벤트에 붙지 않은 글도 있다 */
   event_id: string | null
   event_title?: string | null
+  /**
+   * 붙은 이벤트의 대표 이미지. 우리가 복제해 두는 것이 아니라
+   * 원본 서버 주소를 그대로 들고 있는다. 포스터는 저작물이라
+   * 재게시하지 않는다 (CLAUDE.md).
+   */
+  event_image_url?: string | null
   title: string
   body: string
   state: PostState
@@ -130,8 +136,14 @@ export interface CompanionPost {
   capacity: number | null
   /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */
   meet_at: string
-  /** 좌표를 받지 않기로 해서 텍스트뿐이다 */
+  /**
+   * 만남 장소. 글쓴이는 텍스트만 입력한다 (Q-03 좌표 입력 안 함).
+   * 아래 좌표는 사람이 찍는 것이 아니라 **서버가 이 문자열을
+   * 지오코딩해서 채운다.** 실패하면 null 이고 지도를 그리지 않는다.
+   */
   meet_place: string
+  meet_lat?: number | null
+  meet_lng?: number | null
   closes_at: string
   created_at: string
   author: PostAuthor

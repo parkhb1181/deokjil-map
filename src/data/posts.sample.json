@@ -1,16 +1,16 @@
 {
-  "note": "개발용 가짜 데이터. API 가 붙으면 지운다. events.sample.json 과 같은 성격이라 앱은 배포에서 읽지 않는다.",
+  "note": "개발용 가짜 데이터. 이벤트는 events.json 의 실제 건을 가리킨다. 제목·본문·댓글만 지어냈다. 포스터를 복제하지 않으려고 image_url 은 원본 서버 주소를 그대로 쓴다.",
   "host_id": "u_host",
   "post": {
     "id": "p1",
-    "event_id": "e_iu_0914",
-    "event_title": "아이유 단독 콘서트 · 잠실 주경기장",
-    "title": "아이유 콘서트 같이 가실 분 구해요",
-    "body": "혼자 가려니 굿즈 줄 서는 게 막막해서 같이 가실 분 찾아요.\n\n오후 3시쯤 잠실역에서 만나서 굿즈 줄 먼저 서고, 저녁 먹고 들어가려고 합니다. 자리는 각자 예매한 곳으로 가면 되고요.\n\n처음 뵙는 거라 부담스러우시면 굿즈 줄만 같이 서도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
+    "event_id": "pg_8417",
+    "event_title": "에이티즈 X 애니티즈 팝업",
+    "title": "에이티즈 팝업 오픈런 같이 하실 분",
+    "body": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요.\n\n오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다. 굿즈는 각자 원하는 걸로 사면 되고요.\n\n처음 뵙는 거라 부담스러우시면 줄만 같이 서도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
     "state": "open",
     "capacity": 4,
-    "meet_at": "2026-09-14T15:00",
-    "meet_place": "잠실역 2번 출구 앞",
+    "meet_at": "2026-09-14T09:00",
+    "meet_place": "더현대 서울 지하 1층 팝업 아이코닉",
     "closes_at": "2026-09-12T23:59",
     "created_at": "2026-08-29T21:10",
     "author": {
@@ -18,13 +18,20 @@
       "nickname": "덕질하는오리",
       "done_count": 3
     },
-    "comment_count": 5
+    "comment_count": 5,
+    "event_image_url": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
+    "meet_lat": 37.5256381078,
+    "meet_lng": 126.9289384556
   },
   "comments": [
     {
       "id": "c1",
       "parent_id": null,
-      "author": { "id": "u_a", "nickname": "밤샘예매", "done_count": 1 },
+      "author": {
+        "id": "u_a",
+        "nickname": "밤샘예매",
+        "done_count": 1
+      },
       "body": "저 갈게요! 굿즈 줄도 같이 설 수 있어요",
       "secret": false,
       "deleted": false,
@@ -33,7 +40,11 @@
     {
       "id": "c2",
       "parent_id": "c1",
-      "author": { "id": "u_host", "nickname": "덕질하는오리", "done_count": 3 },
+      "author": {
+        "id": "u_host",
+        "nickname": "덕질하는오리",
+        "done_count": 3
+      },
       "body": "좋아요! 비밀 댓글로 연락처 남겨주시면 제가 연락드릴게요",
       "secret": false,
       "deleted": false,
@@ -42,7 +53,11 @@
     {
       "id": "c3",
       "parent_id": "c1",
-      "author": { "id": "u_a", "nickname": "밤샘예매", "done_count": 1 },
+      "author": {
+        "id": "u_a",
+        "nickname": "밤샘예매",
+        "done_count": 1
+      },
       "body": "카톡 아이디 night_ticket 입니다",
       "secret": true,
       "deleted": false,
@@ -51,7 +66,11 @@
     {
       "id": "c4",
       "parent_id": null,
-      "author": { "id": "u_b", "nickname": "조용한덕후", "done_count": 0 },
+      "author": {
+        "id": "u_b",
+        "nickname": "조용한덕후",
+        "done_count": 0
+      },
       "body": "혹시 아직 자리 있나요? 저도 가고 싶어요. 연락처는 010-0000-0000 입니다",
       "secret": true,
       "deleted": false,
@@ -60,7 +79,11 @@
     {
       "id": "c5",
       "parent_id": null,
-      "author": { "id": "u_c", "nickname": "지운사람", "done_count": 0 },
+      "author": {
+        "id": "u_c",
+        "nickname": "지운사람",
+        "done_count": 0
+      },
       "body": null,
       "secret": false,
       "deleted": true,
@@ -69,7 +92,11 @@
     {
       "id": "c6",
       "parent_id": "c5",
-      "author": { "id": "u_d", "nickname": "남은대댓글", "done_count": 2 },
+      "author": {
+        "id": "u_d",
+        "nickname": "남은대댓글",
+        "done_count": 2
+      },
       "body": "위 댓글이 지워져도 이 답글은 남습니다",
       "secret": false,
       "deleted": false,

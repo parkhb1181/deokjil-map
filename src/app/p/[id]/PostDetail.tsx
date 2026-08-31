@@ -15,10 +15,11 @@
  */
 import { useMemo, useState } from 'react'
 import type { CompanionPost, PostComment, Viewer, ViewerRole } from '@/types'
-import { PageShell, ActionBar } from '@/components/ui/PageShell'
+import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Select, Checkbox } from '@/components/ui/Field'
 import { Comment } from '@/components/ui/Post'
+import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 
 /** '2026-09-14T15:00' → '9월 14일 (일) 오후 3:00' */
@@ -110,6 +111,10 @@ export default function PostDetail({ post, comments, hostId }: {
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
+      {post.event_image_url && (
+        <img className="post__cover" src={post.event_image_url} alt="" />
+      )}
+
       <article className="post">
         <div className="post__tags">
           <Badge state={post.state} />
@@ -129,6 +134,10 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <h1 className="post__title">{post.title}</h1>
 
+        <div className="post__map">
+          <PlaceMap lat={post.meet_lat} lng={post.meet_lng} label={post.meet_place} />
+        </div>
+
         {/* 약속이라 언제·어디서가 본문보다 먼저 눈에 들어와야 한다.
             표로 만들면 읽는 흐름이 끊겨 두 줄로 눌렀다 */}
         <p className="post__when">
@@ -143,10 +152,6 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <div className="post__body">{post.body}</div>
 
-        <p className="post__warn">
-          연락처는 본문이나 비밀 댓글로 주고받습니다. 비밀 댓글은 방장과 글쓴이만
-          볼 수 있어요. 처음 만나는 자리인 만큼 공개된 장소에서 만나세요.
-        </p>
 
         <div className="post__count">
           <span>댓글 <b>{post.comment_count}</b></span>
@@ -191,11 +196,12 @@ export default function PostDetail({ post, comments, hostId }: {
         )}
       </section>
 
-      <ActionBar>
+      {/* 댓글 입력은 글 맨 아래에 둔다. 화면을 따라다니면 짧은 글에서는
+          본문을 가리고, 긴 글에서는 읽는 내내 자리를 뺏는다. 네이버 카페와
+          당근이 둘 다 목록 끝에 둔다 */}
+      <section className="write">
         {post.state === 'done' ? (
-          <p className="write__gate">
-            <span>모집이 끝난 글이에요</span>
-          </p>
+          <p className="write__gate">모집이 끝나 댓글을 받지 않아요</p>
         ) : isGuest ? (
           /* 비회원 게이트. 보는 것은 다 열고 쓰는 것만 막는다.
              눌러야 막히는 것보다 처음부터 보이는 편이 덜 답답하다 */
@@ -206,31 +212,33 @@ export default function PostDetail({ post, comments, hostId }: {
             </Button>
           </div>
         ) : (
-          <div className="write">
-            <div className="write__row">
-              <Field count={[draft.length, 500]}>
-                <TextArea
-                  placeholder={secret ? '방장만 볼 수 있어요' : '댓글을 남겨보세요'}
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  rows={2}
-                  style={{ minHeight: 44 }}
-                />
-              </Field>
-            </div>
+          <>
+            <Field>
+              <TextArea
+                placeholder={secret ? '방장만 볼 수 있어요' : '댓글을 남겨보세요'}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={2}
+              />
+            </Field>
+            {/* 글자수를 한 줄 통째로 쓰지 않는다. 500자를 채울 일이 드물어
+                평소에는 눈에 안 띄는 편이 낫다 */}
             <div className="write__opts">
               <Checkbox
                 label="비밀 댓글"
                 checked={secret}
                 onChange={(e) => setSecret(e.target.checked)}
               />
+              <span className={`write__count${draft.length > 500 ? ' write__count--over' : ''}`}>
+                {draft.length}/500
+              </span>
               <Button size="sm" disabled={!draft.trim() || draft.length > 500} onClick={submit}>
                 올리기
               </Button>
             </div>
-          </div>
+          </>
         )}
-      </ActionBar>
+      </section>
 
       {ask === 'login' && (
         <Sheet
