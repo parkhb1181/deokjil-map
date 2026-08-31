@@ -29,6 +29,8 @@ export type ListItem = {
   meet_place: string
   author: { id: string; nickname: string; image_url?: string | null; done_count?: number }
   comment_count: number
+  /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
+  image_url?: string | null
 }
 
 /** '2026-09-14T09:00' → '9/14 (월) 09:00' */
@@ -128,6 +130,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                   where={p.meet_place}
                   cap={p.capacity ? `${p.capacity}명` : undefined}
                   comments={p.comment_count}
+                  image={p.image_url}
                 />
               </Link>
             ))}

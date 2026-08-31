@@ -912,3 +912,21 @@
 .adm__detail { color: var(--text-mute); }
 .adm__by { margin-top: 3px; font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
 .adm__acts { display: flex; gap: 8px; margin-top: 10px; }
+
+/* 카드에 사진이 붙으면 가로로 눕는다. 세로로 쌓으면 카드 하나가
+   화면 절반을 먹어 한 번에 두 개밖에 안 보인다. 목록은 훑는
+   화면이라 한눈에 여러 개가 들어와야 한다 */
+.pcard--photo { flex-direction: row; gap: 12px; }
+.pcard__photo {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+}
+.pcard__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+
+/* 사진이 있으면 본문 요약을 한 줄로 줄인다. 옆으로 좁아져서
+   두 줄을 두면 제목과 붙어 덩어리로 보인다 */
+.pcard--photo .pcard__body { -webkit-line-clamp: 1; }

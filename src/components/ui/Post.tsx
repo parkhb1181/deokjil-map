@@ -12,6 +12,16 @@ import { Avatar, Badge, type PostState } from './Basics'
 
 export type PostCardProps = {
   title: string
+  /**
+   * 붙은 이벤트의 대표 사진. 우리가 복제해 두는 것이 아니라 원본
+   * 서버 주소를 그대로 들고 있는다. 포스터는 저작물이라 재게시하지
+   * 않는다 (CLAUDE.md).
+   *
+   * 이벤트에 안 붙은 글도 있어서 없을 수 있다. 그때는 자리를
+   * 비우지 않고 글자만으로 채운다. 빈 회색 네모를 두면 사진이
+   * 안 불러와진 것처럼 보인다.
+   */
+  image?: string | null
   /** 본문 앞부분. 두 줄에서 잘린다 */
   excerpt?: string
   state: PostState
@@ -23,9 +33,13 @@ export type PostCardProps = {
   comments?: number
 }
 
-export function PostCard({ title, excerpt, state, when, where, cap, comments }: PostCardProps) {
+export function PostCard({ title, excerpt, state, when, where, cap, comments, image }: PostCardProps) {
   return (
-    <article className={`pcard${state === 'done' ? ' is-done' : ''}`}>
+    <article className={`pcard${state === 'done' ? ' is-done' : ''}${image ? ' pcard--photo' : ''}`}>
+      {image && (
+        <img className="pcard__photo" src={image} alt="" loading="lazy" />
+      )}
+      <div className="pcard__main">
       <div className="pcard__top">
         <Badge state={state} />
         <h3 className="pcard__title">{title}</h3>
@@ -36,6 +50,7 @@ export function PostCard({ title, excerpt, state, when, where, cap, comments }: 
         {where && <span>{where}</span>}
         {cap && <span>{cap}</span>}
         {comments !== undefined && <span>댓글 {comments}</span>}
+      </div>
       </div>
     </article>
   )

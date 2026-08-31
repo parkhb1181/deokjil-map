@@ -230,4 +230,5 @@ License 라 재배포가 허용된다. 직접 자르지 않고 **공식 dynamic-
 
 - [CLAUDE.md](../CLAUDE.md) 작업 규칙. 출처 표기와 원본 재게시 금지가 여기 있다
 - [docs/harness/frontend.md](harness/frontend.md) 하네스. Jira·GitHub·Slack 연동 규약
+- [docs/design/SCALE.md](design/SCALE.md) **화면 기준.** 글자 계단과 상세 화면의 순서
 - [docs/design/AVATARS.md](design/AVATARS.md) 목데이터 아바타의 출처와 이유
