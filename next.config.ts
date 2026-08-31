@@ -21,6 +21,15 @@ const nextConfig: NextConfig = {
     formats: ['image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 7,
   },
+  /**
+   * 소개 페이지는 받아온 시안을 그대로 쓴다. 색·글꼴·레이아웃을 손대지
+   * 않기로 했으므로 정적 HTML 한 장을 public/intro/ 에 두고 서빙한다.
+   * public 의 파일은 경로 그대로만 나가서 /intro 로는 안 잡힌다.
+   * 여기서 /intro 를 그 파일로 연결한다.
+   */
+  async rewrites() {
+    return [{ source: '/intro', destination: '/intro/index.html' }]
+  },
 }
 
 export default nextConfig
