@@ -832,3 +832,41 @@
   font-weight: 800;
   color: var(--text);
 }
+
+/* ── 404 ──────────────────────────────────────────────── */
+
+.nf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 100dvh;
+  padding: 40px var(--gutter);
+}
+.nf__title { font-size: 20px; font-weight: 800; color: var(--text); }
+.nf__desc { font-size: 14.5px; line-height: 1.7; color: var(--text-mute); }
+.nf__acts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; margin-top: 14px; }
+.nf__acts .btn { width: 100%; text-decoration: none; }
+
+/* ── 이벤트 상세의 동행글 블록 ────────────────────────── */
+
+/* 이 행사에 같이 갈 사람을 구하는 글이 있는지 알려준다.
+   목록까지 들어가야 알 수 있으면 아무도 안 들어간다 */
+.withus {
+  margin: 22px var(--gutter) 0;
+  padding: 16px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.withus__title { font-size: 16px; font-weight: 800; color: var(--accent-ink); }
+.withus__desc {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--accent-ink);
+  opacity: .82;
+}
+.withus__go { margin-top: 12px; text-decoration: none; }

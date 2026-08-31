@@ -130,6 +130,23 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
             {/* 출처 표기는 상시다 (poc-plan 1번, 정합성 교란 방어).
                 listing_url 은 화면에 노출하지 않는다. 경쟁 리스팅을 광고하지 않는다 */}
+            {/* 동행글 블록 (EV-07).
+                이 행사에 같이 갈 사람을 구하는 글이 있는지 여기서 알려준다.
+                목록까지 들어가야 알 수 있으면 아무도 안 들어간다.
+                아직 API 가 없어 건수를 0 으로 두고 권유만 띄운다.
+                붙으면 최근 5건을 여기에 늘어놓는다 */}
+            <section className="withus">
+              <h3 className="withus__title">같이 갈 사람 구하기</h3>
+              <p className="withus__desc">
+                아직 이 행사에 올라온 동행글이 없어요.
+                <br />
+                처음으로 같이 갈 사람을 구해보세요.
+              </p>
+              <a className="btn btn--primary btn--sm withus__go" href="/p">
+                동행글 보러 가기
+              </a>
+            </section>
+
             <p className="sheet__disclaimer">주최자 공지 기반 · 방문 전 원문 확인 권장</p>
 
             <p className="sheet__original">
