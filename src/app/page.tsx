@@ -20,6 +20,7 @@ import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
 import { loadCourse, persistCourse } from '@/lib/course'
 import { SaveProvider, type SaveApi } from '@/components/SaveContext'
 import CourseView from '@/components/CourseView'
+import { wf } from '@/lib/wireframe'
 
 export default function Page() {
   // 오늘 날짜는 클라이언트에서만 확정한다.
@@ -145,7 +146,7 @@ export default function Page() {
                 동행이 아직 와이어프레임이라 실서비스에서는 안 그린다.
                 그리면 진짜 방문자가 눌러서 가짜 모집글을 본다 */}
             {IS_WIREFRAME && (
-            <a className="header__go" href="/p" aria-label="동행 모집글">
+            <a className="header__go" href={wf('/p')} aria-label="동행 모집글">
               <svg viewBox="0 0 24 24" aria-hidden focusable="false">
                 <path
                   d="M4 6.5h16M4 12h16M4 17.5h10"

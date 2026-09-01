@@ -16,6 +16,7 @@
  */
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
+import { wf } from '@/lib/wireframe'
 
 export function LegalStub({ title, lead, body, todo }: {
   title: string
@@ -38,7 +39,7 @@ export function LegalStub({ title, lead, body, todo }: {
         </ul>
 
         <p className="legal__back">
-          <Link href="/login">로그인으로 돌아가기</Link>
+          <Link href={wf('/login')}>로그인으로 돌아가기</Link>
         </p>
       </div>
     </PageShell>

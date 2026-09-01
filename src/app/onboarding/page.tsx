@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { wireframeOnly } from '@/lib/wireframe'
+import { wf } from '@/lib/wireframe'
 
 /**
  * 온보딩 색인.
@@ -76,14 +76,14 @@ const GROUPS: Group[] = [
     lead: '이번에 만든 부분입니다.',
     rows: [
       {
-        href: '/p',
+        href: wf('/p'),
         name: '모집글 목록',
         shot: 'posts',
         spec: 'PO-02',
         data: '섞임',
       },
       {
-        href: '/p/p1',
+        href: wf('/p/p1'),
         name: '모집글 상세',
         shot: 'post',
         spec: 'PO-03 · CM',
@@ -91,7 +91,7 @@ const GROUPS: Group[] = [
         data: '목데이터',
       },
       {
-        href: '/p/new',
+        href: wf('/p/new'),
         name: '모집글 쓰기',
         shot: 'post-new',
         spec: 'PO-01',
@@ -104,7 +104,7 @@ const GROUPS: Group[] = [
     title: '계정',
     rows: [
       {
-        href: '/login',
+        href: wf('/login'),
         name: '로그인',
         shot: 'login',
         spec: 'AU-01',
@@ -112,7 +112,7 @@ const GROUPS: Group[] = [
         data: '빈 화면',
       },
       {
-        href: '/welcome',
+        href: wf('/welcome'),
         name: '가입 정보 입력',
         shot: 'welcome',
         spec: 'AU-02',
@@ -120,7 +120,7 @@ const GROUPS: Group[] = [
         data: '빈 화면',
       },
       {
-        href: '/me',
+        href: wf('/me'),
         name: '내 활동',
         shot: 'me',
         spec: 'AU-08',
@@ -128,14 +128,14 @@ const GROUPS: Group[] = [
         data: '목데이터',
       },
       {
-        href: '/me/edit',
+        href: wf('/me/edit'),
         name: '프로필 수정',
         shot: 'me-edit',
         spec: 'AU-04',
         data: '목데이터',
       },
       {
-        href: '/u/u_host',
+        href: wf('/u/u_host'),
         name: '남의 프로필',
         shot: 'profile',
         spec: 'AU-05',
@@ -147,7 +147,7 @@ const GROUPS: Group[] = [
     title: '나머지',
     rows: [
       {
-        href: '/admin15616',
+        href: wf('/admin15616'),
         name: '백오피스',
         shot: 'admin',
         spec: 'AD',
@@ -155,7 +155,7 @@ const GROUPS: Group[] = [
         data: '목데이터',
       },
       {
-        href: '/terms',
+        href: wf('/terms'),
         name: '이용약관',
         shot: 'terms',
         spec: '명세 밖',
@@ -163,7 +163,7 @@ const GROUPS: Group[] = [
         data: '빈 화면',
       },
       {
-        href: '/privacy',
+        href: wf('/privacy'),
         name: '개인정보 처리방침',
         shot: 'privacy',
         spec: '명세 밖',
@@ -171,7 +171,7 @@ const GROUPS: Group[] = [
         data: '빈 화면',
       },
       {
-        href: '/dev/gallery',
+        href: wf('/dev/gallery'),
         name: '컴포넌트 갤러리',
         shot: 'gallery',
         spec: '개발용',
@@ -192,8 +192,6 @@ const GROUPS: Group[] = [
 const TOTAL = GROUPS.reduce((n, g) => n + g.rows.length, 0)
 
 export default function Page() {
-  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
-  wireframeOnly()
 
   return (
     <div className="ob">
@@ -203,6 +201,10 @@ export default function Page() {
         <p className="ob__lead">
           지금까지 만든 화면 {TOTAL}개입니다. 눌러서 들어가볼 수 있고, 로그인을
           누르면 가입까지 넘어갑니다.
+        </p>
+        <p className="ob__note">
+          <b>이 페이지가 유일한 입구입니다.</b> 아래 화면들은 주소를 일부러
+          어렵게 뒀고 실서비스 화면에서 이어지는 링크도 없습니다. 즐겨찾기 해두세요.
         </p>
         <p className="ob__note">
           사진 위의 표시는 그 화면에 뜨는 값이 어디서 온 건지입니다.{' '}

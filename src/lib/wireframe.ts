@@ -1,5 +1,3 @@
-import { notFound } from 'next/navigation'
-
 /**
  * 와이어프레임과 실서비스를 가르는 스위치.
  *
@@ -16,8 +14,12 @@ import { notFound } from 'next/navigation'
  * 누른다. robots 의 noindex 는 **검색 색인만 막지 접근은 막지 않는다.**
  * 주소를 아는 사람은 그대로 들어온다.
  *
- * 그래서 라우트 자체를 닫는다. 링크만 숨기면 문을 가린 것이지 잠근
- * 것이 아니다.
+ * 그래서 와이어프레임 화면은 주소를 어렵게 둔다. /w4871 아래로 몰아
+ * 두고, 실서비스 화면에서 그리로 나가는 링크를 그리지 않는다.
+ * 팀은 /onboarding 하나만 알면 되고 거기서 전부 이어진다.
+ *
+ * **보안이 아니라 자물쇠 그림이다.** 링크를 아는 사람은 그대로 들어온다.
+ * 목데이터라 지킬 것이 없어서 이 정도로 둔다.
  *
  * ─────────────────────────────────────────────────────────
  * 켜지는 곳
@@ -35,13 +37,21 @@ import { notFound } from 'next/navigation'
 export const IS_WIREFRAME =
   process.env.NEXT_PUBLIC_WIREFRAME === '1' || process.env.NODE_ENV === 'development'
 
+
 /**
- * 와이어프레임 화면의 page.tsx 첫 줄에서 부른다.
+ * 와이어프레임 주소 앞에 붙는 조각.
  *
- * 꺼져 있으면 404 다. 빌드 때 판정되므로 그 화면은 아예 만들어지지
- * 않는다. "준비 중입니다" 같은 안내를 두지 않는 것은, 그것도 화면
- * 하나를 배포하는 일이고 없는 기능을 곧 나올 것처럼 약속하기 때문이다.
+ * **`src/app/w4871/` 디렉터리 이름과 반드시 같아야 한다.** 여기만
+ * 고치면 링크는 바뀌는데 라우트는 안 바뀌어 전부 404 가 된다.
+ *
+ * 주소를 어렵게 두는 이유는 실서비스 방문자가 지나가다 열지 못하게
+ * 하려는 것이다. **보안이 아니라 자물쇠 그림이다.** 링크를 아는
+ * 사람은 그대로 들어온다. 팀은 /onboarding 에서 찾는다. 그 한
+ * 페이지만 주소가 쉽고, 나머지는 거기서만 이어진다.
  */
-export function wireframeOnly(): void {
-  if (!IS_WIREFRAME) notFound()
+export const WF = '/w4871'
+
+/** 와이어프레임 화면 주소. wf('/p/p1') → '/w4871/p/p1' */
+export function wf(path: string): string {
+  return WF + path
 }

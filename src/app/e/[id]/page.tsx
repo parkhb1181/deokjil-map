@@ -6,6 +6,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { IS_WIREFRAME } from '@/lib/wireframe'
 import { PlaceActions } from '@/components/ui/PlaceActions'
 import { PlaceMap } from '@/components/ui/PlaceMap'
+import { wf } from '@/lib/wireframe'
 
 /**
  * 이벤트 상세, 검색에 걸리는 실주소.
@@ -284,7 +285,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
             <section className="withus">
               <h3 className="withus__title">같이 갈 사람 구하기</h3>
               <p className="withus__desc">아직 이 행사에 올라온 동행글이 없어요.</p>
-              <a className="btn btn--primary btn--block" href="/p">
+              <a className="btn btn--primary btn--block" href={wf('/p')}>
                 동행글 보러 가기
               </a>
             </section>

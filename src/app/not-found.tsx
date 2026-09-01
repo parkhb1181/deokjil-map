@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { IS_WIREFRAME } from '@/lib/wireframe'
+import { wf } from '@/lib/wireframe'
 
 /**
  * 404.
@@ -25,7 +26,7 @@ export default function NotFound() {
           지금 열리는 곳 보기
         </Link>
         {IS_WIREFRAME && (
-        <Link className="btn btn--ghost" href="/p">
+        <Link className="btn btn--ghost" href={wf('/p')}>
           동행 구하는 글 보기
         </Link>
         )}
