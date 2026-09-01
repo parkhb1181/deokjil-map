@@ -34,21 +34,53 @@ function untilText(iso: string) {
   return `${m}월 ${day}일 (${dow})`
 }
 
+/** 느낌표. 이모지를 쓰지 않는다. 기기마다 모양이 달라 톤이 흐트러진다 */
+function AlertMark() {
+  return (
+    <svg className="sanc__icon" viewBox="0 0 20 20" aria-hidden focusable="false">
+      <circle cx="10" cy="10" r="8.4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M10 5.8v4.9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="10" cy="13.9" r="1.05" fill="currentColor" />
+    </svg>
+  )
+}
+
 /**
- * 경고 배너. 화면 맨 위에 한 줄로 얹는다.
+ * 경고 배너.
+ *
+ * 당근 SEED 의 Callout 구조를 따랐다. 앞머리 아이콘 · 제목 · 본문 ·
+ * 링크 라벨이다. 전에는 글자 세 줄만 쌓아두어서 무엇이 제목이고
+ * 무엇이 사유인지 눈으로 안 끊겼고, 읽고 나서 할 수 있는 것도 없었다.
+ *
+ * **링크가 중요하다.** 경고를 읽은 사람이 다음에 하는 생각이 "이거
+ * 왜 받았지" 아니면 "잘못된 것 같은데" 둘 중 하나인데, 나가는 길이
+ * 없으면 어느 쪽도 못 한다.
  *
  * 시트로 띄우지 않는다. 경고는 지금 하려던 일을 막을 이유가 없는데
  * 시트는 무조건 한 번 닫아야 한다. 배너면 읽고 지나갈 수 있다.
+ *
+ * 닫기 버튼도 두지 않는다. 닫으면 다시 볼 방법이 없고, 제재는
+ * 사용자가 치워도 되는 알림이 아니다.
  */
 export function SanctionBanner({ sanction }: { sanction?: Sanction | null }) {
   if (!sanction || sanction.kind !== 'WARNED') return null
   return (
     <div className="sanc" role="status">
-      <p className="sanc__head">운영자 경고</p>
-      <p className="sanc__body">{sanction.reason}</p>
-      <p className="sanc__foot">
-        같은 일이 반복되면 이용이 정지될 수 있어요.
-      </p>
+      <AlertMark />
+      <div className="sanc__main">
+        <p className="sanc__head">
+          운영자 경고
+          <span className="sanc__when">{untilText(sanction.issued_at)}</span>
+        </p>
+        <p className="sanc__body">{sanction.reason}</p>
+        <p className="sanc__note">같은 일이 반복되면 이용이 정지될 수 있어요.</p>
+        <a className="sanc__link" href="mailto:help@duckmoim.com">
+          이의 제기
+          <svg viewBox="0 0 12 12" aria-hidden focusable="false">
+            <path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </a>
+      </div>
     </div>
   )
 }
@@ -66,27 +98,33 @@ export function SanctionBlock({ sanction }: { sanction: Sanction }) {
       <img className="sblock__art" src="/duck-face.webp" alt="" width={96} height={96} />
       <h1 className="sblock__title">{KIND_LABEL[sanction.kind]}</h1>
 
-      {/* 사유가 제일 중요하다. 무엇을 잘못했는지 모르면 고칠 수 없다 */}
-      <p className="sblock__reason">{sanction.reason}</p>
+      {/* 사유가 제일 중요하다. 무엇을 잘못했는지 모르면 고칠 수 없다.
+          라벨을 붙이고 왼쪽에 색선을 세운다. 전에는 회색 상자 안의
+          본문 크기 글자라 안내 문구와 무게가 같았다 */}
+      <div className="sblock__reason">
+        <p className="sblock__rlabel">제재 사유</p>
+        <p className="sblock__rtext">{sanction.reason}</p>
+      </div>
 
-      <dl className="sblock__facts">
-        <div>
-          <dt>제재일</dt>
-          <dd>{untilText(sanction.issued_at)}</dd>
-        </div>
-        {!banned && sanction.until && (
-          <div>
-            <dt>해제일</dt>
-            <dd>{untilText(sanction.until)}</dd>
-          </div>
-        )}
-      </dl>
+      {/* 사용자가 알고 싶은 것은 "언제 다시 쓸 수 있나" 지 "언제
+          벌받았나" 가 아니다. 해제일을 크게 세우고 제재일은 밑에
+          작게 둔다. 전에는 둘을 같은 크기로 나란히 놓아서 두 날짜가
+          한 덩어리로 보였다 */}
+      {banned ? (
+        <p className="sblock__until sblock__until--ban">다시 이용할 수 없어요</p>
+      ) : (
+        sanction.until && (
+          <p className="sblock__until">
+            <b>{untilText(sanction.until)}</b>
+            <span>까지</span>
+          </p>
+        )
+      )}
+      <p className="sblock__since">{untilText(sanction.issued_at)}에 제재되었어요</p>
 
-      <p className="sblock__note">
-        {banned
-          ? '이 계정으로는 다시 이용할 수 없어요.'
-          : '해제일이 지나면 자동으로 다시 쓸 수 있어요.'}
-      </p>
+      {!banned && (
+        <p className="sblock__note">그날이 지나면 자동으로 풀려요. 따로 신청하지 않아도 됩니다.</p>
+      )}
 
       {/* 이의 제기 경로. 없으면 사용자가 할 수 있는 것이 하나도 없다.
           메일 주소는 서비스 도메인이 정해지면 바꾼다 */}

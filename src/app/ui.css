@@ -2378,18 +2378,61 @@
    고치는 장치가 아니라 그냥 벌이 된다.
    ------------------------------------------------------- */
 
-/* 경고 배너. 시트로 띄우지 않는다. 경고는 지금 하려던 일을 막을
-   이유가 없는데 시트는 무조건 한 번 닫아야 한다 */
+/* 경고 배너.
+   당근 SEED 의 Callout 구조다 — 앞머리 아이콘 · 제목 · 본문 · 링크.
+   전에는 글자 세 줄만 쌓아서 무엇이 제목이고 무엇이 사유인지 눈으로
+   안 끊겼다. 아이콘이 왼쪽 기둥을 잡아주면 본문이 한 덩어리로 읽힌다 */
 .sanc {
+  display: flex;
+  gap: 10px;
   margin: 12px var(--gutter) 0;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  border: 1px solid rgba(200, 30, 30, .22);
+  border-radius: var(--radius);
   background: var(--danger-soft);
-  border-left: 3px solid var(--danger);
 }
-.sanc__head { font-size: var(--t-small); font-weight: 700; color: var(--danger); }
-.sanc__body { margin-top: 4px; font-size: var(--t-sub); line-height: 1.6; color: var(--text); }
-.sanc__foot { margin-top: 4px; font-size: var(--t-small); color: var(--text-mute); }
+.sanc__icon { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 1px; color: var(--danger); }
+.sanc__main { flex: 1; min-width: 0; }
+
+.sanc__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--danger);
+}
+/* 언제 받았는지. 오른쪽 끝으로 밀어 제목과 한 줄을 나눠 쓴다 */
+.sanc__when {
+  margin-left: auto;
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: var(--text-mute);
+}
+
+/* 사유가 본문이다. 제목보다 크게 두지는 않되 색을 진하게 해서
+   부연(sanc__note)과 무게를 가른다 */
+.sanc__body {
+  margin-top: 5px;
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text);
+}
+.sanc__note { margin-top: 3px; font-size: var(--t-small); line-height: 1.6; color: var(--text-mute); }
+
+/* 읽고 나서 할 수 있는 것. 없으면 "왜 받았지" 도 "잘못됐는데" 도
+   어디서 말할 수가 없다 */
+.sanc__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 9px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--danger);
+  text-decoration: none;
+}
+.sanc__link svg { width: 12px; height: 12px; }
 
 /* 정지 안내. 화면을 통째로 차지한다 (AD-04) */
 .sblock { padding: 48px var(--gutter) 40px; text-align: center; }
@@ -2400,28 +2443,44 @@
   letter-spacing: -0.02em;
   color: var(--text);
 }
-/* 사유가 제일 중요하다. 제목 다음으로 크고 배경을 깔아 눈에 걸리게 한다 */
+/* 사유. 라벨을 붙이고 왼쪽에 색선을 세운다. 전에는 회색 상자 안의
+   본문 크기 글자라 아래 안내 문구와 무게가 같았다 */
 .sblock__reason {
-  margin: 14px auto 0;
+  margin: 18px auto 0;
   max-width: 34ch;
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-sunk);
-  font-size: var(--t-body);
-  line-height: 1.7;
-  color: var(--text);
+  padding: 14px 16px;
+  border-left: 3px solid var(--danger);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--danger-soft);
   text-align: left;
 }
-.sblock__facts {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  gap: 22px;
-  font-size: var(--t-sub);
+.sblock__rlabel {
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--danger);
 }
-.sblock__facts dt { color: var(--text-mute); }
-.sblock__facts dd { margin-top: 2px; font-weight: 700; color: var(--text); }
-.sblock__note { margin-top: 18px; font-size: var(--t-sub); color: var(--text-mute); }
+.sblock__rtext {
+  margin-top: 5px;
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* 언제 다시 쓸 수 있나. 사용자가 알고 싶은 것은 이것이지 언제
+   벌받았나가 아니다. 크게 세우고 제재일은 밑에 작게 둔다.
+   전에는 둘을 같은 크기로 나란히 놓아 한 덩어리로 보였다 */
+.sblock__until {
+  margin-top: 26px;
+  font-size: var(--t-title);
+  color: var(--text-mute);
+}
+.sblock__until b { font-size: var(--t-hero); font-weight: 800; color: var(--text); }
+.sblock__until span { margin-left: 4px; }
+.sblock__until--ban { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.sblock__since { margin-top: 6px; font-size: var(--t-sub); color: var(--text-mute); }
+
+.sblock__note { margin-top: 20px; font-size: var(--t-sub); line-height: 1.6; color: var(--text-mute); }
 /* 이의 제기 경로. 없으면 사용자가 할 수 있는 것이 하나도 없다 */
 .sblock__appeal {
   margin-top: 22px;
