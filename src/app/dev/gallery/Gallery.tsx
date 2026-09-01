@@ -8,9 +8,14 @@
  * 정하게 된다. 한자리에 다 깔아두면 빠진 칸이 눈에 보인다.
  */
 import { useState } from 'react'
-import { Field, TextInput, TextArea, Select, Checkbox } from '@/components/ui/Field'
+import { Field, TextInput, TextArea, Checkbox } from '@/components/ui/Field'
 import { Button, Badge, Avatar, Who, Blank, Skeleton, Sheet, Tabs, KakaoMark } from '@/components/ui/Basics'
 import { PostCard, Comment } from '@/components/ui/Post'
+/* 신고 시트를 여기서 다시 그리지 않는다. 손으로 그려두면 실제
+   화면과 사유 목록이 갈라지고, 갈라진 쪽을 보고 새 화면을 만든다 */
+import { ReportSheet, type ReportTarget } from '@/components/ui/ReportSheet'
+import { EventPicker, type PickableEvent } from '@/components/ui/EventPicker'
+import { PlaceMap } from '@/components/ui/PlaceMap'
 
 function Row({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
@@ -33,10 +38,11 @@ function Case({ label, children }: { label: string; children: React.ReactNode })
   )
 }
 
-export default function Gallery() {
+export default function Gallery({ events }: { events: PickableEvent[] }) {
   const [body, setBody] = useState('')
   const [tab, setTab] = useState(0)
-  const [ask, setAsk] = useState<string | null>(null)
+  const [ask, setAsk] = useState<null | 'done' | ReportTarget>(null)
+  const [picked, setPicked] = useState<PickableEvent | null>(null)
 
   return (
     <div className="g">
@@ -71,16 +77,25 @@ export default function Gallery() {
       </Row>
 
       {/* ── 입력 ─────────────────────────────────────── */}
-      <Row title="입력" note="기본 · 포커스 · 에러 · 비활성 · 글자수. iOS 확대를 막으려고 전부 16px">
+      <Row
+        title="입력"
+        note="기본 · 에러 · 비활성 · 글자수 · 선택 표시. iOS 확대를 막으려고 전부 16px. 별표(required)는 지금 쓰는 화면이 없다 — 한 폼의 2/3 이상이 필수면 선택인 칸에만 '선택'을 단다 (SCALE.md 「폼」)"
+      >
         <Case label="기본">
-          <Field label="닉네임" required hint="2~10자, 나중에 바꿀 수 있어요">
+          <Field label="닉네임" hint="2~10자, 나중에 바꿀 수 있어요">
             <TextInput placeholder="덕질하는 오리" />
           </Field>
         </Case>
 
         <Case label="에러 (409 중복)">
-          <Field label="닉네임" required error="이미 쓰고 있는 닉네임이에요">
+          <Field label="닉네임" error="이미 쓰고 있는 닉네임이에요">
             <TextInput defaultValue="덕질하는 오리" />
+          </Field>
+        </Case>
+
+        <Case label="선택인 칸 (신고의 '자세히')">
+          <Field label="자세히" optional hint="적어주시면 처리가 빨라져요">
+            <TextInput placeholder="어떤 점이 문제였는지 적어주세요" />
           </Field>
         </Case>
 
@@ -93,7 +108,6 @@ export default function Gallery() {
         <Case label="여러 줄 + 글자수">
           <Field
             label="본문"
-            required
             count={[body.length, 500]}
             error={body.length > 500 ? '500자를 넘었어요' : undefined}
           >
@@ -207,7 +221,8 @@ export default function Gallery() {
               reply
               time="8분 전"
               text="좋아요, 비밀 댓글로 연락처 남겨주세요"
-              acts={<><button>수정</button><button>삭제</button></>}
+              /* 실제 화면에 수정은 없다. 여기에만 있으면 있는 기능으로 읽힌다 */
+              acts={<button>삭제</button>}
             />
             <Comment
               name="조용한덕후"
@@ -233,12 +248,32 @@ export default function Gallery() {
         </Case>
       </Row>
 
+      {/* ── 행사 고르기 · 지도 ───────────────────────── */}
+      <Row
+        title="행사 고르기 · 지도"
+        note="쓰기 화면과 상세가 쓰는 조각. 지도는 카카오 키가 없으면 자리표시자로 떨어진다 — 배포에서는 진짜 지도가 같은 크기로 들어간다"
+      >
+        <Case label="접힘 · 검색 · 고른 뒤">
+          <EventPicker all={events} picked={picked} onPick={setPicked} />
+        </Case>
+        <Case label="만남 장소">
+          <div className="post__map">
+            <PlaceMap lat={37.5445} lng={127.0557} label="성수역 3번 출구" />
+          </div>
+        </Case>
+      </Row>
+
       {/* ── 시트 ─────────────────────────────────────── */}
-      <Row title="시트" note="취소 사유 · 신고 · 삭제 확인이 전부 같은 모양을 쓴다">
+      <Row
+        title="시트"
+        note="취소 사유 · 신고 · 삭제 확인이 전부 같은 모양을 쓴다. 신고는 실제 ReportSheet 다 — 대상마다 사유가 다르다"
+      >
         <Case label="눌러보기">
           <div className="g-inline">
             <Button tone="ghost" onClick={() => setAsk('done')}>모집 완료</Button>
-            <Button tone="ghost" onClick={() => setAsk('report')}>신고</Button>
+            <Button tone="ghost" onClick={() => setAsk('user')}>유저 신고</Button>
+            <Button tone="ghost" onClick={() => setAsk('post')}>모집글 신고</Button>
+            <Button tone="ghost" onClick={() => setAsk('comment')}>댓글 신고</Button>
           </div>
         </Case>
       </Row>
@@ -286,29 +321,14 @@ export default function Gallery() {
         />
       )}
 
-      {ask === 'report' && (
-        <Sheet
-          title="신고하기"
-          desc="검토 후 조치합니다. 신고 사실은 상대에게 알리지 않아요."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(null)}>취소</Button>
-              <Button tone="danger" onClick={() => setAsk(null)}>신고</Button>
-            </>
-          }
-        >
-          <Field label="사유" required>
-            <Select defaultValue="">
-              <option value="" disabled>골라주세요</option>
-              <option>허위 정보</option>
-              <option>광고 · 홍보</option>
-              <option>부적절한 내용</option>
-            </Select>
-          </Field>
-          <Field label="자세히" count={[0, 300]}>
-            <TextArea placeholder="어떤 점이 문제였는지 적어주세요" />
-          </Field>
-        </Sheet>
+      {ask !== null && ask !== 'done' && (
+        /* 화면이 쓰는 그 컴포넌트를 그대로 부른다. 사유 목록이 대상마다
+           다른 것도 여기서 눌러보고 확인한다 */
+        <ReportSheet
+          target={ask}
+          name={ask === 'user' ? '조용한덕후' : undefined}
+          onClose={() => setAsk(null)}
+        />
       )}
     </div>
   )

@@ -22,7 +22,7 @@
 import { useState } from 'react'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Sheet } from '@/components/ui/Basics'
-import { Field, TextInput, TextArea, Select } from '@/components/ui/Field'
+import { Field, TextInput, TextArea, ChoiceChips } from '@/components/ui/Field'
 import { EventPicker, type PickableEvent } from '@/components/ui/EventPicker'
 
 type Form = {
@@ -50,7 +50,7 @@ function validate(f: Form) {
   if (!f.body.trim()) e.body = '어떤 동행인지 적어주세요'
   else if (f.body.length > 500) e.body = '500자를 넘었어요'
   if (!f.capacity) e.capacity = '몇 명 모을지 골라주세요'
-  if (!f.meetAt) e.meetAt = '언제 만날지 정해주세요'
+  if (!f.meetAt) e.meetAt = '만나는 시간을 정해주세요'
   if (!f.place.trim()) e.place = '어디서 만날지 적어주세요'
   return e
 }
@@ -87,7 +87,10 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
   }
 
   return (
-    <PageShell title="모집글 쓰기">
+    <PageShell
+      title="모집글 쓰기"
+      onBack={() => (dirty ? setAsk(true) : history.back())}
+    >
       <div className="form">
         {/* 무슨 행사인지부터 정하고 제목·내용을 쓴다. 당근도 동네생활
             글쓰기에서 카테고리를 맨 위에서 고른다 */}
@@ -99,7 +102,9 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
         <Field label="제목" error={show('title')} count={[f.title.length, 40]}>
           <TextInput
-            placeholder="에이티즈 팝업 오픈런 같이 하실 분"
+            /* 완성된 문장을 넣어두면 그대로 베껴 쓰게 된다. 어떤 글을
+               쓰는 자리인지만 알려준다 */
+            placeholder="어떤 동행인지 한 줄로"
             value={f.title}
             onChange={(e) => set('title')(e.target.value)}
           />
@@ -109,7 +114,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
         <Field label="내용" error={show('body')} count={[f.body.length, 500]}>
           <TextArea
-            placeholder={'혼자 가려니 막막해서 같이 가실 분 찾아요.\n\n몇 시에 만나서 무엇을 할지, 연락은 어떻게 받을지 적으면 사람이 더 잘 모여요. 연락처는 비밀 댓글로 받아도 좋아요.'}
+            placeholder={'몇 시에 만나서 무엇을 할지 적어주세요.\n연락은 비밀 댓글로 받아도 좋아요.'}
             value={f.body}
             onChange={(e) => set('body')(e.target.value)}
             rows={5}
@@ -126,7 +131,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             기본값이 곧 정답인 칸을 하나 더 보여준 셈이다. 만나는 날이
             지나면 아무도 못 오므로 마감은 만나는 날이다. 서버가
             closes_at 을 meet_at 으로 채운다 */}
-        <Field label="만나는 때" error={show('meetAt')} hint="모집은 이 날까지 받아요">
+        <Field label="만나는 시간" error={show('meetAt')} hint="모집은 이 날까지 받아요">
           <TextInput
             type="datetime-local"
             value={f.meetAt}
@@ -143,27 +148,26 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           />
         </Field>
 
-        <Field label="인원" error={show('capacity')}>
-          <Select value={f.capacity} onChange={(e) => set('capacity')(e.target.value)}>
-            <option value="" disabled>골라주세요</option>
-            {[2, 3, 4, 5].map((n) => (
-              <option key={n} value={n}>{n}명 (나 포함)</option>
-            ))}
-          </Select>
+        {/* 선택지가 넷뿐이라 드롭다운이 아니라 칩이다. 무엇을 고를 수
+            있는지가 열어보기 전에 보이고 한 번만 누르면 된다.
+            당근도 거래 방식을 칩으로 둔다 */}
+        <Field label="인원" error={show('capacity')} hint="나를 포함한 인원이에요">
+          <ChoiceChips
+            value={f.capacity}
+            options={[2, 3, 4, 5].map((n) => ({ value: String(n), label: `${n}명` }))}
+            onPick={set('capacity')}
+          />
         </Field>
 
-        <div className="form__foot">
-          <Button block disabled={sending} onClick={submit}>
-            {sending ? '올리는 중…' : '올리기'}
-          </Button>
-          <button
-            type="button"
-            className="form__cancel"
-            onClick={() => (dirty ? setAsk(true) : history.back())}
-          >
-            그만두기
-          </button>
-        </div>
+      </div>
+
+      {/* 제출은 화면 아래에 붙인다. 흐름 안에 두면 긴 폼에서 끝까지
+          내려보기 전엔 올릴 수 있는 상태인지조차 알 수 없다.
+          당근도 작성 완료를 하단에 고정한다 */}
+      <div className="form__bar">
+        <Button block disabled={sending} onClick={submit}>
+          {sending ? '올리는 중…' : '올리기'}
+        </Button>
       </div>
 
       {ask && (

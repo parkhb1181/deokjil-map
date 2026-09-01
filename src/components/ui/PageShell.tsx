@@ -13,7 +13,7 @@ import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
 export function PageShell({ title, right, children, onBack }: {
-  /** 스크롤을 내리면 헤더에 나타난다. 처음에는 본문 제목만 보인다 */
+  /** 헤더 가운데 줄. 스크롤과 상관없이 계속 보인다 */
   title?: string
   right?: ReactNode
   children: ReactNode

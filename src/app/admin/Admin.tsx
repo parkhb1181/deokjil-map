@@ -190,7 +190,15 @@ export default function Admin() {
           foot={
             <>
               <Button tone="ghost" onClick={() => setAct(null)}>취소</Button>
-              <Button tone="danger" onClick={() => setAct(null)}>제재하기</Button>
+              <Button
+                tone="danger"
+                onClick={() => {
+                  close(act.id)
+                  setAct(null)
+                }}
+              >
+                제재하기
+              </Button>
             </>
           }
         >

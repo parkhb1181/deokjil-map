@@ -122,3 +122,35 @@ export function Checkbox({
     </label>
   )
 }
+
+/**
+ * 고르는 칸을 칩으로.
+ *
+ * 선택지가 서넛이면 드롭다운보다 칩이 낫다. 드롭다운은 누르고,
+ * 목록에서 찾고, 고르는 세 동작인데 칩은 한 번이다. 무엇을 고를 수
+ * 있는지도 열어보기 전에 보인다.
+ *
+ * 당근도 거래 방식(판매하기·나눔하기)을 드롭다운이 아니라 칩으로 둔다.
+ * 선택지가 열을 넘어가면 그때 드롭다운으로 바꾼다.
+ */
+export function ChoiceChips<T extends string | number>({ value, options, onPick }: {
+  value: T | ''
+  options: { value: T; label: string }[]
+  onPick: (v: T) => void
+}) {
+  return (
+    <span className="chips2">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          className={`chip2${value === o.value ? ' chip2--on' : ''}`}
+          aria-pressed={value === o.value}
+          onClick={() => onPick(o.value)}
+        >
+          {o.label}
+        </button>
+      ))}
+    </span>
+  )
+}

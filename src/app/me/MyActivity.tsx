@@ -16,7 +16,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
-import { Blank, Tabs, Badge } from '@/components/ui/Basics'
+import { Blank, Tabs, Badge, Avatar } from '@/components/ui/Basics'
 import type { PostState } from '@/types'
 
 type MyPost = {
@@ -86,6 +86,30 @@ function whenShort(iso: string) {
   return `${Number(m)}/${Number(day)} ${t}`
 }
 
+/** 목록 행 오른쪽 끝의 꺾쇠. 누를 수 있다는 표시다 */
+function Caret() {
+  return (
+    <svg className="mymenu__caret" viewBox="0 0 16 16" aria-hidden focusable="false">
+      <path
+        d="M6 4l4 4-4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/* 로그인이 없어 내 정보를 서버에서 못 받는다. 붙으면 지운다 */
+const ME = {
+  id: 'u_host',
+  nickname: '덕질하는오리',
+  image_url: '/avatar/a1.webp',
+  done_count: 3,
+}
+
 export default function MyActivity() {
   const [tab, setTab] = useState(0)
   const [empty, setEmpty] = useState(false)
@@ -97,6 +121,64 @@ export default function MyActivity() {
         <button aria-pressed={!empty} onClick={() => setEmpty(false)}>정상</button>
         <button aria-pressed={empty} onClick={() => setEmpty(true)}>비었음</button>
       </div>
+
+      {/* 내 정보. 공개 프로필(/u/[id])의 신원 줄과 같은 배치다.
+          같은 사람이 화면마다 다르게 보이면 내 프로필이 남에게 어떻게
+          보이는지 짐작할 수 없다.
+
+          사진을 누르면 바로 고를 수 있다. 수정 화면에 들어가야만 바꿀
+          수 있으면 아바타가 기본값인 채로 남는 사람이 많아진다 */}
+      <header className="myid">
+        <label className="myid__pic">
+          <Avatar name={ME.nickname} src={ME.image_url} lg />
+          <span className="myid__cam" aria-hidden>
+            <svg viewBox="0 0 16 16">
+              <path
+                d="M2.6 4.8h2.2l.9-1.4h4.6l.9 1.4h2.2v7.2H2.6z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+              <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            </svg>
+          </span>
+          <input type="file" accept="image/*" hidden />
+        </label>
+
+        <div className="myid__main">
+          <p className="myid__name">{ME.nickname}</p>
+          <p className="myid__meta meta">
+            <span>동행 {ME.done_count}회</span>
+          </p>
+        </div>
+
+        <Link className="btn btn--ghost btn--sm" href={`/u/${ME.id}`}>
+          프로필 수정
+        </Link>
+      </header>
+
+      {/* 마이페이지에서 찾게 되는 것들. 여기 없으면 어디에도 없다 */}
+      <nav className="mymenu">
+        <Link className="mymenu__row" href={`/u/${ME.id}`}>
+          <span>남에게 보이는 내 프로필</span>
+          <Caret />
+        </Link>
+        <Link className="mymenu__row" href="/p/new">
+          <span>모집글 쓰기</span>
+          <Caret />
+        </Link>
+        <button type="button" className="mymenu__row">
+          <span>차단한 사람</span>
+          <Caret />
+        </button>
+        {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
+            헤매므로 준비 중이라고 적어 둔다 */}
+        <button type="button" className="mymenu__row" disabled>
+          <span>알림 설정</span>
+          <span className="mymenu__note">준비 중</span>
+        </button>
+      </nav>
 
       <Tabs items={['내 모집글', '내 댓글']} on={tab} onPick={setTab} />
 
