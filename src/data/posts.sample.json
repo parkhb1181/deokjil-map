@@ -10,7 +10,6 @@
     "state": "open",
     "capacity": 4,
     "meet_at": "2026-09-14T09:00",
-    "meet_place": "더현대 서울 지하 1층 팝업 아이코닉",
     "closes_at": "2026-09-12T23:59",
     "created_at": "2026-08-29T21:10",
     "author": {
@@ -21,8 +20,11 @@
     },
     "comment_count": 5,
     "event_image_url": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
-    "meet_lat": 37.5256381078,
-    "meet_lng": 126.9289384556
+    "meet_point": {
+      "place": "더현대 서울 지하 1층 팝업 아이코닉",
+      "lat": 37.5256381078,
+      "lng": 126.9289384556
+    }
   },
   "comments": [
     {

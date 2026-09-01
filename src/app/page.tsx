@@ -17,9 +17,9 @@ import MapView from '@/components/MapView'
 import EventDetail from '@/components/EventDetail'
 import SeoIndex from '@/components/SeoIndex'
 import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
-import { loadCourse, persistCourse } from '@/lib/course'
+import { loadBookmarks, persistBookmarks } from '@/lib/bookmark'
 import { SaveProvider, type SaveApi } from '@/components/SaveContext'
-import CourseView from '@/components/CourseView'
+import BookmarkView from '@/components/BookmarkView'
 import { wf } from '@/lib/wireframe'
 
 export default function Page() {
@@ -28,7 +28,7 @@ export default function Page() {
   const [today, setToday] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('browse')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
-  // 담은 이벤트 id. 담은 순서를 유지한다. 코스는 순서가 의미를 가진다
+  // 담은 이벤트 id. 담은 순서를 유지한다
   const [saved, setSaved] = useState<string[]>([])
 
   const route = useRoute()
@@ -41,8 +41,8 @@ export default function Page() {
     setToday(t)
     // 기본 날짜는 오늘이다. 오늘이 확정되는 시점이 마운트 이후라 여기서 채운다
     setFilter((f) => ({ ...f, date: t }))
-    // 담은 목록 복원. localStorage 라 서버에서는 읽을 수 없다
-    setSaved(loadCourse())
+    // 담아둔 목록 복원. localStorage 라 서버에서는 읽을 수 없다
+    setSaved(loadBookmarks())
     // 방문·재방문 계상. 지표 0·5 의 원천이다
     trackVisit(t)
   }, [])
@@ -60,7 +60,7 @@ export default function Page() {
         setSaved((prev) => {
           const has = prev.includes(ev.id)
           const next = has ? prev.filter((x) => x !== ev.id) : [...prev, ev.id]
-          persistCourse(next)
+          persistBookmarks(next)
           track('save_course', {
             event_id: ev.id,
             kind: ev.kind,
@@ -176,7 +176,7 @@ export default function Page() {
               onOpen={openDetail}
             />
           ) : (
-            <CourseView
+            <BookmarkView
               events={ALL_EVENTS}
               today={today}
               saved={saved}

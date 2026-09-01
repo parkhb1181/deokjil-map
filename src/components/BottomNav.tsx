@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 
-export type Tab = 'browse' | 'map' | 'course'
+export type Tab = 'browse' | 'map' | 'bookmark'
 
 /**
  * 아이콘을 글자(≡ ◎ ♡)로 두지 않는다.
@@ -18,7 +18,7 @@ const ICONS: Record<Tab, ReactNode> = {
       <circle cx="12" cy="10" r="2.6" />
     </>
   ),
-  course: (
+  bookmark: (
     <path d="M12 20s-7.5-4.7-7.5-9.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8C19.5 15.3 12 20 12 20z" />
   ),
 }
@@ -26,10 +26,7 @@ const ICONS: Record<Tab, ReactNode> = {
 const TABS: { id: Tab; label: string }[] = [
   { id: 'browse', label: '목록' },
   { id: 'map', label: '지도' },
-  /* 안쪽 이름은 course 로 둔다. 계측 이벤트(save_course)와 저장
-     키가 이 낱말을 쓰는데, 그건 poc-plan 7번 지표 표와 1:1 이라
-     보이는 이름 하나 때문에 건드리면 표가 어긋난다 */
-  { id: 'course', label: '즐겨찾기' },
+  { id: 'bookmark', label: '즐겨찾기' },
 ]
 
 interface Props {
@@ -69,7 +66,7 @@ export default function BottomNav({ active, savedCount, onChange }: Props) {
             {ICONS[tab.id]}
           </svg>
           {tab.label}
-          {tab.id === 'course' && savedCount > 0 && (
+          {tab.id === 'bookmark' && savedCount > 0 && (
             <span className="bottomnav__badge">{savedCount}</span>
           )}
         </button>

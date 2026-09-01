@@ -18,7 +18,7 @@
  * 어긋나는 것보다 낫다.
  */
 import { useEffect, useState } from 'react'
-import { loadCourse, persistCourse } from '@/lib/course'
+import { loadBookmarks, persistBookmarks } from '@/lib/bookmark'
 import { track } from '@/lib/analytics'
 import type { EventItem } from '@/types'
 
@@ -26,14 +26,14 @@ export function SaveHeart({ event }: { event: EventItem }) {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    setSaved(loadCourse().includes(event.id))
+    setSaved(loadBookmarks().includes(event.id))
   }, [event.id])
 
   const toggle = () => {
-    const prev = loadCourse()
+    const prev = loadBookmarks()
     const has = prev.includes(event.id)
     const next = has ? prev.filter((x) => x !== event.id) : [...prev, event.id]
-    persistCourse(next)
+    persistBookmarks(next)
     setSaved(!has)
     /* 지도 앱의 담기와 같은 이벤트를 쏜다. 화면이 달라도 같은 행동이라
        나눠 세면 지표 3이 두 갈래로 갈린다 (poc-plan 7번) */

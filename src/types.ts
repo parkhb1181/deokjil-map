@@ -157,6 +157,27 @@ export interface PostAuthor {
   done_count?: number
 }
 
+/**
+ * 만남 지점. 도메인 문서의 `MeetPoint` 값 객체다.
+ *
+ * 세 필드를 흩어 두었더니(meet_place · meet_lat · meet_lng) 셋이 한
+ * 덩어리라는 것이 타입에 안 보였다. 좌표만 있고 이름이 없는 상태가
+ * 성립하는 것처럼 읽힌다.
+ *
+ * **글과 핀을 둘 다 받는다.** 글은 "성수역 3번 출구" 고 핀은 "여기
+ * 어디쯤" 이다. 핀만 있으면 도착해서도 서로 못 찾고, 글만 있으면
+ * 처음 가는 동네에서 그게 어디인지 모른다.
+ *
+ * 핀은 선택이다. 안 찍으면 서버가 place 를 지오코딩해 좌표를 채운다.
+ * 지오코딩도 실패하면 좌표가 없고 그때는 지도를 안 그린다.
+ */
+export interface MeetPoint {
+  /** 글쓴이가 적은 장소. 이 값은 늘 있다 */
+  place: string
+  lat?: number | null
+  lng?: number | null
+}
+
 export interface CompanionPost {
   id: string
   /** 이벤트에 붙지 않은 글도 있다 */
@@ -175,14 +196,7 @@ export interface CompanionPost {
   capacity: number | null
   /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */
   meet_at: string
-  /**
-   * 만남 장소. 글쓴이는 텍스트만 입력한다 (Q-03 좌표 입력 안 함).
-   * 아래 좌표는 사람이 찍는 것이 아니라 **서버가 이 문자열을
-   * 지오코딩해서 채운다.** 실패하면 null 이고 지도를 그리지 않는다.
-   */
-  meet_place: string
-  meet_lat?: number | null
-  meet_lng?: number | null
+  meet_point: MeetPoint
   closes_at: string
   created_at: string
   author: PostAuthor

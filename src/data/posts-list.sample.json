@@ -10,7 +10,6 @@
       "state": "open",
       "capacity": 4,
       "meet_at": "2026-09-14T09:00",
-      "meet_place": "더현대 서울 지하 1층 팝업 아이코닉",
       "author": {
         "id": "u_host",
         "nickname": "덕질하는오리",
@@ -18,7 +17,10 @@
         "done_count": 3
       },
       "comment_count": 5,
-      "image_url": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp"
+      "image_url": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "더현대 서울 지하 1층 팝업 아이코닉"
+      }
     },
     {
       "id": "p2",
@@ -29,7 +31,6 @@
       "state": "open",
       "capacity": 2,
       "meet_at": "2026-09-03T14:00",
-      "meet_place": "성수역 3번 출구",
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
@@ -37,7 +38,10 @@
         "done_count": 1
       },
       "comment_count": 2,
-      "image_url": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp"
+      "image_url": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "성수역 3번 출구"
+      }
     },
     {
       "id": "p3",
@@ -48,7 +52,6 @@
       "state": "open",
       "capacity": 3,
       "meet_at": "2026-09-06T11:00",
-      "meet_place": "홍대입구역 9번 출구",
       "author": {
         "id": "u_b",
         "nickname": "조용한덕후",
@@ -56,7 +59,10 @@
         "done_count": 0
       },
       "comment_count": 0,
-      "image_url": null
+      "image_url": null,
+      "meet_point": {
+        "place": "홍대입구역 9번 출구"
+      }
     },
     {
       "id": "p4",
@@ -67,7 +73,6 @@
       "state": "done",
       "capacity": 3,
       "meet_at": "2026-08-28T10:30",
-      "meet_place": "성수동 원위의 작업실",
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
@@ -75,7 +80,10 @@
         "done_count": 2
       },
       "comment_count": 8,
-      "image_url": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp"
+      "image_url": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "성수동 원위의 작업실"
+      }
     },
     {
       "id": "p5",
@@ -86,7 +94,6 @@
       "state": "ended",
       "capacity": 3,
       "meet_at": "2026-08-20T13:00",
-      "meet_place": "성수동 원위의 작업실",
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
@@ -95,7 +102,10 @@
       },
       "comment_count": 2,
       "image_url": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
-      "closes_at": "2026-08-20T13:00"
+      "closes_at": "2026-08-20T13:00",
+      "meet_point": {
+        "place": "성수동 원위의 작업실"
+      }
     }
   ]
 }

@@ -15,7 +15,7 @@ interface Props {
 }
 
 /**
- * 즐겨찾기.
+ * 즐겨찾기 (Bookmark).
  *
  * **지역으로 묶는다.** 담은 순서대로 나열하면 목록이 하나 더 생길 뿐이지만,
  * 지역으로 묶으면 "홍대에서 3곳, 성수에서 1곳"이 되어 그날의 동선이 보인다.
@@ -24,7 +24,7 @@ interface Props {
  * 종료된 것은 빼지 않고 흐리게 남긴다. 목록에서 조용히 사라지면
  * 담아둔 걸 잃어버린 것처럼 보인다. 뺄지 말지는 사용자가 정한다.
  */
-export default function CourseView({
+export default function BookmarkView({
   events,
   today,
   saved,
@@ -41,14 +41,14 @@ export default function CourseView({
 
   if (picked.length === 0) {
     return (
-      <div className="course course--empty">
-        <p className="course__emptytitle">담아둔 곳이 없어요</p>
-        <p className="course__emptybody">
+      <div className="bmk bmk--empty">
+        <p className="bmk__emptytitle">담아둔 곳이 없어요</p>
+        <p className="bmk__emptybody">
           카드의 <strong>담기</strong>를 누르면 여기 모여요.
           <br />
           지역별로 묶어서 그날 동선을 보여드릴게요.
         </p>
-        <button type="button" className="course__cta" onClick={onBrowse}>
+        <button type="button" className="bmk__cta" onClick={onBrowse}>
           오늘 열리는 곳 보기
         </button>
       </div>
@@ -56,19 +56,19 @@ export default function CourseView({
   }
 
   return (
-    <div className="course">
-      <div className="course__head">
-        <h2 className="course__title">즐겨찾기</h2>
-        <p className="course__count">
+    <div className="bmk">
+      <div className="bmk__head">
+        <h2 className="bmk__title">즐겨찾기</h2>
+        <p className="bmk__count">
           {live.length}곳
-          {ended.length > 0 && <span className="course__ended"> · 종료 {ended.length}</span>}
+          {ended.length > 0 && <span className="bmk__ended"> · 종료 {ended.length}</span>}
         </p>
       </div>
 
       {groups.map((g) => (
-        <section key={g.district} className="course__group">
-          <h3 className="course__district">
-            {DISTRICT_LABELS[g.district]} <span className="course__n">{g.events.length}</span>
+        <section key={g.district} className="bmk__group">
+          <h3 className="bmk__district">
+            {DISTRICT_LABELS[g.district]} <span className="bmk__n">{g.events.length}</span>
           </h3>
           <div className="rows">
             {g.events.map((ev) => (
@@ -85,17 +85,17 @@ export default function CourseView({
       ))}
 
       {ended.length > 0 && (
-        <section className="course__group course__group--ended">
-          <h3 className="course__district">종료됨</h3>
-          <ul className="course__endedlist">
+        <section className="bmk__group bmk__group--ended">
+          <h3 className="bmk__district">종료됨</h3>
+          <ul className="bmk__endedlist">
             {ended.map((ev) => (
-              <li key={ev.id} className="course__endeditem">
+              <li key={ev.id} className="bmk__endeditem">
                 <span>
                   {ev.subject} · {ev.place.name}
                 </span>
                 <button
                   type="button"
-                  className="course__remove"
+                  className="bmk__remove"
                   onClick={() => onToggleSave(ev)}
                   aria-label={`${ev.subject} 즐겨찾기에서 빼기`}
                 >
@@ -104,7 +104,7 @@ export default function CourseView({
               </li>
             ))}
           </ul>
-          <p className="course__endednote">
+          <p className="bmk__endednote">
             기간이 끝난 곳입니다. 목록에서 자동으로 지우지 않아요.
           </p>
         </section>

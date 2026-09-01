@@ -208,7 +208,11 @@ export default function PostDetail({ post, comments, hostId }: {
         <h1 className="post__title">{post.title}</h1>
 
         <div className="post__map">
-          <PlaceMap lat={post.meet_lat} lng={post.meet_lng} label={post.meet_place} />
+          <PlaceMap
+            lat={post.meet_point.lat}
+            lng={post.meet_point.lng}
+            label={post.meet_point.place}
+          />
         </div>
 
         {/* 두 줄로 끝낸다. 날짜와 인원이 위, 장소와 마감이 아래다.
@@ -218,7 +222,7 @@ export default function PostDetail({ post, comments, hostId }: {
           {post.capacity ? ` · ${post.capacity}명 모집` : ''}
         </p>
         <p className="post__sub">
-          {post.meet_place} · {dateOnly(post.closes_at)} 마감
+          {post.meet_point.place} · {dateOnly(post.closes_at)} 마감
         </p>
 
         <div className="post__body">{post.body}</div>

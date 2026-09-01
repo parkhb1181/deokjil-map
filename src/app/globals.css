@@ -1350,24 +1350,24 @@ a { color: inherit; }
   text-align: center;
 }
 
-.course { padding: 4px 0 24px; }
+.bmk { padding: 4px 0 24px; }
 
-.course__head {
+.bmk__head {
   display: flex;
   align-items: baseline;
   gap: 8px;
   padding: 14px var(--gutter) 4px;
 }
 
-.course__title { font-size: 20px; font-weight: 800; }
+.bmk__title { font-size: 20px; font-weight: 800; }
 
-.course__count { font-size: 14px; color: var(--text-mute); }
+.bmk__count { font-size: 14px; color: var(--text-mute); }
 
-.course__ended { color: var(--gone); }
+.bmk__ended { color: var(--gone); }
 
-.course__group { margin-top: 18px; }
+.bmk__group { margin-top: 18px; }
 
-.course__district {
+.bmk__district {
   display: flex;
   align-items: baseline;
   gap: 6px;
@@ -1376,12 +1376,12 @@ a { color: inherit; }
   font-weight: 700;
 }
 
-.course__n { font-size: 13px; font-weight: 700; color: var(--accent-ink); }
+.bmk__n { font-size: 13px; font-weight: 700; color: var(--accent-ink); }
 
 /* 종료된 것은 지우지 않고 흐리게 남긴다. 조용히 사라지면 잃어버린 것처럼 보인다 */
-.course__group--ended { opacity: 0.6; }
+.bmk__group--ended { opacity: 0.6; }
 
-.course__endedlist {
+.bmk__endedlist {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -1390,7 +1390,7 @@ a { color: inherit; }
   list-style: none;
 }
 
-.course__endeditem {
+.bmk__endeditem {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1402,7 +1402,7 @@ a { color: inherit; }
   text-decoration: line-through;
 }
 
-.course__remove {
+.bmk__remove {
   flex: 0 0 auto;
   min-height: 32px;
   padding: 0 10px;
@@ -1415,14 +1415,14 @@ a { color: inherit; }
   cursor: pointer;
 }
 
-.course__endednote {
+.bmk__endednote {
   padding: 10px var(--gutter) 0;
   font-size: 12.5px;
   color: var(--text-mute);
 }
 
 /* 빈 상태는 "없음"이 아니라 다음 행동을 준다. 제보 빈 상태와 같은 원칙(3.2) */
-.course--empty {
+.bmk--empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1431,11 +1431,11 @@ a { color: inherit; }
   text-align: center;
 }
 
-.course__emptytitle { font-size: 17px; font-weight: 700; }
+.bmk__emptytitle { font-size: 17px; font-weight: 700; }
 
-.course__emptybody { font-size: 14px; color: var(--text-mute); line-height: 1.7; }
+.bmk__emptybody { font-size: 14px; color: var(--text-mute); line-height: 1.7; }
 
-.course__cta {
+.bmk__cta {
   min-height: var(--tap);
   margin-top: 10px;
   padding: 0 20px;

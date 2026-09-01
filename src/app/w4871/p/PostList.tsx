@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { PostState } from '@/types'
+import type { MeetPoint, PostState } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Blank, Skeleton } from '@/components/ui/Basics'
 import { PostCard } from '@/components/ui/Post'
@@ -27,7 +27,7 @@ export type ListItem = {
   state: PostState
   capacity: number | null
   meet_at: string
-  meet_place: string
+  meet_point: MeetPoint
   author: { id: string; nickname: string; image_url?: string | null; done_count?: number }
   comment_count: number
   /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
@@ -76,7 +76,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
-      `${p.title} ${p.meet_place} ${p.event_title ?? ''}`.toLowerCase().includes(key),
+      `${p.title} ${p.meet_point.place} ${p.event_title ?? ''}`.toLowerCase().includes(key),
     )
   }, [posts, tab, q])
 
@@ -177,7 +177,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                   state={p.state}
                   title={p.title}
                   when={whenShort(p.meet_at)}
-                  where={p.meet_place}
+                  where={p.meet_point.place}
                   image={p.image_url}
                   comments={p.comment_count}
                 />
