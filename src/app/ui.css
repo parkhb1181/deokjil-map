@@ -2443,27 +2443,38 @@
   letter-spacing: -0.02em;
   color: var(--text);
 }
-/* 사유. 라벨을 붙이고 왼쪽에 색선을 세운다. 전에는 회색 상자 안의
-   본문 크기 글자라 아래 안내 문구와 무게가 같았다 */
+/* 사유.
+   왼쪽 색선에 연한 배경을 깔던 것을 그만뒀다. 그건 마크다운 인용구
+   모양이라 경고·정보·주의가 전부 같은 얼굴이 된다.
+
+   여기 사유는 곁다리 알림이 아니라 이 화면의 본문이다. 그래서 통지서
+   모양으로 바꿨다 — 라벨이 머리줄에 앉고 본문은 흰 바탕에 놓인다.
+   운영자가 사람으로서 적어 보낸 말이라는 것이 그 편이 잘 읽힌다.
+
+   색은 머리줄에만 남긴다. 본문까지 붉게 깔면 글자가 경고문처럼
+   읽혀서 정작 무슨 내용인지가 흐려진다 */
 .sblock__reason {
-  margin: 18px auto 0;
+  margin: 20px auto 0;
   max-width: 34ch;
-  padding: 14px 16px;
-  border-left: 3px solid var(--danger);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  background: var(--danger-soft);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  overflow: hidden;
   text-align: left;
 }
 .sblock__rlabel {
+  padding: 9px 16px;
+  background: var(--bg-sunk);
+  border-bottom: 1px solid var(--border);
   font-size: var(--t-small);
   font-weight: 700;
-  color: var(--danger);
+  letter-spacing: 0.02em;
+  color: var(--text-mute);
 }
 .sblock__rtext {
-  margin-top: 5px;
+  padding: 16px;
   font-size: var(--t-body);
   font-weight: 600;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--text);
 }
 
