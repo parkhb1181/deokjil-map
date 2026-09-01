@@ -59,7 +59,9 @@ export default function Profile({ user }: { user: ProfileData }) {
           화면이 전부 왼쪽에서 시작하기 때문이다 */}
       <header className="prof">
         <div className="prof__id">
-          <Avatar name={user.nickname} src={user.image_url ?? undefined} lg />
+          {/* 크기는 .prof .avatar 가 56px 로 정한다. lg(48px)를 같이
+              주면 어느 쪽이 실제 크기인지 두 군데를 봐야 알 수 있다 */}
+          <Avatar name={user.nickname} src={user.image_url ?? undefined} />
           <div className="prof__idmain">
             <h1 className="prof__name">{user.nickname}</h1>
 
@@ -79,7 +81,10 @@ export default function Profile({ user }: { user: ProfileData }) {
 
         <div className="prof__acts">
           {mine ? (
-            <Button size="sm" tone="ghost">프로필 수정</Button>
+            /* 프로필 수정 화면은 1차에 없다 (화면 목록 12개에 없음).
+               갈 곳 없는 버튼을 두는 대신 알림이 없는 서비스에서
+               자기 상태를 확인하는 유일한 화면으로 보낸다 */
+            <Link className="btn btn--ghost btn--sm" href="/me">내 활동</Link>
           ) : (
             <>
               <Button size="sm" tone="ghost" onClick={() => setAsk('report')}>신고</Button>

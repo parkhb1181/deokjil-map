@@ -16,7 +16,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
-import { Button, Blank, Tabs, Badge } from '@/components/ui/Basics'
+import { Blank, Tabs, Badge } from '@/components/ui/Basics'
 import type { PostState } from '@/types'
 
 type MyPost = {
@@ -105,9 +105,17 @@ export default function MyActivity() {
           title={tab === 0 ? '아직 쓴 모집글이 없어요' : '아직 남긴 댓글이 없어요'}
           desc={tab === 0 ? '같이 갈 사람을 구해보세요' : '마음에 드는 글에 말을 걸어보세요'}
           action={
-            <Button size="sm" >
-              {tab === 0 ? '모집글 쓰기' : '둘러보기'}
-            </Button>
+            /* 빈 화면에서는 이 버튼이 전부다. 눌러도 아무 일이 없으면
+               비었다는 사실만 두 번 말하는 셈이다 */
+            tab === 0 ? (
+              <Link className="btn btn--primary btn--sm" href="/p/new">
+                모집글 쓰기
+              </Link>
+            ) : (
+              <Link className="btn btn--ghost btn--sm" href="/p">
+                둘러보기
+              </Link>
+            )
           }
         />
       ) : (

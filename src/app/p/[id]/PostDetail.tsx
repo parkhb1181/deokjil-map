@@ -13,7 +13,7 @@
  * 신청·수락을 두지 않기로 해서 사람 구하는 일이 전부 댓글에서
  * 일어난다. 비밀 댓글이 연락처를 주고받는 유일한 통로다.
  */
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { CompanionPost, PostComment, Viewer, ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
@@ -54,6 +54,31 @@ const ROLES: { key: ViewerRole; id: string | null; label: string }[] = [
   { key: 'host', id: 'u_host', label: '방장' },
 ]
 
+/**
+ * 한 번에 하나만 뜨는 물음.
+ *
+ * 문자열 하나로 두다가 댓글 삭제가 들어오면서 "어느 댓글인지" 를
+ * 같이 들고 다녀야 해서 객체가 됐다. 대상 id 를 딴 상태로 빼두면
+ * 시트가 열려 있는 것과 지울 대상이 어긋날 수 있다.
+ */
+type LoginWhy = 'comment' | 'reply' | 'report'
+
+type Ask =
+  | null
+  | { k: 'login'; why: LoginWhy }
+  | { k: 'done' }
+  | { k: 'report' }
+  | { k: 'report-comment' }
+  | { k: 'delete'; id: string }
+
+/* 무엇을 하려다 막혔는지에 따라 문구가 달라진다. 신고하려다 막힌
+   사람에게 댓글 얘기를 하면 자기가 누른 것이 먹힌 것인지 알 수 없다 */
+const LOGIN_DESC: Record<LoginWhy, string> = {
+  comment: '댓글을 남기려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요.',
+  reply: '답글을 남기려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요.',
+  report: '신고하려면 로그인해주세요. 신고 사실은 상대에게 알리지 않아요.',
+}
+
 export default function PostDetail({ post, comments, hostId }: {
   post: CompanionPost
   comments: PostComment[]
@@ -66,27 +91,56 @@ export default function PostDetail({ post, comments, hostId }: {
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
+  /** 답글을 다는 대상. null 이면 새 댓글이다 */
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
+  /* 방금 내가 지운 댓글. API 가 붙으면 서버가 deleted 로 내려주므로 없어진다 */
+  const [erased, setErased] = useState<string[]>([])
+  const boxRef = useRef<HTMLTextAreaElement>(null)
   /* 'report' 는 모집글 신고, 'report-comment' 는 댓글 신고다. 하나로
      묶어 뒀더니 댓글의 신고를 눌러도 모집글 신고 시트가 떴다.
      ReportSheet 는 처음부터 셋(유저·글·댓글)을 받게 되어 있었고
      부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
-  const [ask, setAsk] = useState<null | 'login' | 'done' | 'report' | 'report-comment'>(null)
+  const [ask, setAsk] = useState<Ask>(null)
 
   const isHost = viewer.user_id === hostId
   const isGuest = !viewer.user_id
 
+  const gate = (why: LoginWhy) => setAsk({ k: 'login', why })
+
   /* 서버가 보냈을 모습으로 만든 뒤 계층 정렬한다. API 가 붙으면
      asServerWouldSend 만 빠지고 나머지는 그대로다 */
   const list = useMemo(
-    () => threaded(asServerWouldSend(comments, viewer, hostId)),
-    [comments, viewer.user_id, hostId],
+    () =>
+      threaded(asServerWouldSend(comments, viewer, hostId)).map((c) =>
+        /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
+        erased.includes(c.id) ? { ...c, deleted: true } : c,
+      ),
+    [comments, viewer.user_id, hostId, erased],
   )
 
+  /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
+     칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
+     따라다니지 않는다는 규칙과도 어긋난다 */
+  const openReply = (id: string, name: string) => {
+    if (isGuest) return gate('reply')
+    setReplyTo({ id, name })
+    boxRef.current?.focus()
+  }
+
+  const erase = (id: string) => {
+    setErased((prev) => [...prev, id])
+    /* 지운 댓글에 답글을 쓰고 있었다면 그 자리도 같이 접는다 */
+    setReplyTo((r) => (r?.id === id ? null : r))
+    setAsk(null)
+  }
+
   const submit = () => {
-    if (isGuest) return setAsk('login')
-    /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다 */
+    if (isGuest) return gate('comment')
+    /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다.
+       parent_id 는 replyTo?.id 로 나간다 */
     setDraft('')
     setSecret(false)
+    setReplyTo(null)
   }
 
   return (
@@ -94,11 +148,21 @@ export default function PostDetail({ post, comments, hostId }: {
       title="동행 구해요"
       right={
         isHost ? (
-          <Button size="sm" tone="ghost" onClick={() => setAsk('done')}>
-            모집 완료
-          </Button>
+          /* 끝난 글에는 완료 버튼을 남기지 않는다. 되돌릴 수 없다고
+             말해놓고 다시 누를 수 있게 두는 셈이 된다 */
+          post.state === 'open' && (
+            <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
+              모집 완료
+            </Button>
+          )
         ) : (
-          <Button size="sm" tone="ghost" onClick={() => setAsk('report')}>
+          /* 신고도 쓰는 행동이라 로그인 뒤에 한다. 댓글 신고만 막고
+             여기를 열어두면 같은 행동이 자리에 따라 다르게 동작한다 */
+          <Button
+            size="sm"
+            tone="ghost"
+            onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report' }))}
+          >
             신고
           </Button>
         )
@@ -164,7 +228,12 @@ export default function PostDetail({ post, comments, hostId }: {
       </article>
 
       <section className="thread">
-        <p className="thread__head">비밀 댓글은 방장과 글쓴이만 볼 수 있어요</p>
+        {/* 판정은 lib/comment-perm.ts 한 곳에 있다. 문구가 그 규칙과
+            어긋나면 연락처를 누가 보는지 모르는 채로 적게 된다.
+            볼 수 있는 사람은 셋이다 — 쓴 사람 · 방장 · 부모 댓글 작성자 */}
+        <p className="thread__head">
+          비밀 댓글은 방장과 쓴 사람만 볼 수 있어요. 답글이면 그 댓글을 쓴 사람도 봅니다
+        </p>
 
         {list.length === 0 ? (
           <Blank
@@ -187,11 +256,17 @@ export default function PostDetail({ post, comments, hostId }: {
               acts={
                 c.deleted ? undefined : (
                   <>
-                    {!c.parent_id && <button onClick={() => isGuest && setAsk('login')}>답글</button>}
+                    {!c.parent_id && (
+                      <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
+                    )}
                     {c.author.id === viewer.user_id ? (
-                      <button>삭제</button>
+                      /* 지우는 것은 되돌릴 수 없다. 완료·차단과 같이
+                         한 번 묻는다 */
+                      <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
                     ) : (
-                      <button onClick={() => setAsk(isGuest ? 'login' : 'report-comment')}>신고</button>
+                      <button onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report-comment' }))}>
+                        신고
+                      </button>
                     )}
                   </>
                 )
@@ -212,15 +287,36 @@ export default function PostDetail({ post, comments, hostId }: {
              눌러야 막히는 것보다 처음부터 보이는 편이 덜 답답하다 */
           <div className="write__gate">
             <p>로그인하면 댓글을 남길 수 있어요</p>
-            <Button size="sm" tone="kakao" onClick={() => setAsk('login')}>
+            <Button size="sm" tone="kakao" onClick={() => gate('comment')}>
               로그인
             </Button>
           </div>
         ) : (
           <>
+            {replyTo && (
+              /* 어느 댓글에 다는 중인지 입력칸 위에 남긴다. 없으면
+                 답글을 눌러놓고 새 댓글을 쓴 것으로 착각한다 */
+              <p className="write__reply">
+                <b>{replyTo.name}</b> 님에게 답글
+                <button type="button" onClick={() => setReplyTo(null)}>
+                  취소
+                </button>
+              </p>
+            )}
             <Field>
               <TextArea
-                placeholder={secret ? '방장만 볼 수 있어요' : '댓글을 남겨보세요'}
+                ref={boxRef}
+                /* 비밀 댓글을 누가 보는지는 자리에 따라 다르다. 루트
+                   댓글은 방장뿐이고, 답글이면 부모 댓글을 쓴 사람도 본다 */
+                placeholder={
+                  secret
+                    ? replyTo
+                      ? `방장과 ${replyTo.name} 님만 볼 수 있어요`
+                      : '방장만 볼 수 있어요'
+                    : replyTo
+                      ? '답글을 남겨보세요'
+                      : '댓글을 남겨보세요'
+                }
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 rows={2}
@@ -245,10 +341,10 @@ export default function PostDetail({ post, comments, hostId }: {
         )}
       </section>
 
-      {ask === 'login' && (
+      {ask?.k === 'login' && (
         <Sheet
           title="로그인이 필요해요"
-          desc="댓글을 남기려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
+          desc={LOGIN_DESC[ask.why]}
           foot={
             <>
               <Button tone="ghost" onClick={() => setAsk(null)}>나중에</Button>
@@ -258,7 +354,7 @@ export default function PostDetail({ post, comments, hostId }: {
         />
       )}
 
-      {ask === 'done' && (
+      {ask?.k === 'done' && (
         <Sheet
           title="모집을 완료할까요?"
           desc="완료하면 목록에서 회색으로 바뀌고 댓글을 더 받지 않아요. 되돌릴 수 없어요."
@@ -271,11 +367,24 @@ export default function PostDetail({ post, comments, hostId }: {
         />
       )}
 
-      {ask === 'report' && (
+      {ask?.k === 'delete' && (
+        <Sheet
+          title="댓글을 지울까요?"
+          desc="내용만 사라지고 자리는 남아요. 되돌릴 수 없어요."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setAsk(null)}>취소</Button>
+              <Button tone="danger" onClick={() => erase(ask.id)}>지우기</Button>
+            </>
+          }
+        />
+      )}
+
+      {ask?.k === 'report' && (
         <ReportSheet target="post" onClose={() => setAsk(null)} />
       )}
 
-      {ask === 'report-comment' && (
+      {ask?.k === 'report-comment' && (
         <ReportSheet target="comment" onClose={() => setAsk(null)} />
       )}
     </PageShell>

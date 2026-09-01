@@ -4,7 +4,12 @@
  * 라벨·에러·글자수를 매번 따로 쓰면 화면마다 모양이 갈린다.
  * 껍데기(Field)가 그 셋을 맡고, 안에 들어가는 것만 바꾼다.
  */
-import type { ReactNode, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react'
+import type {
+  ReactNode,
+  ComponentPropsWithRef,
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+} from 'react'
 
 type FieldProps = {
   label?: string
@@ -80,7 +85,10 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   )
 }
 
-export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+/* 부르는 쪽이 ref 를 넘길 수 있어야 한다. 모집글 상세의 답글이
+   맨 아래 입력칸 하나를 빌려 쓰면서 거기에 초점을 옮겨야 한다.
+   React 19 부터 ref 가 보통 prop 이라 forwardRef 없이 넘어간다 */
+export function TextArea(props: ComponentPropsWithRef<'textarea'>) {
   return (
     <span className="fld__box">
       <textarea className="fld__area" {...props} />

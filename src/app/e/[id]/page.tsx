@@ -110,6 +110,17 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
       <main className="main">
         <article className="sheet">
+          {/* 대표 사진.
+              우리가 복제해 두는 것이 아니라 원본 서버 주소를 그대로
+              들고 있는다. 모집글 목록·상세와 같은 방식이다.
+
+              비율은 모집글 상세와 같은 4:5 다. 들어오는 포스터가 1:1 에서
+              3:4 사이의 세로형이라 가로로 자르면 절반도 안 보인다.
+              잘린다면 아래가 잘리게 위를 붙든다 */}
+          {ev.image_url && (
+            <img className="sheet__poster" src={ev.image_url} alt="" />
+          )}
+
           <div className="sheet__head">
             <h1>{ev.subject}</h1>
             <p className="sheet__address">

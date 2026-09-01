@@ -64,14 +64,35 @@ export function PostCard({ title, state, when, where, image, comments }: PostCar
       </div>
 
       {comments !== undefined && (
-        <span
-          className={`pcard__talk${comments > 0 ? ' pcard__talk--on' : ''}`}
-          aria-label={`댓글 ${comments}개`}
-        >
+        <span className="pcard__talk" aria-label={`댓글 ${comments}개`}>
+          <TalkMark />
           {comments}
         </span>
       )}
     </article>
+  )
+}
+
+/**
+ * 댓글 수 옆의 말풍선.
+ *
+ * 채운 분홍 배지였는데 목록에서 그것만 색이 튀어 정작 제목보다
+ * 먼저 눈에 들어왔다. 댓글 수는 확인하는 값이지 첫눈에 걸려야
+ * 하는 값이 아니다. 테두리만 남기고 색을 뺐다.
+ *
+ * 이모티콘을 쓰지 않는 이유는 기기마다 모양이 달라서다.
+ */
+function TalkMark() {
+  return (
+    <svg className="pcard__talkmark" viewBox="0 0 14 14" aria-hidden focusable="false">
+      <path
+        d="M7 1.9c-3.1 0-5.6 1.9-5.6 4.3 0 1.4.9 2.7 2.2 3.5l-.5 2c-.05.2.16.36.33.25L5.8 10.6c.39.06.79.1 1.2.1 3.1 0 5.6-1.9 5.6-4.3S10.1 1.9 7 1.9z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 

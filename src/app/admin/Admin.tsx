@@ -72,12 +72,20 @@ export default function Admin() {
   const [tab, setTab] = useState(0)
   const [only, setOnly] = useState(true)
   const [act, setAct] = useState<Report | null>(null)
+  /* API 가 붙으면 목록을 다시 읽는다. 그때까지는 처리한 결과가
+     화면에 남아야 무엇을 처리했는지 알 수 있다 */
+  const [reports, setReports] = useState(REPORTS)
+
+  const close = (id: string) =>
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, done: true } : r)))
 
   /* 자동 제한이 걸린 건을 맨 위로. 야간·주말에 사람이 없어도
-     그것만은 먼저 보게 한다 (SF-05) */
-  const list = REPORTS.filter((r) => (only ? !r.done : true)).sort(
-    (a, b) => Number(b.auto) - Number(a.auto),
-  )
+     그것만은 먼저 보게 한다 (SF-05). 그 안에서는 최신순이다 —
+     신고는 쌓이는 목록이라 순서를 안 정해두면 들어온 순서대로
+     오래된 것이 위에 남는다 */
+  const list = reports
+    .filter((r) => (only ? !r.done : true))
+    .sort((a, b) => Number(b.auto) - Number(a.auto) || (a.at < b.at ? 1 : -1))
 
   return (
     <PageShell title="백오피스">
@@ -112,7 +120,9 @@ export default function Admin() {
 
                   {!r.done && (
                     <div className="adm__acts">
-                      <Button size="sm" tone="ghost">문제 없음</Button>
+                      <Button size="sm" tone="ghost" onClick={() => close(r.id)}>
+                        문제 없음
+                      </Button>
                       <Button size="sm" tone="danger" onClick={() => setAct(r)}>
                         제재
                       </Button>
