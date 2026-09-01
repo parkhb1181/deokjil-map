@@ -135,7 +135,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
         </Case>
         <Case label="작게">
           <div className="g-inline">
-            <Button size="sm">답글</Button>
+            <Button size="sm">신고</Button>
             <Button size="sm" tone="ghost">수정</Button>
           </div>
         </Case>
@@ -205,20 +205,19 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
       {/* ── 댓글 ─────────────────────────────────────── */}
       <Row
         title="댓글"
-        note="채팅이 없어 여기가 유일한 사적 통로다. 비밀 댓글 권한이 새면 연락처가 샌다"
+        note="채팅이 없어 여기가 유일한 사적 통로다. 비밀 댓글 권한이 새면 연락처가 샌다. 답글은 1차에서 뺐다"
       >
-        <Case label="다섯 가지가 전부">
+        <Case label="네 가지가 전부">
           <div className="g-thread">
             <Comment
               name="덕질하는오리"
               time="10분 전"
               text="저 갈게요! 굿즈 줄도 같이 서요"
-              acts={<><button>답글</button><button>신고</button></>}
+              acts={<button>신고</button>}
             />
             <Comment
               name="방장님"
               host
-              reply
               time="8분 전"
               text="좋아요, 비밀 댓글로 연락처 남겨주세요"
               /* 실제 화면에 수정은 없다. 여기에만 있으면 있는 기능으로 읽힌다 */

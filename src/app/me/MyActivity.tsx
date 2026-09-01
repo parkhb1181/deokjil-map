@@ -4,8 +4,8 @@
  * 내 활동 내역.
  *
  * 알림이 없어서 **사용자가 상태를 확인할 수 있는 유일한 경로**다.
- * 내 글에 댓글이 달렸는지, 내가 단 댓글에 답이 왔는지를 여기서만
- * 알 수 있다. 그래서 홈에서 한 번에 닿아야 한다.
+ * 내 글에 댓글이 달렸는지를 여기서만 알 수 있다. 그래서 홈에서
+ * 한 번에 닿아야 한다.
  *
  * 폴링은 하지 않는다. 화면에 들어올 때마다 다시 읽는다. 알림이
  * 없다고 계속 두드리면 서버만 힘들고 사용자는 어차피 화면을
@@ -36,8 +36,6 @@ type MyComment = {
   body: string
   secret: boolean
   created_at: string
-  /** 내 댓글에 답글이 달렸는지 */
-  replied: boolean
 }
 
 const POSTS: MyPost[] = [
@@ -67,7 +65,6 @@ const COMMENTS: MyComment[] = [
     body: '카톡 아이디 night_ticket 입니다',
     secret: true,
     created_at: '2026-08-30T09:40',
-    replied: true,
   },
   {
     id: 'c9',
@@ -76,7 +73,6 @@ const COMMENTS: MyComment[] = [
     body: '저도 갈 수 있을 것 같아요! 동선 공유해주실 수 있나요?',
     secret: false,
     created_at: '2026-08-30T18:12',
-    replied: false,
   },
 ]
 
@@ -169,10 +165,6 @@ export default function MyActivity() {
           <span>모집글 쓰기</span>
           <Caret />
         </Link>
-        <Link className="mymenu__row" href="/me/blocked">
-          <span>차단한 사람</span>
-          <Caret />
-        </Link>
         {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
             헤매므로 준비 중이라고 적어 둔다 */}
         <button type="button" className="mymenu__row" disabled>
@@ -235,7 +227,6 @@ export default function MyActivity() {
                   </p>
                   <p className="mine__sub meta">
                     <span>{whenShort(c.created_at)}</span>
-                    {c.replied && <em>답글 옴</em>}
                   </p>
                 </Link>
               </li>

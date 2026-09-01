@@ -138,6 +138,23 @@ export default function Page() {
               onChange={(e) => setField('query', e.target.value)}
               aria-label="검색"
             />
+
+            {/* 동행으로 나가는 입구. 여기 말고는 지도 앱에서 모집글로
+                가는 길이 없었다. 하단 탭에 넣지 않은 것은 그 셋이
+                같은 데이터(행사)를 다르게 보는 것이라, 성격이 다른
+                동행을 끼우면 넷 다 무슨 묶음인지 흐려지기 때문이다 */}
+            <a className="header__go" href="/p" aria-label="동행 모집글">
+              <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+                <path
+                  d="M4 6.5h16M4 12h16M4 17.5h10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>동행</span>
+            </a>
           </div>
         </header>
 

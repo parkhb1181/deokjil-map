@@ -57,7 +57,6 @@ const SHOTS = [
   ['welcome', '/welcome'],
   ['me', '/me'],
   ['me-edit', '/me/edit'],
-  ['me-blocked', '/me/blocked'],
   ['profile', '/u/u_host'],
   ['admin', '/admin15616'],
   ['terms', '/terms'],

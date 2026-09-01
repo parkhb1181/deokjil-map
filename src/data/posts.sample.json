@@ -27,7 +27,6 @@
   "comments": [
     {
       "id": "c1",
-      "parent_id": null,
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
@@ -41,7 +40,6 @@
     },
     {
       "id": "c2",
-      "parent_id": "c1",
       "author": {
         "id": "u_host",
         "nickname": "덕질하는오리",
@@ -55,7 +53,6 @@
     },
     {
       "id": "c3",
-      "parent_id": "c1",
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
@@ -69,7 +66,6 @@
     },
     {
       "id": "c4",
-      "parent_id": null,
       "author": {
         "id": "u_b",
         "nickname": "조용한덕후",
@@ -83,7 +79,6 @@
     },
     {
       "id": "c5",
-      "parent_id": null,
       "author": {
         "id": "u_c",
         "nickname": "지운사람",
@@ -97,7 +92,6 @@
     },
     {
       "id": "c6",
-      "parent_id": "c5",
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",

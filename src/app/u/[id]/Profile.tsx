@@ -11,19 +11,20 @@
  *   신원 → 신뢰 요약(매너온도) → 이 사람이 내놓은 것
  *
  * 매너온도 자리에 「같이 다닌 기록」을 둔다. 우리에겐 후기도 평점도
- * 없지만, 약속을 끝까지 가는지(완료율)·말이 통하는지(응답)·해본 적이
- * 있는지(동행 횟수)는 이미 DB 에 있는 사실에서 센다. 재거래희망률
- * 같은 비율은 만들지 않는다. 표본이 0~3 인데 비율로 적으면 거짓말이
- * 된다.
+ * 없지만, 약속을 끝까지 가는지(완료율)와 해본 적이 있는지(동행 횟수)는
+ * 이미 DB 에 있는 사실에서 센다. 재거래희망률 같은 비율은 만들지
+ * 않는다. 표본이 0~3 인데 비율로 적으면 거짓말이 된다.
  *
- * 신고·차단은 헤더의 더보기로 옮겼다. 본문에 나란히 두면 프로필을
- * 열자마자 "이 사람을 어떻게 처리할까" 가 먼저 보이고, 차단이 신고와
- * 같은 무게로 읽힌다.
+ * 「댓글 응답」도 있었는데 1차에서 뺐다. 답글이 없어지면서 어떤 댓글이
+ * 어떤 댓글에 대한 답인지 이을 방법이 없어져 셀 수가 없다.
+ *
+ * 신고는 헤더의 더보기에 있다. 본문에 두면 프로필을 열자마자 "이 사람을
+ * 어떻게 처리할까" 가 먼저 보인다.
  */
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
-import { Avatar, Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
+import { Avatar, Badge, Blank } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { swatchOf } from '@/lib/visual'
 import type { PostState } from '@/types'
@@ -58,10 +59,6 @@ export type ProfileData = {
    * 여기 걸린다. 서버가 채우며 아직 응답에 없다 (docs/FRONTEND.md)
    */
   last_seen_at?: string | null
-  /** 내 글에 달린 댓글에 답한 비율(0~100). 서버가 센다 */
-  reply_rate?: number | null
-  /** 보통 얼마 만에 답하는지. '하루 안에' 처럼 이미 다듬은 문구 */
-  reply_median?: string | null
   posts: ProfilePost[]
 }
 
@@ -99,7 +96,7 @@ function activeLabel(lastSeen: string, today: string) {
 export default function Profile({ user }: { user: ProfileData }) {
   /* 로그인이 없어 내 프로필인지 알 수 없다. 개발용으로 바꿔본다 */
   const [mine, setMine] = useState(false)
-  const [ask, setAsk] = useState<null | 'more' | 'report' | 'block'>(null)
+  const [ask, setAsk] = useState<null | 'report'>(null)
 
   /* 오늘 날짜는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드
      시각이라 그대로 쓰면 배포 다음날부터 "3일 이내" 가 어긋난다 */
@@ -140,13 +137,16 @@ export default function Profile({ user }: { user: ProfileData }) {
              자기 상태를 확인하는 유일한 화면으로 보낸다 */
           <Link className="btn btn--ghost btn--sm" href="/me">내 활동</Link>
         ) : (
-          /* 신고·차단은 여기 넣는다. 본문에 두면 프로필을 열자마자
-             사람을 어떻게 처리할지가 먼저 보인다 */
+          /* 신고는 여기 넣는다. 본문에 두면 프로필을 열자마자 사람을
+             어떻게 처리할지가 먼저 보인다.
+
+             차단을 뺀 뒤로 할 것이 신고 하나라 중간 메뉴를 없앴다.
+             한 줄짜리 메뉴는 누르는 횟수만 늘린다 */
           <button
             type="button"
             className="shell__more"
-            aria-label="더보기"
-            onClick={() => setAsk('more')}
+            aria-label="신고"
+            onClick={() => setAsk('report')}
           >
             <svg viewBox="0 0 20 20" aria-hidden focusable="false">
               <circle cx="10" cy="4" r="1.6" fill="currentColor" />
@@ -208,22 +208,6 @@ export default function Profile({ user }: { user: ProfileData }) {
                 {user.posts.length}개 중 {donePosts}개 완료
               </dd>
             </div>
-            {/* 채팅이 없어 댓글이 유일한 통로다. 답이 오는 사람인지가
-                당근의 응답률보다 여기서 더 중요하다. 서버가 셀 값이라
-                아직 안 온다 */}
-            {user.reply_rate != null && (
-              <div className="prof__fact">
-                <dt>댓글 응답</dt>
-                {/* 라벨이 이미 '댓글 응답' 이라 값에서 같은 말을 반복하지
-                    않는다. "받은 댓글에 100% 답함" 은 한 줄을 넘겼다 */}
-                <dd>
-                  {user.reply_rate}%
-                  {user.reply_median && (
-                    <span className="prof__factsub"> · 보통 {user.reply_median}</span>
-                  )}
-                </dd>
-              </div>
-            )}
           </dl>
         ) : (
           <p className="prof__none">
@@ -281,38 +265,8 @@ export default function Profile({ user }: { user: ProfileData }) {
         )}
       </section>
 
-      {ask === 'more' && (
-        <Sheet
-          title={`${user.nickname} 님`}
-          foot={<Button tone="ghost" onClick={() => setAsk(null)}>닫기</Button>}
-        >
-          <div className="menu">
-            <button type="button" className="menu__item" onClick={() => setAsk('report')}>
-              신고
-            </button>
-            <button type="button" className="menu__item" onClick={() => setAsk('block')}>
-              차단
-            </button>
-          </div>
-        </Sheet>
-      )}
-
       {ask === 'report' && (
         <ReportSheet target="user" name={user.nickname} onClose={() => setAsk(null)} />
-      )}
-
-      {ask === 'block' && (
-        <Sheet
-          title={`${user.nickname} 님을 차단할까요?`}
-          /* 차단은 양방향이다. 내가 안 보이는 만큼 나도 안 보인다 (SF-03) */
-          desc="서로의 글과 댓글이 보이지 않게 됩니다. 상대에게는 알리지 않아요. 설정에서 되돌릴 수 있습니다."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(null)}>취소</Button>
-              <Button tone="danger" onClick={() => setAsk(null)}>차단</Button>
-            </>
-          }
-        />
       )}
     </PageShell>
   )

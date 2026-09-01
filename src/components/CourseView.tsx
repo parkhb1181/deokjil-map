@@ -15,7 +15,7 @@ interface Props {
 }
 
 /**
- * 내 코스.
+ * 즐겨찾기.
  *
  * **지역으로 묶는다.** 담은 순서대로 나열하면 목록이 하나 더 생길 뿐이지만,
  * 지역으로 묶으면 "홍대에서 3곳, 성수에서 1곳"이 되어 그날의 동선이 보인다.
@@ -58,7 +58,7 @@ export default function CourseView({
   return (
     <div className="course">
       <div className="course__head">
-        <h2 className="course__title">내 코스</h2>
+        <h2 className="course__title">즐겨찾기</h2>
         <p className="course__count">
           {live.length}곳
           {ended.length > 0 && <span className="course__ended"> · 종료 {ended.length}</span>}
@@ -97,7 +97,7 @@ export default function CourseView({
                   type="button"
                   className="course__remove"
                   onClick={() => onToggleSave(ev)}
-                  aria-label={`${ev.subject} 코스에서 빼기`}
+                  aria-label={`${ev.subject} 즐겨찾기에서 빼기`}
                 >
                   빼기
                 </button>

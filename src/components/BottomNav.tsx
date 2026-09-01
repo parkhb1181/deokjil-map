@@ -26,7 +26,10 @@ const ICONS: Record<Tab, ReactNode> = {
 const TABS: { id: Tab; label: string }[] = [
   { id: 'browse', label: '목록' },
   { id: 'map', label: '지도' },
-  { id: 'course', label: '내 코스' },
+  /* 안쪽 이름은 course 로 둔다. 계측 이벤트(save_course)와 저장
+     키가 이 낱말을 쓰는데, 그건 poc-plan 7번 지표 표와 1:1 이라
+     보이는 이름 하나 때문에 건드리면 표가 어긋난다 */
+  { id: 'course', label: '즐겨찾기' },
 ]
 
 interface Props {

@@ -21,6 +21,11 @@ export interface KakaoLatLng {
   getLng(): number
 }
 
+/** 지도를 클릭했을 때 오는 것. 찍은 자리의 좌표가 들어 있다 */
+export interface KakaoMouseEvent {
+  latLng: KakaoLatLng
+}
+
 export interface KakaoMap {
   setCenter(latlng: KakaoLatLng): void
   getCenter(): KakaoLatLng
@@ -84,7 +89,14 @@ export interface KakaoNamespace {
     Size: new (w: number, h: number) => unknown
     Point: new (x: number, y: number) => unknown
     event: {
-      addListener(target: unknown, type: string, handler: () => void): void
+      /* 핸들러가 인자를 받는다. 지도 클릭('click')은 찍은 좌표를
+         넘겨주는데, 모집글 쓰기에서 만날 자리를 찍는 데 쓴다.
+         인자를 안 쓰는 기존 호출부도 그대로 들어맞는다 */
+      addListener(
+        target: unknown,
+        type: string,
+        handler: (e: KakaoMouseEvent) => void,
+      ): void
     }
   }
 }

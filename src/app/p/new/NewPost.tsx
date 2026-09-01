@@ -11,8 +11,9 @@
  * 틀렸다고 하면 쓰는 내내 혼나는 기분이 든다. 제출을 누른 뒤부터
  * 보여준다.
  *
- * 좌표는 받지 않는다 (Q-03). 장소는 글로 적고 서버가 지오코딩한다.
- * 성별·연령 조건도 받지 않는다. 조건이 필요하면 본문에 적는다.
+ * 장소는 글로 적고 지도에 핀을 찍는다. 핀은 선택이라 안 찍으면
+ * 서버가 적어준 글을 지오코딩한다 (Q-03).
+ * 성별·연령 조건은 받지 않는다. 조건이 필요하면 본문에 적는다.
  *
  * 묻는 것은 다섯뿐이다. 제목 · 내용 · 언제 · 어디서 · 몇 명.
  * 한때 일곱 칸이었는데 시각과 모집 마감이 따로 있었다. 시각은 날짜와
@@ -25,6 +26,7 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Button, Sheet } from '@/components/ui/Basics'
 import { Field, TextInput, TextArea, ChoiceChips } from '@/components/ui/Field'
 import { EventPicker, type PickableEvent } from '@/components/ui/EventPicker'
+import { PlacePicker, type Pin } from '@/components/ui/PlacePicker'
 
 type Form = {
   title: string
@@ -43,6 +45,16 @@ const EMPTY: Form = {
   place: '',
 }
 
+/**
+ * 고를 수 있는 인원. 나를 포함한 수다.
+ *
+ * 최대 6명이다. 그 위로는 동행이 아니라 모임이라 알아서 굴러가지
+ * 않는다. 만나서 서로 못 알아보고, 한 사람이 늦으면 다섯이 기다린다.
+ * 서버 검증도 이 값을 봐야 한다. 화면만 막으면 API 를 직접 부르면 그만이다.
+ */
+const CAPACITY = [2, 3, 4, 5, 6] as const
+const MAX_CAPACITY = CAPACITY[CAPACITY.length - 1]
+
 /** 화면과 서버가 같은 규칙을 봐야 한다. 서버에도 같은 검증이 있다 */
 function validate(f: Form) {
   const e: Partial<Record<keyof Form, string>> = {}
@@ -50,7 +62,11 @@ function validate(f: Form) {
   else if (f.title.length > 40) e.title = '40자를 넘었어요'
   if (!f.body.trim()) e.body = '어떤 동행인지 적어주세요'
   else if (f.body.length > 500) e.body = '500자를 넘었어요'
+  /* 칩으로만 고르게 해뒀지만 서버는 아무 값이나 받을 수 있다.
+     같은 규칙이 양쪽에 있어야 한다 */
   if (!f.capacity) e.capacity = '몇 명 모을지 골라주세요'
+  else if (!CAPACITY.includes(Number(f.capacity) as (typeof CAPACITY)[number]))
+    e.capacity = `${MAX_CAPACITY}명까지 모을 수 있어요`
   if (!f.meetAt) e.meetAt = '만나는 시간을 정해주세요'
   if (!f.place.trim()) e.place = '어디서 만날지 적어주세요'
   return e
@@ -62,6 +78,8 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
   /* 고른 행사. 필수가 아니다 — 콘서트처럼 우리 데이터에 없는 행사도
      있어서 안 고르고도 올릴 수 있어야 한다 (검증에 넣지 않는 이유) */
   const [event, setEvent] = useState<PickableEvent | null>(null)
+  /* 만날 자리. 안 찍으면 null 이고 서버가 place 를 지오코딩한다 */
+  const [pin, setPin] = useState<Pin | null>(null)
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
@@ -69,7 +87,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
   /* 한 글자라도 쓴 것이 있는가. 빈 폼에서 나갈 때는 경고하지 않는다.
      "쓰던 내용은 저장되지 않아요" 를 쓴 것도 없는 사람에게 띄우면
      묻지 않아도 될 것을 묻는 셈이다 */
-  const dirty = Object.values(f).some((v) => v.trim() !== '') || event !== null
+  const dirty = Object.values(f).some((v) => v.trim() !== '') || event !== null || pin !== null
 
   const errors = validate(f)
   const show = (k: keyof Form) => (tried ? errors[k] : undefined)
@@ -148,8 +166,18 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           />
         </Field>
 
-        {/* 좌표를 받지 않는다. 글로 적으면 서버가 지오코딩해 지도를 그린다 */}
-        <Field label="만나는 곳" error={show('place')}>
+        {/* 글과 핀을 같이 받는다. 핀은 "여기 어디쯤" 이고 글은
+            "성수역 3번 출구" 다. 핀만 있으면 도착해서도 서로 못 찾고,
+            글만 있으면 처음 가는 동네에서 그게 어디인지 모른다.
+
+            핀은 선택이다. 안 찍으면 서버가 적어준 글을 지오코딩해
+            채운다. 전에 하던 그대로라 핀이 생겼다고 못 쓰게 되는
+            글이 없다 (Q-03 을 이렇게 닫는다) */}
+        <Field
+          label="만나는 곳"
+          error={show('place')}
+          hint={pin ? '핀 찍은 자리로 지도를 그려요' : '핀을 안 찍으면 적어준 곳으로 표시해요'}
+        >
           <TextInput
             placeholder="성수역 3번 출구처럼 찾기 쉬운 곳"
             value={f.place}
@@ -157,13 +185,15 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           />
         </Field>
 
-        {/* 선택지가 넷뿐이라 드롭다운이 아니라 칩이다. 무엇을 고를 수
+        <PlacePicker pin={pin} label={f.place} onPick={setPin} />
+
+        {/* 선택지가 적어서 드롭다운이 아니라 칩이다. 무엇을 고를 수
             있는지가 열어보기 전에 보이고 한 번만 누르면 된다.
             당근도 거래 방식을 칩으로 둔다 */}
         <Field label="인원" error={show('capacity')} hint="나를 포함한 인원이에요">
           <ChoiceChips
             value={f.capacity}
-            options={[2, 3, 4, 5].map((n) => ({ value: String(n), label: `${n}명` }))}
+            options={CAPACITY.map((n) => ({ value: String(n), label: `${n}명` }))}
             onPick={set('capacity')}
           />
         </Field>

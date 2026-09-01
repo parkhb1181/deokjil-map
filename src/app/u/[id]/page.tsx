@@ -11,8 +11,8 @@ import Profile, { type ProfileData } from './Profile'
  * 색인 여부는 따로 정해야 한다. 지금은 가짜 데이터라 막아 둔다.
  */
 const USERS: Record<string, ProfileData> = {
-  /* 채울 것이 다 있는 사람. 서버가 아직 안 주는 세 값
-     (last_seen_at · reply_rate · district) 이 들어왔을 때의 모습이다 */
+  /* 채울 것이 다 있는 사람. 서버가 아직 안 주는 두 값
+     (last_seen_at · district) 이 들어왔을 때의 모습이다 */
   u_host: {
     id: 'u_host',
     nickname: '덕질하는오리',
@@ -21,8 +21,6 @@ const USERS: Record<string, ProfileData> = {
     done_count: 3,
     joined_at: '2026-06-11T00:00',
     last_seen_at: '2026-08-30T21:10',
-    reply_rate: 100,
-    reply_median: '하루 안에',
     posts: [
       {
         id: 'p1',

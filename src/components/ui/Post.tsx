@@ -119,10 +119,8 @@ export type CommentProps = {
   time: string
   /** 없으면 권한이 없어 서버가 지운 것으로 본다 */
   text?: string
-  /** 대댓글. 깊이는 1단계로 고정이라 이 아래로는 없다 */
-  reply?: boolean
   secret?: boolean
-  /** 삭제된 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
+  /** 삭제된 댓글. 본문만 지우고 자리는 남긴다 */
   gone?: boolean
   /** 방장 표시. 비밀 댓글을 볼 수 있는 사람이라 눈에 띄어야 한다 */
   host?: boolean
@@ -131,8 +129,8 @@ export type CommentProps = {
   acts?: ReactNode
 }
 
-export function Comment({ name, time, text, reply, secret, gone, host, src, acts }: CommentProps) {
-  const cls = ['cmt', reply && 'cmt--reply', gone && 'cmt--gone'].filter(Boolean).join(' ')
+export function Comment({ name, time, text, secret, gone, host, src, acts }: CommentProps) {
+  const cls = ['cmt', gone && 'cmt--gone'].filter(Boolean).join(' ')
 
   if (gone) {
     return (

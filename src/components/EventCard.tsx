@@ -109,7 +109,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
         type="button"
         className={`card__save ${saved ? 'card__save--on' : ''}`}
         aria-pressed={saved}
-        aria-label={`${event.subject} ${saved ? '코스에서 빼기' : '내 코스에 담기'}`}
+        aria-label={`${event.subject} ${saved ? '즐겨찾기에서 빼기' : '즐겨찾기에 담기'}`}
         onClick={() => save.toggle(event)}
       >
         {saved ? '♥' : '♡'}
