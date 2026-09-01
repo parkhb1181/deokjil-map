@@ -1633,3 +1633,171 @@
 .shell__right:has(.shell__more) {
   right: max(4px, calc((100% - var(--page-w)) / 2 + 4px));
 }
+
+/* ── 온보딩 색인 ──────────────────────────────────────────
+   팀에 화면을 보여줄 때 쓰는 목차. 서비스 화면이 아니라 문서에
+   가까워서 PageShell 을 쓰지 않는다. 뒤로 갈 곳이 없고, 헤더를
+   달면 이것도 화면 중 하나처럼 보인다.
+   ------------------------------------------------------- */
+
+.ob {
+  max-width: var(--page-w);
+  margin-inline: auto;
+  padding: 28px var(--gutter) 56px;
+}
+
+.ob__head { text-align: center; padding-bottom: 8px; }
+.ob__mark { display: block; margin: 0 auto 6px; }
+.ob__title {
+  font-size: var(--t-hero);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.ob__lead {
+  margin-top: 8px;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+/* 낱말 뜻풀이. 본문보다 한 단 낮춰 읽고 넘어가게 둔다 */
+.ob__note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  text-align: left;
+  color: var(--text-mute);
+}
+.ob__note b { color: var(--text); font-weight: 700; }
+
+.ob__sec { margin-top: 32px; }
+.ob__h {
+  font-size: var(--t-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.ob__seclead {
+  margin-top: 5px;
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+
+.ob__list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+
+/* 한 줄이 카드 하나다. 목록 행으로 하면 열여섯 개가 붙어 흘러
+   어디까지가 한 화면인지 눈으로 못 끊는다 */
+.ob__row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px var(--gutter);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: inherit;
+  text-decoration: none;
+}
+.ob__row:hover { border-color: var(--border-mid); background: var(--bg-sunk); }
+
+.ob__rowtop { display: flex; align-items: center; gap: 8px; }
+.ob__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.ob__desc { font-size: var(--t-sub); line-height: 1.55; color: var(--text-mute); }
+
+.ob__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+.ob__meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+.ob__spec { margin-left: auto; }
+
+/* 데이터 출처 표시. 색을 넷 다 다르게 주면 표가 알록달록해져서
+   정작 화면 이름이 안 읽힌다. 실데이터만 색을 갖고 나머지는 회색 */
+.ob__tag {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: var(--t-small);
+  font-weight: 600;
+  background: var(--bg-sunk);
+  color: var(--text-mute);
+}
+.ob__tag--real { background: var(--accent-soft); color: var(--accent-ink); }
+
+.ob__todo { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ob__todo li {
+  padding-left: 13px;
+  border-left: 2px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+.ob__todo b { color: var(--text); font-weight: 700; }
+
+.ob__docs {
+  margin-top: 16px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.ob__docs code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text-mute);
+}
+
+/* ── 차단 목록 ────────────────────────────────────────── */
+
+.blocked__lead {
+  padding: 14px var(--gutter);
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+  border-bottom: 1px solid var(--border);
+}
+.blocked { list-style: none; margin: 0; padding: 0; }
+.blocked__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--border);
+}
+.blocked__who { flex: 1; min-width: 0; color: inherit; text-decoration: none; }
+
+/* ── 약관·처리방침 자리 ────────────────────────────────── */
+
+.legal { padding: 24px var(--gutter) 40px; }
+.legal__lead { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.legal__body {
+  margin-top: 10px;
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.legal__h {
+  margin-top: 26px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+.legal__todo { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.legal__todo li {
+  padding-left: 13px;
+  border-left: 2px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.legal__back { margin-top: 28px; font-size: var(--t-sub); }

@@ -80,7 +80,7 @@ export default function Admin() {
     setReports((prev) => prev.map((r) => (r.id === id ? { ...r, done: true } : r)))
 
   /* 자동 제한이 걸린 건을 맨 위로. 야간·주말에 사람이 없어도
-     그것만은 먼저 보게 한다 (SF-05). 그 안에서는 최신순이다 —
+     그것만은 먼저 보게 한다 (SF-05). 그 안에서는 최신순이다.
      신고는 쌓이는 목록이라 순서를 안 정해두면 들어온 순서대로
      오래된 것이 위에 남는다 */
   const list = reports

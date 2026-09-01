@@ -79,7 +79,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
       {/* ── 입력 ─────────────────────────────────────── */}
       <Row
         title="입력"
-        note="기본 · 에러 · 비활성 · 글자수 · 선택 표시. iOS 확대를 막으려고 전부 16px. 별표(required)는 지금 쓰는 화면이 없다 — 한 폼의 2/3 이상이 필수면 선택인 칸에만 '선택'을 단다 (SCALE.md 「폼」)"
+        note="기본 · 에러 · 비활성 · 글자수 · 선택 표시. iOS 확대를 막으려고 전부 16px. 별표(required)는 지금 쓰는 화면이 없다. 한 폼의 2/3 이상이 필수면 선택인 칸에만 '선택'을 단다 (SCALE.md 「폼」)"
       >
         <Case label="기본">
           <Field label="닉네임" hint="2~10자, 나중에 바꿀 수 있어요">
@@ -251,7 +251,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
       {/* ── 행사 고르기 · 지도 ───────────────────────── */}
       <Row
         title="행사 고르기 · 지도"
-        note="쓰기 화면과 상세가 쓰는 조각. 지도는 카카오 키가 없으면 자리표시자로 떨어진다 — 배포에서는 진짜 지도가 같은 크기로 들어간다"
+        note="쓰기 화면과 상세가 쓰는 조각. 지도는 카카오 키가 없으면 자리표시자로 떨어진다. 배포에서는 진짜 지도가 같은 크기로 들어간다"
       >
         <Case label="접힘 · 검색 · 고른 뒤">
           <EventPicker all={events} picked={picked} onPick={setPicked} />
@@ -266,7 +266,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
       {/* ── 시트 ─────────────────────────────────────── */}
       <Row
         title="시트"
-        note="취소 사유 · 신고 · 삭제 확인이 전부 같은 모양을 쓴다. 신고는 실제 ReportSheet 다 — 대상마다 사유가 다르다"
+        note="취소 사유 · 신고 · 삭제 확인이 전부 같은 모양을 쓴다. 신고는 실제 ReportSheet 다. 대상마다 사유가 다르다"
       >
         <Case label="눌러보기">
           <div className="g-inline">

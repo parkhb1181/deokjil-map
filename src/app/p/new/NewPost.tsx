@@ -20,6 +20,7 @@
  * 보여줄 이유가 없었다.
  */
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Sheet } from '@/components/ui/Basics'
 import { Field, TextInput, TextArea, ChoiceChips } from '@/components/ui/Field'
@@ -56,6 +57,7 @@ function validate(f: Form) {
 }
 
 export default function NewPost({ events }: { events: PickableEvent[] }) {
+  const router = useRouter()
   const [f, setF] = useState<Form>(EMPTY)
   /* 고른 행사. 필수가 아니다 — 콘서트처럼 우리 데이터에 없는 행사도
      있어서 안 고르고도 올릴 수 있어야 한다 (검증에 넣지 않는 이유) */
@@ -82,8 +84,15 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
       return
     }
     setSending(true)
-    /* API 가 붙으면 여기서 POST 한다 */
-    setTimeout(() => setSending(false), 600)
+    /* API 가 붙으면 여기서 POST 하고, 응답이 준 id 로 그 글에 간다.
+       지금은 만들 수 없으니 목록으로 보낸다.
+
+       replace 다. push 면 뒤로가기가 방금 올린 폼으로 되돌아가고,
+       거기서 다시 올리면 같은 글이 두 번 올라간다 */
+    setTimeout(() => {
+      setSending(false)
+      router.replace('/p')
+    }, 600)
   }
 
   return (
@@ -177,7 +186,9 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           foot={
             <>
               <Button tone="ghost" onClick={() => setAsk(false)}>이어서 쓰기</Button>
-              <Button tone="danger" onClick={() => setAsk(false)}>그만두기</Button>
+              {/* 시트만 닫으면 그만둔 것이 아니라 쓰던 자리로 되돌아온다.
+                  물어놓고 아무것도 안 하는 셈이었다 */}
+              <Button tone="danger" onClick={() => history.back()}>그만두기</Button>
             </>
           }
         />

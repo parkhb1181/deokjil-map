@@ -14,6 +14,7 @@
  * 일어난다. 비밀 댓글이 연락처를 주고받는 유일한 통로다.
  */
 import { useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { CompanionPost, PostComment, Viewer, ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
@@ -84,6 +85,7 @@ export default function PostDetail({ post, comments, hostId }: {
   comments: PostComment[]
   hostId: string
 }) {
+  const router = useRouter()
   /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
      아래 whoami 막대를 지우고 서버 세션에서 채운다 */
   const [pick, setPick] = useState(3)
@@ -348,7 +350,15 @@ export default function PostDetail({ post, comments, hostId }: {
           foot={
             <>
               <Button tone="ghost" onClick={() => setAsk(null)}>나중에</Button>
-              <Button tone="kakao" onClick={() => setAsk(null)}>카카오로 시작하기</Button>
+              {/* 읽던 글을 next 로 들려 보낸다. 로그인과 가입을 마치면
+                  이 자리로 돌아온다. 홈으로 떨어뜨리면 방금 읽던 글을
+                  다시 찾아가야 하고, 대개는 그냥 나간다 */}
+              <Button
+                tone="kakao"
+                onClick={() => router.push(`/login?next=${encodeURIComponent(`/p/${post.id}`)}`)}
+              >
+                카카오로 시작하기
+              </Button>
             </>
           }
         />

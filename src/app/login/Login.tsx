@@ -14,11 +14,12 @@
  * 사람은 그 글로 돌아가야지 홈으로 떨어지면 다시 찾아가야 한다.
  */
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, KakaoMark } from '@/components/ui/Basics'
 
 export default function Login() {
+  const router = useRouter()
   const params = useSearchParams()
   /* 로그인 뒤 돌아갈 곳. 없으면 홈 */
   const next = params.get('next') ?? '/'
@@ -27,8 +28,15 @@ export default function Login() {
   const start = (provider: string) => {
     setBusy(provider)
     /* 인증이 붙으면 여기서 인가 코드를 받으러 나간다.
-       돌아올 때 next 를 그대로 들고 온다 */
-    setTimeout(() => setBusy(null), 700)
+       돌아올 때 next 를 그대로 들고 온다.
+
+       지금은 최초 로그인인 척하고 가입 정보 입력으로 넘긴다 (AU-01).
+       실제로는 서버가 그 값이 비었는지 보고 /welcome 과 next 중
+       하나로 보낸다. 이미 채운 사람에게 다시 묻지 않기 위해서다 */
+    setTimeout(() => {
+      setBusy(null)
+      router.push(`/welcome?next=${encodeURIComponent(next)}`)
+    }, 700)
   }
 
   return (

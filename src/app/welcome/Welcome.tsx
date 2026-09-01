@@ -14,6 +14,7 @@
  * 된다. 쓰지도 않을 것을 받아두면 유출됐을 때 잃을 것만 늘어난다.
  */
 import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button } from '@/components/ui/Basics'
 import { Field, TextInput, Select } from '@/components/ui/Field'
@@ -33,6 +34,10 @@ function checkNick(v: string) {
 }
 
 export default function Welcome() {
+  const router = useRouter()
+  /* 로그인 화면이 들고 온 목적지. 글을 읽다 로그인한 사람은 가입을
+     마치고 그 글로 돌아가야 한다. 없으면 홈 */
+  const next = useSearchParams().get('next') || '/'
   const [nick, setNick] = useState('')
   const [age, setAge] = useState('')
   const [tried, setTried] = useState(false)
@@ -89,7 +94,12 @@ export default function Welcome() {
     setSending(true)
     /* API 가 붙으면 여기서 PATCH 한다. 409 가 오면 setChecked 로
        그 이름을 쓰인 것으로 표시한다 */
-    setTimeout(() => setSending(false), 500)
+    setTimeout(() => {
+      setSending(false)
+      /* replace 다. push 면 뒤로가기가 방금 채운 가입 화면으로
+         되돌아가고, 거기서 또 뒤로 가면 로그인이 나온다 */
+      router.replace(next)
+    }, 500)
   }
 
   return (
@@ -101,18 +111,11 @@ export default function Welcome() {
           나중에 프로필에서 바꿀 수 있습니다.
         </p>
 
+        {/* 중복 확인은 입력칸 오른쪽에 붙인다. 지금 친 값을 두고
+            누르는 버튼이라 눈이 값에서 버튼으로 바로 넘어간다.
+            라벨 옆에 두면 값과 버튼 사이에 입력칸 하나가 끼어든다 */}
         <Field
           label="닉네임"
-          suffix={
-            <Button
-              size="sm"
-              tone="ghost"
-              disabled={!!formError || checking}
-              onClick={check}
-            >
-              {checking ? '확인 중…' : '중복 확인'}
-            </Button>
-          }
           error={shownError}
           /* 확인을 받았으면 그 결과가 안내를 대신한다 */
           hint={fresh?.free ? '쓸 수 있는 닉네임이에요' : '다른 사람에게 이렇게 보여요'}
@@ -123,6 +126,16 @@ export default function Welcome() {
             value={nick}
             onChange={(e) => setNick(e.target.value)}
             maxLength={12}
+            after={
+              <Button
+                size="sm"
+                tone="ghost"
+                disabled={!!formError || checking}
+                onClick={check}
+              >
+                {checking ? '확인 중…' : '중복 확인'}
+              </Button>
+            }
           />
         </Field>
 

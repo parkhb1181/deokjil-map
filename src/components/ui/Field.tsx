@@ -77,10 +77,21 @@ export function Field({ label, required, optional, suffix, error, hint, disabled
   )
 }
 
-export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
+export function TextInput({ after, ...rest }: InputHTMLAttributes<HTMLInputElement> & {
+  /**
+   * 입력칸 오른쪽에 붙는 것. 중복 확인처럼 **입력한 값에 대고 바로
+   * 누르는** 버튼을 둔다.
+   *
+   * 라벨 옆(Field 의 suffix)과 다른 자리다. 거기는 그 칸과 상관없이
+   * 늘 있는 보조 동작이고, 여기는 지금 친 값을 두고 하는 동작이다.
+   * 눈이 값에서 버튼으로 바로 넘어간다.
+   */
+  after?: ReactNode
+}) {
   return (
-    <span className="fld__box">
-      <input className="fld__input" {...props} />
+    <span className={`fld__box${after ? ' fld__box--after' : ''}`}>
+      <input className="fld__input" {...rest} />
+      {after && <span className="fld__after">{after}</span>}
     </span>
   )
 }

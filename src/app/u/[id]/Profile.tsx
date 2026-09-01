@@ -3,22 +3,48 @@
 /**
  * 공개 프로필.
  *
- * 낯선 사람을 만나기 전에 상대를 가늠하는 유일한 화면이다. 그런데
- * 보여줄 것이 별로 없다. 후기도 신뢰점수도 1차에 없고 성별·연령은
- * 노출하지 않기로 했다 (Q-02).
+ * 남의 프로필을 보는 화면이다. 답해야 하는 질문은 하나다 —
+ * **이 사람이랑 만나도 되나.**
  *
- * 남은 것은 셋이다. 닉네임 · 한줄소개 · 완료한 동행 횟수.
- * 부족하다는 것을 감추지 않고, 대신 그 사람이 쓴 글을 같이 보여준다.
- * 어떤 글을 쓰는 사람인지가 숫자보다 많은 것을 말해준다.
+ * 당근 중고거래 프로필의 순서를 따랐다. 거기도 낯선 사람을 만나기
+ * 전에 상대를 가늠하는 화면이라 하는 일이 같다.
+ *   신원 → 신뢰 요약(매너온도) → 이 사람이 내놓은 것
  *
- * 내 프로필이면 수정 버튼이, 남이면 신고·차단이 뜬다.
+ * 매너온도 자리에 「같이 다닌 기록」을 둔다. 우리에겐 후기도 평점도
+ * 없지만, 약속을 끝까지 가는지(완료율)·말이 통하는지(응답)·해본 적이
+ * 있는지(동행 횟수)는 이미 DB 에 있는 사실에서 센다. 재거래희망률
+ * 같은 비율은 만들지 않는다. 표본이 0~3 인데 비율로 적으면 거짓말이
+ * 된다.
+ *
+ * 신고·차단은 헤더의 더보기로 옮겼다. 본문에 나란히 두면 프로필을
+ * 열자마자 "이 사람을 어떻게 처리할까" 가 먼저 보이고, 차단이 신고와
+ * 같은 무게로 읽힌다.
  */
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
+import { swatchOf } from '@/lib/visual'
 import type { PostState } from '@/types'
+
+export type ProfilePost = {
+  id: string
+  title: string
+  state: PostState
+  meet_at: string
+  /**
+   * 만나는 구역. 모집글 자체에는 없고 붙은 행사에서 온다.
+   * 조인이라 서버가 채운다. 없으면 메타 줄에서 빠진다
+   */
+  district?: string | null
+  /**
+   * 붙은 행사의 대표 사진. 우리가 복제해 두지 않고 원본 서버 주소를
+   * 그대로 들고 있는다. 포스터는 저작물이다 (CLAUDE.md).
+   * 행사에 안 붙은 글도 있어서 없을 수 있다
+   */
+  image_url?: string | null
+}
 
 export type ProfileData = {
   id: string
@@ -27,7 +53,16 @@ export type ProfileData = {
   bio?: string | null
   done_count: number
   joined_at: string
-  posts: { id: string; title: string; state: PostState; meet_at: string }[]
+  /**
+   * 마지막 활동 시각. 알림이 없는 서비스라 "내 댓글을 볼 사람인가" 가
+   * 여기 걸린다. 서버가 채우며 아직 응답에 없다 (docs/FRONTEND.md)
+   */
+  last_seen_at?: string | null
+  /** 내 글에 달린 댓글에 답한 비율(0~100). 서버가 센다 */
+  reply_rate?: number | null
+  /** 보통 얼마 만에 답하는지. '하루 안에' 처럼 이미 다듬은 문구 */
+  reply_median?: string | null
+  posts: ProfilePost[]
 }
 
 function monthOf(iso: string) {
@@ -41,34 +76,110 @@ function whenShort(iso: string) {
   return `${Number(m)}/${Number(day)} ${t}`
 }
 
+/** 'YYYY-MM-DD' 두 개의 날짜 차이. 날짜만 있는 값이라 UTC 로 읽어 시차를 없앤다 */
+function daysBetween(from: string, to: string) {
+  const p = (s: string) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10))
+  return Math.round((p(to) - p(from)) / 86400000)
+}
+
+/**
+ * 마지막 활동을 사람이 읽는 말로. 정확한 시각을 적지 않는 이유는
+ * 그게 필요한 정보가 아니어서다. 알고 싶은 것은 "지금 연락이 닿나" 다.
+ */
+function activeLabel(lastSeen: string, today: string) {
+  const d = daysBetween(lastSeen.split('T')[0], today)
+  if (d <= 0) return '오늘 활동'
+  if (d === 1) return '어제 활동'
+  if (d <= 3) return '3일 이내 활동'
+  if (d <= 7) return '일주일 이내 활동'
+  if (d <= 30) return '한 달 이내 활동'
+  return '한 달 넘게 활동 없음'
+}
+
 export default function Profile({ user }: { user: ProfileData }) {
   /* 로그인이 없어 내 프로필인지 알 수 없다. 개발용으로 바꿔본다 */
   const [mine, setMine] = useState(false)
-  const [ask, setAsk] = useState<null | 'report' | 'block'>(null)
+  const [ask, setAsk] = useState<null | 'more' | 'report' | 'block'>(null)
+
+  /* 오늘 날짜는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드
+     시각이라 그대로 쓰면 배포 다음날부터 "3일 이내" 가 어긋난다 */
+  const [today, setToday] = useState('')
+  useEffect(() => {
+    const d = new Date()
+    const p = (n: number) => String(n).padStart(2, '0')
+    setToday(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
+  }, [])
+
+  const active = today && user.last_seen_at ? activeLabel(user.last_seen_at, today) : null
+
+  const donePosts = user.posts.filter((p) => p.state === 'done').length
+
+  /* 셀 것이 하나도 없으면 카드를 숫자로 채우지 않는다. 처음 온 사람에게
+     "완료율 0%" 를 보여주면 그건 정보가 아니라 낙인이다 */
+  const hasRecord = user.done_count > 0 || user.posts.length > 0
+
+  /* 진행 중인 것이 먼저다. 그 안에서는 만나는 날이 가까운 순,
+     끝난 것은 최근 것부터 */
+  const posts = useMemo(
+    () =>
+      [...user.posts].sort((a, b) => {
+        if (a.state !== b.state) return a.state === 'open' ? -1 : 1
+        return a.state === 'open'
+          ? a.meet_at < b.meet_at ? -1 : 1
+          : a.meet_at < b.meet_at ? 1 : -1
+      }),
+    [user.posts],
+  )
 
   return (
-    <PageShell title="프로필">
+    <PageShell
+      title="프로필"
+      right={
+        mine ? (
+          /* 프로필 수정 화면은 1차에 없다 (화면 목록 12개에 없음).
+             자기 상태를 확인하는 유일한 화면으로 보낸다 */
+          <Link className="btn btn--ghost btn--sm" href="/me">내 활동</Link>
+        ) : (
+          /* 신고·차단은 여기 넣는다. 본문에 두면 프로필을 열자마자
+             사람을 어떻게 처리할지가 먼저 보인다 */
+          <button
+            type="button"
+            className="shell__more"
+            aria-label="더보기"
+            onClick={() => setAsk('more')}
+          >
+            <svg viewBox="0 0 20 20" aria-hidden focusable="false">
+              <circle cx="10" cy="4" r="1.6" fill="currentColor" />
+              <circle cx="10" cy="10" r="1.6" fill="currentColor" />
+              <circle cx="10" cy="16" r="1.6" fill="currentColor" />
+            </svg>
+          </button>
+        )
+      }
+    >
       <div className="whoami">
         <b>보는 사람</b>
         <button aria-pressed={!mine} onClick={() => setMine(false)}>남</button>
         <button aria-pressed={mine} onClick={() => setMine(true)}>나</button>
       </div>
 
-      {/* 당근 중고거래 상세의 판매자 행과 같은 배치다. 아바타가 왼쪽,
-          이름과 숫자가 그 오른쪽. 가운데 정렬을 쓰지 않는 이유는 다른
-          화면이 전부 왼쪽에서 시작하기 때문이다 */}
+      {/* 신원. 당근 중고거래 상세의 판매자 행과 같은 배치다.
+          아바타가 왼쪽, 이름과 숫자가 그 오른쪽 */}
       <header className="prof">
         <div className="prof__id">
-          {/* 크기는 .prof .avatar 가 56px 로 정한다. lg(48px)를 같이
-              주면 어느 쪽이 실제 크기인지 두 군데를 봐야 알 수 있다 */}
+          {/* 크기는 .prof .avatar 가 56px 로 정한다 */}
           <Avatar name={user.nickname} src={user.image_url ?? undefined} />
           <div className="prof__idmain">
             <h1 className="prof__name">{user.nickname}</h1>
 
-            {/* 보여줄 숫자가 이것 하나뿐이다. 크게 부풀리지 않는다 */}
             <p className="prof__meta meta">
-              <span>동행 {user.done_count}회</span>
-              <span>{monthOf(user.joined_at)}부터</span>
+              {/* 0 회를 '동행 0회' 로 적지 않는다. 모집글 상세의 글쓴이
+                  줄(Who)이 이미 '첫 동행' 이라 같은 사실을 두 화면이
+                  다르게 말하게 된다 */}
+              <span>{user.done_count > 0 ? `동행 ${user.done_count}회` : '첫 동행'}</span>
+              {/* 활동 시각은 서버가 아직 안 준다. 없으면 칸이 하나 준다 */}
+              {active && <span>{active}</span>}
+              <span>{monthOf(user.joined_at)} 가입</span>
             </p>
           </div>
         </div>
@@ -78,45 +189,113 @@ export default function Profile({ user }: { user: ProfileData }) {
         ) : (
           <p className="prof__bio prof__bio--none">소개가 아직 없어요</p>
         )}
-
-        <div className="prof__acts">
-          {mine ? (
-            /* 프로필 수정 화면은 1차에 없다 (화면 목록 12개에 없음).
-               갈 곳 없는 버튼을 두는 대신 알림이 없는 서비스에서
-               자기 상태를 확인하는 유일한 화면으로 보낸다 */
-            <Link className="btn btn--ghost btn--sm" href="/me">내 활동</Link>
-          ) : (
-            <>
-              <Button size="sm" tone="ghost" onClick={() => setAsk('report')}>신고</Button>
-              <Button size="sm" tone="ghost" onClick={() => setAsk('block')}>차단</Button>
-            </>
-          )}
-        </div>
       </header>
 
-      <section className="prof__posts">
-        <h2 className="prof__h2">쓴 모집글</h2>
+      {/* 당근의 매너온도 자리. 게이지 하나로 뭉뚱그리지 않고
+          무엇을 보고 그렇게 말하는지 그대로 적는다 */}
+      <section className="prof__record">
+        <h2 className="prof__h2">같이 다닌 기록</h2>
 
-        {user.posts.length === 0 ? (
+        {hasRecord ? (
+          <dl className="prof__facts">
+            <div className="prof__fact">
+              <dt>완료한 동행</dt>
+              <dd>{user.done_count}회</dd>
+            </div>
+            <div className="prof__fact">
+              <dt>모집글</dt>
+              <dd>
+                {user.posts.length}개 중 {donePosts}개 완료
+              </dd>
+            </div>
+            {/* 채팅이 없어 댓글이 유일한 통로다. 답이 오는 사람인지가
+                당근의 응답률보다 여기서 더 중요하다. 서버가 셀 값이라
+                아직 안 온다 */}
+            {user.reply_rate != null && (
+              <div className="prof__fact">
+                <dt>댓글 응답</dt>
+                {/* 라벨이 이미 '댓글 응답' 이라 값에서 같은 말을 반복하지
+                    않는다. "받은 댓글에 100% 답함" 은 한 줄을 넘겼다 */}
+                <dd>
+                  {user.reply_rate}%
+                  {user.reply_median && (
+                    <span className="prof__factsub"> · 보통 {user.reply_median}</span>
+                  )}
+                </dd>
+              </div>
+            )}
+          </dl>
+        ) : (
+          <p className="prof__none">
+            아직 동행 기록이 없어요. 첫 동행을 같이 해보세요
+          </p>
+        )}
+      </section>
+
+      <section className="prof__posts">
+        <h2 className="prof__h2">
+          쓴 모집글 {user.posts.length > 0 && <span className="prof__count">{user.posts.length}</span>}
+        </h2>
+
+        {posts.length === 0 ? (
           <Blank title="아직 쓴 글이 없어요" art={false} />
         ) : (
+          /* 전체 보기를 두지 않고 다 편다. 한 사람이 쓰는 모집글은
+             당근의 판매물품처럼 열 개씩 쌓이지 않는다. 잘라두면
+             갈 곳 없는 '전체 보기' 만 하나 생긴다 */
           <ul className="mine">
-            {user.posts.map((p) => (
-              <li key={p.id}>
-                <Link href={`/p/${p.id}`} className="mine__row">
-                  <p className="mine__title">
-                    {p.state === 'done' && <Badge state={p.state} />}
-                    {p.title}
-                  </p>
-                  <p className="mine__sub meta">
-                    <span>{whenShort(p.meet_at)}</span>
-                  </p>
-                </Link>
-              </li>
-            ))}
+            {posts.map((p) => {
+              const sw = swatchOf(p.title)
+              return (
+                <li key={p.id}>
+                  <Link href={`/p/${p.id}`} className="mine__row mine__row--thumb">
+                    {/* 어느 행사인지 글자보다 먼저 알려준다. 사진이 없는
+                        글에 회색 네모를 두면 안 불러와진 것처럼 보여서
+                        제목에서 뽑은 색을 깐다 (lib/visual.ts) */}
+                    {p.image_url ? (
+                      <img className="mine__thumb" src={p.image_url} alt="" loading="lazy" />
+                    ) : (
+                      <span
+                        className="mine__thumb"
+                        style={{ background: `linear-gradient(150deg, ${sw.from}, ${sw.to})` }}
+                        aria-hidden
+                      />
+                    )}
+
+                    <div className="mine__main">
+                      <p className="mine__title">
+                        {p.state === 'done' && <Badge state={p.state} />}
+                        {p.title}
+                      </p>
+                      {/* .meta 순서는 어디서 → 언제다 (SCALE.md) */}
+                      <p className="mine__sub meta">
+                        {p.district && <span>{p.district}</span>}
+                        <span>{whenShort(p.meet_at)}</span>
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         )}
       </section>
+
+      {ask === 'more' && (
+        <Sheet
+          title={`${user.nickname} 님`}
+          foot={<Button tone="ghost" onClick={() => setAsk(null)}>닫기</Button>}
+        >
+          <div className="menu">
+            <button type="button" className="menu__item" onClick={() => setAsk('report')}>
+              신고
+            </button>
+            <button type="button" className="menu__item" onClick={() => setAsk('block')}>
+              차단
+            </button>
+          </div>
+        </Sheet>
+      )}
 
       {ask === 'report' && (
         <ReportSheet target="user" name={user.nickname} onClose={() => setAsk(null)} />

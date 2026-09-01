@@ -129,6 +129,9 @@ export default function MyActivity() {
           사진을 누르면 바로 고를 수 있다. 수정 화면에 들어가야만 바꿀
           수 있으면 아바타가 기본값인 채로 남는 사람이 많아진다 */}
       <header className="myid">
+        {/* 사진이 가운데다. 이름과 나란히 두면 목록 행처럼 읽혀 내
+            프로필이 아니라 남의 목록 한 줄로 보인다. 당근도 프로필
+            화면에서 사진을 가운데 크게 둔다 */}
         <label className="myid__pic">
           <Avatar name={ME.nickname} src={ME.image_url} lg />
           <span className="myid__cam" aria-hidden>
@@ -153,25 +156,23 @@ export default function MyActivity() {
           </p>
         </div>
 
-        <Link className="btn btn--ghost btn--sm" href={`/u/${ME.id}`}>
+        {/* 수정 화면으로 간다. 전에는 공개 프로필로 보냈는데 그건
+            남에게 보이는 화면이라 고칠 수가 없었다 */}
+        <Link className="btn btn--ghost btn--sm" href="/me/edit">
           프로필 수정
         </Link>
       </header>
 
       {/* 마이페이지에서 찾게 되는 것들. 여기 없으면 어디에도 없다 */}
       <nav className="mymenu">
-        <Link className="mymenu__row" href={`/u/${ME.id}`}>
-          <span>남에게 보이는 내 프로필</span>
-          <Caret />
-        </Link>
         <Link className="mymenu__row" href="/p/new">
           <span>모집글 쓰기</span>
           <Caret />
         </Link>
-        <button type="button" className="mymenu__row">
+        <Link className="mymenu__row" href="/me/blocked">
           <span>차단한 사람</span>
           <Caret />
-        </button>
+        </Link>
         {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
             헤매므로 준비 중이라고 적어 둔다 */}
         <button type="button" className="mymenu__row" disabled>
