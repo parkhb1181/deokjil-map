@@ -103,7 +103,7 @@ function TalkMark() {
 /* ── 댓글 ─────────────────────────────────────────────── */
 
 /** 이모티콘은 기기마다 모양이 달라 톤이 흐트러진다. 직접 그린다 */
-function LockMark() {
+export function LockMark() {
   return (
     <svg className="cmt__lockmark" viewBox="0 0 12 12" aria-hidden focusable="false">
       <path
@@ -133,9 +133,31 @@ export type CommentProps = {
   /** 프로필 사진. 없으면 닉네임 첫 글자에 색을 깐다 */
   src?: string
   acts?: ReactNode
+  /**
+   * 고치는 중이면 본문 자리에 이걸 그린다.
+   *
+   * 입력칸을 맨 아래 칸에서 빌려 쓰지 않는 이유는, 그 칸이 새 댓글과
+   * 답글을 이미 쓰고 있어서다. 고치는 중인데 새 댓글로 착각하면
+   * 원래 것이 그대로 남는다. 고치는 것은 그 자리에서 보여야 한다.
+   */
+  edit?: ReactNode
+  /** 고친 적 있는 댓글. 답글이 달린 뒤 말이 바뀌면 읽는 쪽이 알아야 한다 */
+  edited?: boolean
 }
 
-export function Comment({ name, time, text, reply, secret, gone, host, src, acts }: CommentProps) {
+export function Comment({
+  name,
+  time,
+  text,
+  reply,
+  secret,
+  gone,
+  host,
+  src,
+  acts,
+  edit,
+  edited,
+}: CommentProps) {
   const cls = ['cmt', reply && 'cmt--reply', gone && 'cmt--gone'].filter(Boolean).join(' ')
 
   if (gone) {
@@ -161,15 +183,21 @@ export function Comment({ name, time, text, reply, secret, gone, host, src, acts
             </span>
           )}
           <span className="cmt__time">{time}</span>
+          {edited && <span className="cmt__edited">수정됨</span>}
         </div>
-        {/* 권한이 없으면 서버 응답에 본문 필드 자체가 없다.
-            여기서 가리는 게 아니라 애초에 오지 않는다 */}
-        {text ? (
+        {/* 고치는 중에는 본문 대신 입력칸이 그 자리에 온다 */}
+        {edit ? (
+          edit
+        ) : /* 권한이 없으면 서버 응답에 본문 필드 자체가 없다.
+               여기서 가리는 게 아니라 애초에 오지 않는다 */
+        text ? (
           <p className="cmt__text">{text}</p>
         ) : (
           <p className="cmt__hidden">비밀 댓글입니다</p>
         )}
-        {acts && <div className="cmt__acts">{acts}</div>}
+        {/* 고치는 중에는 답글·삭제를 감춘다. 저장하지 않은 채 다른
+            데로 새면 고치던 내용이 조용히 사라진다 */}
+        {acts && !edit && <div className="cmt__acts">{acts}</div>}
       </div>
     </div>
   )

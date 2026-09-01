@@ -20,7 +20,7 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
 import { ReportSheet } from '@/components/ui/ReportSheet'
-import { Comment } from '@/components/ui/Post'
+import { Comment, LockMark } from '@/components/ui/Post'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
@@ -98,6 +98,10 @@ export default function PostDetail({ post, comments, hostId }: {
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
   /* 방금 내가 지운 댓글. API 가 붙으면 서버가 deleted 로 내려주므로 없어진다 */
   const [erased, setErased] = useState<string[]>([])
+  /* 방금 내가 고친 댓글. 위와 같은 이유로 임시다 */
+  const [edited, setEdited] = useState<Record<string, string>>({})
+  /** 지금 고치고 있는 댓글. null 이면 아무것도 안 고치는 중 */
+  const [editing, setEditing] = useState<{ id: string; draft: string } | null>(null)
   const boxRef = useRef<HTMLTextAreaElement>(null)
   /* 'report' 는 모집글 신고, 'report-comment' 는 댓글 신고다. 하나로
      묶어 뒀더니 댓글의 신고를 눌러도 모집글 신고 시트가 떴다.
@@ -112,14 +116,19 @@ export default function PostDetail({ post, comments, hostId }: {
 
   /* 서버가 보냈을 모습으로 만든 뒤 계층 정렬한다. API 가 붙으면
      asServerWouldSend 만 빠지고 나머지는 그대로다 */
-  const list = useMemo(
-    () =>
-      threaded(asServerWouldSend(comments, viewer, hostId)).map((c) =>
-        /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
-        erased.includes(c.id) ? { ...c, deleted: true } : c,
-      ),
-    [comments, viewer.userId, hostId, erased],
-  )
+  const list = useMemo(() => {
+    /* 고친 본문을 먼저 갈아끼운다. **반드시 권한 필터보다 앞이어야
+       한다.** 뒤에 놓으면 서버가 지운 body 를 화면이 도로 끼워넣는
+       꼴이 되어, 비밀 댓글이 볼 권한 없는 사람에게 열린다.
+       secret 은 건드리지 않는다. 작성 후 비밀 여부는 못 바꾼다
+       (명세 CM-03·CM-09) */
+    const mine = comments.map((c) => (c.id in edited ? { ...c, body: edited[c.id] } : c))
+
+    return threaded(asServerWouldSend(mine, viewer, hostId)).map((c) =>
+      /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
+      erased.includes(c.id) ? { ...c, deleted: true } : c,
+    )
+  }, [comments, viewer.userId, hostId, erased, edited])
 
   /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
      칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
@@ -134,7 +143,20 @@ export default function PostDetail({ post, comments, hostId }: {
     setErased((prev) => [...prev, id])
     /* 지운 댓글에 답글을 쓰고 있었다면 그 자리도 같이 접는다 */
     setReplyTo((r) => (r?.id === id ? null : r))
+    /* 고치던 중에 지웠다면 입력칸도 접는다 */
+    setEditing((e) => (e?.id === id ? null : e))
     setAsk(null)
+  }
+
+  /* 고치기는 본문만 바꾼다. 비밀 여부는 작성 후 못 바꾼다 (CM-03).
+     그래서 여기에 체크박스가 없다. 비밀 댓글도 본문은 고칠 수 있다 */
+  const saveEdit = () => {
+    if (!editing) return
+    const body = editing.draft.trim()
+    if (!body || body.length > 500) return
+    /* 아직 API 가 없다. 붙으면 PATCH 하고 목록을 다시 읽는다 */
+    setEdited((prev) => ({ ...prev, [editing.id]: body }))
+    setEditing(null)
   }
 
   const submit = () => {
@@ -262,6 +284,46 @@ export default function PostDetail({ post, comments, hostId }: {
               secret={c.secret}
               gone={c.deleted}
               host={c.author.id === hostId}
+              edited={c.id in edited}
+              edit={
+                editing?.id === c.id ? (
+                  <div className="cmt__edit">
+                    <Field>
+                      <TextArea
+                        autoFocus
+                        value={editing.draft}
+                        onChange={(e) => setEditing({ id: c.id, draft: e.target.value })}
+                        rows={2}
+                        placeholder="댓글을 고쳐보세요"
+                      />
+                    </Field>
+                    <div className="cmt__editopts">
+                      {/* 비밀 여부는 여기서 못 바꾼다. 공개로 바꾸면
+                          비밀인 줄 알고 적은 연락처가 그대로 열린다 */}
+                      {c.secret && (
+                        <span className="cmt__lock">
+                          <LockMark />비밀 유지
+                        </span>
+                      )}
+                      <span
+                        className={`write__count${editing.draft.length > 500 ? ' write__count--over' : ''}`}
+                      >
+                        {editing.draft.length}/500
+                      </span>
+                      <Button size="sm" tone="ghost" onClick={() => setEditing(null)}>
+                        취소
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={!editing.draft.trim() || editing.draft.length > 500}
+                        onClick={saveEdit}
+                      >
+                        저장
+                      </Button>
+                    </div>
+                  </div>
+                ) : undefined
+              }
               acts={
                 c.deleted ? undefined : (
                   <>
@@ -271,9 +333,16 @@ export default function PostDetail({ post, comments, hostId }: {
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
                     {c.author.id === viewer.userId ? (
-                      /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
-                         한 번 묻는다 */
-                      <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                      <>
+                        {/* 비밀 댓글도 본문은 고칠 수 있다. 못 바꾸는
+                            것은 비밀 여부뿐이다 (CM-09) */}
+                        <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
+                          수정
+                        </button>
+                        {/* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
+                            한 번 묻는다 */}
+                        <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                      </>
                     ) : (
                       <button onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report-comment' }))}>
                         신고

@@ -445,6 +445,24 @@
 /* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
 .cmt__hidden { font-size: var(--t-sub); color: var(--text-mute); font-style: italic; }
 
+/* ── 댓글 수정 (CM-09) ───────────────────────────────────
+   고치는 것은 그 자리에서 일어난다. 맨 아래 입력칸을 빌려 쓰면
+   새 댓글을 쓰는 것과 구분이 안 된다.
+   ------------------------------------------------------- */
+
+/* 작성 시각 옆. 시각과 같은 무게로 두어 본문을 읽는 눈을 막지 않는다 */
+.cmt__edited { font-size: var(--t-small); color: var(--text-mute); }
+
+.cmt__edit { display: flex; flex-direction: column; gap: 8px; }
+
+.cmt__editopts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* 글자수를 버튼 쪽으로 밀어 붙인다. 자물쇠는 왼쪽에 남는다 */
+.cmt__editopts .write__count { margin-left: auto; }
+
 /* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
 .cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
 
