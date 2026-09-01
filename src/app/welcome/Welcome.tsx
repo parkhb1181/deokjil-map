@@ -9,9 +9,9 @@
  * 이걸 채우기 전에는 글쓰기와 댓글이 막힌다 (AU-07). 막는 것은
  * 서버 인터셉터다. 화면에서만 막으면 API 를 직접 부르면 그만이다.
  *
- * 성별을 받을지는 아직 안 정했다. 참여 조건(PO-04)을 빼기로 하면서
- * 성별을 쓸 데가 없어졌고, 남는 이유는 미성년 차단(Q-05) 하나인데
- * 그건 연령만으로 된다. 지금은 넣어두되 지우기 쉽게 한 덩어리로 뒀다.
+ * **성별은 받지 않는다.** 참여 조건을 두지 않기로 하면서 성별로
+ * 거를 일이 없어졌다. 남은 이유는 미성년 차단 하나인데 그건 연령만으로
+ * 된다. 쓰지도 않을 것을 받아두면 유출됐을 때 잃을 것만 늘어난다.
  */
 import { useState } from 'react'
 import { PageShell } from '@/components/ui/PageShell'
@@ -35,7 +35,6 @@ function checkNick(v: string) {
 export default function Welcome() {
   const [nick, setNick] = useState('')
   const [age, setAge] = useState('')
-  const [gender, setGender] = useState('')
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
   /* 서버가 409 를 주면 여기 담는다. 사전 조회만으로는 동시 가입 시
@@ -69,7 +68,6 @@ export default function Welcome() {
 
         <Field
           label="닉네임"
-          required
           error={tried ? nickError : undefined}
           hint="다른 사람에게 이렇게 보여요"
           count={[nick.trim().length, 10]}
@@ -87,22 +85,14 @@ export default function Welcome() {
           />
         </Field>
 
-        {/* 성별과 연령대. 참여 조건을 빼면서 성별은 쓸 데가 없어졌다.
-            지우기로 정해지면 이 묶음에서 성별 칸만 들어내면 된다 */}
-        <Field label="연령대" required error={tried ? ageError : undefined}>
+        {/* 미성년을 빼기로 한 기본값을 따른다. 허용으로 바뀌면
+            AGES 에 줄을 더한다 */}
+        <Field label="연령대" error={tried ? ageError : undefined}>
           <Select value={age} onChange={(e) => setAge(e.target.value)}>
             <option value="" disabled>골라주세요</option>
             {AGES.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
-          </Select>
-        </Field>
-
-        <Field label="성별" hint="지금은 아무 데도 쓰지 않아요. 넣을지 논의 중입니다">
-          <Select value={gender} onChange={(e) => setGender(e.target.value)}>
-            <option value="">고르지 않음</option>
-            <option value="f">여성</option>
-            <option value="m">남성</option>
           </Select>
         </Field>
 

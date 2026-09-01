@@ -67,7 +67,7 @@ export function ReportSheet({ target, name, onClose }: {
         </>
       }
     >
-      <Field label="사유" required error={tried && !reason ? '사유를 골라주세요' : undefined}>
+      <Field label="사유" error={tried && !reason ? '사유를 골라주세요' : undefined}>
         <Select value={reason} onChange={(e) => setReason(e.target.value)}>
           <option value="" disabled>골라주세요</option>
           {reasons.map((r) => (
@@ -78,6 +78,7 @@ export function ReportSheet({ target, name, onClose }: {
 
       <Field
         label="자세히"
+        optional
         hint="적어주시면 처리가 빨라져요"
         count={[detail.length, 300]}
       >

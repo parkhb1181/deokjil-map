@@ -107,7 +107,7 @@ export function EventPicker({ all, picked, onPick }: {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="epick__label">어디 가는 행사인가요?</span>
+        <span className="epick__label">가는 행사</span>
         <span className="epick__hint">{open ? '접기' : '고르기'}</span>
         <svg className="epick__caret" viewBox="0 0 16 16" aria-hidden focusable="false">
           <path

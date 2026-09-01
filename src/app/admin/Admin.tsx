@@ -132,11 +132,11 @@ export default function Admin() {
             행사는 여기서 넣어야 목록에 뜹니다.
           </p>
 
-          <Field label="행사명" required>
+          <Field label="행사명">
             <TextInput placeholder="아이유 단독 콘서트" />
           </Field>
 
-          <Field label="종류" required>
+          <Field label="종류">
             <Select defaultValue="">
               <option value="" disabled>골라주세요</option>
               <option value="birthday_cafe">생일카페</option>
@@ -145,15 +145,15 @@ export default function Admin() {
             </Select>
           </Field>
 
-          <Field label="장소" required hint="주소를 적으면 좌표는 서버가 찾습니다">
+          <Field label="장소" hint="주소를 적으면 좌표는 서버가 찾습니다">
             <TextInput placeholder="서울 송파구 올림픽로 25 잠실 주경기장" />
           </Field>
 
           <div className="form__row">
-            <Field label="시작일" required>
+            <Field label="시작일">
               <TextInput type="date" />
             </Field>
-            <Field label="종료일" required>
+            <Field label="종료일">
               <TextInput type="date" />
             </Field>
           </div>
@@ -162,7 +162,6 @@ export default function Admin() {
               올리지 않는다 (CLAUDE.md) */}
           <Field
             label="원문 주소"
-            required
             hint="주최자·운영사의 실제 공지여야 합니다. 리스팅 사이트 주소를 넣지 마세요"
           >
             <TextInput placeholder="https://" />
@@ -185,14 +184,14 @@ export default function Admin() {
             </>
           }
         >
-          <Field label="수위" required>
+          <Field label="수위">
             <Select defaultValue="warn">
               <option value="warn">경고</option>
               <option value="7d">7일 정지</option>
               <option value="forever">영구 정지</option>
             </Select>
           </Field>
-          <Field label="사유" required hint="본인에게 보이는 문구입니다">
+          <Field label="사유" hint="본인에게 보이는 문구입니다">
             <TextArea placeholder="어떤 규칙을 어겼는지 적어주세요" rows={3} />
           </Field>
         </Sheet>

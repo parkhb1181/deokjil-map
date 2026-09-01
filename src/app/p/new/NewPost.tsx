@@ -64,6 +64,11 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
 
+  /* 한 글자라도 쓴 것이 있는가. 빈 폼에서 나갈 때는 경고하지 않는다.
+     "쓰던 내용은 저장되지 않아요" 를 쓴 것도 없는 사람에게 띄우면
+     묻지 않아도 될 것을 묻는 셈이다 */
+  const dirty = Object.values(f).some((v) => v.trim() !== '') || event !== null
+
   const errors = validate(f)
   const show = (k: keyof Form) => (tried ? errors[k] : undefined)
   const set = (k: keyof Form) => (v: string) => setF((p) => ({ ...p, [k]: v }))
@@ -88,7 +93,11 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             글쓰기에서 카테고리를 맨 위에서 고른다 */}
         <EventPicker all={events} picked={event} onPick={setEvent} />
 
-        <Field label="제목" required error={show('title')} count={[f.title.length, 40]}>
+        {/* 별표를 칸마다 달지 않는 대신 여기서 한 번 말한다. 다섯 칸이
+            전부 필수라 별표 다섯 개는 아무것도 구분해주지 못한다 */}
+        <p className="form__lead">아래 다섯 가지를 모두 적어야 올릴 수 있어요.</p>
+
+        <Field label="제목" error={show('title')} count={[f.title.length, 40]}>
           <TextInput
             placeholder="에이티즈 팝업 오픈런 같이 하실 분"
             value={f.title}
@@ -98,12 +107,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
         {/* 안내를 힌트 줄로 빼지 않고 placeholder 안에 넣었다. 칸마다
             힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
-        <Field
-          label="어떤 동행인가요"
-          required
-          error={show('body')}
-          count={[f.body.length, 500]}
-        >
+        <Field label="내용" error={show('body')} count={[f.body.length, 500]}>
           <TextArea
             placeholder={'혼자 가려니 막막해서 같이 가실 분 찾아요.\n\n몇 시에 만나서 무엇을 할지, 연락은 어떻게 받을지 적으면 사람이 더 잘 모여요. 연락처는 비밀 댓글로 받아도 좋아요.'}
             value={f.body}
@@ -122,12 +126,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             기본값이 곧 정답인 칸을 하나 더 보여준 셈이다. 만나는 날이
             지나면 아무도 못 오므로 마감은 만나는 날이다. 서버가
             closes_at 을 meet_at 으로 채운다 */}
-        <Field
-          label="언제 만나요"
-          required
-          error={show('meetAt')}
-          hint="모집은 이 날까지 받아요"
-        >
+        <Field label="만나는 때" error={show('meetAt')} hint="모집은 이 날까지 받아요">
           <TextInput
             type="datetime-local"
             value={f.meetAt}
@@ -136,11 +135,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
         </Field>
 
         {/* 좌표를 받지 않는다. 글로 적으면 서버가 지오코딩해 지도를 그린다 */}
-        <Field
-          label="어디서 만나요"
-          required
-          error={show('place')}
-        >
+        <Field label="만나는 곳" error={show('place')}>
           <TextInput
             placeholder="성수역 3번 출구처럼 찾기 쉬운 곳"
             value={f.place}
@@ -148,7 +143,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           />
         </Field>
 
-        <Field label="몇 명" required error={show('capacity')}>
+        <Field label="인원" error={show('capacity')}>
           <Select value={f.capacity} onChange={(e) => set('capacity')(e.target.value)}>
             <option value="" disabled>골라주세요</option>
             {[2, 3, 4, 5].map((n) => (
@@ -161,7 +156,11 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           <Button block disabled={sending} onClick={submit}>
             {sending ? '올리는 중…' : '올리기'}
           </Button>
-          <button type="button" className="form__cancel" onClick={() => setAsk(true)}>
+          <button
+            type="button"
+            className="form__cancel"
+            onClick={() => (dirty ? setAsk(true) : history.back())}
+          >
             그만두기
           </button>
         </div>
