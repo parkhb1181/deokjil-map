@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { MeetPoint, PostState } from '@/types'
+import type { ClosedReason, MeetPoint, PostState } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Blank, Skeleton } from '@/components/ui/Basics'
 import { PostCard } from '@/components/ui/Post'
@@ -25,6 +25,7 @@ export type ListItem = {
   title: string
   excerpt: string
   state: PostState
+  closed_reason?: ClosedReason | null
   capacity: number | null
   meet_at: string
   meet_point: MeetPoint
@@ -45,7 +46,7 @@ function whenShort(iso: string) {
 /* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면
    목록이 두 배가 되고 정작 갈 수 있는 글이 묻힌다 */
 const TABS = [
-  { key: 'open', label: '모집중' },
+  { key: 'OPEN', label: '모집중' },
   { key: 'all', label: '전체' },
 ] as const
 
@@ -54,7 +55,7 @@ const TABS = [
 const VIEWS = ['정상', '비었음', '실패', '기다리는 중'] as const
 
 export default function PostList({ posts }: { posts: ListItem[] }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('open')
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('OPEN')
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
@@ -72,7 +73,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
    * 로도 찾는데 어느 칸에 있는지는 모른다.
    */
   const list = useMemo(() => {
-    const byState = tab === 'open' ? posts.filter((p) => p.state === 'open') : posts
+    const byState = tab === 'OPEN' ? posts.filter((p) => p.state === 'OPEN') : posts
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
@@ -175,6 +176,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                     댓글 수는 글자 줄이 아니라 오른쪽 말풍선으로 나간다 */}
                 <PostCard
                   state={p.state}
+                  reason={p.closed_reason}
                   title={p.title}
                   when={whenShort(p.meet_at)}
                   where={p.meet_point.place}

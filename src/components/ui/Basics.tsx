@@ -3,7 +3,7 @@
  * 하나씩 파일을 두면 열 개가 넘어서 성격이 같은 것끼리 묶었다.
  */
 import type { ReactNode, ButtonHTMLAttributes } from 'react'
-import type { PostState } from '@/types'
+import type { ClosedReason, PostState } from '@/types'
 
 /* ── 버튼 ─────────────────────────────────────────────── */
 
@@ -54,16 +54,32 @@ export function Button({ tone = 'primary', size = 'md', block, className, ...res
 export type { PostState }
 
 const STATE_LABEL: Record<PostState, string> = {
-  open: '모집중',
-  /* '완료' 와 '종료' 를 다르게 적는다. 방장이 닫은 것과 시간이
-     지나 닫힌 것은 다른 일이다 */
-  done: '모집 완료',
-  ended: '종료',
+  OPEN: '모집중',
+  CLOSED: '모집 완료',
+  CANCELED: '취소됨',
 }
 
-export function Badge({ state, children }: { state: PostState | 'off'; children?: ReactNode }) {
-  const label = children ?? (state === 'off' ? '' : STATE_LABEL[state])
-  return <span className={`state state--${state}`}>{label}</span>
+/**
+ * 닫힌 까닭까지 반영한 배지 글자.
+ *
+ * 방장이 닫은 것과 시간이 지나 닫힌 것은 다른 일이라 다르게 적는다.
+ * 상태는 CLOSED 하나지만 사람에게는 두 가지 사실이다.
+ */
+export function stateLabel(state: PostState, reason?: ClosedReason | null): string {
+  if (state === 'CLOSED' && reason === 'DEADLINE') return '종료'
+  return STATE_LABEL[state]
+}
+
+export function Badge({ state, reason, children }: {
+  state: PostState | 'off'
+  reason?: ClosedReason | null
+  children?: ReactNode
+}) {
+  const label = children ?? (state === 'off' ? '' : stateLabel(state, reason))
+  /* 클래스는 소문자로. CSS 에서 대문자 선택자는 눈에 안 익고,
+     끝난 까닭까지 클래스로 가르면 회색이 두 벌이 된다 */
+  const cls = state === 'off' ? 'off' : state === 'CLOSED' && reason === 'DEADLINE' ? 'ended' : state.toLowerCase()
+  return <span className={`state state--${cls}`}>{label}</span>
 }
 
 /* ── 사람 ─────────────────────────────────────────────── */

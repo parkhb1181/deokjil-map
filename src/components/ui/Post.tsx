@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react'
 import { Avatar, Badge, type PostState } from './Basics'
+import type { ClosedReason } from '@/types'
 import { isClosed } from '@/types'
 import { swatchOf } from '@/lib/visual'
 
@@ -25,6 +26,8 @@ export type PostCardProps = {
    */
   image?: string | null
   state: PostState
+  /** 닫힌 까닭. 배지 글자가 「모집 완료」 인지 「종료」 인지를 가른다 */
+  reason?: ClosedReason | null
   /** 만남 정보. "9/14 (월) 09:00", "잠실역 2번 출구" */
   when?: string
   where?: string
@@ -35,7 +38,7 @@ export type PostCardProps = {
   comments?: number
 }
 
-export function PostCard({ title, state, when, where, image, comments }: PostCardProps) {
+export function PostCard({ title, state, reason, when, where, image, comments }: PostCardProps) {
   const sw = swatchOf(title)
   return (
     <article className={`pcard${isClosed(state) ? ' is-done' : ''}`}>
@@ -52,7 +55,7 @@ export function PostCard({ title, state, when, where, image, comments }: PostCar
             밖에 안 되는 칸에서 제목이 한 줄을 더 먹는다. 오프메이트·
             팝가도 상태 표시를 포스터 위에 올린다 */}
         {isClosed(state) && (
-          <span className="pcard__state"><Badge state={state} /></span>
+          <span className="pcard__state"><Badge state={state} reason={reason} /></span>
         )}
       </div>
 

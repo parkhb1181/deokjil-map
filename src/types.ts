@@ -116,37 +116,42 @@ export interface EventItem {
    ------------------------------------------------------- */
 
 /**
- * 모집글 상태. 셋이다.
+ * 모집글 상태.
  *
- *   open   모집중
- *   done   모집 완료. **방장이 눌렀다**
- *   ended  행사가 끝났다. **시간이 지나서 그렇게 됐다**
+ *   OPEN      모집중
+ *   CLOSED    닫혔다. 왜 닫혔는지는 closedReason 이 말한다
+ *   CANCELED  방장이 취소했다. 사유가 필수다
  *
- * done 과 ended 를 나누는 이유는 끝난 까닭이 다르기 때문이다. 하나로
- * 묶으면 목록에서 "사람을 다 구해서 닫힌 글" 과 "아무도 안 와서
- * 지나간 글" 이 같아 보인다.
+ * **끝난 까닭을 상태가 아니라 closedReason 으로 나눈다.** 한때
+ * done · ended 두 상태로 두었는데, 그러면 닫히는 경로가 늘 때마다
+ * 상태가 하나씩 늘어난다. 상태는 "무엇을 할 수 있나" 를 정하고,
+ * 까닭은 "왜 그렇게 됐나" 를 말한다. 둘은 다른 축이다.
  *
- * **ended 는 서버가 판정한다.** 붙은 행사의 종료 시각이 지나면
- * ended 다. 날짜만 있는 행사(생카·팝업)는 그 날 24시가 종료 시각이다.
- * 행사에 안 붙은 글은 만나는 날(meet_at)이 기준이다.
- *
- * 화면이 판정하지 않는다. 기기 시계가 제각각이고, 누가 열어봐야만
- * 상태가 바뀌는 구조가 된다.
- *
- * 명세의 OPEN·FULL·CLOSED·CANCELED 넷과는 여전히 다르다. 신청·수락을
- * 두지 않아 정원이 차서 자동 마감되는 경로(FULL)가 없다.
+ * CLOSED 와 CANCELED 는 종착이다. 재개방은 없고 취소는 되돌릴 수 없다.
  */
-export type PostState = 'open' | 'done' | 'ended'
+export type PostState = 'OPEN' | 'CLOSED' | 'CANCELED'
 
 /**
- * 끝난 글인가. 모집 완료든 행사 종료든 "더 못 들어가는 글" 이다.
+ * 닫힌 까닭. CLOSED 일 때만 있다.
  *
- * 화면 대부분은 둘을 구분할 필요가 없고(회색으로 눌러 지나치게
- * 한다), 구분이 필요한 자리는 배지 글자뿐이다. 자리마다 조건을
- * 적으면 상태가 하나 더 늘 때 고칠 곳을 반드시 빠뜨린다.
+ *   MANUAL    방장이 「모집 완료」 를 눌렀다
+ *   DEADLINE  마감 시각이 지나 배치가 닫았다
+ *
+ * DEADLINE 은 서버가 판정한다. 화면이 판정하지 않는다. 기기 시계가
+ * 제각각이고, 누가 열어봐야만 상태가 바뀌는 구조가 된다.
+ */
+export type ClosedReason = 'MANUAL' | 'DEADLINE'
+
+/**
+ * 더 못 들어가는 글인가.
+ *
+ * 화면 대부분은 왜 닫혔는지를 구분할 필요가 없다. 회색으로 눌러
+ * 목록에서 지나치게 하면 되고, 구분이 필요한 자리는 배지 글자와
+ * 안내 문구뿐이다. 자리마다 조건을 적으면 상태가 하나 더 늘 때
+ * 고칠 곳을 반드시 빠뜨린다.
  */
 export function isClosed(state: PostState): boolean {
-  return state !== 'open'
+  return state !== 'OPEN'
 }
 
 export interface PostAuthor {
@@ -192,6 +197,10 @@ export interface CompanionPost {
   title: string
   body: string
   state: PostState
+  /** CLOSED 일 때만 온다. 왜 닫혔는지 */
+  closed_reason?: ClosedReason | null
+  /** CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
+  cancel_reason?: string | null
   /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
   capacity: number | null
   /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */
@@ -241,8 +250,40 @@ export interface PostComment {
  */
 export type ViewerRole = 'guest' | 'member' | 'host'
 
+/**
+ * 제재. 도메인 문서 6장의 [제재] 축이다.
+ *
+ *   NONE       아무것도 없다
+ *   WARNED     경고. **막지 않는다.** 다음에 같은 일이 있으면 정지된다는 예고다
+ *   SUSPENDED  기간 정지. until 까지 쓰기가 막힌다
+ *   BANNED     영구 정지
+ *
+ * 가입 축(PENDING_SIGNUP_INFO · ACTIVE · WITHDRAWN)과 독립이다.
+ * 가입을 마친 사람도 정지될 수 있고, 정지된 사람도 계정은 살아 있다.
+ */
+export type SanctionKind = 'NONE' | 'WARNED' | 'SUSPENDED' | 'BANNED'
+
+/**
+ * 본인에게 보여주는 제재 내용.
+ *
+ * **사유를 반드시 같이 보낸다.** 백오피스 제재 시트의 사유 칸에
+ * 「본인에게 보이는 문구입니다」 라고 적어두었는데 정작 보여줄 자리가
+ * 없었다. 무엇을 잘못했는지 모르면 고칠 수가 없고, 이의를 제기할
+ * 근거도 없다.
+ */
+export interface Sanction {
+  kind: SanctionKind
+  /** 운영자가 적은 사유. 본인에게 그대로 보인다 */
+  reason: string
+  /** 'YYYY-MM-DDTHH:mm'. SUSPENDED 일 때만 있다 */
+  until?: string | null
+  issued_at: string
+}
+
 export interface Viewer {
   role: ViewerRole
   /** 비회원이면 null */
   user_id: string | null
+  /** 제재. 없으면 NONE 으로 본다 */
+  sanction?: Sanction | null
 }

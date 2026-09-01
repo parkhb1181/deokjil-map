@@ -32,13 +32,14 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Badge, Blank, Button } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { swatchOf } from '@/lib/visual'
-import { isClosed, type PostState } from '@/types'
+import { isClosed, type ClosedReason, type PostState } from '@/types'
 import { wf } from '@/lib/wireframe'
 
 export type ProfilePost = {
   id: string
   title: string
   state: PostState
+  closed_reason?: ClosedReason | null
   meet_at: string
   /**
    * 만나는 구역. 모집글 자체에는 없고 붙은 행사에서 온다.
@@ -122,8 +123,8 @@ export default function Profile({ user }: { user: ProfileData }) {
   const posts = useMemo(
     () =>
       [...user.posts].sort((a, b) => {
-        if (a.state !== b.state) return a.state === 'open' ? -1 : 1
-        return a.state === 'open'
+        if (a.state !== b.state) return a.state === 'OPEN' ? -1 : 1
+        return a.state === 'OPEN'
           ? a.meet_at < b.meet_at ? -1 : 1
           : a.meet_at < b.meet_at ? 1 : -1
       }),
@@ -213,7 +214,7 @@ export default function Profile({ user }: { user: ProfileData }) {
 
                     <div className="mine__main">
                       <p className="mine__title">
-                        {isClosed(p.state) && <Badge state={p.state} />}
+                        {isClosed(p.state) && <Badge state={p.state} reason={p.closed_reason} />}
                         {p.title}
                       </p>
                       {/* .meta 순서는 어디서 → 언제다 (SCALE.md) */}

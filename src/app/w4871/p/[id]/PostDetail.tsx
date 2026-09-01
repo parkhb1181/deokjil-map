@@ -153,7 +153,7 @@ export default function PostDetail({ post, comments, hostId }: {
         isHost ? (
           /* 끝난 글에는 완료 버튼을 남기지 않는다. 되돌릴 수 없다고
              말해놓고 다시 누를 수 있게 두는 셈이 된다 */
-          post.state === 'open' && (
+          post.state === 'OPEN' && (
             <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
               모집 완료
             </Button>
@@ -230,8 +230,9 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <div className="post__count">
           <span>댓글 <b>{post.comment_count}</b></span>
-          {post.state === 'done' && <span>모집이 끝났어요</span>}
-          {post.state === 'ended' && <span>행사가 끝났어요</span>}
+          {post.state === 'CLOSED' && post.closed_reason === 'MANUAL' && <span>모집이 끝났어요</span>}
+          {post.state === 'CLOSED' && post.closed_reason === 'DEADLINE' && <span>행사가 끝났어요</span>}
+          {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
         </div>
       </article>
 
@@ -296,9 +297,11 @@ export default function PostDetail({ post, comments, hostId }: {
             뒤는 그 행사 자체가 지나갔다 */}
         {isClosed(post.state) ? (
           <p className="write__gate">
-            {post.state === 'done'
-              ? '모집이 끝나 댓글을 받지 않아요'
-              : '행사가 끝나 댓글을 받지 않아요'}
+            {post.state === 'CANCELED'
+              ? '취소된 모집이라 댓글을 받지 않아요'
+              : post.closed_reason === 'MANUAL'
+                ? '모집이 끝나 댓글을 받지 않아요'
+                : '행사가 끝나 댓글을 받지 않아요'}
           </p>
         ) : isGuest ? (
           /* 비회원 게이트. 보는 것은 다 열고 쓰는 것만 막는다.

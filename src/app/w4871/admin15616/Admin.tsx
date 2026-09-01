@@ -151,7 +151,7 @@ export default function Admin() {
                     <td className="bo__dim bo__when">{r.at.replace('T', ' ')}</td>
                     <td className="bo__actcol">
                       {r.done ? (
-                        <Badge state="done">처리됨</Badge>
+                        <Badge state="off">처리됨</Badge>
                       ) : (
                         <span className="bo__acts">
                           <Button size="sm" tone="ghost" onClick={() => close(r.id)}>

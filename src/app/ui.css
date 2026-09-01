@@ -211,6 +211,13 @@
 /* 종료. 모집 완료와 같은 회색이되 테두리만 남긴다.
    둘 다 끝난 글이라 색을 나누면 목록에 회색 계열이 둘이 되어 오히려
    구분이 흐려진다. 글자('모집 완료' / '종료')가 이미 다르다 */
+/* 취소. 종료와 같은 회색 테두리다. 둘 다 "더 못 들어간다" 는 사실이
+   같고, 글자가 이미 다르다 */
+.state--canceled {
+  background: transparent;
+  color: var(--gone);
+  box-shadow: inset 0 0 0 1px var(--border-mid);
+}
 .state--ended {
   background: transparent;
   color: var(--gone);
@@ -2364,3 +2371,62 @@
 /* 지도 위 검색칸. 반투명 흰 바탕이라 지도가 비쳐도 글자가 읽힌다 */
 .mapcontrols .fbar__search { background: rgba(255, 255, 255, .94); height: 40px; }
 .mapsearch__n { flex: 0 0 auto; font-size: var(--t-small); color: var(--text-mute); }
+
+/* ── 제재 안내 ───────────────────────────────────────────
+   백오피스에서 제재를 주기만 하고 받는 쪽에 알려주는 자리가 없었다.
+   무엇을 잘못했는지 모르면 고칠 수가 없고, 그러면 제재가 사람을
+   고치는 장치가 아니라 그냥 벌이 된다.
+   ------------------------------------------------------- */
+
+/* 경고 배너. 시트로 띄우지 않는다. 경고는 지금 하려던 일을 막을
+   이유가 없는데 시트는 무조건 한 번 닫아야 한다 */
+.sanc {
+  margin: 12px var(--gutter) 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  border-left: 3px solid var(--danger);
+}
+.sanc__head { font-size: var(--t-small); font-weight: 700; color: var(--danger); }
+.sanc__body { margin-top: 4px; font-size: var(--t-sub); line-height: 1.6; color: var(--text); }
+.sanc__foot { margin-top: 4px; font-size: var(--t-small); color: var(--text-mute); }
+
+/* 정지 안내. 화면을 통째로 차지한다 (AD-04) */
+.sblock { padding: 48px var(--gutter) 40px; text-align: center; }
+.sblock__art { display: block; margin: 0 auto 14px; opacity: .5; }
+.sblock__title {
+  font-size: var(--t-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+/* 사유가 제일 중요하다. 제목 다음으로 크고 배경을 깔아 눈에 걸리게 한다 */
+.sblock__reason {
+  margin: 14px auto 0;
+  max-width: 34ch;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--text);
+  text-align: left;
+}
+.sblock__facts {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+  font-size: var(--t-sub);
+}
+.sblock__facts dt { color: var(--text-mute); }
+.sblock__facts dd { margin-top: 2px; font-weight: 700; color: var(--text); }
+.sblock__note { margin-top: 18px; font-size: var(--t-sub); color: var(--text-mute); }
+/* 이의 제기 경로. 없으면 사용자가 할 수 있는 것이 하나도 없다 */
+.sblock__appeal {
+  margin-top: 22px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.sblock__appeal a { color: var(--accent-ink); font-weight: 600; }

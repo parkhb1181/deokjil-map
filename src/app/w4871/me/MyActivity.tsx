@@ -17,13 +17,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Blank, Tabs, Badge, Avatar } from '@/components/ui/Basics'
-import { isClosed, type PostState } from '@/types'
+import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
+import type { Sanction } from '@/types'
+import { isClosed, type ClosedReason, type PostState } from '@/types'
 import { wf } from '@/lib/wireframe'
 
 type MyPost = {
   id: string
   title: string
   state: PostState
+  closed_reason?: ClosedReason | null
   meet_at: string
   comment_count: number
   /** 마지막으로 본 뒤에 달린 댓글 수. 알림이 없으니 이 숫자가 알림이다 */
@@ -45,7 +48,7 @@ const POSTS: MyPost[] = [
   {
     id: 'p1',
     title: '에이티즈 팝업 오픈런 같이 하실 분',
-    state: 'open',
+    state: 'OPEN',
     meet_at: '2026-09-14T09:00',
     comment_count: 5,
     new_comments: 2,
@@ -53,7 +56,8 @@ const POSTS: MyPost[] = [
   {
     id: 'p4',
     title: '원위 팝업 첫날 같이 가요',
-    state: 'done',
+    state: 'CLOSED',
+    closed_reason: 'MANUAL',
     meet_at: '2026-08-28T10:30',
     comment_count: 8,
     new_comments: 0,
@@ -111,9 +115,32 @@ const ME = {
   done_count: 3,
 }
 
+/* 로그인이 없어 서버에서 제재 상태를 못 받는다. 붙으면 지운다 */
+const SANCTIONS: Record<string, Sanction | null> = {
+  없음: null,
+  경고: {
+    kind: 'WARNED',
+    reason: '모집글에 같은 내용을 반복해서 올렸습니다.',
+    issued_at: '2026-08-30T14:00',
+  },
+  '7일 정지': {
+    kind: 'SUSPENDED',
+    reason: '약속한 날에 연락 없이 나타나지 않았다는 신고가 세 건 접수되었습니다.',
+    until: '2026-09-08T00:00',
+    issued_at: '2026-09-01T09:00',
+  },
+  영구: {
+    kind: 'BANNED',
+    reason: '다른 이용자에게 반복적으로 불쾌한 메시지를 보냈습니다.',
+    issued_at: '2026-08-25T11:00',
+  },
+}
+
 export default function MyActivity() {
   const [tab, setTab] = useState(0)
   const [empty, setEmpty] = useState(false)
+  const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
+  const sanction = SANCTIONS[sanc]
 
   return (
     <PageShell title="내 활동">
@@ -123,6 +150,25 @@ export default function MyActivity() {
         <button aria-pressed={empty} onClick={() => setEmpty(true)}>비었음</button>
       </div>
 
+      {/* 개발용. 제재를 받은 사람에게 무엇이 보이는지 확인한다 */}
+      <div className="whoami">
+        <b>제재</b>
+        {(Object.keys(SANCTIONS) as (keyof typeof SANCTIONS)[]).map((k) => (
+          <button key={k} aria-pressed={sanc === k} onClick={() => setSanc(k)}>
+            {k}
+          </button>
+        ))}
+      </div>
+
+      {/* 정지·영구는 화면을 통째로 차지한다 (AD-04). 목록을 보여주고
+          쓰기만 막으면 "왜 안 써지지" 를 알 방법이 없다 */}
+      {sanction && sanction.kind !== 'WARNED' && <SanctionBlock sanction={sanction} />}
+
+      {/* 경고는 막지 않는다. 막을 거면 정지를 주면 된다 */}
+      <SanctionBanner sanction={sanction} />
+
+      {sanction && sanction.kind !== 'WARNED' ? null : (
+      <>
       {/* 내 정보. 공개 프로필(/u/[id])의 신원 줄과 같은 배치다.
           같은 사람이 화면마다 다르게 보이면 내 프로필이 남에게 어떻게
           보이는지 짐작할 수 없다.
@@ -207,7 +253,7 @@ export default function MyActivity() {
                     화면마다 순서를 바꾸면 같은 글이 다른 물건으로 보인다 */}
                 <Link href={wf(`/p/${p.id}`)} className="mine__row">
                   <p className="mine__title">
-                    {isClosed(p.state) && <Badge state={p.state} />}
+                    {isClosed(p.state) && <Badge state={p.state} reason={p.closed_reason} />}
                     {p.title}
                   </p>
                   <p className="mine__sub meta">
@@ -238,6 +284,8 @@ export default function MyActivity() {
               </li>
             ))}
         </ul>
+      )}
+      </>
       )}
     </PageShell>
   )

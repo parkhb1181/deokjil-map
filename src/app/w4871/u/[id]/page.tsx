@@ -25,7 +25,7 @@ const USERS: Record<string, ProfileData> = {
       {
         id: 'p1',
         title: '에이티즈 팝업 오픈런 같이 하실 분',
-        state: 'open',
+        state: 'OPEN',
         meet_at: '2026-09-14T09:00',
         district: '여의도',
         /* 모집글 상세(posts.sample.json)가 쓰는 것과 같은 포스터다.
@@ -34,7 +34,7 @@ const USERS: Record<string, ProfileData> = {
           'https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp',
       },
       /* 행사에 안 붙은 글. 회색 네모 대신 제목에서 뽑은 색이 깔린다 */
-      { id: 'p4', title: '원위 팝업 첫날 같이 가요', state: 'done', meet_at: '2026-08-28T10:30', district: '성수' },
+      { id: 'p4', title: '원위 팝업 첫날 같이 가요', state: 'CLOSED', closed_reason: 'MANUAL', meet_at: '2026-08-28T10:30', district: '성수' },
     ],
   },
   /* 갓 가입해서 셀 것이 하나도 없는 사람. 숫자를 0 으로 채우지 않고
