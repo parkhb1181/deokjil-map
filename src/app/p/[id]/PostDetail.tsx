@@ -22,7 +22,7 @@ import { Field, TextArea, Checkbox } from '@/components/ui/Field'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { Comment } from '@/components/ui/Post'
 import { PlaceMap } from '@/components/ui/PlaceMap'
-import { asServerWouldSend, inOrder } from '@/lib/comment-perm'
+import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 
 /** '2026-09-14T15:00' → '9월 14일 (일) 오후 3:00' */
 function whenText(iso: string) {
@@ -62,7 +62,7 @@ const ROLES: { key: ViewerRole; id: string | null; label: string }[] = [
  * 같이 들고 다녀야 해서 객체가 됐다. 대상 id 를 딴 상태로 빼두면
  * 시트가 열려 있는 것과 지울 대상이 어긋날 수 있다.
  */
-type LoginWhy = 'comment' | 'report'
+type LoginWhy = 'comment' | 'reply' | 'report'
 
 type Ask =
   | null
@@ -76,6 +76,7 @@ type Ask =
    사람에게 댓글 얘기를 하면 자기가 누른 것이 먹힌 것인지 알 수 없다 */
 const LOGIN_DESC: Record<LoginWhy, string> = {
   comment: '댓글을 남기려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요.',
+  reply: '답글을 남기려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요.',
   report: '신고하려면 로그인해주세요. 신고 사실은 상대에게 알리지 않아요.',
 }
 
@@ -92,6 +93,8 @@ export default function PostDetail({ post, comments, hostId }: {
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
+  /** 답글을 다는 대상. null 이면 새 댓글이다 */
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
   /* 방금 내가 지운 댓글. API 가 붙으면 서버가 deleted 로 내려주므로 없어진다 */
   const [erased, setErased] = useState<string[]>([])
   const boxRef = useRef<HTMLTextAreaElement>(null)
@@ -110,23 +113,36 @@ export default function PostDetail({ post, comments, hostId }: {
      asServerWouldSend 만 빠지고 나머지는 그대로다 */
   const list = useMemo(
     () =>
-      inOrder(asServerWouldSend(comments, viewer, hostId)).map((c) =>
-        /* 지운 댓글도 자리는 남는다. 본문만 지운다 */
+      threaded(asServerWouldSend(comments, viewer, hostId)).map((c) =>
+        /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
         erased.includes(c.id) ? { ...c, deleted: true } : c,
       ),
     [comments, viewer.user_id, hostId, erased],
   )
 
+  /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
+     칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
+     따라다니지 않는다는 규칙과도 어긋난다 */
+  const openReply = (id: string, name: string) => {
+    if (isGuest) return gate('reply')
+    setReplyTo({ id, name })
+    boxRef.current?.focus()
+  }
+
   const erase = (id: string) => {
     setErased((prev) => [...prev, id])
+    /* 지운 댓글에 답글을 쓰고 있었다면 그 자리도 같이 접는다 */
+    setReplyTo((r) => (r?.id === id ? null : r))
     setAsk(null)
   }
 
   const submit = () => {
     if (isGuest) return gate('comment')
-    /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다 */
+    /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다.
+       parent_id 는 replyTo?.id 로 나간다 */
     setDraft('')
     setSecret(false)
+    setReplyTo(null)
   }
 
   return (
@@ -216,8 +232,10 @@ export default function PostDetail({ post, comments, hostId }: {
       <section className="thread">
         {/* 판정은 lib/comment-perm.ts 한 곳에 있다. 문구가 그 규칙과
             어긋나면 연락처를 누가 보는지 모르는 채로 적게 된다.
-            답글을 빼면서 볼 수 있는 사람이 둘로 줄었다 */}
-        <p className="thread__head">비밀 댓글은 방장과 쓴 사람만 볼 수 있어요</p>
+            볼 수 있는 사람은 셋이다. 쓴 사람 · 방장 · 부모 댓글 작성자 */}
+        <p className="thread__head">
+          비밀 댓글은 방장과 쓴 사람만 볼 수 있어요. 답글이면 그 댓글을 쓴 사람도 봅니다
+        </p>
 
         {list.length === 0 ? (
           <Blank
@@ -233,12 +251,18 @@ export default function PostDetail({ post, comments, hostId }: {
               src={c.author.image_url ?? undefined}
               time={shortTime(c.created_at)}
               text={c.body ?? undefined}
+              reply={!!c.parent_id}
               secret={c.secret}
               gone={c.deleted}
               host={c.author.id === hostId}
               acts={
                 c.deleted ? undefined : (
                   <>
+                    {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
+                        그 아래가 없다 */}
+                    {!c.parent_id && (
+                      <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
+                    )}
                     {c.author.id === viewer.user_id ? (
                       /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
                          한 번 묻는다 */
@@ -273,12 +297,30 @@ export default function PostDetail({ post, comments, hostId }: {
           </div>
         ) : (
           <>
+            {replyTo && (
+              /* 어느 댓글에 다는 중인지 입력칸 위에 남긴다. 없으면
+                 답글을 눌러놓고 새 댓글을 쓴 것으로 착각한다 */
+              <p className="write__reply">
+                <b>{replyTo.name}</b> 님에게 답글
+                <button type="button" onClick={() => setReplyTo(null)}>
+                  취소
+                </button>
+              </p>
+            )}
             <Field>
               <TextArea
                 ref={boxRef}
-                /* 비밀로 쓰면 누가 보는지 그 자리에서 알려준다.
-                   올리고 나서 알면 이미 늦다 */
-                placeholder={secret ? '방장만 볼 수 있어요' : '댓글을 남겨보세요'}
+                /* 비밀 댓글을 누가 보는지는 자리에 따라 다르다. 루트
+                   댓글은 방장뿐이고, 답글이면 부모 댓글을 쓴 사람도 본다 */
+                placeholder={
+                  secret
+                    ? replyTo
+                      ? `방장과 ${replyTo.name} 님만 볼 수 있어요`
+                      : '방장만 볼 수 있어요'
+                    : replyTo
+                      ? '답글을 남겨보세요'
+                      : '댓글을 남겨보세요'
+                }
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 rows={2}

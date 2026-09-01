@@ -15,10 +15,13 @@
  * 서버가 적어준 글을 지오코딩한다 (Q-03).
  * 성별·연령 조건은 받지 않는다. 조건이 필요하면 본문에 적는다.
  *
- * 묻는 것은 다섯뿐이다. 제목 · 내용 · 언제 · 어디서 · 몇 명.
- * 한때 일곱 칸이었는데 시각과 모집 마감이 따로 있었다. 시각은 날짜와
- * 같은 것을 두 칸에서 물은 것이고, 마감은 기본값이 곧 정답이라
- * 보여줄 이유가 없었다.
+ * 칸은 여섯이고 **필수는 셋이다. 제목 · 언제 · 어디서.**
+ * 내용과 인원은 선택으로 내렸다. 어디서 언제 만나는지만 있으면 글이
+ * 성립하고, 나머지는 쓰고 싶은 사람이 쓴다. 필수를 늘릴수록 쓰다 마는
+ * 사람이 늘어난다.
+ *
+ * 인원이 선택이 되면서 정원 개념이 흐려진다. 원래도 표시용이고 자동
+ * 마감이 없어서(capacity 는 number | null) 타입은 그대로다.
  */
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -60,12 +63,12 @@ function validate(f: Form) {
   const e: Partial<Record<keyof Form, string>> = {}
   if (!f.title.trim()) e.title = '제목을 적어주세요'
   else if (f.title.length > 40) e.title = '40자를 넘었어요'
-  if (!f.body.trim()) e.body = '어떤 동행인지 적어주세요'
-  else if (f.body.length > 500) e.body = '500자를 넘었어요'
-  /* 칩으로만 고르게 해뒀지만 서버는 아무 값이나 받을 수 있다.
-     같은 규칙이 양쪽에 있어야 한다 */
-  if (!f.capacity) e.capacity = '몇 명 모을지 골라주세요'
-  else if (!CAPACITY.includes(Number(f.capacity) as (typeof CAPACITY)[number]))
+  /* 내용은 선택이다. 안 써도 올라가지만 쓴다면 길이는 지킨다 */
+  if (f.body.length > 500) e.body = '500자를 넘었어요'
+  /* 인원도 선택이다. 다만 고른 값이 상한을 넘으면 막는다. 칩으로만
+     고르게 해뒀어도 서버는 아무 값이나 받을 수 있어서, 같은 규칙이
+     양쪽에 있어야 한다 */
+  if (f.capacity && !CAPACITY.includes(Number(f.capacity) as (typeof CAPACITY)[number]))
     e.capacity = `${MAX_CAPACITY}명까지 모을 수 있어요`
   if (!f.meetAt) e.meetAt = '만나는 시간을 정해주세요'
   if (!f.place.trim()) e.place = '어디서 만날지 적어주세요'
@@ -123,9 +126,9 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             글쓰기에서 카테고리를 맨 위에서 고른다 */}
         <EventPicker all={events} picked={event} onPick={setEvent} />
 
-        {/* 별표를 칸마다 달지 않는 대신 여기서 한 번 말한다. 다섯 칸이
-            전부 필수라 별표 다섯 개는 아무것도 구분해주지 못한다 */}
-        <p className="form__lead">아래 다섯 가지를 모두 적어야 올릴 수 있어요.</p>
+        {/* 필수가 셋, 선택이 셋이라 이제는 구분해줄 값이 있다.
+            선택인 칸에만 표시를 단다 (docs/design/SCALE.md 「폼」) */}
+        <p className="form__lead">제목과 만나는 때·곳만 적으면 올릴 수 있어요.</p>
 
         <Field label="제목" error={show('title')} count={[f.title.length, 40]}>
           <TextInput
@@ -139,7 +142,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
         {/* 안내를 힌트 줄로 빼지 않고 placeholder 안에 넣었다. 칸마다
             힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
-        <Field label="내용" error={show('body')} count={[f.body.length, 500]}>
+        <Field label="내용" optional error={show('body')} count={[f.body.length, 500]}>
           <TextArea
             placeholder={'몇 시에 만나서 무엇을 할지 적어주세요.\n연락은 비밀 댓글로 받아도 좋아요.'}
             value={f.body}
@@ -190,7 +193,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
         {/* 선택지가 적어서 드롭다운이 아니라 칩이다. 무엇을 고를 수
             있는지가 열어보기 전에 보이고 한 번만 누르면 된다.
             당근도 거래 방식을 칩으로 둔다 */}
-        <Field label="인원" error={show('capacity')} hint="나를 포함한 인원이에요">
+        <Field label="인원" optional error={show('capacity')} hint="나를 포함한 인원이에요">
           <ChoiceChips
             value={f.capacity}
             options={CAPACITY.map((n) => ({ value: String(n), label: `${n}명` }))}

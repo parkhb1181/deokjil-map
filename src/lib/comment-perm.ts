@@ -13,17 +13,15 @@ import type { PostComment, Viewer } from '@/types'
  * API 가 붙으면 이 함수는 지운다. 그때는 body 가 있으면 보이는
  * 것이고 없으면 안 보이는 것이다.
  *
- * 판정에 쓰는 입력은 셋뿐이다.
- *   보는 사람 · 방장 · 댓글 작성자
+ * 판정에 쓰는 입력은 넷뿐이다.
+ *   보는 사람 · 방장 · 댓글 작성자 · 부모 댓글 작성자
  *
- * 한때 넷이었다. 답글을 1차에서 빼면서 「부모 댓글 작성자」 줄이
- * 사라졌다. 댓글이 평평해져서 부모라는 것이 없다.
- *
- * 신청·수락도 두지 않기로 해서 확정 멤버가 없다. 명세의 권한
- * 매트릭스에서 두 줄이 빠진 모습이다.
+ * 신청·수락을 두지 않기로 해서 확정 멤버가 없다. 명세의 권한
+ * 매트릭스에서 그 줄이 빠진 모습이다.
  */
 export function canSeeSecret(
   comment: PostComment,
+  parent: PostComment | null,
   viewer: Viewer,
   hostId: string,
 ): boolean {
@@ -35,6 +33,9 @@ export function canSeeSecret(
 
   /* 방장. 사람을 고르려면 다 봐야 한다 */
   if (viewer.user_id === hostId) return true
+
+  /* 내 댓글에 달린 비밀 대댓글. 부모가 공개든 비밀이든 같다 */
+  if (parent && parent.author.id === viewer.user_id) return true
 
   return false
 }
@@ -50,21 +51,32 @@ export function asServerWouldSend(
   viewer: Viewer,
   hostId: string,
 ): PostComment[] {
+  const byId = new Map(comments.map((c) => [c.id, c]))
   return comments.map((c) => {
-    if (canSeeSecret(c, viewer, hostId)) return c
+    const parent = c.parent_id ? byId.get(c.parent_id) ?? null : null
+    if (canSeeSecret(c, parent, viewer, hostId)) return c
     const { body, ...rest } = c
     return rest
   })
 }
 
 /**
- * 시간순으로 세운다.
+ * 루트 댓글 아래 대댓글을 붙여 정렬한다.
  *
- * 전에는 루트 아래 대댓글을 붙이는 threaded 였다. 답글을 1차에서
- * 빼면서 계층이 없어져 그냥 시간순이다. 함수를 지우지 않고 남긴
- * 것은 부르는 쪽이 정렬을 각자 하기 시작하면 화면마다 순서가
- * 달라지기 때문이다.
+ * 루트는 시간순, 각 루트 아래 대댓글도 시간순. 페이지를 나눌 때
+ * 루트 기준으로 잘라야 대댓글이 부모와 떨어지지 않는다.
  */
-export function inOrder(comments: PostComment[]): PostComment[] {
-  return [...comments].sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+export function threaded(comments: PostComment[]): PostComment[] {
+  const roots = comments.filter((c) => !c.parent_id)
+  const kids = new Map<string, PostComment[]>()
+  for (const c of comments) {
+    if (!c.parent_id) continue
+    const list = kids.get(c.parent_id) ?? []
+    list.push(c)
+    kids.set(c.parent_id, list)
+  }
+  const byTime = (a: PostComment, b: PostComment) =>
+    a.created_at < b.created_at ? -1 : 1
+
+  return roots.sort(byTime).flatMap((r) => [r, ...(kids.get(r.id) ?? []).sort(byTime)])
 }

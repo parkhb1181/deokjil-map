@@ -158,6 +158,15 @@ export interface CompanionPost {
  */
 export interface PostComment {
   id: string
+  /**
+   * 대댓글의 부모. **깊이는 1단계로 고정이라 이 아래는 없다.**
+   *
+   * 회의에서 뎁스 무제한 얘기가 나왔는데 1차는 1단계다. 무제한이
+   * 되면 비밀 댓글 권한이 재귀가 된다. 「부모 댓글 작성자가 본다」가
+   * 조상 전체인지 직계 부모만인지를 먼저 정해야 하고, 채팅이 없어
+   * 연락처가 오가는 자리라 거기서 틀리면 유출이다.
+   */
+  parent_id: string | null
   author: PostAuthor
   /**
    * 비밀 댓글인데 볼 권한이 없으면 **서버가 이 필드를 빼고 보낸다.**
@@ -166,7 +175,7 @@ export interface PostComment {
    */
   body?: string | null
   secret: boolean
-  /** 지운 댓글. 본문만 지우고 자리는 남긴다 */
+  /** 지운 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
   deleted: boolean
   created_at: string
 }
