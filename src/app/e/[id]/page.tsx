@@ -6,6 +6,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { IS_WIREFRAME } from '@/lib/wireframe'
 import { PlaceActions } from '@/components/ui/PlaceActions'
 import { PlaceMap } from '@/components/ui/PlaceMap'
+import { SaveHeart } from '@/components/ui/SaveHeart'
 import { wf } from '@/lib/wireframe'
 
 /**
@@ -190,7 +191,14 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               <span className="state state--off">{district}</span>
               <span className="state state--off">{kind}</span>
             </p>
-            <h1>{ev.subject}</h1>
+            {/* 하트를 제목 오른쪽에 둔다. 검색으로 이 페이지에 바로
+                들어온 사람이 이 서비스에서 처음 만나는 행동이 담기라,
+                여기 없으면 담으려고 홈으로 돌아가 같은 행사를 다시
+                찾아야 한다 */}
+            <div className="evt__title">
+              <h1>{ev.subject}</h1>
+              <SaveHeart event={ev} />
+            </div>
             {ev.title && <p className="evt__sub">{ev.title}</p>}
           </div>
 

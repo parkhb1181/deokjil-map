@@ -13,6 +13,7 @@ import {
 } from '@/lib/filters'
 import EventCard from './EventCard'
 import TopSubjects from './TopSubjects'
+import { FilterBar } from './FilterBar'
 
 interface Props {
   events: EventItem[]
@@ -23,7 +24,7 @@ interface Props {
 }
 
 /** 지역 칩은 상위 몇 개까지만 낸다 */
-const DISTRICT_CHIPS = 3
+const DISTRICT_CHIPS = 11
 
 /**
  * 목록 화면. 예전의 홈과 찾기를 합친 것이다.
@@ -57,10 +58,10 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
        누른 칩이 사라지면 무엇을 눌렀는지 알 수 없다 */
     const kinds: KindFilter[] = ['birthday_cafe', 'popup', 'concert']
     return [
-      { value: 'all' as KindFilter, label: `전체 ${count('all')}` },
+      { value: 'all', label: '전체', count: count('all') },
       ...kinds
         .filter((k) => count(k) > 0 || filter.kind === k)
-        .map((k) => ({ value: k, label: `${EVENT_KIND_LABELS[k as EventKind]} ${count(k)}` })),
+        .map((k) => ({ value: k as string, label: EVENT_KIND_LABELS[k as EventKind], count: count(k) })),
     ]
   }, [base, filter.district, filter.kind])
 
@@ -70,18 +71,20 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
     for (const e of pool) by.set(e.place.district, (by.get(e.place.district) ?? 0) + 1)
     const top = [...by.entries()].sort((a, b) => b[1] - a[1]).slice(0, DISTRICT_CHIPS)
     const opts = [
-      { value: 'all' as DistrictFilter, label: '전 지역' },
+      { value: 'all', label: '전 지역', count: pool.length },
       ...top.map(([d, n]) => ({
-        value: d as DistrictFilter,
-        label: `${DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d} ${n}`,
+        value: d as string,
+        label: DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d,
+        count: n,
       })),
     ]
     // 고른 지역이 상위 3위 밖이면 칩이 사라져 해제할 방법이 없어진다
     if (filter.district !== 'all' && !opts.some((o) => o.value === filter.district)) {
       const n = pool.filter((e) => e.place.district === filter.district).length
       opts.push({
-        value: filter.district,
-        label: `${DISTRICT_LABELS[filter.district as keyof typeof DISTRICT_LABELS] ?? filter.district} ${n}`,
+        value: filter.district as string,
+        label: DISTRICT_LABELS[filter.district as keyof typeof DISTRICT_LABELS] ?? filter.district,
+        count: n,
       })
     }
     return opts
@@ -96,33 +99,31 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
     <>
       <TopSubjects events={events} today={today} />
 
-      <div className="filterrow" role="group" aria-label="유형과 지역">
-        {kindOptions.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            className={`chip ${filter.kind === o.value ? 'chip--on' : ''}`}
-            aria-pressed={filter.kind === o.value}
-            onClick={() => onFilter('kind', o.value)}
-          >
-            {o.label}
-          </button>
-        ))}
-
-        <span className="filterrow__sep" aria-hidden />
-
-        {districtOptions.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            className={`chip ${filter.district === o.value ? 'chip--on' : ''}`}
-            aria-pressed={filter.district === o.value}
-            onClick={() => onFilter('district', o.value)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
+      {/* 칩을 전부 늘어놓던 줄을 접었다. 유형 넷과 지역 열하나가 한
+          줄에 있으면 옆으로 흐르고, 지금 무엇이 걸려 있는지 보려면
+          줄을 끝까지 밀어야 한다 */}
+      <FilterBar
+        query={filter.query}
+        onQuery={(v) => onFilter('query', v)}
+        axes={[
+          {
+            key: 'kind',
+            placeholder: '종류 선택',
+            title: '어떤 행사',
+            options: kindOptions,
+            value: filter.kind,
+            onPick: (v) => onFilter('kind', v as KindFilter),
+          },
+          {
+            key: 'district',
+            placeholder: '지역 선택',
+            title: '어느 동네',
+            options: districtOptions,
+            value: filter.district,
+            onPick: (v) => onFilter('district', v as DistrictFilter),
+          },
+        ]}
+      />
 
       <p className="count">
         {visible.length}곳

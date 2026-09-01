@@ -124,8 +124,15 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
     >
       <div className="form">
         {/* 무슨 행사인지부터 정하고 제목·내용을 쓴다. 당근도 동네생활
-            글쓰기에서 카테고리를 맨 위에서 고른다 */}
-        <EventPicker all={events} picked={event} onPick={setEvent} />
+            글쓰기에서 카테고리를 맨 위에서 고른다.
+
+            라벨을 바깥에 세운다. 전에는 접힌 줄 안에 「함께 갈 행사」 가
+            들어 있어서, 아래 칸들의 「제목」·「내용」 과 높이도 굵기도
+            달랐다. 같은 폼 안에서 묻는 것인데 하나만 다르게 생겼다 */}
+        <div className="fld">
+          <span className="fld__label">행사</span>
+          <EventPicker all={events} picked={event} onPick={setEvent} />
+        </div>
 
         {/* 필수가 셋, 선택이 셋이라 이제는 구분해줄 값이 있다.
             선택인 칸에만 표시를 단다 (docs/design/SCALE.md 「폼」) */}
@@ -143,7 +150,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
         {/* 안내를 힌트 줄로 빼지 않고 placeholder 안에 넣었다. 칸마다
             힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
-        <Field label="내용" optional error={show('body')} count={[f.body.length, 500]}>
+        <Field label="내용" error={show('body')} count={[f.body.length, 500]}>
           <TextArea
             placeholder={'몇 시에 만나서 무엇을 할지 적어주세요.\n연락은 비밀 댓글로 받아도 좋아요.'}
             value={f.body}

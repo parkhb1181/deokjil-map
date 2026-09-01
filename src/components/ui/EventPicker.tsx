@@ -107,13 +107,12 @@ export function EventPicker({ all, picked, onPick }: {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        {/* 쓰기 화면에서 유일하게 선택인 칸이다. 열어봐야 "고르지 않고
-            올려도 괜찮아요" 를 볼 수 있으면 닫힌 채로는 알 수 없다.
-            표시 규칙은 docs/design/SCALE.md 「폼」 — 나머지가 전부
-            필수이므로 선택인 이 칸에만 단다 */}
-        <span className="epick__label">함께 갈 행사</span>
+        {/* 이름표는 바깥 fld__label 이 「행사」 로 세운다. 여기는 값이
+            들어가는 자리라 아직 안 골랐다는 것만 말한다. 안쪽에도
+            「함께 갈 행사」 를 두면 같은 말이 두 줄이 된다 */}
+        <span className="epick__label epick__label--none">고르지 않음</span>
         {/* 선택 표시는 오른쪽 끝이다. 라벨에 붙이면 라벨의 일부처럼
-            읽혀 '함께 갈 행사 선택' 이라는 한 덩어리가 된다 */}
+            읽혀 한 덩어리가 된다 */}
         <span className="epick__opt">선택</span>
         <svg className="epick__caret" viewBox="0 0 16 16" aria-hidden focusable="false">
           <path

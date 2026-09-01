@@ -29,7 +29,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
-import { Avatar, Badge, Blank } from '@/components/ui/Basics'
+import { Avatar, Badge, Blank, Button } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { swatchOf } from '@/lib/visual'
 import { isClosed, type PostState } from '@/types'
@@ -139,23 +139,13 @@ export default function Profile({ user }: { user: ProfileData }) {
              자기 상태를 확인하는 유일한 화면으로 보낸다 */
           <Link className="btn btn--ghost btn--sm" href={wf('/me')}>내 활동</Link>
         ) : (
-          /* 신고는 여기 넣는다. 본문에 두면 프로필을 열자마자 사람을
-             어떻게 처리할지가 먼저 보인다.
-
-             차단을 뺀 뒤로 할 것이 신고 하나라 중간 메뉴를 없앴다.
-             한 줄짜리 메뉴는 누르는 횟수만 늘린다 */
-          <button
-            type="button"
-            className="shell__more"
-            aria-label="신고"
-            onClick={() => setAsk('report')}
-          >
-            <svg viewBox="0 0 20 20" aria-hidden focusable="false">
-              <circle cx="10" cy="4" r="1.6" fill="currentColor" />
-              <circle cx="10" cy="10" r="1.6" fill="currentColor" />
-              <circle cx="10" cy="16" r="1.6" fill="currentColor" />
-            </svg>
-          </button>
+          /* 점 세 개가 아니라 「신고」 라고 적는다. 차단을 뺀 뒤로
+             거기서 할 수 있는 것이 신고 하나뿐인데, 점 세 개는
+             무엇이 들었는지 눌러봐야 안다. 할 일이 하나면 그 이름을
+             그대로 쓰는 편이 짧다 */
+          <Button size="sm" tone="ghost" onClick={() => setAsk('report')}>
+            신고
+          </Button>
         )
       }
     >

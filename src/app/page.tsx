@@ -127,16 +127,10 @@ export default function Page() {
               <Logo />
             </h1>
 
-            {/* 검색 입구는 하나다. 목록과 지도가 같은 질의를 공유하므로
-                어느 화면에서 쳐도 양쪽이 같이 움직인다 */}
-            <input
-              className="header__searchinput"
-              type="search"
-              value={filter.query}
-              placeholder="대상 · 카페명 검색"
-              onChange={(e) => setField('query', e.target.value)}
-              aria-label="검색"
-            />
+            {/* 검색칸은 헤더에서 내렸다. 필터와 멀리 떨어져 있어서
+                좁히는 일이 두 자리에서 일어났다. 지금은 목록과 지도가
+                각자 필터 줄 안에 검색칸을 갖는다. 질의는 여전히 하나라
+                어느 쪽에서 쳐도 양쪽이 같이 움직인다 */}
 
             {/* 동행으로 나가는 입구. 여기 말고는 지도 앱에서 모집글로
                 가는 길이 없었다. 하단 탭에 넣지 않은 것은 그 셋이
