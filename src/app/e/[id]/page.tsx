@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
+import { IS_WIREFRAME } from '@/lib/wireframe'
 
 /**
  * 이벤트 상세, 검색에 걸리는 실주소.
@@ -152,6 +153,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
                 아직 API 가 없어 건수를 0 으로 두고 권유만 띄운다.
                 붙으면 최근 5건을 여기에 늘어놓는다 */}
+            {IS_WIREFRAME && (
             <section className="withus">
               <h3 className="withus__title">같이 갈 사람 구하기</h3>
               <p className="withus__desc">아직 이 행사에 올라온 동행글이 없어요.</p>
@@ -159,6 +161,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                 동행글 보러 가기
               </a>
             </section>
+            )}
 
             {/* 출처 표기는 상시다 (poc-plan 1번, 정합성 교란 방어).
                 listing_url 은 화면에 노출하지 않는다. 경쟁 리스팅을 광고하지 않는다 */}

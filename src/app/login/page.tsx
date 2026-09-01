@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Login from './Login'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 로그인.
@@ -14,6 +15,9 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return (
     <Suspense>
       <Login />

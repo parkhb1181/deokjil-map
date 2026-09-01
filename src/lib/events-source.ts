@@ -24,13 +24,20 @@ import type { EventItem } from '@/types'
  * 그러면 재방문 지표가 오염돼 제품 매력도 때문인지 데이터 품질
  * 때문인지 구분할 수 없게 된다 (poc-plan 1번).
  *
- * NODE_ENV 는 빌드 시점에 정해지므로 배포 번들에서는 이 배열이
- * 통째로 빠진다. 사이트맵·OG 카드에도 안 들어간다.
+ * 조건을 IS_WIREFRAME 으로 부르지 않고 process.env 를 여기 직접 쓴다.
+ * 다른 모듈에서 가져온 상수로 감싸면 번들러가 그 값을 접지 못해 JSON
+ * import 가 살아남는다. 실제로 그랬다. 화면에는 안 나오는데 홈 청크에
+ * 가짜 공연 데이터가 실려 방문자에게 내려갔다.
+ *
+ * process.env.NODE_ENV 는 빌드 때 문자열로 치환되므로 조건이 접히고
+ * mockConcerts 를 아무도 안 쓰게 되어 통째로 떨어져 나간다.
+ * 판정 규칙 자체는 lib/wireframe.ts 와 같아야 한다. 화면과 데이터가
+ * 따로 놀면 어느 하나만 켜진 배포가 나온다.
  *
  * KOPIS 가 붙으면 concerts.mock.json 과 이 분기를 같이 지운다.
  */
 const MOCK: EventItem[] =
-  process.env.NODE_ENV === 'development'
+  process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_WIREFRAME === '1'
     ? ((mockConcerts as { events: unknown[] }).events as EventItem[])
     : []
 

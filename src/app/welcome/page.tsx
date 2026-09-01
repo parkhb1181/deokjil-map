@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Welcome from './Welcome'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 가입 정보 입력.
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return (
     <Suspense>
       <Welcome />

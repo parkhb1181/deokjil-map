@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Profile, { type ProfileData } from './Profile'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 공개 프로필.
@@ -56,6 +57,9 @@ export const metadata: Metadata = {
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   const { id } = await params
   const user = USERS[id]
   if (!user) notFound()

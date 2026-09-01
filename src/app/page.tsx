@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ALL_EVENTS } from '@/lib/events-source'
+import { IS_WIREFRAME } from '@/lib/wireframe'
 import {
   defaultFilter,
   filterEvents,
@@ -139,7 +140,11 @@ export default function Page() {
             {/* 동행으로 나가는 입구. 여기 말고는 지도 앱에서 모집글로
                 가는 길이 없었다. 하단 탭에 넣지 않은 것은 그 셋이
                 같은 데이터(행사)를 다르게 보는 것이라, 성격이 다른
-                동행을 끼우면 넷 다 무슨 묶음인지 흐려지기 때문이다 */}
+                동행을 끼우면 넷 다 무슨 묶음인지 흐려지기 때문이다.
+
+                동행이 아직 와이어프레임이라 실서비스에서는 안 그린다.
+                그리면 진짜 방문자가 눌러서 가짜 모집글을 본다 */}
+            {IS_WIREFRAME && (
             <a className="header__go" href="/p" aria-label="동행 모집글">
               <svg viewBox="0 0 24 24" aria-hidden focusable="false">
                 <path
@@ -152,6 +157,7 @@ export default function Page() {
               </svg>
               <span>동행</span>
             </a>
+            )}
           </div>
         </header>
 

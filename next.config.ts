@@ -3,6 +3,20 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   /**
+   * 와이어프레임 깃발에 **기본값을 박는다.**
+   *
+   * 정의되지 않은 NEXT_PUBLIC_* 은 빌드 때 문자열로 치환되지 않고
+   * process.env 조회로 남는다. 그러면 조건이 접히지 않아서, 꺼진
+   * 배포인데도 콘서트 목데이터 JSON 이 홈 청크에 실려 나갔다.
+   * 화면에는 안 나오는데 방문자가 받아가고 있었다.
+   *
+   * 여기서 '0' 을 채워두면 조건이 빌드 때 false 로 접히고 가짜 데이터가
+   * 통째로 떨어져 나간다. 켜려면 NEXT_PUBLIC_WIREFRAME=1 로 빌드한다.
+   */
+  env: {
+    NEXT_PUBLIC_WIREFRAME: process.env.NEXT_PUBLIC_WIREFRAME ?? '0',
+  },
+  /**
    * sharp 는 네이티브 바인딩이라 번들에 넣으면 깨진다.
    * OG 이미지 생성에서 수집원 사진을 줄이는 데 쓴다.
    */

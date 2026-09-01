@@ -4,6 +4,7 @@ import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import type { PickableEvent } from '@/components/ui/EventPicker'
 import NewPost from './NewPost'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /** 로그인한 사람만 오는 화면이라 검색에 걸릴 이유가 없다 */
 export const metadata: Metadata = {
@@ -26,5 +27,8 @@ const PICKABLE: PickableEvent[] = ALL_EVENTS.map((e) => ({
 }))
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return <NewPost events={PICKABLE} />
 }

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import type { CompanionPost, PostComment } from '@/types'
 import sample from '@/data/posts.sample.json'
 import PostDetail from './PostDetail'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 모집글 상세.
@@ -26,6 +27,9 @@ export const metadata: Metadata = {
 }
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   const { id } = await params
   if (id !== DATA.post.id) notFound()
 

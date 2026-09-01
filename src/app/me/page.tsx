@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import MyActivity from './MyActivity'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 내 활동 내역.
@@ -13,5 +14,8 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return <MyActivity />
 }

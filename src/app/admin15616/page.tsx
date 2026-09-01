@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Admin from './Admin'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 백오피스.
@@ -22,5 +23,8 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return <Admin />
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { LegalStub } from '@/components/ui/LegalStub'
+import { wireframeOnly } from '@/lib/wireframe'
 
 export const metadata: Metadata = {
   title: '개인정보 처리방침 · 덕모임',
@@ -7,6 +8,9 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return (
     <LegalStub
       title="개인정보 처리방침"

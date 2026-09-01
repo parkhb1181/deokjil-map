@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 온보딩 색인.
@@ -191,6 +192,9 @@ const GROUPS: Group[] = [
 const TOTAL = GROUPS.reduce((n, g) => n + g.rows.length, 0)
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return (
     <div className="ob">
       <header className="ob__head">

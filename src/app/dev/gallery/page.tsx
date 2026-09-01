@@ -5,6 +5,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import type { PickableEvent } from '@/components/ui/EventPicker'
 import Gallery from './Gallery'
 import './gallery.css'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /** 내부용 화면이다. 검색에 걸리면 안 된다 */
 export const metadata: Metadata = {
@@ -27,5 +28,8 @@ const PICKABLE: PickableEvent[] = ALL_EVENTS.slice(0, 60).map((e) => ({
 }))
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return <Gallery events={PICKABLE} />
 }

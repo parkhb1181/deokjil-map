@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import sample from '@/data/posts-list.sample.json'
 import PostList, { type ListItem } from './PostList'
+import { wireframeOnly } from '@/lib/wireframe'
 
 /**
  * 모집글 목록.
@@ -17,5 +18,8 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 실서비스 배포에서는 404 다 (lib/wireframe.ts) */
+  wireframeOnly()
+
   return <PostList posts={(sample as unknown as { posts: ListItem[] }).posts} />
 }
