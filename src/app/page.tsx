@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import rawEvents from '@/data/events.json'
-import type { EventItem } from '@/types'
+import { ALL_EVENTS } from '@/lib/events-source'
+import { IS_WIREFRAME } from '@/lib/wireframe'
 import {
   defaultFilter,
   filterEvents,
@@ -17,11 +17,10 @@ import MapView from '@/components/MapView'
 import EventDetail from '@/components/EventDetail'
 import SeoIndex from '@/components/SeoIndex'
 import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
-import { loadCourse, persistCourse } from '@/lib/course'
+import { loadBookmarks, persistBookmarks } from '@/lib/bookmark'
 import { SaveProvider, type SaveApi } from '@/components/SaveContext'
-import CourseView from '@/components/CourseView'
-
-const ALL_EVENTS = rawEvents as EventItem[]
+import BookmarkView from '@/components/BookmarkView'
+import { wf } from '@/lib/wireframe'
 
 export default function Page() {
   // 오늘 날짜는 클라이언트에서만 확정한다.
@@ -29,7 +28,7 @@ export default function Page() {
   const [today, setToday] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('browse')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
-  // 담은 이벤트 id. 담은 순서를 유지한다. 코스는 순서가 의미를 가진다
+  // 담은 이벤트 id. 담은 순서를 유지한다
   const [saved, setSaved] = useState<string[]>([])
 
   const route = useRoute()
@@ -42,8 +41,8 @@ export default function Page() {
     setToday(t)
     // 기본 날짜는 오늘이다. 오늘이 확정되는 시점이 마운트 이후라 여기서 채운다
     setFilter((f) => ({ ...f, date: t }))
-    // 담은 목록 복원. localStorage 라 서버에서는 읽을 수 없다
-    setSaved(loadCourse())
+    // 담아둔 목록 복원. localStorage 라 서버에서는 읽을 수 없다
+    setSaved(loadBookmarks())
     // 방문·재방문 계상. 지표 0·5 의 원천이다
     trackVisit(t)
   }, [])
@@ -61,7 +60,7 @@ export default function Page() {
         setSaved((prev) => {
           const has = prev.includes(ev.id)
           const next = has ? prev.filter((x) => x !== ev.id) : [...prev, ev.id]
-          persistCourse(next)
+          persistBookmarks(next)
           track('save_course', {
             event_id: ev.id,
             kind: ev.kind,
@@ -128,16 +127,32 @@ export default function Page() {
               <Logo />
             </h1>
 
-            {/* 검색 입구는 하나다. 목록과 지도가 같은 질의를 공유하므로
-                어느 화면에서 쳐도 양쪽이 같이 움직인다 */}
-            <input
-              className="header__searchinput"
-              type="search"
-              value={filter.query}
-              placeholder="대상 · 카페명 검색"
-              onChange={(e) => setField('query', e.target.value)}
-              aria-label="검색"
-            />
+            {/* 검색칸은 헤더에서 내렸다. 필터와 멀리 떨어져 있어서
+                좁히는 일이 두 자리에서 일어났다. 지금은 목록과 지도가
+                각자 필터 줄 안에 검색칸을 갖는다. 질의는 여전히 하나라
+                어느 쪽에서 쳐도 양쪽이 같이 움직인다 */}
+
+            {/* 동행으로 나가는 입구. 여기 말고는 지도 앱에서 모집글로
+                가는 길이 없었다. 하단 탭에 넣지 않은 것은 그 셋이
+                같은 데이터(행사)를 다르게 보는 것이라, 성격이 다른
+                동행을 끼우면 넷 다 무슨 묶음인지 흐려지기 때문이다.
+
+                동행이 아직 와이어프레임이라 실서비스에서는 안 그린다.
+                그리면 진짜 방문자가 눌러서 가짜 모집글을 본다 */}
+            {IS_WIREFRAME && (
+            <a className="header__go" href={wf('/p')} aria-label="동행 모집글">
+              <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+                <path
+                  d="M4 6.5h16M4 12h16M4 17.5h10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.9"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>동행</span>
+            </a>
+            )}
           </div>
         </header>
 
@@ -161,7 +176,7 @@ export default function Page() {
               onOpen={openDetail}
             />
           ) : (
-            <CourseView
+            <BookmarkView
               events={ALL_EVENTS}
               today={today}
               saved={saved}

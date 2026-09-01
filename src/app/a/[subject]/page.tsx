@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import rawEvents from '@/data/events.json'
+import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
+import { SubjectList } from './SubjectList'
 
 /**
  * 대상별 목록, 공유와 검색에 쓰는 실주소.
@@ -22,7 +23,7 @@ import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
  * 클래스는 globals.css 의 기존 어휘(sheet/dlist/drow)를 그대로 쓴다.
  */
 
-const ALL = rawEvents as EventItem[]
+const ALL = ALL_EVENTS
 
 export const dynamicParams = false
 
@@ -131,7 +132,10 @@ export default async function SubjectPage({
       />
 
       <main className="main">
-        <article className="sheet">
+        {/* /e/[id] 와 같은 통짜 페이지다. sheet 는 원래 앱 안에서 위로
+            덮는 시트라 position: fixed 인데, 그대로 두면 목록이 화면
+            높이에 갇혀 아래가 잘린다 */}
+        <article className="sheet sheet--page">
           <div className="sheet__head">
             <h1>
               {subject} {kindLabel}
@@ -141,22 +145,9 @@ export default async function SubjectPage({
           </div>
 
           <div className="sheet__body">
-            <div className="dlist">
-              {events.map((ev) => (
-                <div className="drow" key={ev.id}>
-                  <span className="drow__label">
-                    {DISTRICT_LABELS[ev.place.district]}
-                  </span>
-                  <span className="drow__value">
-                    <a href={`/e/${encodeURIComponent(ev.id)}`}>{ev.place.name}</a>
-                    {' · '}
-                    {EVENT_KIND_LABELS[ev.kind]}
-                    {' · '}~{ev.ends_on}
-                    {ev.perks ? ` · ${ev.perks}` : ''}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {/* 목록만 클라이언트다. 페이지 전체를 그렇게 돌리면 구조화
+                데이터와 메타 태그가 같이 딸려 나가 검색 유입이 깨진다 */}
+            <SubjectList events={events} />
 
             <p className="sheet__disclaimer">주최자 공지 기반 · 방문 전 원문 확인 권장</p>
 

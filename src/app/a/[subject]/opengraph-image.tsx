@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { ImageResponse } from 'next/og'
-import rawEvents from '@/data/events.json'
+import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
@@ -24,7 +24,7 @@ export const dynamic = 'force-static'
  * 그 사람을 센 것처럼 읽힌다. 지도 핀과 같은 규칙으로 숫자만 배지에 넣는다.
  */
 
-const ALL = rawEvents as EventItem[]
+const ALL = ALL_EVENTS
 
 /** 카드에 올릴 사진 수. 세 장이면 한 줄이 차고, 더 넣으면 각각이 너무 작아진다 */
 const SHOTS = 3

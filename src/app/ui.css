@@ -1,0 +1,2366 @@
+/* ─────────────────────────────────────────────────────────
+   공용 조각. globals.css 와 같은 BEM 관습을 쓴다.
+   globals.css 가 이미 1600줄을 넘어 파일만 나눴다.
+
+   여기 있는 것은 전부 갤러리(/dev/gallery)에서 모든 상태를
+   한 번에 볼 수 있다. 상태를 빼먹지 않으려고 그렇게 둔다.
+   ───────────────────────────────────────────────────────── */
+
+/* ── 입력 ─────────────────────────────────────────────── */
+
+.fld { display: flex; flex-direction: column; gap: 5px; }
+
+.fld__label {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+/* 필수 표시. 당근은 6px 짜리 점에 가깝게 작게 둔다 */
+.fld__req { color: var(--danger); margin-left: 3px; font-size: 12px; }
+/* 선택 표시. 글자라 색을 눌러 둔다 */
+.fld__opt { color: var(--text-mute); margin-left: 5px; font-weight: 400; font-size: var(--t-small); }
+/* 라벨 오른쪽 보조 동작. 라벨 줄이 어차피 비어 있어 여기 둔다 */
+.fld__suffix { margin-left: auto; }
+
+.fld__box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap);
+  /* 높이 44px 과 글자 16px 은 줄이지 않는다. 44 는 손가락 최소치이고,
+     16px 미만이면 iOS Safari 가 입력에 들어갈 때 화면을 확대한다 */
+  padding: 9px 12px;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  transition: border-color .12s, box-shadow .12s;
+}
+
+/* iOS Safari 는 16px 미만 입력에 진입할 때 화면을 확대한다.
+   확대되면 되돌아오지 않아 레이아웃이 깨진 것처럼 보인다.
+   여기 16px 은 글자 계단을 따르는 값이 아니라 그 규칙 자체다.
+   --t-body 로 바꾸면 나중에 계단을 조정하다 규칙이 깨진다 */
+.fld__input,
+.fld__area {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+}
+.fld__area { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+.fld__input::placeholder,
+.fld__area::placeholder { color: var(--text-mute); }
+
+.fld__box:focus-within {
+  border-color: var(--focus);
+  box-shadow: var(--focus-ring);
+}
+
+.fld--err .fld__box { border-color: var(--danger); }
+.fld--err .fld__box:focus-within { box-shadow: 0 0 0 3px rgba(200, 30, 30, .18); }
+
+.fld--off .fld__box {
+  background: var(--field-off-bg);
+  border-color: var(--border);
+}
+.fld--off .fld__input,
+.fld--off .fld__area { color: var(--field-off-ink); }
+
+.fld__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.fld__msg { color: var(--text-dim); }
+.fld--err .fld__msg { color: var(--danger); font-weight: 600; }
+.fld__count { margin-left: auto; font-variant-numeric: tabular-nums; }
+.fld__count--over { color: var(--danger); font-weight: 700; }
+
+/* 셀렉트는 기본 화살표를 지우고 직접 그린다.
+   OS 마다 모양이 달라 폼 전체의 톤이 흐트러진다 */
+.fld__select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  appearance: none;
+}
+.fld__box--select { position: relative; padding-right: 34px; }
+.fld__box--select::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  width: 7px; height: 7px;
+  border-right: 2px solid var(--text-mute);
+  border-bottom: 2px solid var(--text-mute);
+  transform: translateY(-2px) rotate(45deg);
+  pointer-events: none;
+}
+
+/* 체크박스. 기본 요소는 색을 못 바꿔서 가리고 새로 그린다 */
+.chk { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; min-height: var(--tap); }
+.chk input { position: absolute; opacity: 0; width: 0; height: 0; }
+.chk__box {
+  width: 20px; height: 20px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border-mid);
+  border-radius: 6px;
+  background: var(--field-bg);
+  display: grid;
+  place-items: center;
+  transition: background .12s, border-color .12s;
+}
+.chk__box::after {
+  content: '';
+  width: 5px; height: 9px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(45deg) translate(-1px, -1px);
+  opacity: 0;
+}
+.chk input:checked + .chk__box { background: var(--accent); border-color: var(--accent); }
+.chk input:checked + .chk__box::after { opacity: 1; }
+.chk input:focus-visible + .chk__box { box-shadow: var(--focus-ring); }
+.chk__text { font-size: var(--t-strong); font-weight: 400; color: var(--text); }
+
+/* ── 버튼 ─────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--tap);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--t-strong);
+  font-weight: 700;
+  cursor: pointer;
+  /* 갈 곳이 있는 버튼은 a 다 (404 의 두 버튼, 빈 화면의 모집글 쓰기).
+     여기서 밑줄을 지워두지 않으면 링크만 밑줄이 그어져 같은 버튼이
+     자리에 따라 다르게 보인다 */
+  text-decoration: none;
+  transition: background .12s, border-color .12s, transform .06s;
+}
+.btn:active { transform: scale(.985); }
+.btn:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+
+.btn--primary { background: var(--accent); color: #fff; }
+.btn--primary:hover { background: var(--accent-deep); }
+
+.btn--ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-mid);
+}
+.btn--ghost:hover { background: var(--bg-sunk); }
+
+.btn--danger { background: var(--danger-soft); color: var(--danger); border-color: #f3c9c5; }
+.btn--danger:hover { background: #fbdfdc; }
+
+/* 카카오 브랜드 색. 이 노랑은 카카오만 쓰므로 토큰으로 올리지 않고
+   버튼에만 묶어둔다. 다른 자리에 새면 브랜드가 섞인다 */
+.btn--kakao { background: #fee500; color: rgba(0, 0, 0, .85); }
+.btn__mark { width: 18px; height: 18px; flex: 0 0 auto; }
+.btn--kakao:hover { background: #f2d900; }
+
+.btn--sm { min-height: 34px; padding: 0 12px; font-size: 14px; }
+.btn--block { width: 100%; }
+
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  background: var(--field-off-bg);
+  color: var(--field-off-ink);
+  border-color: var(--border);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── 상태 배지 ────────────────────────────────────────── */
+
+/* 상태 칩과 이벤트 칩이 나란히 선다. 크기가 다르면 정렬이 안 맞은
+   것처럼 보여서 padding·글자크기·줄높이를 같은 값으로 묶는다 */
+.state,
+.post__event {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.state--open { background: var(--accent-soft); color: var(--accent-ink); }
+.state--done { background: var(--gone-soft); color: var(--gone); }
+.state--off  { background: var(--gone-soft); color: var(--gone); }
+
+/* 종료. 모집 완료와 같은 회색이되 테두리만 남긴다.
+   둘 다 끝난 글이라 색을 나누면 목록에 회색 계열이 둘이 되어 오히려
+   구분이 흐려진다. 글자('모집 완료' / '종료')가 이미 다르다 */
+.state--ended {
+  background: transparent;
+  color: var(--gone);
+  box-shadow: inset 0 0 0 1px var(--border-mid);
+}
+
+/* 끝난 글 도장. 카드 전체를 회색으로 눌러 목록에서 지나치게 한다.
+   지운 글이 아니라 끝난 글이므로 없애지 않고 낮춘다 */
+.is-done { filter: grayscale(1); opacity: .62; }
+
+/* ── 사람 ─────────────────────────────────────────────── */
+
+.avatar {
+  width: 32px; height: 32px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--lg { width: 48px; height: 48px; font-size: 17px; }
+
+.who { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.who__name { font-size: 14px; font-weight: 700; color: var(--text); }
+/* 아바타 옆 이름은 14px 로 둔다. 계단의 strong(15) 과 sub(13.5) 사이인데,
+   아바타 32px 에 15px 을 붙이면 글자가 원보다 커 보인다 */
+.who__sub  { font-size: var(--t-sub); color: var(--text-mute); }
+
+/* ── 메타 줄 ──────────────────────────────────────────────
+   장소·날짜·시각처럼 "확인하는 값" 을 잇는 한 줄. 당근은 목록에서도
+   상세에서도 이 줄을 12px 회색에 가운뎃점으로만 잇는다. 화면마다
+   구분자와 간격을 다르게 두면 같은 성격의 정보가 다르게 읽힌다.
+   ------------------------------------------------------- */
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-mute);
+}
+.meta > * + *::before { content: '·'; margin-right: 4px; }
+.meta b { color: var(--text-dim); font-weight: 700; }
+/* 알림이 없어서 이 표시가 알림 노릇을 한다. 메타 줄 안에서 혼자 살아난다 */
+.meta em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--accent-ink);
+  background: var(--accent-soft);
+  padding: 1px 7px;
+  border-radius: 999px;
+}
+.meta em::before { content: none; }
+
+/* ── 글쓰기 버튼 ──────────────────────────────────────────
+   헤더가 아니라 오른쪽 아래에 둔다. 당근이 그렇게 둔다. 헤더
+   오른쪽은 한 손으로 쥔 엄지에서 가장 먼 자리라, 가장 자주 누를
+   것을 거기 두면 매번 손을 고쳐 잡아야 한다.
+   ------------------------------------------------------- */
+.fab {
+  position: fixed;
+  right: max(var(--gutter), calc(50vw - var(--page-w) / 2 + var(--gutter)));
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 48px;
+  padding: 0 18px 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(233, 51, 121, .3);
+}
+.fab:hover { background: var(--accent-deep); }
+.fab:active { transform: scale(.97); }
+.fab:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+.fab svg { width: 18px; height: 18px; }
+
+/* ── 모집글 행 ────────────────────────────────────────── */
+
+/* 포스터가 주인공인 카드다.
+
+   당근을 그대로 따르지 않는 유일한 자리다. 당근 목록의 썸네일은
+   작고 왼쪽에 붙는데, 당근이 파는 것은 중고 물건이고 우리가 보여줄
+   것은 공연 포스터라 성격이 다르다.
+
+   같은 포스터를 다루는 곳을 재보니 이랬다.
+     오프메이트  224×336 (2:3), 라운드 12
+     팝가        220×275 (4:5)
+   둘 다 세로 포스터를 크게 세운다. 우리 이미지의 92% 가 오프메이트
+   에서 오므로 2:3 을 쓰는 편이 잘린 티가 가장 적다.
+
+   행에 넣던 정보 넷 중 셋을 뺐다. 본문 요약은 제목과 같은 말을 두 번
+   하고(요약을 목록에 넣는 경쟁 서비스가 하나도 없다), 인원은 신청·
+   수락을 두지 않아 정원이 아니라 희망사항이며, 댓글 수는 초기에
+   0~2 라 신호가 되지 않는다. 남은 것은 포스터·제목·언제·어디서다 */
+/* 사진이 화면 왼쪽 끝에 붙는다. gutter 안쪽에 두고 모서리를 굴리면
+   사진이 "카드에 담긴 그림" 이 되어 행사 카탈로그처럼 읽힌다. 끝까지
+   붙이고 직각으로 자르면 글에 딸린 사진으로 읽힌다.
+
+   사진 높이가 곧 행 높이다. 위아래 여백을 두지 않아 사진이 구분선에
+   그대로 닿는다. 여백을 주면 그만큼 사진이 작아지고, 목록에서 사진을
+   키운 이유가 사라진다 */
+.pcard {
+  display: flex;
+  gap: 12px;
+  padding: 0 var(--gutter) 0 0;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.pcard__thumb { position: relative; flex: 0 0 auto; }
+
+.pcard__photo {
+  display: block;
+  width: 130px;
+  /* 정사각이다. 세로 포스터를 그대로 세우면 행 하나가 너무 높아져
+     한 화면에 서너 개밖에 안 들어온다. 목록은 훑는 화면이다 */
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /* 가운데를 자른다. 상세의 4:5 는 세로가 거의 그대로 남아 위를 살리는
+     것이 맞지만, 정사각은 위아래를 크게 잘라내서 center top 으로 두면
+     포스터 상단 여백만 남고 정작 인물이 밀려난다 */
+  object-position: center;
+  background: var(--bg-sunk);
+}
+
+/* 붙은 행사가 없어 포스터가 없는 글. 회색 네모를 두면 사진이 안
+   불러와진 것처럼 보여서 제목에서 뽑은 색을 깐다. 같은 글은 늘 같은
+   색이라 목록을 훑을 때 색만으로 다시 알아본다 (lib/visual.ts) */
+.pcard__photo--none { box-shadow: inset 0 0 0 1px rgba(36, 26, 31, .05); }
+
+/* 완료는 사진 왼쪽 위에 얹는다. 제목 앞에 붙이면 제목이 한 줄을
+   더 먹는다. 당근도 거래완료를 썸네일 위에 올린다 */
+.pcard__state { position: absolute; left: 8px; top: 8px; }
+.pcard__state .state { box-shadow: 0 1px 4px rgba(36, 26, 31, .18); }
+
+/* 글은 위에서 시작한다. 세로 가운데로 맞추면 제목이 한 줄인 글과 두
+   줄인 글의 첫 줄 높이가 달라져 목록이 들쭉날쭉해 보인다 */
+.pcard__main { flex: 1; min-width: 0; padding: 12px 0; }
+
+.pcard__title {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mine__title .state { margin-right: 5px; vertical-align: 1px; }
+
+/* 팝가와 같은 순서. 언제가 위, 어디서가 아래 한 줄이다. 둘을 한 줄에
+   몰면 좁은 칸에서 어디가 잘릴지 예측할 수 없다 */
+.pcard__when {
+  margin-top: 4px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.pcard__where {
+  margin-top: 1px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 댓글 수. 오른쪽 끝에 세운다.
+
+   채운 분홍 배지였는데 목록에서 그것만 색이 튀어 정작 제목보다 먼저
+   눈에 들어왔다. 댓글 수는 확인하는 값이지 첫눈에 걸려야 하는 값이
+   아니다. 테두리만 그린 말풍선에 회색 숫자로 눌렀다. */
+.pcard__talk {
+  align-self: center;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+.pcard__talkmark { width: 14px; height: 14px; flex: 0 0 auto; }
+
+
+.cmt { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+.cmt__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.cmt__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cmt__time { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
+.cmt__text { font-size: var(--t-strong); font-weight: 400; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+.cmt__acts { display: flex; gap: 12px; font-size: var(--t-sub); color: var(--text-mute); }
+.cmt__acts button { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+
+/* 대댓글은 깊이 1단계로 고정이다. 들여쓰기도 한 번만 */
+.cmt--reply { padding-left: 42px; background: var(--bg-sunk); }
+
+/* 비밀 댓글. 채팅이 없어 이것이 유일한 사적 통로다 */
+.cmt__lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.cmt__lockmark { width: 11px; height: 11px; }
+
+/* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
+.cmt__hidden { font-size: var(--t-sub); color: var(--text-mute); font-style: italic; }
+
+/* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
+.cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
+
+/* ── 시트 ─────────────────────────────────────────────── */
+
+.ask {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(36, 26, 31, .38);
+}
+.ask__panel {
+  width: 100%;
+  /* 여기만 --page-w 를 안 쓴다. 확인 시트는 본문이 아니라 물음이라,
+     본문과 같은 폭이면 한 화면이 더 열린 것처럼 보인다. 좁을수록
+     "예/아니오 하나만 고르면 된다" 로 읽힌다 */
+  max-width: 480px;
+  max-height: 84vh;
+  overflow: auto;
+  padding: 20px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-radius: 18px 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ask__title { font-size: 18px; font-weight: 800; line-height: 1.4; color: var(--text); }
+.ask__desc  { font-size: var(--t-sub); color: var(--text-dim); line-height: 1.55; }
+.ask__foot  { display: flex; gap: 8px; }
+.ask__foot .btn { flex: 1; }
+
+@media (min-width: 560px) {
+  .ask { align-items: center; }
+  .ask__panel { border-radius: 18px; max-width: 420px; }
+}
+
+/* ── 빈 화면 · 실패 ───────────────────────────────────── */
+
+.blank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 48px 24px;
+  text-align: center;
+}
+/* 로고의 3D 오리에서 얼굴만 떼어낸 그림. 가장자리가 서서히 사라지게
+   구워둬서 배경이 무엇이든 네모로 잘린 티가 나지 않는다 */
+.blank__art {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  margin-bottom: -6px;
+}
+.blank__title { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.blank__desc  { font-size: var(--t-sub); color: var(--text-mute); line-height: 1.6; }
+
+/* 뼈대. 목록을 기다리는 동안 자리를 잡아둔다 */
+.skel {
+  background: linear-gradient(90deg, var(--bg-sunk) 25%, #eeeef1 37%, var(--bg-sunk) 63%);
+  background-size: 400% 100%;
+  border-radius: var(--radius-sm);
+  animation: skel 1.3s ease-in-out infinite;
+}
+@keyframes skel { from { background-position: 100% 0 } to { background-position: 0 0 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; }
+}
+
+/* ── 탭 ───────────────────────────────────────────────── */
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+.tabs__item {
+  flex: 1;
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text-mute);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tabs__item--on { color: var(--accent-ink); border-bottom-color: var(--accent); }
+
+/* ── 페이지 껍데기 ────────────────────────────────────── */
+
+.shell { min-height: 100dvh; display: flex; flex-direction: column; background: var(--bg); }
+
+.shell__bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 52px;
+  padding-inline: 4px var(--gutter);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.shell__back {
+  width: var(--tap);
+  height: var(--tap);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.shell__back svg { width: 22px; height: 22px; }
+.shell__back:active { background: var(--bg-sunk); }
+
+/* 헤더 오른쪽 더보기. 신고·차단처럼 자주 쓰지 않고 되돌리기 어려운
+   것을 여기 넣는다. 뒤로가기와 같은 크기·같은 모양으로 둔다 */
+.shell__more {
+  width: var(--tap);
+  height: var(--tap);
+  margin-right: calc(var(--gutter) * -1 + 4px);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.shell__more svg { width: 20px; height: 20px; }
+.shell__more:active { background: var(--bg-sunk); }
+.shell__title {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell__right { margin-left: auto; display: flex; gap: 6px; }
+
+.shell__body { flex: 1; width: 100%; max-width: var(--page-w); margin-inline: auto; }
+
+.shell__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  width: 100%;
+  max-width: var(--page-w);
+  margin-inline: auto;
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+/* ── 모집글 상세 ──────────────────────────────────────────
+   당근 동네생활 글의 순서를 따른다.
+     칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글
+   앞서는 제목과 본문 사이에 이벤트칩·글쓴이·정보표가 끼어 있었다.
+   표는 읽는 물건이 아니라 확인하는 물건이라 읽는 흐름을 끊는다.
+   언제·어디서는 표에서 빼내 제목 아래 한 줄로 눌러 붙였다.
+   ------------------------------------------------------- */
+
+/* 맨 위 사진. 어느 공연인지 글자보다 먼저 알려준다.
+   비율을 고정해 이미지가 늦게 와도 아래 내용이 밀리지 않는다.
+
+   4:5 인 이유. 실제로 들어오는 포스터가 1:1 에서 3:4 사이의 세로형이다
+   (재보니 1.000 · 0.800 · 0.750). 16:10 가로로 잘랐을 때 3:4 포스터는
+   높이의 47% 만 보였다. 절반도 안 나온 셈이다. 4:5 로 두면 3:4 는 94%,
+   4:5 는 그대로, 1:1 은 좌우만 조금 잘린다.
+
+   높이를 60vh 로 막는다. 넓은 화면에서 비율만 두면 사진 하나가 첫
+   화면을 통째로 먹어 제목이 안 보인다 */
+.post__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 60vh;
+  object-fit: cover;
+  /* 포스터는 위쪽에 제목과 인물이 있다. 잘린다면 아래가 잘려야 한다 */
+  object-position: center top;
+  background: var(--bg-sunk);
+}
+
+/* 지도는 제목과 날짜 사이. 어디로 가야 하는지가 글보다 먼저다 */
+.post__map { margin-top: 12px; }
+.post__map:empty { display: none; }
+
+/* 지도가 있을 자리를 보여주는 그림. 개발 중에만 뜬다.
+
+   크기와 여백을 globals.css 의 .locmap__canvas 와 같은 값으로 둔다.
+   여기가 로컬에서 배치를 확인하는 유일한 경로라, 이 값이 다르면
+   아무도 배포될 모습을 못 본 채로 나간다 (전에 180px / 위 여백
+   12px 이었고 배포는 200px / 22px 이었다) */
+.fmap {
+  position: relative;
+  margin-top: 10px;
+  height: 200px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.fmap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+@media (min-width: 700px) {
+  .fmap { height: 260px; }
+}
+
+/* 핀. 지도 탭의 라벨 핀과 같은 어휘를 쓰되 여기서는 그림이라 단순하게 */
+.fmap__pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fmap__pin b {
+  max-width: 220px;
+  padding: 5px 10px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+}
+.fmap__pin::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  margin-top: -4px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+.fmap__tag {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .82);
+  color: var(--text-mute);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.post { padding: 14px var(--gutter) 4px; }
+
+/* 맨 위 줄. 당근의 카테고리 칩 자리에 이벤트와 상태를 둔다 */
+.post__tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.post__event {
+  max-width: 100%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post__who { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+
+.post__title {
+  margin-top: 12px;
+  font-size: var(--t-title);
+  font-weight: 800;
+  line-height: 1.36;
+  color: var(--text);
+}
+
+/* 약속이라 언제·어디서가 본문보다 먼저 눈에 들어와야 한다.
+   그렇다고 세 줄을 굵게 쓰면 제목과 무게가 비슷해져 둘 다 안 읽힌다.
+   날짜만 눈에 걸리게 두고 나머지는 한 줄로 눌렀다 */
+.post__when {
+  margin-top: 10px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--accent-ink);
+  line-height: 1.5;
+}
+.post__sub {
+  margin-top: 1px;
+  font-size: var(--t-sub);
+  font-weight: 400;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.post__body {
+  margin-top: 16px;
+  font-size: var(--t-body);
+  line-height: 1.72;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* 당근의 공감·댓글·조회 줄 */
+.post__count {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-mute);
+}
+.post__count b { color: var(--text-dim); font-weight: 700; }
+
+/* ── 댓글 묶음 ────────────────────────────────────────── */
+
+.thread { padding: 0 var(--gutter) 24px; border-top: 8px solid var(--bg-sunk); }
+.thread__head {
+  padding: 14px 0 2px;
+  font-size: 12.5px;
+  color: var(--text-mute);
+}
+.thread__hint { font-size: 12.5px; color: var(--text-mute); }
+
+/* 댓글 입력. 화면을 따라다니지 않고 글 맨 아래에 있다.
+   따라다니면 짧은 글에서는 본문을 가리고 긴 글에서는 읽는 내내
+   자리를 뺏는다. 네이버 카페와 당근이 둘 다 목록 끝에 둔다 */
+.write {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px var(--gutter) 32px;
+}
+
+/* 글자수는 한 줄을 통째로 쓰지 않는다. 500자를 채울 일이 드물어
+   평소에는 눈에 안 띄는 편이 낫다 */
+.write__opts { display: flex; align-items: center; gap: 10px; }
+.write__count {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--text-mute);
+  font-variant-numeric: tabular-nums;
+}
+.write__count--over { color: var(--danger); font-weight: 700; }
+
+/* 비회원에게 보이는 자리. 입력칸 대신 로그인 버튼을 둔다.
+   눌러야 막히는 것보다 처음부터 보이는 편이 덜 답답하다 */
+.write__gate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+/* 답글을 다는 중이라는 표시.
+
+   입력칸을 댓글마다 열지 않고 맨 아래 하나를 빌려 쓴다. 그래서
+   지금 누구에게 다는 중인지 여기서 알려주지 않으면, 답글을
+   눌러놓고 새 댓글을 쓴 것으로 착각한다 */
+.write__reply {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+.write__reply b { color: var(--accent-ink); font-weight: 700; }
+.write__reply button {
+  margin-left: auto;
+  padding: 6px 2px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-mute);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── 보는 사람 바꾸기 (개발용) ────────────────────────── */
+
+/* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 지운다 */
+/* 화면 위에 붙이지 않는다. 스크롤을 따라오면 지도와 사진 위를
+   덮어 정작 확인하려던 것을 가린다. 개발용 막대이므로 본문과 같이
+   흘러가면 된다 */
+.whoami {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px var(--gutter);
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 12px;
+}
+.whoami b { font-weight: 700; opacity: .7; }
+.whoami button {
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font: inherit;
+  font-weight: 700;
+  background: rgba(255, 255, 255, .16);
+  color: #fff;
+  cursor: pointer;
+}
+.whoami button[aria-pressed='true'] { background: var(--accent); }
+
+/* ── 모집글 목록 ──────────────────────────────────────── */
+
+/* 마지막 줄이 글쓰기 버튼에 가리지 않을 만큼 띄운다 */
+.plist { padding-bottom: 96px; }
+
+/* 좌우 여백을 두지 않는다. 사진이 화면 왼쪽 끝까지 가야 하기
+   때문이다. 오른쪽 여백은 행 안에서 준다 */
+.plist__body { padding: 0; }
+
+/* 행 전체가 링크다. 제목만 누르게 하면 손가락으로 맞히기 어렵다 */
+.plist__link { display: block; text-decoration: none; color: inherit; }
+.plist__link:active .pcard { background: var(--bg-sunk); }
+
+/* ── 폼 ───────────────────────────────────────────────── */
+
+/* 칸 사이를 18 → 14 로 좁혔다. 한 칸이 라벨(19)+여백(5)+입력칸(44)
+   이라 간격까지 넓으면 다섯 칸이 한 화면을 넘긴다 */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px var(--gutter) 40px;
+}
+
+/* 날짜와 시각처럼 짝인 것은 나란히 둔다. 세로로 쌓으면 관계가 안 보인다 */
+.form__row { display: flex; gap: 10px; }
+.form__row > .fld { flex: 1; min-width: 0; }
+
+/* 제출은 화면 아래에 붙인다. 당근도 글쓰기와 가입 폼의 완료 버튼을
+   맨 아래 고정한다. 흐름 안에 두면 긴 폼에서는 끝까지 내려보기 전엔
+   제출할 수 있는 상태인지조차 알 수 없다 */
+.form__foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px calc(var(--gutter) * -1) 0;
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.form__cancel {
+  min-height: var(--tap);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text-mute);
+  cursor: pointer;
+}
+
+/* ── 내 활동 내역 ─────────────────────────────────────── */
+
+/* 목록 행은 화면이 달라도 같은 모양이어야 한다. 내 활동과 프로필도
+   모집글 목록과 같은 규칙을 쓴다 — 전체폭 행, 사이에 1px 선 */
+.mine { list-style: none; margin: 0; padding: 0 var(--gutter) 40px; }
+.mine__row {
+  display: block;
+  padding: 14px 0;
+  text-decoration: none;
+  color: inherit;
+}
+.mine li + li .mine__row { border-top: 1px solid var(--border); }
+.mine__row:active { background: var(--bg-sunk); }
+.mine__head { display: flex; align-items: center; gap: 6px; }
+
+/* 사진이 붙는 글 행 (프로필의 「쓴 모집글」).
+
+   /p 목록처럼 130px 을 화면 끝까지 붙이지 않는다. 거기는 포스터를
+   보고 고르는 화면이고 여기는 "이 사람이 뭘 하고 다니나" 를 훑는
+   자리라, 어느 행사인지 알아볼 만한 크기면 된다. 64 는 옆의
+   아바타(56)와 비슷해 화면 안에서 따로 놀지 않는다.
+
+   글은 위에서 시작한다. 세로 가운데로 맞추면 제목이 한 줄인 글과
+   두 줄인 글의 첫 줄 높이가 달라져 목록이 들쭉날쭉해 보인다 */
+.mine__row--thumb { display: flex; align-items: flex-start; gap: 12px; }
+.mine__main { flex: 1; min-width: 0; }
+.mine__thumb {
+  display: block;
+  width: 64px;
+  flex: 0 0 auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /* 정사각은 위아래를 크게 잘라내서 center top 으로 두면 포스터
+     상단 여백만 남는다. 상세의 4:5 와 규칙이 다른 이유다 */
+  object-position: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+}
+.mine__when { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
+
+/* 어느 글에 단 댓글인지. 댓글 본문보다 먼저 나와야 맥락이 잡힌다 */
+.mine__on {
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mine__title {
+  margin-top: 2px;
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.4;
+}
+/* 내가 쓴 댓글은 제목이 아니라 읽는 글이다. 굵기를 빼고 한 단 낮춘다 */
+.mine__title--sm {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.mine__sub { margin-top: 8px; }
+
+/* ── 로그인 ───────────────────────────────────────────────
+   당근 온보딩의 배치를 그대로 쓴다. 이 화면만 가운데 정렬인 이유가
+   있다. 다른 화면은 훑거나 읽는 화면이라 왼쪽 시작선이 맞지만,
+   여기는 읽을 것이 세 줄뿐이고 아래 버튼 하나로 끝나는 관문이다.
+   왼쪽에 붙이면 오른쪽이 통째로 비어 화면이 미완성으로 보인다.
+
+     로고        화면 위쪽에서 아래로 조금 내려온 자리
+     제목
+     설명
+     (빈 공간)
+     버튼        아래에 붙는다. 엄지가 닿는 곳
+     약관 · 둘러보기
+   ------------------------------------------------------- */
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 var(--gutter) 24px;
+  min-height: calc(100dvh - 52px);
+}
+
+/* 로고부터 설명까지가 한 덩어리다. 남는 공간을 이 덩어리가 먹고
+   그 안에서 가운데로 모인다. 화면이 길든 짧든 같은 자리에 보인다 */
+.login__top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 정확히 가운데면 아래 버튼과 붙어 보인다. 조금 위로 올린다 */
+  padding-bottom: 56px;
+}
+
+.login__mark { width: 112px; height: 112px; object-fit: contain; }
+
+.login__title {
+  margin-top: 18px;
+  font-size: var(--t-hero);
+  font-weight: 800;
+  line-height: 1.36;
+  color: var(--text);
+}
+.login__desc {
+  margin-top: 12px;
+  font-size: var(--t-body);
+  line-height: 1.72;
+  color: var(--text-dim);
+}
+
+/* 버튼은 하나뿐이다. 고를 것이 없으면 고민할 것도 없다 */
+.login__acts { width: 100%; }
+
+.login__terms {
+  margin-top: 14px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.login__terms a { color: var(--text-dim); }
+
+.login__skip {
+  margin-top: 14px;
+  min-height: var(--tap);
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  text-decoration: underline;
+}
+
+
+/* 폼 맨 위의 안내. 무엇을 왜 묻는지 한 줄로 알려준다 */
+.form__lead {
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+/* ── 공개 프로필 ──────────────────────────────────────── */
+
+/* 당근 중고거래 상세의 판매자 행과 같은 배치다. 아바타가 왼쪽,
+   이름과 숫자가 그 오른쪽, 행동은 아래 한 줄.
+
+   가운데 정렬을 버린 이유는 다른 화면이 전부 왼쪽에서 시작하기
+   때문이다. 프로필만 가운데면 화면을 오갈 때 시작선이 흔들린다 */
+/* 신원 줄은 짧게 끝낸다. 바로 아래에 기록 카드가 붙으므로 여기서
+   여백을 벌리면 이름과 카드가 따로 노는 두 덩어리로 보인다 */
+.prof { padding: 14px var(--gutter) 12px; }
+.prof__id { display: flex; align-items: center; gap: 12px; }
+.prof .avatar { width: 56px; height: 56px; font-size: 21px; }
+.prof__idmain { flex: 1; min-width: 0; }
+
+.prof__name {
+  font-size: var(--t-title);
+  font-weight: 800;
+  line-height: 1.36;
+  color: var(--text);
+}
+.prof__meta { margin-top: 2px; }
+
+.prof__bio {
+  margin-top: 10px;
+  font-size: var(--t-body);
+  line-height: 1.72;
+  color: var(--text-dim);
+}
+.prof__bio--none { color: var(--text-mute); }
+
+/* 확인하는 값을 라벨·값 두 칸으로 세운다.
+
+   .meta 로 잇지 않는 이유는 값마다 라벨이 필요해서다. 가운뎃점으로
+   이어붙이면 "3회 · 2개 중 1개 완료" 가 되어 무엇이 무엇인지 모른다.
+   라벨은 눌러 두고 값만 눈에 걸리게 한다 */
+.prof__facts { display: flex; flex-direction: column; gap: 9px; }
+.prof__fact { display: flex; gap: 12px; align-items: baseline; }
+.prof__fact dt {
+  flex: 0 0 84px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.prof__fact dd {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+/* 값에 딸린 부연. 같은 줄에서 한 단 눌러 둔다 */
+.prof__factsub { font-weight: 400; color: var(--text-mute); }
+
+/* 당근의 매너온도 자리. 게이지 하나로 뭉뚱그리지 않고 무엇을 보고
+   그렇게 말하는지 그대로 적는다. 후기도 평점도 없어서 만들 수 있는
+   숫자가 이 셋뿐이기도 하다 */
+/* 이 구간만 상자로 채운다. 8px 띠로 나누면 위아래 구간과 같은
+   무게가 되는데, 이 화면에서 제일 먼저 읽혀야 하는 것이 이 셋이다.
+   흰 배경 위의 회색 면이라 테두리를 두르지 않아도 경계가 선다 */
+.prof__record {
+  margin: 4px var(--gutter) 0;
+  padding: 14px 16px 16px;
+  background: var(--bg-sunk);
+  border-radius: var(--radius);
+}
+/* 상자가 이미 여백을 가진다. 제목이 gutter 를 또 주면 두 번 들어간다 */
+.prof__record .prof__h2 { padding: 0 0 10px; }
+
+/* 셀 것이 없을 때. 0 을 채우면 정보가 아니라 낙인이 된다 */
+.prof__none {
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+
+/* 상자와 목록 사이. 성격이 다른 구간이라 8px 띠로 끊는다 */
+.prof__posts { margin-top: 20px; border-top: 8px solid var(--bg-sunk); padding-bottom: 24px; }
+/* 구간 제목. 당근은 목록 위에 작은 제목만 두고 선을 긋지 않는다 */
+.prof__h2 {
+  padding: 16px var(--gutter) 4px;
+  font-size: var(--t-strong);
+  font-weight: 800;
+  color: var(--text);
+}
+/* 제목 옆 개수. 제목과 같은 크기로 두되 색만 눌러 센 값임을 알린다 */
+.prof__count { margin-left: 4px; color: var(--text-mute); }
+
+/* 더보기가 여는 목록. 시트 안에서 전체폭 한 줄씩 선다 */
+.menu { display: flex; flex-direction: column; margin: 0 calc(var(--gutter) * -1); }
+.menu__item {
+  min-height: var(--tap);
+  padding: 0 var(--gutter);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.menu__item:active { background: var(--bg-sunk); }
+
+/* ── 404 ──────────────────────────────────────────────── */
+
+.nf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 100dvh;
+  padding: 40px var(--gutter);
+}
+.nf__title { font-size: var(--t-title); font-weight: 800; line-height: 1.36; color: var(--text); }
+.nf__desc { font-size: var(--t-body); line-height: 1.72; color: var(--text-mute); }
+.nf__acts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; margin-top: 14px; }
+.nf__acts .btn { width: 100%; text-decoration: none; }
+
+/* ── 이벤트 상세의 동행글 블록 ────────────────────────────
+   배경을 칠하지 않는다. 통째로 분홍이면 이 블록이 정작 위의 장소·
+   기간보다 먼저 눈에 들어온다. 색은 버튼에만 준다. 눌러야 하는 것이
+   그것 하나뿐이다.
+
+   구분은 8px 회색 띠로 한다. 성격이 다른 구간 사이에 쓰는 그 값이다.
+   ------------------------------------------------------- */
+.withus {
+  margin-top: 22px;
+  padding: 20px var(--gutter) 4px;
+  border-top: 8px solid var(--bg-sunk);
+}
+.withus__title { font-size: var(--t-strong); font-weight: 800; color: var(--text); }
+.withus__desc {
+  margin: 6px 0 14px;
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.withus .btn { text-decoration: none; }
+
+
+/* ── 백오피스 ─────────────────────────────────────────── */
+
+/* 명세가 최소한만 만들라고 했다. 꾸미지 않고 읽기만 되게 둔다 */
+.adm { padding-bottom: 40px; }
+
+.adm__filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: var(--tap);
+  padding: 0 var(--gutter);
+  font-size: 14px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.adm__list { list-style: none; margin: 0; padding: 0 var(--gutter); }
+.adm__row { padding: 14px 0; }
+.adm__list li + li .adm__row { border-top: 1px solid var(--border); }
+
+/* 자동 제한이 걸린 건. 야간·주말에 사람이 없어도 이것만은 먼저 본다 */
+.adm__row--hot {
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  background: var(--danger-soft);
+}
+.adm__hot { font-size: var(--t-small); font-weight: 700; color: var(--danger); }
+
+.adm__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.adm__subject {
+  margin-top: 6px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.45;
+}
+.adm__reason { margin-top: 3px; font-size: var(--t-sub); color: var(--text-dim); }
+.adm__detail { color: var(--text-mute); }
+.adm__by { margin-top: 6px; }
+.adm__acts { display: flex; gap: 8px; margin-top: 10px; }
+
+/* 완료된 글은 지우지 않고 회색으로 눌러 둔다. 목록에서 지나치되
+   기록은 남는다 */
+.pcard.is-done .pcard__photo { opacity: .55; }
+
+/* ── 행사 고르기 ──────────────────────────────────────────
+   글에 이미지 업로드를 받지 않는다. 대신 우리가 이미 가진 204건에서
+   고르고, 고른 행사의 대표 사진이 목록과 상세의 사진이 된다.
+
+   셀렉트 상자를 쓰지 않는 이유는 둘이다. 204건은 스크롤로 훑을 양이
+   아니고, OS 기본 셀렉트에는 검색이 없다. 눌러야 펼쳐지는 이유도
+   같다 — 닫혀 있으면 한 줄이라 쓰기 화면이 짧아진다.
+   ------------------------------------------------------- */
+.epick {
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  background: var(--field-bg);
+  overflow: hidden;
+}
+.epick--open { border-color: var(--focus); box-shadow: var(--focus-ring); }
+
+.epick__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 9px 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.epick__label { flex: 1; min-width: 0; font-size: 15px; color: var(--text); }
+/* 안내지 행동이 아니다. 분홍으로 두면 누를 것처럼 보이고 라벨보다
+   먼저 눈에 들어온다. 실제로 누르는 것은 줄 전체다 */
+.epick__hint {
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.epick__caret { width: 16px; height: 16px; color: var(--text-mute); transition: transform .14s; }
+.epick--open .epick__caret { transform: rotate(180deg); }
+
+.epick__panel { border-top: 1px solid var(--border); }
+
+/* 검색. 펼치면 바로 칠 수 있게 자동으로 포커스가 간다 */
+.epick__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-mute);
+}
+.epick__search svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.epick__search input {
+  width: 100%;
+  min-height: 32px;
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  /* 16px 미만이면 iOS Safari 가 입력에 들어갈 때 화면을 확대한다 */
+  font-size: 16px;
+  color: var(--text);
+}
+.epick__search input::placeholder { color: var(--text-mute); }
+.epick__search input::-webkit-search-cancel-button { appearance: none; }
+
+/* 목록. 화면을 다 먹지 않게 높이를 막고 안에서 스크롤한다 */
+.epick__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 264px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.epick__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.epick__list li + li .epick__item { border-top: 1px solid var(--border); }
+.epick__item:hover,
+.epick__item:active { background: var(--bg-sunk); }
+
+.epick__thumb {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 6px;
+  background: var(--bg-sunk);
+}
+.epick__thumb--none { display: block; }
+
+.epick__itemmain,
+.epick__pickedmain { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.epick__itemtitle,
+.epick__pickedtitle {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.epick__itemsub,
+.epick__pickedsub {
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 찾는 것이 없어도 막다른 길로 두지 않는다. 고르지 않아도 올릴 수 있다 */
+.epick__none {
+  padding: 16px 12px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  text-align: center;
+  line-height: 1.6;
+}
+.epick__more {
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  text-align: center;
+}
+
+/* 고른 뒤. 목록이 접히고 이것만 남는다 */
+.epick__picked { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; }
+.epick__clear {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bg-sunk);
+  color: var(--text-mute);
+  font-size: 13px;
+  cursor: pointer;
+}
+.epick__clear:hover { background: var(--border-mid); }
+
+/* 제출을 눌렀는데 안 넘어갈 때 그 이유. 버튼 바로 아래에 둔다.
+   왜 안 되는지를 화면 위쪽 어딘가에 두면 찾아 올라가야 한다 */
+.form__note {
+  margin-top: 8px;
+  text-align: center;
+  font-size: var(--t-sub);
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ── 이벤트 상세의 대표 사진 ──────────────────────────── */
+
+/* 모집글 상세와 같은 4:5 다. 화면마다 비율이 다르면 같은 포스터가
+   다른 그림으로 보인다 */
+.sheet__poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  /* 모집글 상세보다 낮게 막는다. 거기서는 포스터가 글의 주인공이지만
+     여기서는 어느 행사인지 알려주는 표지다. 60vh 로 두면 첫 화면을
+     통째로 먹어 장소도 기간도 스크롤해야 보인다 */
+  max-height: 40vh;
+  object-fit: cover;
+  object-position: center top;
+  background: var(--bg-sunk);
+}
+
+/* ── 고르는 칩 ────────────────────────────────────────── */
+
+/* 선택지가 서넛이면 드롭다운보다 칩이다. 무엇을 고를 수 있는지가
+   열어보기 전에 보이고 고르는 데 한 번만 누른다.
+   globals.css 의 .chip 은 목록 필터가 쓰고 있어 이름을 비켰다 */
+.chips2 { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chip2 {
+  min-height: var(--tap);
+  padding: 0 16px;
+  border: 1px solid var(--field-border);
+  border-radius: 999px;
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.chip2:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+
+/* 고른 것은 채운다. 테두리만 굵게 하면 안 고른 것과 구분이 약하다 */
+.chip2--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* 폼 하단 고정 제출. 당근이 작성 완료를 두는 자리다.
+   흐름 안에 두면 긴 폼에서 끝까지 내려보기 전엔 올릴 수 있는
+   상태인지조차 알 수 없다 */
+.form__bar {
+  position: sticky;
+  bottom: 0;
+  padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+/* 피커 머리글. 라벨 · 선택 표시 · 안내가 한 줄이다 */
+/* 오른쪽 끝으로 민다. 라벨에 붙이면 라벨의 일부처럼 읽힌다 */
+.epick__opt {
+  margin-left: auto;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+/* ── 마이페이지 머리 ──────────────────────────────────── */
+
+/* 공개 프로필의 신원 줄과 같은 배치다. 같은 사람이 화면마다 다르게
+   보이면 내 프로필이 남에게 어떻게 보이는지 짐작할 수 없다 */
+/* 사진이 가운데다. 이름과 나란히 두면 목록 행처럼 읽혀 내
+   프로필이 아니라 남의 목록 한 줄로 보인다. 당근도 프로필 화면에서
+   사진을 가운데 크게 둔다 */
+.myid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px var(--gutter);
+}
+
+/* 사진을 눌러 바로 바꾼다. 수정 화면에 들어가야만 바꿀 수 있으면
+   아바타가 기본값인 채로 남는 사람이 많아진다 */
+.myid__pic { position: relative; flex: 0 0 auto; cursor: pointer; }
+.myid__pic .avatar { width: 76px; height: 76px; font-size: 26px; }
+
+.myid__cam {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  color: var(--text-dim);
+}
+.myid__cam svg { width: 13px; height: 13px; }
+
+.myid__main { text-align: center; }
+.myid__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.myid__meta { margin-top: 3px; justify-content: center; }
+
+/* ── 마이페이지 메뉴 ──────────────────────────────────── */
+
+.mymenu { border-top: 8px solid var(--bg-sunk); }
+.mymenu__row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--gutter);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 400;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.mymenu__row:active { background: var(--bg-sunk); }
+.mymenu__row[disabled] { color: var(--text-mute); cursor: default; }
+.mymenu__row[disabled]:active { background: none; }
+
+.mymenu__caret { width: 16px; height: 16px; margin-left: auto; color: var(--text-mute); }
+.mymenu__note { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+/* 입력칸 오른쪽에 붙는 버튼. 지금 친 값을 두고 누르는 것이라
+   눈이 값에서 버튼으로 바로 넘어간다 */
+.fld__box--after { padding-right: 6px; }
+.fld__after { flex: 0 0 auto; }
+.fld__after .btn { min-height: 32px; padding: 0 10px; }
+
+/* ── 프로필 수정 ──────────────────────────────────────── */
+
+/* 사진이 맨 위 가운데다. 프로필에서 남이 먼저 보는 것이 사진이라
+   폼 중간에 끼워 넣으면 이름·소개와 같은 무게로 읽혀 비어 있어도
+   넘어가게 된다. 당근 비즈프로필도 같은 자리에 둔다 */
+.pedit__pic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px var(--gutter) 6px;
+}
+.pedit__pic .avatar { width: 88px; height: 88px; font-size: 30px; }
+
+.pedit__hint {
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  text-align: center;
+}
+
+/* ── 이벤트 상세를 페이지로 ───────────────────────────── */
+
+/* globals.css 의 .sheet 는 앱 안에서 위로 덮는 시트라 position: fixed 다.
+   /e/[id] 는 같은 어휘를 쓰되 통짜 페이지여서, 그대로 두면 카드가
+   화면에 붙어 제목이 스크롤을 따라다닌다. 여기서만 흐름으로 되돌린다 */
+.sheet--page {
+  position: static;
+  inset: auto;
+  max-width: var(--page-w);
+  margin-inline: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* 원문·예약·지도 링크 줄. 문서 끝의 출처 표기라 가운데로 모은다 */
+.sheet--page .sheet__original { text-align: center; }
+
+/* ── 헤더 제목을 가운데로 ─────────────────────────────── */
+
+/* 뒤로 버튼 옆에 붙여두면 본문 시작선(gutter 16px)과 어긋나 제목만
+   혼자 튀어나온 것처럼 보인다. 가운데로 두면 좌우 버튼과 무관하게
+   늘 같은 자리라 화면을 오갈 때 흔들리지 않는다 */
+.shell__bar { position: relative; justify-content: center; }
+.shell__back { position: absolute; left: 4px; }
+.shell__title { max-width: calc(100% - 160px); text-align: center; }
+.shell__right { position: absolute; right: var(--gutter); margin-left: 0; }
+
+/* ── 프로필을 가운데로 ────────────────────────────────── */
+
+/* 사진·이름·소개를 가운데로 모은다. 마이페이지(/me)가 가운데라
+   같은 사람이 두 화면에서 다르게 놓이면 내 프로필이 남에게 어떻게
+   보이는지 짐작할 수 없다 */
+.prof { padding: 22px var(--gutter) 16px; }
+.prof__id { flex-direction: column; gap: 10px; }
+.prof .avatar { width: 76px; height: 76px; font-size: 26px; }
+.prof__idmain { flex: 0 0 auto; text-align: center; }
+.prof__meta { justify-content: center; }
+.prof__bio { text-align: center; }
+.prof__acts { justify-content: center; }
+
+/* 점 세 개. 헤더가 가운데 정렬이 되면서 오른쪽 붙임이 이중으로
+   먹어 밖으로 밀려났다. 오른쪽 칸이 이미 자리를 잡는다 */
+.shell__more { margin-right: 0; }
+
+/* 헤더 좌우 패딩을 같게 둔다. 왼쪽 4px 오른쪽 16px 이면 가운데 정렬한
+   제목이 6px 왼쪽으로 밀린다. 오른쪽 여백은 .shell__right 가 잡는다 */
+.shell__bar { padding-inline: 4px; }
+
+/* 헤더 안쪽을 본문 폭에 맞춘다.
+
+   테두리와 배경은 화면 전체를 가로질러야 하지만, 뒤로가기와 오른쪽
+   버튼은 본문(--page-w)과 같은 시작선에 서야 한다. 넓은 화면에서 그것만
+   화면 끝까지 나가 있으면 헤더가 본문과 다른 판처럼 보인다.
+
+   제목은 flex 가운데 정렬이라 손대지 않아도 된다. 본문도 화면
+   가운데라 두 가운데가 같은 자리다 */
+.shell__back { left: max(4px, calc((100% - var(--page-w)) / 2 + 4px)); }
+.shell__right { right: max(var(--gutter), calc((100% - var(--page-w)) / 2 + var(--gutter))); }
+
+/* 오른쪽이 아이콘 버튼일 때는 뒤로가기와 같은 자리에 선다.
+
+   둘 다 44px 탭 상자 안의 20~22px 글리프라, 상자를 같은 offset 에
+   두면 글리프도 같은 만큼 바깥으로 나온다 (왼쪽 5px · 오른쪽 4px).
+   본문 gutter 에 상자를 맞추면 글리프가 12px 안으로 들어가 오른쪽만
+   덜 나온 것처럼 보인다.
+
+   글자 버튼(완료 같은 것)은 그대로 gutter 에 선다. 아이콘과 달리
+   여백이 없어 밖으로 빼면 정말로 튀어나온다 */
+.shell__right:has(.shell__more) {
+  right: max(4px, calc((100% - var(--page-w)) / 2 + 4px));
+}
+
+/* ── 온보딩 색인 ──────────────────────────────────────────
+   팀에 화면을 보여줄 때 쓰는 목차. 서비스 화면이 아니라 문서에
+   가까워서 PageShell 을 쓰지 않는다. 뒤로 갈 곳이 없고, 헤더를
+   달면 이것도 화면 중 하나처럼 보인다.
+   ------------------------------------------------------- */
+
+.ob {
+  max-width: var(--page-w);
+  margin-inline: auto;
+  padding: 28px var(--gutter) 56px;
+}
+
+.ob__head { text-align: center; padding-bottom: 4px; }
+.ob__mark { display: block; margin: 0 auto 6px; }
+.ob__title {
+  font-size: var(--t-hero);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.ob__lead {
+  margin-top: 8px;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+/* 낱말 뜻풀이. 본문보다 한 단 낮춰 읽고 넘어가게 둔다 */
+.ob__note {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  text-align: left;
+  color: var(--text-mute);
+}
+.ob__note b { color: var(--text); font-weight: 700; }
+
+.ob__sec { margin-top: 34px; }
+.ob__h {
+  font-size: var(--t-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.ob__seclead {
+  margin-top: 4px;
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+
+/* 격자. 한 칸이 150px 밑으로 내려가면 사진 속 글씨가 뭉개져서
+   무슨 화면인지 알아볼 수 없다. 그 폭을 바닥으로 두고 남는 만큼
+   칸을 늘린다. 640 에서 셋, 휴대폰에서 둘이 된다 */
+.ob__grid {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px 12px;
+}
+
+/* 설명이 없는 칸이 섞여 있어 주소 줄의 높이가 칸마다 달랐다.
+   한 줄 안에서 주소가 들쭉날쭉하면 격자로 안 읽힌다. 칸을 세로로
+   꽉 채우고 주소를 바닥에 붙인다 */
+.ob__grid li { display: flex; }
+.ob__card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 사진. 테두리를 두르는 것은 흰 화면이 대부분이라 사진이 어디서
+   끝나는지 안 보이기 때문이다 */
+.ob__shot {
+  position: relative;
+  display: block;
+  margin-bottom: 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-sunk);
+  line-height: 0;
+}
+.ob__shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center top;
+}
+.ob__card:hover .ob__shot { border-color: var(--accent); }
+
+.ob__name {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+}
+.ob__desc { font-size: var(--t-small); line-height: 1.5; color: var(--text-mute); }
+
+.ob__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
+  font-size: var(--t-small);
+}
+.ob__meta code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ob__spec { margin-left: auto; flex: 0 0 auto; color: var(--text-mute); opacity: .75; }
+
+/* 데이터 출처. 사진 위에 얹어 카드 한 줄을 아낀다.
+   색을 넷 다 다르게 주면 격자가 알록달록해져서 정작 화면이 안
+   읽힌다. 실데이터만 색을 갖고 나머지는 흰 바탕에 회색 글씨 */
+.ob__tag {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, .92);
+  color: var(--text-mute);
+  box-shadow: 0 1px 3px rgba(42, 29, 35, .12);
+}
+.ob__tag--real { background: var(--accent); color: #fff; }
+
+/* 남은 일. 목록이 아니라 문단으로 둔다. 줄마다 굵은 머리를 달면
+   네 줄이 같은 무게로 읽혀 무엇이 중한지 안 보인다 */
+.ob__miss { margin-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+.ob__miss p {
+  padding-left: 13px;
+  border-left: 2px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.ob__miss b { color: var(--text); font-weight: 700; }
+
+.ob__docs {
+  margin-top: 18px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.ob__docs code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text-mute);
+}
+
+
+/* ── 차단 목록 ────────────────────────────────────────── */
+
+.blocked__lead {
+  padding: 14px var(--gutter);
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+  border-bottom: 1px solid var(--border);
+}
+.blocked { list-style: none; margin: 0; padding: 0; }
+.blocked__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px var(--gutter);
+  border-bottom: 1px solid var(--border);
+}
+.blocked__who { flex: 1; min-width: 0; color: inherit; text-decoration: none; }
+
+/* ── 약관·처리방침 자리 ────────────────────────────────── */
+
+.legal { padding: 24px var(--gutter) 40px; }
+.legal__lead { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.legal__body {
+  margin-top: 10px;
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.legal__h {
+  margin-top: 26px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+.legal__todo { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.legal__todo li {
+  padding-left: 13px;
+  border-left: 2px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.legal__back { margin-top: 28px; font-size: var(--t-sub); }
+
+/* ── 만날 자리 찍기 ────────────────────────────────────── */
+
+.ppick { margin-top: -6px; }
+.ppick__canvas,
+.ppick__fake {
+  position: relative;
+  height: 200px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-sunk);
+}
+.ppick__fake { cursor: crosshair; }
+.ppick__fake img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 찍은 자리. 진짜 지도에서는 CustomOverlay 가 같은 모양을 그린다 */
+.ppick__fakepin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--t-small);
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* 로컬 전용이라는 표시. 없으면 이 그림을 진짜 지도로 본다 */
+.ppick__tag {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(36, 26, 31, .72);
+  color: #fff;
+  font-size: var(--t-small);
+}
+
+.ppick__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+.ppick__at { font-variant-numeric: tabular-nums; }
+.ppick__clear {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  color: var(--text-mute);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ── 지도 앱 헤더의 동행 입구 ─────────────────────────────
+   글자를 뺀 아이콘만 두면 무엇으로 가는 버튼인지 모른다. 지도·목록과
+   성격이 다른 화면으로 나가는 자리라 이름이 붙어 있어야 한다.
+   좁은 화면에서는 검색칸이 줄고 이 버튼은 그대로 남는다.
+   ------------------------------------------------------- */
+
+.header__go {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 44px;
+  min-height: var(--tap);
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: var(--radius-sm);
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+.header__go svg { width: 21px; height: 21px; }
+.header__go span { font-size: var(--t-small); font-weight: 700; letter-spacing: -0.02em; }
+.header__go:active { background: var(--bg-sunk); }
+
+/* ── 백오피스 (PC) ───────────────────────────────────────
+   이 파일에서 유일하게 휴대폰 폭을 벗어나는 화면이다. 운영자가
+   책상에서 쓰고, 신고를 여러 건 훑어 처리하는 일이라 표가 맞다.
+   --page-w 를 쓰지 않는 이유가 그것이고, 다른 화면이 이 규격을
+   따라오면 안 된다.
+   ------------------------------------------------------- */
+
+.bo { min-height: 100dvh; background: var(--bg-sunk); }
+
+.bo__bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  padding-inline: 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.bo__logo { font-size: var(--t-strong); color: var(--text-mute); white-space: nowrap; }
+.bo__logo b { color: var(--text); font-weight: 800; }
+
+.bo__who { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+/* 표는 넓을수록 좋지만 끝이 없으면 눈이 행을 놓친다. 1120 은
+   여섯 칸이 안 눌리면서 한 행을 눈으로 따라갈 수 있는 폭이다 */
+.bo__body { max-width: 1120px; margin-inline: auto; padding: 24px; }
+
+.bo__toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.bo__h { font-size: var(--t-title); font-weight: 800; letter-spacing: -0.02em; }
+.bo__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__count { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+.bo__scroll {
+  overflow-x: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.bo__table { width: 100%; border-collapse: collapse; font-size: var(--t-sub); }
+.bo__table th {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sunk);
+  color: var(--text-mute);
+  font-size: var(--t-small);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+.bo__table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+.bo__table tr:last-child td { border-bottom: 0; }
+.bo__table tbody tr:hover { background: var(--bg-sunk); }
+
+.bo__subject { font-weight: 600; color: var(--text); max-width: 260px; }
+.bo__detail { display: block; margin-top: 2px; font-size: var(--t-small); color: var(--text-mute); }
+.bo__dim { color: var(--text-mute); white-space: nowrap; }
+.bo__when { font-variant-numeric: tabular-nums; }
+.bo__actcol { text-align: right; white-space: nowrap; }
+.bo__acts { display: inline-flex; gap: 6px; }
+
+/* ── 모집글 검색 ─────────────────────────────────────────
+   행사 고르기(.epick__search)와 같은 모양을 쓴다. 같은 일을 하는
+   칸이 화면마다 다르게 생기면 어느 쪽이 검색인지 매번 다시 알아봐야
+   한다. 클래스를 공유하지 않는 것은 그쪽이 시트 안에 들어 있어
+   여백 규칙이 다르기 때문이다.
+   ------------------------------------------------------- */
+
+.psearch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px var(--gutter) 0;
+  padding: 0 12px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--field-off-bg);
+}
+.psearch svg { flex: 0 0 auto; width: 16px; height: 16px; color: var(--text-mute); }
+.psearch input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  /* iOS 확대를 막으려면 16px 밑으로 내려가면 안 된다 (CLAUDE.md) */
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--text);
+}
+.psearch input::placeholder { color: var(--text-mute); }
+.psearch input:focus { outline: none; }
+/* 브라우저가 붙이는 기본 X 를 지운다. 지우기는 결과 없음 화면에 둔다 */
+.psearch input::-webkit-search-cancel-button { display: none; }
+
+/* ── 이벤트 상세 ─────────────────────────────────────────
+   덕플레이스 생카 상세의 모바일 배치를 참고했다. 같은 것을 다루는
+   화면이라 사용자가 이미 아는 순서가 있다.
+
+     구역·유형 → 이름 → 기간(제일 큼) → 장소 → 주소복사·길찾기
+     → 지도 → 특전 → 근처 행사
+
+   기간을 제일 크게 두는 것이 핵심이다. 생카에서 먼저 확인하는 것이
+   "지금 가도 되나" 고, 안 열려 있으면 장소는 볼 이유가 없다.
+   전에는 장소·주소·기간이 같은 크기의 표 행이라 무엇부터 봐야 할지
+   화면이 말해주지 않았다.
+   ------------------------------------------------------- */
+
+.evt__tags { display: flex; gap: 6px; margin-bottom: 8px; }
+.evt__sub { margin-top: 4px; font-size: var(--t-sub); color: var(--text-mute); }
+
+.evt__when { margin: 18px var(--gutter) 0; }
+.evt__date {
+  font-size: var(--t-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: var(--text);
+}
+.evt__time { margin-top: 3px; font-size: var(--t-sub); color: var(--text-mute); }
+
+.evt__place { margin: 18px var(--gutter) 0; }
+.evt__pname { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.evt__paddr { margin-top: 2px; font-size: var(--t-sub); color: var(--text-mute); }
+
+/* 주소 복사 · 길찾기. 둘 다 같은 무게다. 어느 쪽을 쓸지는 사람마다
+   다르고 우리가 고를 일이 아니다 */
+.pact { display: flex; gap: 8px; margin-top: 12px; }
+.pact__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.pact__btn:active { background: var(--bg-sunk); }
+
+.evt__map { margin: 14px var(--gutter) 0; }
+
+.evt__sec { margin: 24px var(--gutter) 0; }
+.evt__h {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* 특전·굿즈·조건. 줄글이면 끝까지 읽어야 아는 것을 훑고 지나가게 한다 */
+.evt__chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.evt__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: var(--t-sub);
+  font-weight: 600;
+}
+/* 조건은 받는 것이 아니라 내야 하는 것이다. 색을 빼서 특전과 구분한다 */
+.evt__chip--cond { background: var(--bg-sunk); color: var(--text-mute); }
+.evt__rand {
+  font-size: var(--t-small);
+  font-style: normal;
+  font-weight: 700;
+  opacity: .7;
+}
+
+/* 근처 행사. 거리를 오른쪽 끝에 세워 세로로 훑히게 한다 */
+.near { list-style: none; margin: 10px 0 0; padding: 0; }
+.near__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  color: inherit;
+  text-decoration: none;
+}
+.near li:last-child .near__row { border-bottom: 0; }
+.near__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.near__name {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.near__where {
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.near__km {
+  flex: 0 0 auto;
+  font-size: var(--t-sub);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-mute);
+}
+/* 칩에 안 들어가는 긴 특전. 실제 데이터의 4%가 문장이라 알약에 넣으면
+   세 줄짜리 칩이 된다 */
+.evt__note { margin-top: 8px; font-size: var(--t-sub); line-height: 1.6; color: var(--text-mute); }
+
+/* 이벤트 상세의 담기 하트. 제목 오른쪽 끝에 세운다 */
+.evt__title { display: flex; align-items: flex-start; gap: 10px; }
+.evt__title h1 { flex: 1; min-width: 0; }
+.shrt {
+  flex: 0 0 auto;
+  width: var(--tap);
+  height: var(--tap);
+  margin: -6px -8px 0 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.shrt svg { width: 24px; height: 24px; }
+.shrt:active { background: var(--bg-sunk); }
+.shrt--on { color: var(--accent); }
+/* 아직 안 고른 상태. 값이 아니라 자리표시자라 흐리게 */
+.epick__label--none { color: var(--text-mute); }
+/* 폼 안의 행사 칸. Field 와 같은 라벨 간격을 쓴다 */
+.fld > .epick { margin-top: 6px; }
+
+/* 아티스트 모아보기의 검색 결과 */
+.subj__none {
+  padding: 28px var(--gutter);
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  text-align: center;
+}
+.subj__count {
+  margin-top: 10px;
+  padding-inline: var(--gutter);
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+
+/* ── 메인 필터 바 ────────────────────────────────────────
+   칩을 전부 늘어놓던 줄을 접었다. 고른 것만 알약으로 남고 안 고른
+   축은 「지역 선택」 버튼 하나로 접힌다. 지금 무엇이 걸려 있는지가
+   줄 맨 앞에서 바로 읽힌다.
+   ------------------------------------------------------- */
+
+.fbar { padding: 12px var(--gutter) 0; }
+
+.fbar__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--field-off-bg);
+}
+.fbar__search svg { flex: 0 0 auto; width: 16px; height: 16px; color: var(--text-mute); }
+.fbar__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  /* iOS 확대를 막으려면 16px 밑으로 내려가면 안 된다 (CLAUDE.md) */
+  font-size: var(--t-body);
+  color: var(--text);
+}
+.fbar__search input:focus { outline: none; }
+.fbar__search input::-webkit-search-cancel-button { display: none; }
+.fbar__x {
+  flex: 0 0 auto;
+  border: 0;
+  background: none;
+  padding: 4px;
+  color: var(--text-mute);
+  font-size: var(--t-sub);
+  cursor: pointer;
+}
+
+.fbar__row {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  /* 축이 늘면 옆으로 흐른다. 접었기 때문에 둘뿐이라 지금은 안 흐른다 */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.fbar__row::-webkit-scrollbar { display: none; }
+
+/* 안 고른 축 */
+.fbar__btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--t-sub);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.fbar__btn svg { width: 12px; height: 12px; color: var(--text-mute); }
+.fbar__btn:active { background: var(--bg-sunk); }
+
+/* 고른 값. 알약 안에 X 를 붙여 한 번에 지운다 */
+.fbar__on {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: stretch;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--accent);
+  overflow: hidden;
+}
+.fbar__onlabel,
+.fbar__clear {
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  cursor: pointer;
+}
+.fbar__onlabel { padding: 0 4px 0 14px; white-space: nowrap; }
+/* 지우기를 세로선으로 갈라 둔다. 붙여 두면 이름을 누르려다 지운다 */
+.fbar__clear {
+  padding: 0 12px;
+  margin-left: 4px;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, .35);
+}
+
+/* 고르는 시트. 지역이 열한 개라 드롭다운으로 두면 좁은 화면에서
+   절반이 잘린다. 아래에서 올라와 화면을 다 쓴다 */
+.fsheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(36, 26, 31, .38);
+}
+.fsheet__panel {
+  width: 100%;
+  max-width: 480px;
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px 18px 0 0;
+  background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.fsheet__head {
+  display: flex;
+  align-items: center;
+  padding: 16px var(--gutter) 10px;
+}
+.fsheet__head h2 { flex: 1; font-size: var(--t-strong); font-weight: 700; }
+.fsheet__head button {
+  border: 0;
+  background: none;
+  padding: 4px 0 4px 12px;
+  color: var(--text-mute);
+  font-size: var(--t-body);
+  cursor: pointer;
+}
+.fsheet__list { list-style: none; margin: 0; padding: 0 0 12px; overflow-y: auto; }
+.fsheet__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--tap);
+  padding: 0 var(--gutter);
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--t-body);
+  text-align: left;
+  cursor: pointer;
+}
+.fsheet__item span { flex: 1; }
+.fsheet__item em { font-style: normal; font-size: var(--t-sub); color: var(--text-mute); }
+.fsheet__item:active { background: var(--bg-sunk); }
+.fsheet__item--on { color: var(--accent-ink); font-weight: 700; }
+.fsheet__item--on em { color: var(--accent-ink); }
+/* 지도 위 검색칸. 반투명 흰 바탕이라 지도가 비쳐도 글자가 읽힌다 */
+.mapcontrols .fbar__search { background: rgba(255, 255, 255, .94); height: 40px; }
+.mapsearch__n { flex: 0 0 auto; font-size: var(--t-small); color: var(--text-mute); }

@@ -1,0 +1,89 @@
+{
+  "note": "와이어프레임용 가상 콘서트. 개발에서만 목록에 섞인다 (src/lib/events-source.ts). 대상명·장소가 전부 가상이고 source_url 은 example.com 이다. events.sample.json 과 같은 규칙이며, 실제 일정으로 오인될 여지를 없애기 위함이다. KOPIS 오픈API 가 붙으면 이 파일을 지운다.",
+  "events": [
+    {
+      "id": "mock_con_1",
+      "place": {
+        "name": "샘플 아레나 (가상)",
+        "address": "서울 송파구 올림픽로 424",
+        "lat": 37.5209,
+        "lng": 127.1268,
+        "district": "jamsil",
+        "kind": "popup_venue"
+      },
+      "subject": "샘플아이돌 하린",
+      "subject_type": "idol",
+      "kind": "concert",
+      "starts_on": "2026-09-19",
+      "ends_on": "2026-09-19",
+      "starts_at": "19:00",
+      "title": "샘플아이돌 하린 단독 콘서트 [가상]",
+      "source_url": "https://example.com/sample/mock_con_1",
+      "trust": "parsed",
+      "goods": []
+    },
+    {
+      "id": "mock_con_2",
+      "place": {
+        "name": "샘플 돔 (가상)",
+        "address": "서울 구로구 경인로 430",
+        "lat": 37.4982,
+        "lng": 126.867,
+        "district": "etc",
+        "kind": "popup_venue"
+      },
+      "subject": "샘플그룹 노바",
+      "subject_type": "idol",
+      "kind": "concert",
+      "starts_on": "2026-09-26",
+      "ends_on": "2026-09-26",
+      "starts_at": "18:30",
+      "title": "샘플그룹 노바 월드투어 서울 [가상]",
+      "source_url": "https://example.com/sample/mock_con_2",
+      "trust": "parsed",
+      "goods": []
+    },
+    {
+      "id": "mock_con_3",
+      "place": {
+        "name": "샘플 홀 (가상)",
+        "address": "서울 광진구 능동로 216",
+        "lat": 37.5473,
+        "lng": 127.0745,
+        "district": "konkuk",
+        "kind": "popup_venue"
+      },
+      "subject": "샘플밴드 파랑",
+      "subject_type": "idol",
+      "kind": "concert",
+      "starts_on": "2026-10-03",
+      "ends_on": "2026-10-03",
+      "starts_at": "17:00",
+      "title": "샘플밴드 파랑 단독 공연 [가상]",
+      "source_url": "https://example.com/sample/mock_con_3",
+      "trust": "parsed",
+      "goods": []
+    },
+    {
+      "id": "mock_con_4",
+      "place": {
+        "name": "샘플 아트센터 (가상)",
+        "address": "서울 서초구 남부순환로 2406",
+        "lat": 37.4784,
+        "lng": 127.0117,
+        "district": "gangnam",
+        "kind": "popup_venue"
+      },
+      "subject": "샘플아이돌 하린",
+      "subject_type": "idol",
+      "kind": "concert",
+      "starts_on": "2026-10-11",
+      "ends_on": "2026-10-11",
+      "starts_at": "19:30",
+      "title": "샘플아이돌 하린 팬미팅 [가상]",
+      "source_url": "https://example.com/sample/mock_con_4",
+      "trust": "parsed",
+      "goods": []
+    }
+  ]
+}

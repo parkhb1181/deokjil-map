@@ -1,0 +1,111 @@
+{
+  "note": "목록용 가짜 데이터. 이벤트는 events.json 의 실제 건을 가리키고 제목·본문만 지어냈다. API 가 붙으면 지운다. 상태 셋(open·done·ended)이 다 들어 있어야 목록에서 차이를 볼 수 있다.",
+  "posts": [
+    {
+      "id": "p1",
+      "event_id": "pg_8417",
+      "event_title": "에이티즈 X 애니티즈 팝업",
+      "title": "에이티즈 팝업 오픈런 같이 하실 분",
+      "excerpt": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요. 오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다.",
+      "state": "open",
+      "capacity": 4,
+      "meet_at": "2026-09-14T09:00",
+      "author": {
+        "id": "u_host",
+        "nickname": "덕질하는오리",
+        "image_url": "/avatar/a1.webp",
+        "done_count": 3
+      },
+      "comment_count": 5,
+      "image_url": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "더현대 서울 지하 1층 팝업 아이코닉"
+      }
+    },
+    {
+      "id": "p2",
+      "event_id": "pg_8166",
+      "event_title": "토리든 팝업",
+      "title": "성수 토리든 팝업 평일 낮에 가실 분",
+      "excerpt": "주말은 사람이 너무 많아서 평일 낮에 가려고요. 저는 반차 쓰고 갑니다. 근처에서 커피 한 잔 하고 헤어져도 좋고요.",
+      "state": "open",
+      "capacity": 2,
+      "meet_at": "2026-09-03T14:00",
+      "author": {
+        "id": "u_a",
+        "nickname": "밤샘예매",
+        "image_url": "/avatar/a2.webp",
+        "done_count": 1
+      },
+      "comment_count": 2,
+      "image_url": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "성수역 3번 출구"
+      }
+    },
+    {
+      "id": "p3",
+      "event_id": null,
+      "event_title": null,
+      "title": "홍대 생카 세 군데 같이 도실 분",
+      "excerpt": "이번 주말에 홍대 쪽 생카 세 군데를 하루에 다 돌아보려고 합니다. 동선은 짜뒀고 같이 도실 분 있으면 좋겠어요.",
+      "state": "open",
+      "capacity": 3,
+      "meet_at": "2026-09-06T11:00",
+      "author": {
+        "id": "u_b",
+        "nickname": "조용한덕후",
+        "image_url": "/avatar/a3.webp",
+        "done_count": 0
+      },
+      "comment_count": 0,
+      "image_url": null,
+      "meet_point": {
+        "place": "홍대입구역 9번 출구"
+      }
+    },
+    {
+      "id": "p4",
+      "event_id": "pg_8555",
+      "event_title": "원위의 작업실",
+      "title": "원위 팝업 첫날 같이 가요",
+      "excerpt": "첫날에 가야 굿즈가 남아 있을 것 같아서요. 오픈 30분 전에 만나서 줄 서려고 합니다.",
+      "state": "done",
+      "capacity": 3,
+      "meet_at": "2026-08-28T10:30",
+      "author": {
+        "id": "u_d",
+        "nickname": "남은대댓글",
+        "image_url": "/avatar/a5.webp",
+        "done_count": 2
+      },
+      "comment_count": 8,
+      "image_url": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
+      "meet_point": {
+        "place": "성수동 원위의 작업실"
+      }
+    },
+    {
+      "id": "p5",
+      "event_id": "pg_8555",
+      "event_title": "원위의 작업실",
+      "title": "코르티스 생카 마지막 날 같이 가요",
+      "excerpt": "첫날에 가야 굿즈가 남아 있을 것 같아서요. 오픈 30분 전에 만나서 줄 서려고 합니다.",
+      "state": "ended",
+      "capacity": 3,
+      "meet_at": "2026-08-20T13:00",
+      "author": {
+        "id": "u_d",
+        "nickname": "남은대댓글",
+        "image_url": "/avatar/a5.webp",
+        "done_count": 2
+      },
+      "comment_count": 2,
+      "image_url": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
+      "closes_at": "2026-08-20T13:00",
+      "meet_point": {
+        "place": "성수동 원위의 작업실"
+      }
+    }
+  ]
+}
