@@ -110,6 +110,17 @@ export interface EventItem {
 }
 
 /* ── 동행 모집 ─────────────────────────────────────────────
+
+   **여기부터는 camelCase 다.** 위쪽 EventItem 은 snake_case 인데
+   일부러 갈라두었다.
+
+   EventItem 은 크롤러가 찍어내는 값이고 bridge-plan-full 7번의
+   Postgres 컬럼명에 맞춰둔 것이라(파일 머리말) 프론트가 혼자 못 바꾼다.
+   반면 아래 타입들은 아직 API 가 없어 우리가 이름을 정한다.
+   도메인 모델링 문서가 meetAt · parentId 로 적고 있어 그쪽에 맞춘다.
+
+   경계는 「밖에서 들어온 것」 대 「우리가 만든 계약」 이다.
+   ─────────────────────────────────────────────────────────
    1차 MVP. 아직 API 가 없어 화면이 목데이터를 읽지만, 이 타입이
    그대로 백엔드에 넘길 응답 명세다. 필드를 늘리거나 이름을 바꾸면
    양쪽이 어긋나므로 여기를 먼저 고치고 넘긴다.
@@ -157,9 +168,9 @@ export function isClosed(state: PostState): boolean {
 export interface PostAuthor {
   id: string
   nickname: string
-  image_url?: string | null
+  imageUrl?: string | null
   /** 완료한 동행 횟수. 처음이면 0 */
-  done_count?: number
+  doneCount?: number
 }
 
 /**
@@ -186,30 +197,30 @@ export interface MeetPoint {
 export interface CompanionPost {
   id: string
   /** 이벤트에 붙지 않은 글도 있다 */
-  event_id: string | null
-  event_title?: string | null
+  eventId: string | null
+  eventTitle?: string | null
   /**
    * 붙은 이벤트의 대표 이미지. 우리가 복제해 두는 것이 아니라
    * 원본 서버 주소를 그대로 들고 있는다. 포스터는 저작물이라
    * 재게시하지 않는다 (CLAUDE.md).
    */
-  event_image_url?: string | null
+  eventImageUrl?: string | null
   title: string
   body: string
   state: PostState
   /** CLOSED 일 때만 온다. 왜 닫혔는지 */
-  closed_reason?: ClosedReason | null
+  closedReason?: ClosedReason | null
   /** CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
-  cancel_reason?: string | null
+  cancelReason?: string | null
   /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
   capacity: number | null
   /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */
-  meet_at: string
-  meet_point: MeetPoint
-  closes_at: string
-  created_at: string
+  meetAt: string
+  meetPoint: MeetPoint
+  closesAt: string
+  createdAt: string
   author: PostAuthor
-  comment_count: number
+  commentCount: number
 }
 
 /**
@@ -228,7 +239,7 @@ export interface PostComment {
    * 조상 전체인지 직계 부모만인지를 먼저 정해야 하고, 채팅이 없어
    * 연락처가 오가는 자리라 거기서 틀리면 유출이다.
    */
-  parent_id: string | null
+  parentId: string | null
   author: PostAuthor
   /**
    * 비밀 댓글인데 볼 권한이 없으면 **서버가 이 필드를 빼고 보낸다.**
@@ -239,7 +250,7 @@ export interface PostComment {
   secret: boolean
   /** 지운 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
   deleted: boolean
-  created_at: string
+  createdAt: string
 }
 
 /**
@@ -277,13 +288,13 @@ export interface Sanction {
   reason: string
   /** 'YYYY-MM-DDTHH:mm'. SUSPENDED 일 때만 있다 */
   until?: string | null
-  issued_at: string
+  issuedAt: string
 }
 
 export interface Viewer {
   role: ViewerRole
   /** 비회원이면 null */
-  user_id: string | null
+  userId: string | null
   /** 제재. 없으면 NONE 으로 본다 */
   sanction?: Sanction | null
 }

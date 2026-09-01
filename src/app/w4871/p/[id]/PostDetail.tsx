@@ -90,7 +90,7 @@ export default function PostDetail({ post, comments, hostId }: {
   /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
      아래 whoami 막대를 지우고 서버 세션에서 채운다 */
   const [pick, setPick] = useState(3)
-  const viewer: Viewer = { role: ROLES[pick].key, user_id: ROLES[pick].id }
+  const viewer: Viewer = { role: ROLES[pick].key, userId: ROLES[pick].id }
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
@@ -105,8 +105,8 @@ export default function PostDetail({ post, comments, hostId }: {
      부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
   const [ask, setAsk] = useState<Ask>(null)
 
-  const isHost = viewer.user_id === hostId
-  const isGuest = !viewer.user_id
+  const isHost = viewer.userId === hostId
+  const isGuest = !viewer.userId
 
   const gate = (why: LoginWhy) => setAsk({ k: 'login', why })
 
@@ -118,7 +118,7 @@ export default function PostDetail({ post, comments, hostId }: {
         /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
         erased.includes(c.id) ? { ...c, deleted: true } : c,
       ),
-    [comments, viewer.user_id, hostId, erased],
+    [comments, viewer.userId, hostId, erased],
   )
 
   /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
@@ -140,7 +140,7 @@ export default function PostDetail({ post, comments, hostId }: {
   const submit = () => {
     if (isGuest) return gate('comment')
     /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다.
-       parent_id 는 replyTo?.id 로 나간다 */
+       parentId 는 replyTo?.id 로 나간다 */
     setDraft('')
     setSecret(false)
     setReplyTo(null)
@@ -183,16 +183,16 @@ export default function PostDetail({ post, comments, hostId }: {
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
-      {post.event_image_url && (
-        <img className="post__cover" src={post.event_image_url} alt="" />
+      {post.eventImageUrl && (
+        <img className="post__cover" src={post.eventImageUrl} alt="" />
       )}
 
       <article className="post">
         <div className="post__tags">
           <Badge state={post.state} />
-          {post.event_id && post.event_title && (
-            <a className="post__event" href={`/e/${post.event_id}`}>
-              {post.event_title}
+          {post.eventId && post.eventTitle && (
+            <a className="post__event" href={`/e/${post.eventId}`}>
+              {post.eventTitle}
             </a>
           )}
         </div>
@@ -200,8 +200,8 @@ export default function PostDetail({ post, comments, hostId }: {
         <div className="post__who">
           <Who
             name={post.author.nickname}
-            src={post.author.image_url ?? undefined}
-            sub={`${post.author.done_count ? `동행 ${post.author.done_count}회` : '첫 동행'} · ${dateOnly(post.created_at)}`}
+            src={post.author.imageUrl ?? undefined}
+            sub={`${post.author.doneCount ? `동행 ${post.author.doneCount}회` : '첫 동행'} · ${dateOnly(post.createdAt)}`}
           />
         </div>
 
@@ -209,29 +209,29 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <div className="post__map">
           <PlaceMap
-            lat={post.meet_point.lat}
-            lng={post.meet_point.lng}
-            label={post.meet_point.place}
+            lat={post.meetPoint.lat}
+            lng={post.meetPoint.lng}
+            label={post.meetPoint.place}
           />
         </div>
 
         {/* 두 줄로 끝낸다. 날짜와 인원이 위, 장소와 마감이 아래다.
             넷을 다 굵게 쓰면 제목과 무게가 비슷해져 둘 다 안 읽힌다 */}
         <p className="post__when">
-          {whenText(post.meet_at)}
+          {whenText(post.meetAt)}
           {post.capacity ? ` · ${post.capacity}명 모집` : ''}
         </p>
         <p className="post__sub">
-          {post.meet_point.place} · {dateOnly(post.closes_at)} 마감
+          {post.meetPoint.place} · {dateOnly(post.closesAt)} 마감
         </p>
 
         <div className="post__body">{post.body}</div>
 
 
         <div className="post__count">
-          <span>댓글 <b>{post.comment_count}</b></span>
-          {post.state === 'CLOSED' && post.closed_reason === 'MANUAL' && <span>모집이 끝났어요</span>}
-          {post.state === 'CLOSED' && post.closed_reason === 'DEADLINE' && <span>행사가 끝났어요</span>}
+          <span>댓글 <b>{post.commentCount}</b></span>
+          {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
+          {post.state === 'CLOSED' && post.closedReason === 'DEADLINE' && <span>행사가 끝났어요</span>}
           {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
         </div>
       </article>
@@ -255,10 +255,10 @@ export default function PostDetail({ post, comments, hostId }: {
             <Comment
               key={c.id}
               name={c.deleted ? '' : c.author.nickname}
-              src={c.author.image_url ?? undefined}
-              time={shortTime(c.created_at)}
+              src={c.author.imageUrl ?? undefined}
+              time={shortTime(c.createdAt)}
               text={c.body ?? undefined}
-              reply={!!c.parent_id}
+              reply={!!c.parentId}
               secret={c.secret}
               gone={c.deleted}
               host={c.author.id === hostId}
@@ -267,10 +267,10 @@ export default function PostDetail({ post, comments, hostId }: {
                   <>
                     {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
                         그 아래가 없다 */}
-                    {!c.parent_id && (
+                    {!c.parentId && (
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
-                    {c.author.id === viewer.user_id ? (
+                    {c.author.id === viewer.userId ? (
                       /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
                          한 번 묻는다 */
                       <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
@@ -299,7 +299,7 @@ export default function PostDetail({ post, comments, hostId }: {
           <p className="write__gate">
             {post.state === 'CANCELED'
               ? '취소된 모집이라 댓글을 받지 않아요'
-              : post.closed_reason === 'MANUAL'
+              : post.closedReason === 'MANUAL'
                 ? '모집이 끝나 댓글을 받지 않아요'
                 : '행사가 끝나 댓글을 받지 않아요'}
           </p>

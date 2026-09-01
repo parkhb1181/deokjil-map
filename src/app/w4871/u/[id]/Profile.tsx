@@ -12,7 +12,7 @@
  *
  * 1차에서는 「같이 다닌 기록」을 통째로 뺐다. 동행 횟수·완료율·댓글
  * 응답이 다 여기 있었다. **도메인 모델에는 남기고 화면에서만 뺀다.**
- * PostAuthor.done_count 와 ProfileData.done_count 는 그대로 두었다.
+ * PostAuthor.doneCount 와 ProfileData.doneCount 는 그대로 두었다.
  *
  * 연령대도 넣지 않는다. 가입 때 받아 미성년 차단에만 쓰는 값이라
  * 남에게 보여줄 이유가 없다. 쓰지도 않을 것을 공개하면 유출됐을 때
@@ -39,8 +39,8 @@ export type ProfilePost = {
   id: string
   title: string
   state: PostState
-  closed_reason?: ClosedReason | null
-  meet_at: string
+  closedReason?: ClosedReason | null
+  meetAt: string
   /**
    * 만나는 구역. 모집글 자체에는 없고 붙은 행사에서 온다.
    * 조인이라 서버가 채운다. 없으면 메타 줄에서 빠진다
@@ -51,21 +51,21 @@ export type ProfilePost = {
    * 그대로 들고 있는다. 포스터는 저작물이다 (CLAUDE.md).
    * 행사에 안 붙은 글도 있어서 없을 수 있다
    */
-  image_url?: string | null
+  imageUrl?: string | null
 }
 
 export type ProfileData = {
   id: string
   nickname: string
-  image_url?: string | null
+  imageUrl?: string | null
   bio?: string | null
-  done_count: number
-  joined_at: string
+  doneCount: number
+  joinedAt: string
   /**
    * 마지막 활동 시각. 알림이 없는 서비스라 "내 댓글을 볼 사람인가" 가
    * 여기 걸린다. 서버가 채우며 아직 응답에 없다 (docs/FRONTEND.md)
    */
-  last_seen_at?: string | null
+  lastSeenAt?: string | null
   posts: ProfilePost[]
 }
 
@@ -114,7 +114,7 @@ export default function Profile({ user }: { user: ProfileData }) {
     setToday(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
   }, [])
 
-  const active = today && user.last_seen_at ? activeLabel(user.last_seen_at, today) : null
+  const active = today && user.lastSeenAt ? activeLabel(user.lastSeenAt, today) : null
 
   /* 「모집글 N개 중 M개 완료」의 M. 방장이 닫은 것만 센다.
      행사가 끝나 저절로 닫힌 글은 이 사람이 한 일이 아니다 */
@@ -125,8 +125,8 @@ export default function Profile({ user }: { user: ProfileData }) {
       [...user.posts].sort((a, b) => {
         if (a.state !== b.state) return a.state === 'OPEN' ? -1 : 1
         return a.state === 'OPEN'
-          ? a.meet_at < b.meet_at ? -1 : 1
-          : a.meet_at < b.meet_at ? 1 : -1
+          ? a.meetAt < b.meetAt ? -1 : 1
+          : a.meetAt < b.meetAt ? 1 : -1
       }),
     [user.posts],
   )
@@ -161,14 +161,14 @@ export default function Profile({ user }: { user: ProfileData }) {
       <header className="prof">
         <div className="prof__id">
           {/* 크기는 .prof .avatar 가 56px 로 정한다 */}
-          <Avatar name={user.nickname} src={user.image_url ?? undefined} />
+          <Avatar name={user.nickname} src={user.imageUrl ?? undefined} />
           <div className="prof__idmain">
             <h1 className="prof__name">{user.nickname}</h1>
 
             <p className="prof__meta meta">
               {/* 활동 시각은 서버가 아직 안 준다. 없으면 칸이 하나 준다 */}
               {active && <span>{active}</span>}
-              <span>{monthOf(user.joined_at)} 가입</span>
+              <span>{monthOf(user.joinedAt)} 가입</span>
             </p>
           </div>
         </div>
@@ -202,8 +202,8 @@ export default function Profile({ user }: { user: ProfileData }) {
                     {/* 어느 행사인지 글자보다 먼저 알려준다. 사진이 없는
                         글에 회색 네모를 두면 안 불러와진 것처럼 보여서
                         제목에서 뽑은 색을 깐다 (lib/visual.ts) */}
-                    {p.image_url ? (
-                      <img className="mine__thumb" src={p.image_url} alt="" loading="lazy" />
+                    {p.imageUrl ? (
+                      <img className="mine__thumb" src={p.imageUrl} alt="" loading="lazy" />
                     ) : (
                       <span
                         className="mine__thumb"
@@ -214,13 +214,13 @@ export default function Profile({ user }: { user: ProfileData }) {
 
                     <div className="mine__main">
                       <p className="mine__title">
-                        {isClosed(p.state) && <Badge state={p.state} reason={p.closed_reason} />}
+                        {isClosed(p.state) && <Badge state={p.state} reason={p.closedReason} />}
                         {p.title}
                       </p>
                       {/* .meta 순서는 어디서 → 언제다 (SCALE.md) */}
                       <p className="mine__sub meta">
                         {p.district && <span>{p.district}</span>}
-                        <span>{whenShort(p.meet_at)}</span>
+                        <span>{whenShort(p.meetAt)}</span>
                       </p>
                     </div>
                   </Link>

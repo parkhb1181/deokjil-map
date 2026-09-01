@@ -5,7 +5,7 @@
  *
  * 글에 이미지 업로드를 받지 않는다. 대신 **우리가 이미 가진 행사에서
  * 고른다.** 고른 행사의 대표 사진이 목록과 상세의 사진이 되고,
- * `event_id` 로 이벤트 상세와 이어진다.
+ * `eventId` 로 이벤트 상세와 이어진다.
  *
  * 셀렉트 상자를 쓰지 않는다. 204건은 스크롤로 훑을 양이 아니고,
  * OS 기본 셀렉트는 검색이 안 된다. 눌러야 펼쳐지는 이유도 같다.
@@ -23,8 +23,8 @@ export type PickableEvent = {
   title: string
   place: string
   district: string
-  ends_on: string
-  image_url: string | null
+  endsOn: string
+  imageUrl: string | null
 }
 
 /** 화면에 한 번에 그리는 최대 개수. 검색으로 좁히라는 뜻이다 */
@@ -58,7 +58,7 @@ export function EventPicker({ all, picked, onPick }: {
     /* 끝난 행사는 뺀다. 지난 정보는 없는 정보보다 나쁘다.
        today 가 비어 있는 첫 렌더에서는 사전순 비교가 항상 참이라
        전부 남는데, 그때는 아직 목록이 닫혀 있어 보이지 않는다 */
-    const live = all.filter((e) => e.ends_on >= today)
+    const live = all.filter((e) => e.endsOn >= today)
     const key = q.trim().toLowerCase()
     if (!key) return live
     return live.filter((e) =>
@@ -71,15 +71,15 @@ export function EventPicker({ all, picked, onPick }: {
     return (
       <div className="epick">
         <div className="epick__picked">
-          {picked.image_url ? (
-            <img className="epick__thumb" src={picked.image_url} alt="" />
+          {picked.imageUrl ? (
+            <img className="epick__thumb" src={picked.imageUrl} alt="" />
           ) : (
             <span className="epick__thumb epick__thumb--none" />
           )}
           <span className="epick__pickedmain">
             <span className="epick__pickedtitle">{picked.title}</span>
             <span className="epick__pickedsub">
-              {picked.subject} · {picked.district} · ~{picked.ends_on.slice(5).replace('-', '/')}
+              {picked.subject} · {picked.district} · ~{picked.endsOn.slice(5).replace('-', '/')}
             </span>
           </span>
           <button
@@ -160,8 +160,8 @@ export function EventPicker({ all, picked, onPick }: {
                       setQ('')
                     }}
                   >
-                    {e.image_url ? (
-                      <img className="epick__thumb" src={e.image_url} alt="" loading="lazy" />
+                    {e.imageUrl ? (
+                      <img className="epick__thumb" src={e.imageUrl} alt="" loading="lazy" />
                     ) : (
                       <span className="epick__thumb epick__thumb--none" />
                     )}

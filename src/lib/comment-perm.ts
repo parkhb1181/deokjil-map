@@ -26,16 +26,16 @@ export function canSeeSecret(
   hostId: string,
 ): boolean {
   if (!comment.secret) return true
-  if (!viewer.user_id) return false
+  if (!viewer.userId) return false
 
   /* 내가 쓴 것 */
-  if (comment.author.id === viewer.user_id) return true
+  if (comment.author.id === viewer.userId) return true
 
   /* 방장. 사람을 고르려면 다 봐야 한다 */
-  if (viewer.user_id === hostId) return true
+  if (viewer.userId === hostId) return true
 
   /* 내 댓글에 달린 비밀 대댓글. 부모가 공개든 비밀이든 같다 */
-  if (parent && parent.author.id === viewer.user_id) return true
+  if (parent && parent.author.id === viewer.userId) return true
 
   return false
 }
@@ -53,7 +53,7 @@ export function asServerWouldSend(
 ): PostComment[] {
   const byId = new Map(comments.map((c) => [c.id, c]))
   return comments.map((c) => {
-    const parent = c.parent_id ? byId.get(c.parent_id) ?? null : null
+    const parent = c.parentId ? byId.get(c.parentId) ?? null : null
     if (canSeeSecret(c, parent, viewer, hostId)) return c
     const { body, ...rest } = c
     return rest
@@ -67,16 +67,16 @@ export function asServerWouldSend(
  * 루트 기준으로 잘라야 대댓글이 부모와 떨어지지 않는다.
  */
 export function threaded(comments: PostComment[]): PostComment[] {
-  const roots = comments.filter((c) => !c.parent_id)
+  const roots = comments.filter((c) => !c.parentId)
   const kids = new Map<string, PostComment[]>()
   for (const c of comments) {
-    if (!c.parent_id) continue
-    const list = kids.get(c.parent_id) ?? []
+    if (!c.parentId) continue
+    const list = kids.get(c.parentId) ?? []
     list.push(c)
-    kids.set(c.parent_id, list)
+    kids.set(c.parentId, list)
   }
   const byTime = (a: PostComment, b: PostComment) =>
-    a.created_at < b.created_at ? -1 : 1
+    a.createdAt < b.createdAt ? -1 : 1
 
   return roots.sort(byTime).flatMap((r) => [r, ...(kids.get(r.id) ?? []).sort(byTime)])
 }

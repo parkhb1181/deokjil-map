@@ -12,29 +12,29 @@ import Profile, { type ProfileData } from './Profile'
  */
 const USERS: Record<string, ProfileData> = {
   /* 채울 것이 다 있는 사람. 서버가 아직 안 주는 두 값
-     (last_seen_at · district) 이 들어왔을 때의 모습이다 */
+     (lastSeenAt · district) 이 들어왔을 때의 모습이다 */
   u_host: {
     id: 'u_host',
     nickname: '덕질하는오리',
-    image_url: '/avatar/a1.webp',
+    imageUrl: '/avatar/a1.webp',
     bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
-    done_count: 3,
-    joined_at: '2026-06-11T00:00',
-    last_seen_at: '2026-08-30T21:10',
+    doneCount: 3,
+    joinedAt: '2026-06-11T00:00',
+    lastSeenAt: '2026-08-30T21:10',
     posts: [
       {
         id: 'p1',
         title: '에이티즈 팝업 오픈런 같이 하실 분',
         state: 'OPEN',
-        meet_at: '2026-09-14T09:00',
+        meetAt: '2026-09-14T09:00',
         district: '여의도',
         /* 모집글 상세(posts.sample.json)가 쓰는 것과 같은 포스터다.
            같은 글이 화면마다 다른 사진이면 같은 글로 안 보인다 */
-        image_url:
+        imageUrl:
           'https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp',
       },
       /* 행사에 안 붙은 글. 회색 네모 대신 제목에서 뽑은 색이 깔린다 */
-      { id: 'p4', title: '원위 팝업 첫날 같이 가요', state: 'CLOSED', closed_reason: 'MANUAL', meet_at: '2026-08-28T10:30', district: '성수' },
+      { id: 'p4', title: '원위 팝업 첫날 같이 가요', state: 'CLOSED', closedReason: 'MANUAL', meetAt: '2026-08-28T10:30', district: '성수' },
     ],
   },
   /* 갓 가입해서 셀 것이 하나도 없는 사람. 숫자를 0 으로 채우지 않고
@@ -42,10 +42,10 @@ const USERS: Record<string, ProfileData> = {
   u_b: {
     id: 'u_b',
     nickname: '조용한덕후',
-    image_url: '/avatar/a3.webp',
+    imageUrl: '/avatar/a3.webp',
     bio: null,
-    done_count: 0,
-    joined_at: '2026-08-29T00:00',
+    doneCount: 0,
+    joinedAt: '2026-08-29T00:00',
     posts: [],
   },
 }

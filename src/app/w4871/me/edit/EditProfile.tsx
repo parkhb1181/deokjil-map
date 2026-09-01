@@ -24,7 +24,7 @@ import { Field, TextInput, TextArea } from '@/components/ui/Field'
 /* 로그인이 없어 내 정보를 서버에서 못 받는다. 붙으면 지운다 */
 const ME = {
   nickname: '덕질하는오리',
-  image_url: '/avatar/a1.webp',
+  imageUrl: '/avatar/a1.webp',
   bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
   age: '20대 후반',
 }
@@ -95,7 +95,7 @@ export default function EditProfile() {
           폼 중간에 끼워 넣으면 비어 있어도 넘어가게 된다 */}
       <div className="pedit__pic">
         <label className="myid__pic">
-          <Avatar name={nick || ME.nickname} src={ME.image_url} lg />
+          <Avatar name={nick || ME.nickname} src={ME.imageUrl} lg />
           <span className="myid__cam" aria-hidden>
             <svg viewBox="0 0 16 16">
               <path

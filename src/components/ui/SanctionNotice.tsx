@@ -70,7 +70,7 @@ export function SanctionBanner({ sanction }: { sanction?: Sanction | null }) {
       <div className="sanc__main">
         <p className="sanc__head">
           운영자 경고
-          <span className="sanc__when">{untilText(sanction.issued_at)}</span>
+          <span className="sanc__when">{untilText(sanction.issuedAt)}</span>
         </p>
         <p className="sanc__body">{sanction.reason}</p>
         <p className="sanc__note">같은 일이 반복되면 이용이 정지될 수 있어요.</p>
@@ -120,7 +120,7 @@ export function SanctionBlock({ sanction }: { sanction: Sanction }) {
           </p>
         )
       )}
-      <p className="sblock__since">{untilText(sanction.issued_at)}에 제재되었어요</p>
+      <p className="sblock__since">{untilText(sanction.issuedAt)}에 제재되었어요</p>
 
       {!banned && (
         <p className="sblock__note">그날이 지나면 자동으로 풀려요. 따로 신청하지 않아도 됩니다.</p>

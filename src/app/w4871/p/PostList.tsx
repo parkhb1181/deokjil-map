@@ -20,19 +20,19 @@ import { wf } from '@/lib/wireframe'
 
 export type ListItem = {
   id: string
-  event_id: string | null
-  event_title: string | null
+  eventId: string | null
+  eventTitle: string | null
   title: string
   excerpt: string
   state: PostState
-  closed_reason?: ClosedReason | null
+  closedReason?: ClosedReason | null
   capacity: number | null
-  meet_at: string
-  meet_point: MeetPoint
-  author: { id: string; nickname: string; image_url?: string | null; done_count?: number }
-  comment_count: number
+  meetAt: string
+  meetPoint: MeetPoint
+  author: { id: string; nickname: string; imageUrl?: string | null; doneCount?: number }
+  commentCount: number
   /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
-  image_url?: string | null
+  imageUrl?: string | null
 }
 
 /** '2026-09-14T09:00' → '9/14 (월) 09:00' */
@@ -77,7 +77,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
-      `${p.title} ${p.meet_point.place} ${p.event_title ?? ''}`.toLowerCase().includes(key),
+      `${p.title} ${p.meetPoint.place} ${p.eventTitle ?? ''}`.toLowerCase().includes(key),
     )
   }, [posts, tab, q])
 
@@ -176,12 +176,12 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                     댓글 수는 글자 줄이 아니라 오른쪽 말풍선으로 나간다 */}
                 <PostCard
                   state={p.state}
-                  reason={p.closed_reason}
+                  reason={p.closedReason}
                   title={p.title}
-                  when={whenShort(p.meet_at)}
-                  where={p.meet_point.place}
-                  image={p.image_url}
-                  comments={p.comment_count}
+                  when={whenShort(p.meetAt)}
+                  where={p.meetPoint.place}
+                  image={p.imageUrl}
+                  comments={p.commentCount}
                 />
               </Link>
             ))}

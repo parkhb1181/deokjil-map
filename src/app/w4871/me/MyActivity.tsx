@@ -26,20 +26,20 @@ type MyPost = {
   id: string
   title: string
   state: PostState
-  closed_reason?: ClosedReason | null
-  meet_at: string
-  comment_count: number
+  closedReason?: ClosedReason | null
+  meetAt: string
+  commentCount: number
   /** 마지막으로 본 뒤에 달린 댓글 수. 알림이 없으니 이 숫자가 알림이다 */
-  new_comments: number
+  newComments: number
 }
 
 type MyComment = {
   id: string
-  post_id: string
-  post_title: string
+  postId: string
+  postTitle: string
   body: string
   secret: boolean
-  created_at: string
+  createdAt: string
   /** 내 댓글에 답글이 달렸는지 */
   replied: boolean
 }
@@ -49,38 +49,38 @@ const POSTS: MyPost[] = [
     id: 'p1',
     title: '에이티즈 팝업 오픈런 같이 하실 분',
     state: 'OPEN',
-    meet_at: '2026-09-14T09:00',
-    comment_count: 5,
-    new_comments: 2,
+    meetAt: '2026-09-14T09:00',
+    commentCount: 5,
+    newComments: 2,
   },
   {
     id: 'p4',
     title: '원위 팝업 첫날 같이 가요',
     state: 'CLOSED',
-    closed_reason: 'MANUAL',
-    meet_at: '2026-08-28T10:30',
-    comment_count: 8,
-    new_comments: 0,
+    closedReason: 'MANUAL',
+    meetAt: '2026-08-28T10:30',
+    commentCount: 8,
+    newComments: 0,
   },
 ]
 
 const COMMENTS: MyComment[] = [
   {
     id: 'c3',
-    post_id: 'p2',
-    post_title: '성수 토리든 팝업 평일 낮에 가실 분',
+    postId: 'p2',
+    postTitle: '성수 토리든 팝업 평일 낮에 가실 분',
     body: '카톡 아이디 night_ticket 입니다',
     secret: true,
-    created_at: '2026-08-30T09:40',
+    createdAt: '2026-08-30T09:40',
     replied: true,
   },
   {
     id: 'c9',
-    post_id: 'p3',
-    post_title: '홍대 생카 세 군데 같이 도실 분',
+    postId: 'p3',
+    postTitle: '홍대 생카 세 군데 같이 도실 분',
     body: '저도 갈 수 있을 것 같아요! 동선 공유해주실 수 있나요?',
     secret: false,
-    created_at: '2026-08-30T18:12',
+    createdAt: '2026-08-30T18:12',
     replied: false,
   },
 ]
@@ -111,8 +111,8 @@ function Caret() {
 const ME = {
   id: 'u_host',
   nickname: '덕질하는오리',
-  image_url: '/avatar/a1.webp',
-  done_count: 3,
+  imageUrl: '/avatar/a1.webp',
+  doneCount: 3,
 }
 
 /* 로그인이 없어 서버에서 제재 상태를 못 받는다. 붙으면 지운다 */
@@ -121,18 +121,18 @@ const SANCTIONS: Record<string, Sanction | null> = {
   경고: {
     kind: 'WARNED',
     reason: '모집글에 같은 내용을 반복해서 올렸습니다.',
-    issued_at: '2026-08-30T14:00',
+    issuedAt: '2026-08-30T14:00',
   },
   '7일 정지': {
     kind: 'SUSPENDED',
     reason: '약속한 날에 연락 없이 나타나지 않았다는 신고가 세 건 접수되었습니다.',
     until: '2026-09-08T00:00',
-    issued_at: '2026-09-01T09:00',
+    issuedAt: '2026-09-01T09:00',
   },
   영구: {
     kind: 'BANNED',
     reason: '다른 이용자에게 반복적으로 불쾌한 메시지를 보냈습니다.',
-    issued_at: '2026-08-25T11:00',
+    issuedAt: '2026-08-25T11:00',
   },
 }
 
@@ -180,7 +180,7 @@ export default function MyActivity() {
             프로필이 아니라 남의 목록 한 줄로 보인다. 당근도 프로필
             화면에서 사진을 가운데 크게 둔다 */}
         <label className="myid__pic">
-          <Avatar name={ME.nickname} src={ME.image_url} lg />
+          <Avatar name={ME.nickname} src={ME.imageUrl} lg />
           <span className="myid__cam" aria-hidden>
             <svg viewBox="0 0 16 16">
               <path
@@ -199,7 +199,7 @@ export default function MyActivity() {
         <div className="myid__main">
           <p className="myid__name">{ME.nickname}</p>
           <p className="myid__meta meta">
-            <span>동행 {ME.done_count}회</span>
+            <span>동행 {ME.doneCount}회</span>
           </p>
         </div>
 
@@ -253,14 +253,14 @@ export default function MyActivity() {
                     화면마다 순서를 바꾸면 같은 글이 다른 물건으로 보인다 */}
                 <Link href={wf(`/p/${p.id}`)} className="mine__row">
                   <p className="mine__title">
-                    {isClosed(p.state) && <Badge state={p.state} reason={p.closed_reason} />}
+                    {isClosed(p.state) && <Badge state={p.state} reason={p.closedReason} />}
                     {p.title}
                   </p>
                   <p className="mine__sub meta">
-                    <span>{whenShort(p.meet_at)}</span>
-                    <span>댓글 {p.comment_count}</span>
+                    <span>{whenShort(p.meetAt)}</span>
+                    <span>댓글 {p.commentCount}</span>
                     {/* 알림이 없으니 이 표시가 알림 노릇을 한다 */}
-                    {p.new_comments > 0 && <em>새 댓글 {p.new_comments}</em>}
+                    {p.newComments > 0 && <em>새 댓글 {p.newComments}</em>}
                   </p>
                 </Link>
               </li>
@@ -269,15 +269,15 @@ export default function MyActivity() {
           {tab === 1 &&
             COMMENTS.map((c) => (
               <li key={c.id}>
-                <Link href={wf(`/p/${c.post_id}`)} className="mine__row">
+                <Link href={wf(`/p/${c.postId}`)} className="mine__row">
                   <div className="mine__head">
-                    <span className="mine__on">{c.post_title}</span>
+                    <span className="mine__on">{c.postTitle}</span>
                   </div>
                   <p className="mine__title mine__title--sm">
                     {c.secret && <span className="cmt__lock">비밀</span>} {c.body}
                   </p>
                   <p className="mine__sub meta">
-                    <span>{whenShort(c.created_at)}</span>
+                    <span>{whenShort(c.createdAt)}</span>
                     {c.replied && <em>답글 옴</em>}
                   </p>
                 </Link>

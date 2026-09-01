@@ -15,7 +15,7 @@ import PostDetail from './PostDetail'
  * 지금은 가짜 데이터라 색인을 막아 둔다.
  */
 const DATA = sample as unknown as {
-  host_id: string
+  hostId: string
   post: CompanionPost
   comments: PostComment[]
 }
@@ -31,6 +31,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (id !== DATA.post.id) notFound()
 
   return (
-    <PostDetail post={DATA.post} comments={DATA.comments} hostId={DATA.host_id} />
+    <PostDetail post={DATA.post} comments={DATA.comments} hostId={DATA.hostId} />
   )
 }

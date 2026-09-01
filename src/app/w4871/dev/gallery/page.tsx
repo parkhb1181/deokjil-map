@@ -22,8 +22,8 @@ const PICKABLE: PickableEvent[] = ALL_EVENTS.slice(0, 60).map((e) => ({
   title: e.title ?? `${e.subject} ${EVENT_KIND_LABELS[e.kind]}`,
   place: e.place.name,
   district: DISTRICT_LABELS[e.place.district],
-  ends_on: e.ends_on,
-  image_url: e.image_url ?? null,
+  endsOn: e.ends_on,
+  imageUrl: e.image_url ?? null,
 }))
 
 export default function Page() {

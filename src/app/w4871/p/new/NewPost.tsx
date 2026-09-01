@@ -162,13 +162,13 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
         {/* 날짜·시각·모집 마감 세 칸을 한 칸으로 합쳤다.
 
             시각을 따로 받을 이유가 없었다. 어차피 둘 다 필수였고 서버에
-            들어갈 때 meet_at 하나로 붙는다. 칸만 둘이었지 묻는 것은
+            들어갈 때 meetAt 하나로 붙는다. 칸만 둘이었지 묻는 것은
             하나였다.
 
             모집 마감은 아예 뺐다. 비우면 만나는 날까지였는데, 그러면
             기본값이 곧 정답인 칸을 하나 더 보여준 셈이다. 만나는 날이
             지나면 아무도 못 오므로 마감은 만나는 날이다. 서버가
-            closes_at 을 meet_at 으로 채운다 */}
+            closesAt 을 meetAt 으로 채운다 */}
         <Field label="만나는 시간" error={show('meetAt')} hint="모집은 이 날까지 받아요">
           <TextInput
             type="datetime-local"
