@@ -1646,7 +1646,7 @@
   padding: 28px var(--gutter) 56px;
 }
 
-.ob__head { text-align: center; padding-bottom: 8px; }
+.ob__head { text-align: center; padding-bottom: 4px; }
 .ob__mark { display: block; margin: 0 auto 6px; }
 .ob__title {
   font-size: var(--t-hero);
@@ -1673,7 +1673,7 @@
 }
 .ob__note b { color: var(--text); font-weight: 700; }
 
-.ob__sec { margin-top: 32px; }
+.ob__sec { margin-top: 34px; }
 .ob__h {
   font-size: var(--t-title);
   font-weight: 800;
@@ -1681,73 +1681,116 @@
   color: var(--text);
 }
 .ob__seclead {
-  margin-top: 5px;
+  margin-top: 4px;
   font-size: var(--t-sub);
   line-height: 1.6;
   color: var(--text-mute);
 }
 
-.ob__list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+/* 격자. 한 칸이 150px 밑으로 내려가면 사진 속 글씨가 뭉개져서
+   무슨 화면인지 알아볼 수 없다. 그 폭을 바닥으로 두고 남는 만큼
+   칸을 늘린다. 640 에서 셋, 휴대폰에서 둘이 된다 */
+.ob__grid {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px 12px;
+}
 
-/* 한 줄이 카드 하나다. 목록 행으로 하면 열여섯 개가 붙어 흘러
-   어디까지가 한 화면인지 눈으로 못 끊는다 */
-.ob__row {
+/* 설명이 없는 칸이 섞여 있어 주소 줄의 높이가 칸마다 달랐다.
+   한 줄 안에서 주소가 들쭉날쭉하면 격자로 안 읽힌다. 칸을 세로로
+   꽉 채우고 주소를 바닥에 붙인다 */
+.ob__grid li { display: flex; }
+.ob__card {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 14px var(--gutter);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
+  gap: 3px;
   color: inherit;
   text-decoration: none;
 }
-.ob__row:hover { border-color: var(--border-mid); background: var(--bg-sunk); }
 
-.ob__rowtop { display: flex; align-items: center; gap: 8px; }
-.ob__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
-.ob__desc { font-size: var(--t-sub); line-height: 1.55; color: var(--text-mute); }
+/* 사진. 테두리를 두르는 것은 흰 화면이 대부분이라 사진이 어디서
+   끝나는지 안 보이기 때문이다 */
+.ob__shot {
+  position: relative;
+  display: block;
+  margin-bottom: 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-sunk);
+  line-height: 0;
+}
+.ob__shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center top;
+}
+.ob__card:hover .ob__shot { border-color: var(--accent); }
+
+.ob__name {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text);
+}
+.ob__desc { font-size: var(--t-small); line-height: 1.5; color: var(--text-mute); }
 
 .ob__meta {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 2px;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 4px;
   font-size: var(--t-small);
-  color: var(--text-mute);
 }
 .ob__meta code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--t-small);
   color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.ob__spec { margin-left: auto; }
+.ob__spec { margin-left: auto; flex: 0 0 auto; color: var(--text-mute); opacity: .75; }
 
-/* 데이터 출처 표시. 색을 넷 다 다르게 주면 표가 알록달록해져서
-   정작 화면 이름이 안 읽힌다. 실데이터만 색을 갖고 나머지는 회색 */
+/* 데이터 출처. 사진 위에 얹어 카드 한 줄을 아낀다.
+   색을 넷 다 다르게 주면 격자가 알록달록해져서 정작 화면이 안
+   읽힌다. 실데이터만 색을 갖고 나머지는 흰 바탕에 회색 글씨 */
 .ob__tag {
-  flex: 0 0 auto;
+  position: absolute;
+  top: 6px;
+  right: 6px;
   padding: 2px 7px;
   border-radius: 999px;
   font-size: var(--t-small);
   font-weight: 600;
-  background: var(--bg-sunk);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, .92);
   color: var(--text-mute);
+  box-shadow: 0 1px 3px rgba(42, 29, 35, .12);
 }
-.ob__tag--real { background: var(--accent-soft); color: var(--accent-ink); }
+.ob__tag--real { background: var(--accent); color: #fff; }
 
-.ob__todo { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-.ob__todo li {
+/* 남은 일. 목록이 아니라 문단으로 둔다. 줄마다 굵은 머리를 달면
+   네 줄이 같은 무게로 읽혀 무엇이 중한지 안 보인다 */
+.ob__miss { margin-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+.ob__miss p {
   padding-left: 13px;
   border-left: 2px solid var(--border-mid);
   font-size: var(--t-sub);
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--text-mute);
 }
-.ob__todo b { color: var(--text); font-weight: 700; }
+.ob__miss b { color: var(--text); font-weight: 700; }
 
 .ob__docs {
-  margin-top: 16px;
+  margin-top: 18px;
   font-size: var(--t-small);
   line-height: 1.7;
   color: var(--text-mute);
@@ -1756,6 +1799,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--text-mute);
 }
+
 
 /* ── 차단 목록 ────────────────────────────────────────── */
 
