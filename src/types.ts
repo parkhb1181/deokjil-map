@@ -2,7 +2,7 @@
  * poc-plan.md 5.1 스키마를 그대로 옮긴 타입.
  *
  * 필드명·값 집합을 전체 구상(bridge-plan-full.md 7번)의 Postgres 스키마와 일치시킨다.
- * PoC에서 안 쓰는 필드(trust, subject_type)도 남기는 이유는,
+ * PoC에서 안 쓰는 필드(trust, subjectType)도 남기는 이유는,
  * 승격 시 매핑 없이 그대로 넘기기 위함이다.
  */
 
@@ -52,8 +52,8 @@ export interface Goods {
   id: string
   name: string
   /** 랜덤 품목은 "품절" 개념이 아니라 "지금 뭐가 나오나"가 관심사다 */
-  is_random: boolean
-  sort_order: number
+  isRandom: boolean
+  sortOrder: number
 }
 
 export interface EventItem {
@@ -61,26 +61,26 @@ export interface EventItem {
   place: Place
   /** 아이돌·버추얼·캐릭터·배우. 화이트리스트를 두지 않는다 */
   subject: string
-  subject_type: SubjectType
+  subjectType: SubjectType
   kind: EventKind
   /** YYYY-MM-DD. 사전순 비교가 곧 날짜 비교가 된다 */
-  starts_on: string
-  ends_on: string
+  startsOn: string
+  endsOn: string
   /**
    * 운영 시간. '12:00~20:00' 처럼 이미 다듬은 문자열이다.
    * 생카·팝업은 기간 안에서 매일 같은 시간에 연다.
    */
-  open_hours?: string
+  openHours?: string
   /**
    * 공연 시작 시각 'HH:mm'. **콘서트만 갖는다.**
    *
    * 생카·팝업은 기간 중 아무 때나 가면 되지만 콘서트는 그 시각에
-   * 못 가면 끝이다. open_hours 로 대신할 수 없다. 저건 "언제부터
+   * 못 가면 끝이다. openHours 로 대신할 수 없다. 저건 "언제부터
    * 언제까지 열려 있나" 고 이건 "몇 시에 시작하나" 다.
    *
-   * 콘서트는 starts_on 과 ends_on 이 같은 날이다.
+   * 콘서트는 startsOn 과 endsOn 이 같은 날이다.
    */
-  starts_at?: string
+  startsAt?: string
   /** 선착 n명, 컵홀더 등 */
   perks?: string
   /** 음료 1잔 주문 등 */
@@ -93,18 +93,18 @@ export interface EventItem {
   /**
    * 대표 이미지. 주최자·운영사가 공개한 안내 이미지의 URL.
    * 없거나 로드에 실패하면 대상명 기반 색 블록으로 폴백한다(EventCard 참조).
-   * 원문 링크(source_url)를 항상 함께 노출해 출처를 밝힌다.
+   * 원문 링크(sourceUrl)를 항상 함께 노출해 출처를 밝힌다.
    */
-  image_url?: string
+  imageUrl?: string
   /**
    * 원문 링크. 출처 표기 필수, 화면에서 반드시 노출한다.
    * 가능하면 주최자·운영사의 공식 게시물을 가리킨다.
    */
-  source_url: string
-  /** 리스팅 출처. source_url 이 공식 원문일 때 우리가 참고한 곳을 함께 밝힌다 */
-  listing_url?: string
+  sourceUrl: string
+  /** 리스팅 출처. sourceUrl 이 공식 원문일 때 우리가 참고한 곳을 함께 밝힌다 */
+  listingUrl?: string
   /** 사전예약 링크 */
-  reservation_url?: string
+  reservationUrl?: string
   trust: Trust
   goods: Goods[]
 }

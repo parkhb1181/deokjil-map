@@ -31,7 +31,7 @@ const events = JSON.parse(await fs.readFile(path.join(ROOT, 'src/data/events.jso
 const wanted = new Map()
 for (const ev of events) {
   const key = ev.subject?.trim()
-  if (!key || !ev.image_url) continue
+  if (!key || !ev.imageUrl) continue
   const list = wanted.get(key) ?? []
   if (list.length >= SHOTS) continue
   list.push(ev)
@@ -58,7 +58,7 @@ await Promise.all(
       const ev = queue.shift()
       if (!ev) return
       try {
-        const res = await fetch(ev.image_url)
+        const res = await fetch(ev.imageUrl)
         if (!res.ok) throw new Error(String(res.status))
         const bytes = new Uint8Array(await res.arrayBuffer())
         const out = await sharp(bytes)

@@ -81,7 +81,7 @@ export async function generateMetadata({
   const title = `${ev.subject} ${EVENT_KIND_LABELS[ev.kind]} · ${
     DISTRICT_LABELS[ev.place.district]
   } ${ev.place.name}`
-  const description = `${ev.starts_on} ~ ${ev.ends_on} · ${ev.place.address}${
+  const description = `${ev.startsOn} ~ ${ev.endsOn} · ${ev.place.address}${
     ev.perks ? ` · ${ev.perks}` : ''
   }`
 
@@ -108,8 +108,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     '@context': 'https://schema.org',
     '@type': 'Event',
     name: ev.title ?? `${ev.subject} ${kind}`,
-    startDate: ev.starts_on,
-    endDate: ev.ends_on,
+    startDate: ev.startsOn,
+    endDate: ev.endsOn,
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
@@ -123,8 +123,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
   /* 하루짜리면 한 날짜만 적는다. "9월 19일 ~ 9월 19일" 은 두 번
      읽어야 같은 날인 것을 안다. 콘서트가 대부분 하루다 */
-  const oneDay = ev.starts_on === ev.ends_on
-  const when = oneDay ? dateText(ev.starts_on) : `${dateText(ev.starts_on)} ~ ${dateText(ev.ends_on)}`
+  const oneDay = ev.startsOn === ev.endsOn
+  const when = oneDay ? dateText(ev.startsOn) : `${dateText(ev.startsOn)} ~ ${dateText(ev.endsOn)}`
 
   /* 특전·조건·굿즈를 한 줄 문자열이 아니라 칩으로 쪼갠다. 덕플레이스가
      그렇게 두는데, 줄글이면 "선착 100명 컵홀더 + 포토카드, 음료 1잔
@@ -179,8 +179,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               비율은 모집글 상세와 같은 4:5 다. 들어오는 포스터가 1:1 에서
               3:4 사이의 세로형이라 가로로 자르면 절반도 안 보인다.
               잘린다면 아래가 잘리게 위를 붙든다 */}
-          {ev.image_url && (
-            <img className="sheet__poster" src={ev.image_url} alt="" />
+          {ev.imageUrl && (
+            <img className="sheet__poster" src={ev.imageUrl} alt="" />
           )}
 
           <div className="sheet__head">
@@ -208,8 +208,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                 장소는 볼 이유가 없다 */}
             <div className="evt__when">
               <p className="evt__date">{when}</p>
-              {ev.starts_at && <p className="evt__time">{ev.starts_at} 시작</p>}
-              {ev.open_hours && <p className="evt__time">{ev.open_hours}</p>}
+              {ev.startsAt && <p className="evt__time">{ev.startsAt} 시작</p>}
+              {ev.openHours && <p className="evt__time">{ev.openHours}</p>}
             </div>
 
             {/* 장소와 주소, 그리고 여기서 실제로 하는 일 둘.
@@ -256,7 +256,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                       {g.name}
                       {/* 랜덤 품목은 "품절" 이 아니라 "지금 뭐가 나오나" 가
                           관심사다 (types.ts). 그래서 따로 표시한다 */}
-                      {g.is_random && <em className="evt__rand">랜덤</em>}
+                      {g.isRandom && <em className="evt__rand">랜덤</em>}
                     </span>
                   ))}
                 </p>
@@ -300,7 +300,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
             )}
 
             {/* 출처 표기는 상시다 (poc-plan 1번, 정합성 교란 방어).
-                listing_url 은 화면에 노출하지 않는다. 경쟁 리스팅을 광고하지 않는다 */}
+                listingUrl 은 화면에 노출하지 않는다. 경쟁 리스팅을 광고하지 않는다 */}
 
             {/* 근처 행사. 생카는 하루에 여러 곳을 도는 사람이 많아서
                 "여기 말고 근처에 뭐가 더 있나" 가 다음 질문이다.
@@ -334,13 +334,13 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
             <p className="sheet__disclaimer">주최자 공지 기반 · 방문 전 원문 확인 권장</p>
 
             <p className="sheet__original">
-              <a href={ev.source_url} target="_blank" rel="noopener noreferrer nofollow">
+              <a href={ev.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">
                 원문 보기
               </a>
-              {ev.reservation_url && (
+              {ev.reservationUrl && (
                 <>
                   {' · '}
-                  <a href={ev.reservation_url} target="_blank" rel="noopener noreferrer nofollow">
+                  <a href={ev.reservationUrl} target="_blank" rel="noopener noreferrer nofollow">
                     예약하기
                   </a>
                 </>

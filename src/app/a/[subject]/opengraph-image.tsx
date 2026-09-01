@@ -83,7 +83,7 @@ export default async function Image({ params }: { params: Promise<{ subject: str
     .map(([d, n]) => `${DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d} ${n}`)
 
   const foot = '덕모임 · duckmoim.com'
-  const picks = events.filter((e) => e.image_url).slice(0, SHOTS)
+  const picks = events.filter((e) => e.imageUrl).slice(0, SHOTS)
 
   /**
    * scripts/og-shots.mjs 가 빌드 전에 줄여 놓은 파일을 읽는다.

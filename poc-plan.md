@@ -250,26 +250,30 @@ crowd_report / stock_report  →  Supabase                        [쓰기]
       "kind": "cafe"                  // cafe | popup_venue
     },
     "subject": "○○○",
-    "subject_type": "idol",           // idol | virtual | character | actor
+    "subjectType": "idol",           // idol | virtual | character | actor
     "kind": "birthday_cafe",          // birthday_cafe | popup
-    "starts_on": "2026-08-29",
-    "ends_on": "2026-08-31",
-    "open_hours": "12:00~20:00",
+    "startsOn": "2026-08-29",
+    "endsOn": "2026-08-31",
+    "openHours": "12:00~20:00",
     "perks": "선착 100명 컵홀더",
     "conditions": "음료 1잔 주문",
-    "source_url": "https://...",      // 필수. 노출 필수
+    "sourceUrl": "https://...",      // 필수. 노출 필수
     "trust": "parsed",                // official | partner | user | parsed
     "goods": [                        // 팝업만. 생카는 빈 배열
-      { "id": "gd_01", "name": "아크릴 스탠드",  "is_random": false, "sort_order": 1 },
-      { "id": "gd_02", "name": "랜덤 포토카드", "is_random": true,  "sort_order": 2 }
+      { "id": "gd_01", "name": "아크릴 스탠드",  "isRandom": false, "sortOrder": 1 },
+      { "id": "gd_02", "name": "랜덤 포토카드", "isRandom": true,  "sortOrder": 2 }
     ]
   }
 ]
 ```
 
-전체 구상 7번의 Postgres 필드를 **그대로 유지**한다.
-`trust` · `subject_type` · `source_url`은 PoC에서 안 써도 남긴다 
-승격 시 매핑 없이 넘기기 위함이다.
+전체 구상 7번의 Postgres 필드를 **하나도 빠뜨리지 않고 담는다.**
+다만 **표기는 camelCase 다.** DDL 은 `subject_type`, JSON 은
+`subjectType` 이고 둘을 잇는 매핑은 서버가 한 곳에서 한다.
+컬럼을 늘리거나 줄이지 않았으므로 매핑은 이름 규칙 하나로 끝난다.
+
+`trust` · `subjectType` · `sourceUrl`은 PoC에서 안 써도 남긴다 
+승격 시 컬럼을 새로 파지 않기 위함이다.
 `place`를 별도 엔티티로 안 쪼갠 이유는 PoC에 장소 재사용 조회가 없어서다.
 
 ### 5.2 Supabase, 테이블 2개, RPC 2개

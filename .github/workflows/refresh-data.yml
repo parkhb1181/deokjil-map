@@ -68,7 +68,7 @@ jobs:
               md += "연예인·셀럽 카테고리인데 `crawler/kpop-artists.json` 에 이름이 없어 빠진 것들이다.\n"
               md += "K-pop 이면 그 파일에 추가하고 `node crawler/to-events.mjs` 만 다시 돌리면 된다.\n\n"
               md += "| 제목 | 종료일 | 원본 |\n|---|---|---|\n"
-              for (const x of c) md += "| " + x.title + " | " + x.ends_on + " | [링크](" + x.url + ") |\n"
+              for (const x of c) md += "| " + x.title + " | " + x.endsOn + " | [링크](" + x.url + ") |\n"
             }
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md)
           '

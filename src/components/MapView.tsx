@@ -515,13 +515,13 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
                     <div className="mapsheet__row">
                       <dt>기간</dt>
                       <dd>
-                        {sheetEvent.starts_on} ~ {sheetEvent.ends_on}
+                        {sheetEvent.startsOn} ~ {sheetEvent.endsOn}
                       </dd>
                     </div>
-                    {sheetEvent.open_hours && (
+                    {sheetEvent.openHours && (
                       <div className="mapsheet__row">
                         <dt>운영시간</dt>
-                        <dd>{sheetEvent.open_hours}</dd>
+                        <dd>{sheetEvent.openHours}</dd>
                       </div>
                     )}
                     {sheetEvent.perks && (

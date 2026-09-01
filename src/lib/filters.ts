@@ -85,7 +85,7 @@ export function weekendRange(today: DateKey = todayKey()): [DateKey, DateKey] {
 
 /** 이벤트 기간이 [from, to]와 하루라도 겹치는가 */
 export function overlaps(ev: EventItem, from: DateKey, to: DateKey): boolean {
-  return ev.starts_on <= to && ev.ends_on >= from
+  return ev.startsOn <= to && ev.endsOn >= from
 }
 
 export function isOngoing(ev: EventItem, today: DateKey = todayKey()): boolean {
@@ -103,7 +103,7 @@ function diffDays(from: DateKey, to: DateKey): number {
 
 /** 종료까지 남은 일수. 0이면 오늘 종료, 음수면 이미 끝난 것 */
 export function daysLeft(ev: EventItem, today: DateKey = todayKey()): number {
-  return diffDays(today, ev.ends_on)
+  return diffDays(today, ev.endsOn)
 }
 
 /**
@@ -112,10 +112,10 @@ export function daysLeft(ev: EventItem, today: DateKey = todayKey()): number {
  * 항상 '다음에 닥칠 마감'을 가리킨다. 시작 전이면 시작까지, 진행 중이면 종료까지.
  */
 export function periodLabel(ev: EventItem, today: DateKey = todayKey()): string {
-  if (ev.ends_on < today) return '종료'
+  if (ev.endsOn < today) return '종료'
 
-  if (ev.starts_on > today) {
-    return `시작 D-${diffDays(today, ev.starts_on)}`
+  if (ev.startsOn > today) {
+    return `시작 D-${diffDays(today, ev.startsOn)}`
   }
 
   const left = daysLeft(ev, today)
@@ -145,7 +145,7 @@ export function matchesQuery(ev: EventItem, query: string): boolean {
 
 function matchesDate(ev: EventItem, date: DateFilter, today: DateKey): boolean {
   // 이미 끝난 이벤트는 목록에서 뺀다. 지난 정보는 없는 정보보다 나쁘다 (4.3)
-  if (date === 'all') return ev.ends_on >= today
+  if (date === 'all') return ev.endsOn >= today
   return overlaps(ev, date, date)
 }
 
@@ -202,8 +202,8 @@ export function countsByDate(
     if (!matchesQuery(ev, filter.query)) continue
     if (!overlaps(ev, from, to)) continue
 
-    let day = ev.starts_on < from ? from : ev.starts_on
-    const last = ev.ends_on > to ? to : ev.ends_on
+    let day = ev.startsOn < from ? from : ev.startsOn
+    const last = ev.endsOn > to ? to : ev.endsOn
     while (day <= last) {
       counts[day] = (counts[day] ?? 0) + 1
       day = shiftDays(day, 1)
@@ -220,8 +220,8 @@ export function sortEvents(events: EventItem[], today: DateKey = todayKey()): Ev
     const ao = isOngoing(a, today) ? 0 : 1
     const bo = isOngoing(b, today) ? 0 : 1
     if (ao !== bo) return ao - bo
-    if (a.starts_on !== b.starts_on) return a.starts_on < b.starts_on ? -1 : 1
-    if (a.ends_on !== b.ends_on) return a.ends_on < b.ends_on ? -1 : 1
+    if (a.startsOn !== b.startsOn) return a.startsOn < b.startsOn ? -1 : 1
+    if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
     return a.id < b.id ? -1 : 1
   })
 }
@@ -263,7 +263,7 @@ export function baseForSections(
       (ev) =>
         (filter.district === 'all' || ev.place.district === filter.district) &&
         (filter.kind === 'all' || ev.kind === filter.kind) &&
-        ev.ends_on >= today,
+        ev.endsOn >= today,
     ),
     today,
   )
@@ -282,8 +282,8 @@ export function sortByDeadline(events: EventItem[], today: DateKey = todayKey())
     const ao = isOngoing(a, today) ? 0 : 1
     const bo = isOngoing(b, today) ? 0 : 1
     if (ao !== bo) return ao - bo
-    if (a.ends_on !== b.ends_on) return a.ends_on < b.ends_on ? -1 : 1
-    if (a.starts_on !== b.starts_on) return a.starts_on < b.starts_on ? -1 : 1
+    if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
+    if (a.startsOn !== b.startsOn) return a.startsOn < b.startsOn ? -1 : 1
     return a.id < b.id ? -1 : 1
   })
 }
@@ -291,7 +291,7 @@ export function sortByDeadline(events: EventItem[], today: DateKey = todayKey())
 /** 카드용 짧은 기간 표기. 연도는 뺀다. 지난 것은 싣지 않으니 올해가 아닌 것이 없다 */
 export function shortRange(ev: EventItem): string {
   const md = (d: DateKey) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`
-  return `${md(ev.starts_on)} ~ ${md(ev.ends_on)}`
+  return `${md(ev.startsOn)} ~ ${md(ev.endsOn)}`
 }
 
 /**

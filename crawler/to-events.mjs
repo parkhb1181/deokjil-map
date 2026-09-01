@@ -210,17 +210,17 @@ function toEvent(rec, artist) {
     // 팝업 제목은 "아임도넛 X 키스오브라이프 팝업 @홍대"처럼 브랜드가 앞서는 경우가 많다
     subject: cafe?.subject ?? artist ?? rec.title.replace(/\s*팝업(\s*스토어)?\s*$/, '').trim(),
     title: rec.title,
-    subject_type: subjectTypeOf(rec),
+    subjectType: subjectTypeOf(rec),
     kind: cafe ? 'birthday_cafe' : 'popup',
-    starts_on: rec.openDate,
-    ends_on: rec.closeDate,
-    ...(rec.operationTime?.length ? { open_hours: rec.operationTime.join(' / ') } : {}),
+    startsOn: rec.openDate,
+    endsOn: rec.closeDate,
+    ...(rec.operationTime?.length ? { openHours: rec.operationTime.join(' / ') } : {}),
     // 공식 원문이 있으면 그쪽으로 보낸다. 팝가 링크는 백업으로 남긴다 
     // 사용자를 공급처로 보내는 것이 정합성 방어의 핵심이다 (poc-plan 1번)
-    source_url: rec.instagram || rec.website || rec.source_url,
-    ...(rec.instagram || rec.website ? { listing_url: rec.source_url } : {}),
-    ...(rec.preReservationLink ? { reservation_url: rec.preReservationLink } : {}),
-    ...(rec.image ? { image_url: rec.image } : {}),
+    sourceUrl: rec.instagram || rec.website || rec.source_url,
+    ...(rec.instagram || rec.website ? { listingUrl: rec.source_url } : {}),
+    ...(rec.preReservationLink ? { reservationUrl: rec.preReservationLink } : {}),
+    ...(rec.image ? { imageUrl: rec.image } : {}),
     ...(rec.benefits?.length
       ? { perks: rec.benefits.map((b) => `${b.key}: ${b.value}`).join('\n') }
       : {}),
@@ -268,16 +268,16 @@ function offmateToEvent(rec) {
     // 멤버명이 대상이다. 그룹명은 검색·필터에서 쓰이도록 제목에 남긴다
     subject: rec.memberName ?? rec.groupName ?? rec.name ?? '',
     title: [rec.groupName, rec.memberName, rec.name].filter(Boolean).join(' · '),
-    subject_type: 'idol',
+    subjectType: 'idol',
     kind: 'birthday_cafe',
-    starts_on: rec.startDate,
-    ends_on: rec.endDate,
-    ...(hours ? { open_hours: hours } : {}),
+    startsOn: rec.startDate,
+    endsOn: rec.endDate,
+    ...(hours ? { openHours: hours } : {}),
     // 특전 이름 매핑은 아직 없다. 개수만으로도 "특전 N종"이 표시된다
     ...(perkCount ? { perks: `특전 ${perkCount}종` } : {}),
-    source_url: host ?? rec.source_url,
-    ...(host ? { listing_url: rec.source_url } : {}),
-    ...(rec.images?.[0] ? { image_url: rec.images[0] } : {}),
+    sourceUrl: host ?? rec.source_url,
+    ...(host ? { listingUrl: rec.source_url } : {}),
+    ...(rec.images?.[0] ? { imageUrl: rec.images[0] } : {}),
     trust: rec.isHostVerified ? 'partner' : 'parsed',
     goods: [],
   }
@@ -319,7 +319,7 @@ const missCandidates = inSeoulAndOpen
     title: rec.title,
     categories: rec.categories,
     url: rec.source_url,
-    ends_on: rec.closeDate,
+    endsOn: rec.closeDate,
   }))
 
 // 오프메이트는 전국이라 서울만 남긴다. 좌표가 없으면 지도에 못 찍으니 제외한다
@@ -334,7 +334,7 @@ const all = [...rows.map(({ rec, artist }) => toEvent(rec, artist)), ...cafeEven
 /**
  * 원문을 못 찾은 것은 싣지 않는다.
  *
- * 두 소스 모두 주최자 계정이 없으면 `source_url` 이 리스팅 주소로 떨어진다.
+ * 두 소스 모두 주최자 계정이 없으면 `sourceUrl` 이 리스팅 주소로 떨어진다.
  * 그대로 두면 화면의 "공식 공지 보기" 가 경쟁 리스팅으로 연결된다. 출처를
  * 속이는 것이고, 앱에 원문 링크를 반드시 노출한다는 규칙도 깨진다.
  *
@@ -342,10 +342,10 @@ const all = [...rows.map(({ rec, artist }) => toEvent(rec, artist)), ...cafeEven
  * 커버리지가 조금 줄더라도 실린 것은 전부 원문으로 이어지는 편이 낫다.
  */
 const isListing = (url) => !url || /popga\.co\.kr|offmate/.test(url)
-const events = all.filter((e) => !isListing(e.source_url))
+const events = all.filter((e) => !isListing(e.sourceUrl))
 const dropped = all.length - events.length
 
-events.sort((a, b) => (a.starts_on < b.starts_on ? -1 : 1))
+events.sort((a, b) => (a.startsOn < b.startsOn ? -1 : 1))
 
 mkdirSync(dirname(OUT), { recursive: true })
 writeFileSync(OUT, JSON.stringify(events, null, 2) + '\n', 'utf8')

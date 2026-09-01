@@ -35,7 +35,7 @@ const MAX = 10
  */
 export default function TopSubjects({ events, today }: Props) {
   const ranks = useMemo<Rank[]>(() => {
-    const live = events.filter((e) => e.ends_on >= today)
+    const live = events.filter((e) => e.endsOn >= today)
     const bucket = new Map<string, EventItem[]>()
     for (const ev of live) {
       const key = ev.subject.trim()
@@ -59,7 +59,7 @@ export default function TopSubjects({ events, today }: Props) {
             .slice(0, 2)
             .map(([d]) => DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d),
           place: list[0].place.name,
-          image: list.find((e) => e.image_url)?.image_url,
+          image: list.find((e) => e.imageUrl)?.imageUrl,
         }
       })
       .sort((a, b) => b.count - a.count || a.subject.localeCompare(b.subject, 'ko'))
@@ -69,7 +69,7 @@ export default function TopSubjects({ events, today }: Props) {
   // 한 명뿐이면 순위가 아니다. 줄 세울 게 있을 때만 내보낸다
   if (ranks.length < 3) return null
 
-  const total = events.filter((e) => e.ends_on >= today).length
+  const total = events.filter((e) => e.endsOn >= today).length
   const [top, ...rest] = ranks
 
   const go = (r: Rank, i: number) => {

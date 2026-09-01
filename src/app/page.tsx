@@ -209,7 +209,7 @@ export default function Page() {
                 event_id: ev.id,
                 kind: ev.kind,
                 trust: ev.trust,
-                host: new URL(ev.source_url).hostname,
+                host: new URL(ev.sourceUrl).hostname,
               })
             }
           />
