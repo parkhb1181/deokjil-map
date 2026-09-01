@@ -15,7 +15,7 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { CompanionPost, PostComment, Viewer, ViewerRole } from '@/types'
+import { isClosed, type CompanionPost, type PostComment, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
@@ -226,6 +226,7 @@ export default function PostDetail({ post, comments, hostId }: {
         <div className="post__count">
           <span>댓글 <b>{post.comment_count}</b></span>
           {post.state === 'done' && <span>모집이 끝났어요</span>}
+          {post.state === 'ended' && <span>행사가 끝났어요</span>}
         </div>
       </article>
 
@@ -284,8 +285,16 @@ export default function PostDetail({ post, comments, hostId }: {
           본문을 가리고, 긴 글에서는 읽는 내내 자리를 뺏는다. 네이버 카페와
           당근이 둘 다 목록 끝에 둔다 */}
       <section className="write">
-        {post.state === 'done' ? (
-          <p className="write__gate">모집이 끝나 댓글을 받지 않아요</p>
+        {/* 끝난 글에는 댓글을 받지 않는다. 왜 끝났는지에 따라 문구가
+            다르다. "모집이 끝났다" 와 "행사가 끝났다" 는 사용자가
+            할 수 있는 일이 다르다. 앞은 다음 글을 기다리면 되고
+            뒤는 그 행사 자체가 지나갔다 */}
+        {isClosed(post.state) ? (
+          <p className="write__gate">
+            {post.state === 'done'
+              ? '모집이 끝나 댓글을 받지 않아요'
+              : '행사가 끝나 댓글을 받지 않아요'}
+          </p>
         ) : isGuest ? (
           /* 비회원 게이트. 보는 것은 다 열고 쓰는 것만 막는다.
              눌러야 막히는 것보다 처음부터 보이는 편이 덜 답답하다 */

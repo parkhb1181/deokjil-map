@@ -7,6 +7,7 @@
  */
 import type { ReactNode } from 'react'
 import { Avatar, Badge, type PostState } from './Basics'
+import { isClosed } from '@/types'
 import { swatchOf } from '@/lib/visual'
 
 /* ── 모집글 카드 ──────────────────────────────────────── */
@@ -37,7 +38,7 @@ export type PostCardProps = {
 export function PostCard({ title, state, when, where, image, comments }: PostCardProps) {
   const sw = swatchOf(title)
   return (
-    <article className={`pcard${state === 'done' ? ' is-done' : ''}`}>
+    <article className={`pcard${isClosed(state) ? ' is-done' : ''}`}>
       <div className="pcard__thumb">
         {image ? (
           <img className="pcard__photo" src={image} alt="" loading="lazy" />
@@ -47,10 +48,10 @@ export function PostCard({ title, state, when, where, image, comments }: PostCar
             style={{ background: `linear-gradient(150deg, ${sw.from}, ${sw.to})` }}
           />
         )}
-        {/* 완료는 포스터 왼쪽 위에 얹는다. 제목 앞에 붙이면 165px
+        {/* 끝난 글은 포스터 왼쪽 위에 얹는다. 제목 앞에 붙이면 165px
             밖에 안 되는 칸에서 제목이 한 줄을 더 먹는다. 오프메이트·
             팝가도 상태 표시를 포스터 위에 올린다 */}
-        {state === 'done' && (
+        {isClosed(state) && (
           <span className="pcard__state"><Badge state={state} /></span>
         )}
       </div>

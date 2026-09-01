@@ -3,6 +3,7 @@
  * 하나씩 파일을 두면 열 개가 넘어서 성격이 같은 것끼리 묶었다.
  */
 import type { ReactNode, ButtonHTMLAttributes } from 'react'
+import type { PostState } from '@/types'
 
 /* ── 버튼 ─────────────────────────────────────────────── */
 
@@ -44,14 +45,20 @@ export function Button({ tone = 'primary', size = 'md', block, className, ...res
 /* ── 상태 배지 ────────────────────────────────────────── */
 
 /**
- * 모집글 상태는 둘뿐이다. 신청·수락을 두지 않기로 해서
- * 정원 충족으로 자동 마감되는 경로가 없다. 방장이 완료를 누른다.
+ * 상태 값은 types.ts 한 곳에서 온다.
+ *
+ * 여기에 같은 이름으로 한 벌 더 두고 있었는데, 상태가 셋으로 늘 때
+ * 한쪽만 고쳐져서 드러났다. 배지가 아는 상태와 데이터가 가진 상태가
+ * 다르면 새 상태가 라벨 없이 그려진다.
  */
-export type PostState = 'open' | 'done'
+export type { PostState }
 
 const STATE_LABEL: Record<PostState, string> = {
   open: '모집중',
-  done: '완료',
+  /* '완료' 와 '종료' 를 다르게 적는다. 방장이 닫은 것과 시간이
+     지나 닫힌 것은 다른 일이다 */
+  done: '모집 완료',
+  ended: '종료',
 }
 
 export function Badge({ state, children }: { state: PostState | 'off'; children?: ReactNode }) {

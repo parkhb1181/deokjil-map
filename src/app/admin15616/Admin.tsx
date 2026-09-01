@@ -18,6 +18,9 @@
  *
  * 하는 일은 둘이다. **신고 처리와 유저 제재.**
  *
+ * 자동 제재(욕설 필터)는 1차에서 뺐다. 운영자가 손으로 처리한다.
+ * 그래서 「자동 제한 발동」 표시와 그것을 위로 올리던 정렬도 없다.
+ *
  * 이벤트 수기 등록(AD-01)은 뺐다. 그래서 탭도 없앴다. 할 일이 하나면
  * 탭은 누를 곳만 늘리고 알려주는 것이 없다. 들어오면 바로 신고다.
  */
@@ -33,8 +36,6 @@ type Report = {
   detail: string
   reporter: string
   at: string
-  /** 신고 누적으로 자동 제한이 걸린 건. 위로 올린다 (AD-03) */
-  auto: boolean
   done: boolean
 }
 
@@ -47,7 +48,6 @@ const REPORTS: Report[] = [
     detail: '만나기로 한 날 연락이 끊겼습니다.',
     reporter: '밤샘예매',
     at: '2026-08-31T09:12',
-    auto: true,
     done: false,
   },
   {
@@ -58,7 +58,6 @@ const REPORTS: Report[] = [
     detail: '본문에 쇼핑몰 링크가 있어요.',
     reporter: '남은대댓글',
     at: '2026-08-31T11:40',
-    auto: false,
     done: false,
   },
   {
@@ -69,7 +68,6 @@ const REPORTS: Report[] = [
     detail: '',
     reporter: '덕질하는오리',
     at: '2026-08-30T22:05',
-    auto: false,
     done: true,
   },
 ]
@@ -84,13 +82,15 @@ export default function Admin() {
   const close = (id: string) =>
     setReports((prev) => prev.map((r) => (r.id === id ? { ...r, done: true } : r)))
 
-  /* 자동 제한이 걸린 건을 맨 위로. 야간·주말에 사람이 없어도
-     그것만은 먼저 보게 한다 (SF-05). 그 안에서는 최신순이다.
-     신고는 쌓이는 목록이라 순서를 안 정해두면 들어온 순서대로
-     오래된 것이 위에 남는다 */
+  /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
+     순서대로 오래된 것이 위에 남는다.
+
+     자동 제재(욕설 필터)를 1차에서 빼면서 「자동 제한 발동」 건을
+     위로 올리던 규칙도 같이 뺐다. 전부 사람이 신고한 것이라 먼저
+     볼 이유가 있는 줄이 없다 */
   const list = reports
     .filter((r) => (only ? !r.done : true))
-    .sort((a, b) => Number(b.auto) - Number(a.auto) || (a.at < b.at ? 1 : -1))
+    .sort((a, b) => (a.at < b.at ? 1 : -1))
 
   return (
     <div className="bo">
@@ -138,10 +138,9 @@ export default function Admin() {
               </thead>
               <tbody>
                 {list.map((r) => (
-                  <tr key={r.id} className={r.auto ? 'bo__tr--hot' : undefined}>
+                  <tr key={r.id}>
                     <td>
                       <Badge state="off">{r.target}</Badge>
-                      {r.auto && <span className="bo__hot">자동 제한</span>}
                     </td>
                     <td className="bo__subject">{r.subject}</td>
                     <td>

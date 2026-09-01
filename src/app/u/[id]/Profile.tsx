@@ -10,13 +10,18 @@
  * 전에 상대를 가늠하는 화면이라 하는 일이 같다.
  *   신원 → 신뢰 요약(매너온도) → 이 사람이 내놓은 것
  *
- * 매너온도 자리에 「같이 다닌 기록」을 둔다. 우리에겐 후기도 평점도
- * 없지만, 약속을 끝까지 가는지(완료율)와 해본 적이 있는지(동행 횟수)는
- * 이미 DB 에 있는 사실에서 센다. 재거래희망률 같은 비율은 만들지
- * 않는다. 표본이 0~3 인데 비율로 적으면 거짓말이 된다.
+ * 1차에서는 「같이 다닌 기록」을 통째로 뺐다. 동행 횟수·완료율·댓글
+ * 응답이 다 여기 있었다. **도메인 모델에는 남기고 화면에서만 뺀다.**
+ * PostAuthor.done_count 와 ProfileData.done_count 는 그대로 두었다.
  *
- * 「댓글 응답」도 있었는데 1차에서 뺐다. 답글이 없어지면서 어떤 댓글이
- * 어떤 댓글에 대한 답인지 이을 방법이 없어져 셀 수가 없다.
+ * 연령대도 넣지 않는다. 가입 때 받아 미성년 차단에만 쓰는 값이라
+ * 남에게 보여줄 이유가 없다. 쓰지도 않을 것을 공개하면 유출됐을 때
+ * 잃을 것만 늘어난다.
+ *
+ * 그래서 남는 것은 닉네임 · 소개 · 쓴 모집글이다. 낯선 사람을 만나기
+ * 전에 볼 것이 줄어드는 것은 맞는데, 표본이 0~3 인 숫자를 신뢰 신호로
+ * 쓰는 것보다는 낫다는 판단이다. 되살릴 때는 이 파일과 위 타입만
+ * 보면 된다.
  *
  * 신고는 헤더의 더보기에 있다. 본문에 두면 프로필을 열자마자 "이 사람을
  * 어떻게 처리할까" 가 먼저 보인다.
@@ -27,7 +32,7 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Badge, Blank } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { swatchOf } from '@/lib/visual'
-import type { PostState } from '@/types'
+import { isClosed, type PostState } from '@/types'
 
 export type ProfilePost = {
   id: string
@@ -109,12 +114,8 @@ export default function Profile({ user }: { user: ProfileData }) {
 
   const active = today && user.last_seen_at ? activeLabel(user.last_seen_at, today) : null
 
-  const donePosts = user.posts.filter((p) => p.state === 'done').length
-
-  /* 셀 것이 하나도 없으면 카드를 숫자로 채우지 않는다. 처음 온 사람에게
-     "완료율 0%" 를 보여주면 그건 정보가 아니라 낙인이다 */
-  const hasRecord = user.done_count > 0 || user.posts.length > 0
-
+  /* 「모집글 N개 중 M개 완료」의 M. 방장이 닫은 것만 센다.
+     행사가 끝나 저절로 닫힌 글은 이 사람이 한 일이 아니다 */
   /* 진행 중인 것이 먼저다. 그 안에서는 만나는 날이 가까운 순,
      끝난 것은 최근 것부터 */
   const posts = useMemo(
@@ -173,10 +174,6 @@ export default function Profile({ user }: { user: ProfileData }) {
             <h1 className="prof__name">{user.nickname}</h1>
 
             <p className="prof__meta meta">
-              {/* 0 회를 '동행 0회' 로 적지 않는다. 모집글 상세의 글쓴이
-                  줄(Who)이 이미 '첫 동행' 이라 같은 사실을 두 화면이
-                  다르게 말하게 된다 */}
-              <span>{user.done_count > 0 ? `동행 ${user.done_count}회` : '첫 동행'}</span>
               {/* 활동 시각은 서버가 아직 안 준다. 없으면 칸이 하나 준다 */}
               {active && <span>{active}</span>}
               <span>{monthOf(user.joined_at)} 가입</span>
@@ -193,29 +190,6 @@ export default function Profile({ user }: { user: ProfileData }) {
 
       {/* 당근의 매너온도 자리. 게이지 하나로 뭉뚱그리지 않고
           무엇을 보고 그렇게 말하는지 그대로 적는다 */}
-      <section className="prof__record">
-        <h2 className="prof__h2">같이 다닌 기록</h2>
-
-        {hasRecord ? (
-          <dl className="prof__facts">
-            <div className="prof__fact">
-              <dt>완료한 동행</dt>
-              <dd>{user.done_count}회</dd>
-            </div>
-            <div className="prof__fact">
-              <dt>모집글</dt>
-              <dd>
-                {user.posts.length}개 중 {donePosts}개 완료
-              </dd>
-            </div>
-          </dl>
-        ) : (
-          <p className="prof__none">
-            아직 동행 기록이 없어요. 첫 동행을 같이 해보세요
-          </p>
-        )}
-      </section>
-
       <section className="prof__posts">
         <h2 className="prof__h2">
           쓴 모집글 {user.posts.length > 0 && <span className="prof__count">{user.posts.length}</span>}
@@ -248,7 +222,7 @@ export default function Profile({ user }: { user: ProfileData }) {
 
                     <div className="mine__main">
                       <p className="mine__title">
-                        {p.state === 'done' && <Badge state={p.state} />}
+                        {isClosed(p.state) && <Badge state={p.state} />}
                         {p.title}
                       </p>
                       {/* .meta 순서는 어디서 → 언제다 (SCALE.md) */}

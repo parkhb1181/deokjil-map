@@ -17,7 +17,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Blank, Tabs, Badge, Avatar } from '@/components/ui/Basics'
-import type { PostState } from '@/types'
+import { isClosed, type PostState } from '@/types'
 
 type MyPost = {
   id: string
@@ -206,7 +206,7 @@ export default function MyActivity() {
                     화면마다 순서를 바꾸면 같은 글이 다른 물건으로 보인다 */}
                 <Link href={`/p/${p.id}`} className="mine__row">
                   <p className="mine__title">
-                    {p.state === 'done' && <Badge state={p.state} />}
+                    {isClosed(p.state) && <Badge state={p.state} />}
                     {p.title}
                   </p>
                   <p className="mine__sub meta">
