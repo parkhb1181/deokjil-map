@@ -131,7 +131,10 @@ export default async function SubjectPage({
       />
 
       <main className="main">
-        <article className="sheet">
+        {/* /e/[id] 와 같은 통짜 페이지다. sheet 는 원래 앱 안에서 위로
+            덮는 시트라 position: fixed 인데, 그대로 두면 목록이 화면
+            높이에 갇혀 아래가 잘린다 */}
+        <article className="sheet sheet--page">
           <div className="sheet__head">
             <h1>
               {subject} {kindLabel}

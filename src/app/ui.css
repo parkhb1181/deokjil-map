@@ -270,7 +270,7 @@
    ------------------------------------------------------- */
 .fab {
   position: fixed;
-  right: max(var(--gutter), calc(50vw - 320px + var(--gutter)));
+  right: max(var(--gutter), calc(50vw - var(--page-w) / 2 + var(--gutter)));
   bottom: calc(20px + env(safe-area-inset-bottom));
   z-index: 30;
   display: inline-flex;
@@ -445,6 +445,9 @@
 }
 .ask__panel {
   width: 100%;
+  /* 여기만 --page-w 를 안 쓴다. 확인 시트는 본문이 아니라 물음이라,
+     본문과 같은 폭이면 한 화면이 더 열린 것처럼 보인다. 좁을수록
+     "예/아니오 하나만 고르면 된다" 로 읽힌다 */
   max-width: 480px;
   max-height: 84vh;
   overflow: auto;
@@ -546,6 +549,23 @@
 }
 .shell__back svg { width: 22px; height: 22px; }
 .shell__back:active { background: var(--bg-sunk); }
+
+/* 헤더 오른쪽 더보기. 신고·차단처럼 자주 쓰지 않고 되돌리기 어려운
+   것을 여기 넣는다. 뒤로가기와 같은 크기·같은 모양으로 둔다 */
+.shell__more {
+  width: var(--tap);
+  height: var(--tap);
+  margin-right: calc(var(--gutter) * -1 + 4px);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.shell__more svg { width: 20px; height: 20px; }
+.shell__more:active { background: var(--bg-sunk); }
 .shell__title {
   font-size: var(--t-body);
   font-weight: 700;
@@ -556,14 +576,14 @@
 }
 .shell__right { margin-left: auto; display: flex; gap: 6px; }
 
-.shell__body { flex: 1; width: 100%; max-width: 640px; margin-inline: auto; }
+.shell__body { flex: 1; width: 100%; max-width: var(--page-w); margin-inline: auto; }
 
 .shell__foot {
   position: sticky;
   bottom: 0;
   z-index: 20;
   width: 100%;
-  max-width: 640px;
+  max-width: var(--page-w);
   margin-inline: auto;
   padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom));
   background: var(--bg);
@@ -801,10 +821,10 @@
 /* ── 보는 사람 바꾸기 (개발용) ────────────────────────── */
 
 /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 지운다 */
+/* 화면 위에 붙이지 않는다. 스크롤을 따라오면 지도와 사진 위를
+   덮어 정작 확인하려던 것을 가린다. 개발용 막대이므로 본문과 같이
+   흘러가면 된다 */
 .whoami {
-  position: sticky;
-  top: 52px;
-  z-index: 19;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -892,6 +912,30 @@
 .mine li + li .mine__row { border-top: 1px solid var(--border); }
 .mine__row:active { background: var(--bg-sunk); }
 .mine__head { display: flex; align-items: center; gap: 6px; }
+
+/* 사진이 붙는 글 행 (프로필의 「쓴 모집글」).
+
+   /p 목록처럼 130px 을 화면 끝까지 붙이지 않는다. 거기는 포스터를
+   보고 고르는 화면이고 여기는 "이 사람이 뭘 하고 다니나" 를 훑는
+   자리라, 어느 행사인지 알아볼 만한 크기면 된다. 64 는 옆의
+   아바타(56)와 비슷해 화면 안에서 따로 놀지 않는다.
+
+   글은 위에서 시작한다. 세로 가운데로 맞추면 제목이 한 줄인 글과
+   두 줄인 글의 첫 줄 높이가 달라져 목록이 들쭉날쭉해 보인다 */
+.mine__row--thumb { display: flex; align-items: flex-start; gap: 12px; }
+.mine__main { flex: 1; min-width: 0; }
+.mine__thumb {
+  display: block;
+  width: 64px;
+  flex: 0 0 auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  /* 정사각은 위아래를 크게 잘라내서 center top 으로 두면 포스터
+     상단 여백만 남는다. 상세의 4:5 와 규칙이 다른 이유다 */
+  object-position: center;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+}
 .mine__when { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
 
 /* 어느 글에 단 댓글인지. 댓글 본문보다 먼저 나와야 맥락이 잡힌다 */
@@ -1010,7 +1054,9 @@
 
    가운데 정렬을 버린 이유는 다른 화면이 전부 왼쪽에서 시작하기
    때문이다. 프로필만 가운데면 화면을 오갈 때 시작선이 흔들린다 */
-.prof { padding: 18px var(--gutter); border-bottom: 8px solid var(--bg-sunk); }
+/* 신원 줄은 짧게 끝낸다. 바로 아래에 기록 카드가 붙으므로 여기서
+   여백을 벌리면 이름과 카드가 따로 노는 두 덩어리로 보인다 */
+.prof { padding: 14px var(--gutter) 12px; }
 .prof__id { display: flex; align-items: center; gap: 12px; }
 .prof .avatar { width: 56px; height: 56px; font-size: 21px; }
 .prof__idmain { flex: 1; min-width: 0; }
@@ -1024,17 +1070,60 @@
 .prof__meta { margin-top: 2px; }
 
 .prof__bio {
-  margin-top: 14px;
+  margin-top: 10px;
   font-size: var(--t-body);
   line-height: 1.72;
   color: var(--text-dim);
 }
 .prof__bio--none { color: var(--text-mute); }
 
-.prof__acts { display: flex; gap: 8px; margin-top: 14px; }
-.prof__acts .btn { flex: 1; }
+/* 확인하는 값을 라벨·값 두 칸으로 세운다.
 
-.prof__posts { padding-bottom: 24px; }
+   .meta 로 잇지 않는 이유는 값마다 라벨이 필요해서다. 가운뎃점으로
+   이어붙이면 "3회 · 2개 중 1개 완료" 가 되어 무엇이 무엇인지 모른다.
+   라벨은 눌러 두고 값만 눈에 걸리게 한다 */
+.prof__facts { display: flex; flex-direction: column; gap: 9px; }
+.prof__fact { display: flex; gap: 12px; align-items: baseline; }
+.prof__fact dt {
+  flex: 0 0 84px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.prof__fact dd {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+/* 값에 딸린 부연. 같은 줄에서 한 단 눌러 둔다 */
+.prof__factsub { font-weight: 400; color: var(--text-mute); }
+
+/* 당근의 매너온도 자리. 게이지 하나로 뭉뚱그리지 않고 무엇을 보고
+   그렇게 말하는지 그대로 적는다. 후기도 평점도 없어서 만들 수 있는
+   숫자가 이 셋뿐이기도 하다 */
+/* 이 구간만 상자로 채운다. 8px 띠로 나누면 위아래 구간과 같은
+   무게가 되는데, 이 화면에서 제일 먼저 읽혀야 하는 것이 이 셋이다.
+   흰 배경 위의 회색 면이라 테두리를 두르지 않아도 경계가 선다 */
+.prof__record {
+  margin: 4px var(--gutter) 0;
+  padding: 14px 16px 16px;
+  background: var(--bg-sunk);
+  border-radius: var(--radius);
+}
+/* 상자가 이미 여백을 가진다. 제목이 gutter 를 또 주면 두 번 들어간다 */
+.prof__record .prof__h2 { padding: 0 0 10px; }
+
+/* 셀 것이 없을 때. 0 을 채우면 정보가 아니라 낙인이 된다 */
+.prof__none {
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  line-height: 1.6;
+}
+
+/* 상자와 목록 사이. 성격이 다른 구간이라 8px 띠로 끊는다 */
+.prof__posts { margin-top: 20px; border-top: 8px solid var(--bg-sunk); padding-bottom: 24px; }
 /* 구간 제목. 당근은 목록 위에 작은 제목만 두고 선을 긋지 않는다 */
 .prof__h2 {
   padding: 16px var(--gutter) 4px;
@@ -1042,6 +1131,23 @@
   font-weight: 800;
   color: var(--text);
 }
+/* 제목 옆 개수. 제목과 같은 크기로 두되 색만 눌러 센 값임을 알린다 */
+.prof__count { margin-left: 4px; color: var(--text-mute); }
+
+/* 더보기가 여는 목록. 시트 안에서 전체폭 한 줄씩 선다 */
+.menu { display: flex; flex-direction: column; margin: 0 calc(var(--gutter) * -1); }
+.menu__item {
+  min-height: var(--tap);
+  padding: 0 var(--gutter);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.menu__item:active { background: var(--bg-sunk); }
 
 /* ── 404 ──────────────────────────────────────────────── */
 
@@ -1060,26 +1166,27 @@
 .nf__acts { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 320px; margin-top: 14px; }
 .nf__acts .btn { width: 100%; text-decoration: none; }
 
-/* ── 이벤트 상세의 동행글 블록 ────────────────────────── */
+/* ── 이벤트 상세의 동행글 블록 ────────────────────────────
+   배경을 칠하지 않는다. 통째로 분홍이면 이 블록이 정작 위의 장소·
+   기간보다 먼저 눈에 들어온다. 색은 버튼에만 준다. 눌러야 하는 것이
+   그것 하나뿐이다.
 
-/* 이 행사에 같이 갈 사람을 구하는 글이 있는지 알려준다.
-   목록까지 들어가야 알 수 있으면 아무도 안 들어간다 */
+   구분은 8px 회색 띠로 한다. 성격이 다른 구간 사이에 쓰는 그 값이다.
+   ------------------------------------------------------- */
 .withus {
-  margin: 22px var(--gutter) 0;
-  padding: 16px;
-  background: var(--accent-soft);
-  border-radius: var(--radius);
-  text-align: center;
+  margin-top: 22px;
+  padding: 20px var(--gutter) 4px;
+  border-top: 8px solid var(--bg-sunk);
 }
-.withus__title { font-size: 16px; font-weight: 800; color: var(--accent-ink); }
+.withus__title { font-size: var(--t-strong); font-weight: 800; color: var(--text); }
 .withus__desc {
-  margin-top: 6px;
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--accent-ink);
-  opacity: .82;
+  margin: 6px 0 14px;
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
 }
-.withus__go { margin-top: 12px; text-decoration: none; }
+.withus .btn { text-decoration: none; }
+
 
 /* ── 백오피스 ─────────────────────────────────────────── */
 
@@ -1304,7 +1411,10 @@
   display: block;
   width: 100%;
   aspect-ratio: 4 / 5;
-  max-height: 60vh;
+  /* 모집글 상세보다 낮게 막는다. 거기서는 포스터가 글의 주인공이지만
+     여기서는 어느 행사인지 알려주는 표지다. 60vh 로 두면 첫 화면을
+     통째로 먹어 장소도 기간도 스크롤해야 보인다 */
+  max-height: 40vh;
   object-fit: cover;
   object-position: center top;
   background: var(--bg-sunk);
@@ -1364,17 +1474,21 @@
 
 /* 공개 프로필의 신원 줄과 같은 배치다. 같은 사람이 화면마다 다르게
    보이면 내 프로필이 남에게 어떻게 보이는지 짐작할 수 없다 */
+/* 사진이 가운데다. 이름과 나란히 두면 목록 행처럼 읽혀 내
+   프로필이 아니라 남의 목록 한 줄로 보인다. 당근도 프로필 화면에서
+   사진을 가운데 크게 둔다 */
 .myid {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px var(--gutter);
+  gap: 10px;
+  padding: 24px var(--gutter);
 }
 
 /* 사진을 눌러 바로 바꾼다. 수정 화면에 들어가야만 바꿀 수 있으면
    아바타가 기본값인 채로 남는 사람이 많아진다 */
 .myid__pic { position: relative; flex: 0 0 auto; cursor: pointer; }
-.myid__pic .avatar { width: 56px; height: 56px; font-size: 20px; }
+.myid__pic .avatar { width: 76px; height: 76px; font-size: 26px; }
 
 .myid__cam {
   position: absolute;
@@ -1391,9 +1505,9 @@
 }
 .myid__cam svg { width: 13px; height: 13px; }
 
-.myid__main { flex: 1; min-width: 0; }
-.myid__name { font-size: var(--t-body); font-weight: 700; color: var(--text); }
-.myid__meta { margin-top: 2px; }
+.myid__main { text-align: center; }
+.myid__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.myid__meta { margin-top: 3px; justify-content: center; }
 
 /* ── 마이페이지 메뉴 ──────────────────────────────────── */
 
@@ -1421,3 +1535,101 @@
 
 .mymenu__caret { width: 16px; height: 16px; margin-left: auto; color: var(--text-mute); }
 .mymenu__note { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+/* 입력칸 오른쪽에 붙는 버튼. 지금 친 값을 두고 누르는 것이라
+   눈이 값에서 버튼으로 바로 넘어간다 */
+.fld__box--after { padding-right: 6px; }
+.fld__after { flex: 0 0 auto; }
+.fld__after .btn { min-height: 32px; padding: 0 10px; }
+
+/* ── 프로필 수정 ──────────────────────────────────────── */
+
+/* 사진이 맨 위 가운데다. 프로필에서 남이 먼저 보는 것이 사진이라
+   폼 중간에 끼워 넣으면 이름·소개와 같은 무게로 읽혀 비어 있어도
+   넘어가게 된다. 당근 비즈프로필도 같은 자리에 둔다 */
+.pedit__pic {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px var(--gutter) 6px;
+}
+.pedit__pic .avatar { width: 88px; height: 88px; font-size: 30px; }
+
+.pedit__hint {
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  text-align: center;
+}
+
+/* ── 이벤트 상세를 페이지로 ───────────────────────────── */
+
+/* globals.css 의 .sheet 는 앱 안에서 위로 덮는 시트라 position: fixed 다.
+   /e/[id] 는 같은 어휘를 쓰되 통짜 페이지여서, 그대로 두면 카드가
+   화면에 붙어 제목이 스크롤을 따라다닌다. 여기서만 흐름으로 되돌린다 */
+.sheet--page {
+  position: static;
+  inset: auto;
+  max-width: var(--page-w);
+  margin-inline: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* 원문·예약·지도 링크 줄. 문서 끝의 출처 표기라 가운데로 모은다 */
+.sheet--page .sheet__original { text-align: center; }
+
+/* ── 헤더 제목을 가운데로 ─────────────────────────────── */
+
+/* 뒤로 버튼 옆에 붙여두면 본문 시작선(gutter 16px)과 어긋나 제목만
+   혼자 튀어나온 것처럼 보인다. 가운데로 두면 좌우 버튼과 무관하게
+   늘 같은 자리라 화면을 오갈 때 흔들리지 않는다 */
+.shell__bar { position: relative; justify-content: center; }
+.shell__back { position: absolute; left: 4px; }
+.shell__title { max-width: calc(100% - 160px); text-align: center; }
+.shell__right { position: absolute; right: var(--gutter); margin-left: 0; }
+
+/* ── 프로필을 가운데로 ────────────────────────────────── */
+
+/* 사진·이름·소개를 가운데로 모은다. 마이페이지(/me)가 가운데라
+   같은 사람이 두 화면에서 다르게 놓이면 내 프로필이 남에게 어떻게
+   보이는지 짐작할 수 없다 */
+.prof { padding: 22px var(--gutter) 16px; }
+.prof__id { flex-direction: column; gap: 10px; }
+.prof .avatar { width: 76px; height: 76px; font-size: 26px; }
+.prof__idmain { flex: 0 0 auto; text-align: center; }
+.prof__meta { justify-content: center; }
+.prof__bio { text-align: center; }
+.prof__acts { justify-content: center; }
+
+/* 점 세 개. 헤더가 가운데 정렬이 되면서 오른쪽 붙임이 이중으로
+   먹어 밖으로 밀려났다. 오른쪽 칸이 이미 자리를 잡는다 */
+.shell__more { margin-right: 0; }
+
+/* 헤더 좌우 패딩을 같게 둔다. 왼쪽 4px 오른쪽 16px 이면 가운데 정렬한
+   제목이 6px 왼쪽으로 밀린다. 오른쪽 여백은 .shell__right 가 잡는다 */
+.shell__bar { padding-inline: 4px; }
+
+/* 헤더 안쪽을 본문 폭에 맞춘다.
+
+   테두리와 배경은 화면 전체를 가로질러야 하지만, 뒤로가기와 오른쪽
+   버튼은 본문(--page-w)과 같은 시작선에 서야 한다. 넓은 화면에서 그것만
+   화면 끝까지 나가 있으면 헤더가 본문과 다른 판처럼 보인다.
+
+   제목은 flex 가운데 정렬이라 손대지 않아도 된다. 본문도 화면
+   가운데라 두 가운데가 같은 자리다 */
+.shell__back { left: max(4px, calc((100% - var(--page-w)) / 2 + 4px)); }
+.shell__right { right: max(var(--gutter), calc((100% - var(--page-w)) / 2 + var(--gutter))); }
+
+/* 오른쪽이 아이콘 버튼일 때는 뒤로가기와 같은 자리에 선다.
+
+   둘 다 44px 탭 상자 안의 20~22px 글리프라, 상자를 같은 offset 에
+   두면 글리프도 같은 만큼 바깥으로 나온다 (왼쪽 5px · 오른쪽 4px).
+   본문 gutter 에 상자를 맞추면 글리프가 12px 안으로 들어가 오른쪽만
+   덜 나온 것처럼 보인다.
+
+   글자 버튼(완료 같은 것)은 그대로 gutter 에 선다. 아이콘과 달리
+   여백이 없어 밖으로 빼면 정말로 튀어나온다 */
+.shell__right:has(.shell__more) {
+  right: max(4px, calc((100% - var(--page-w)) / 2 + 4px));
+}

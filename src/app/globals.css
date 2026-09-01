@@ -40,6 +40,18 @@
   --wait-60:   #dc2626;
 
   --gutter:    16px;   /* 좌우 시작선. 헤더·칩·섹션·카드가 전부 이 값을 쓴다 */
+
+  /* 본문 최대 폭. 지도 앱·시트·PageShell 이 전부 이 값을 쓴다.
+
+     한때 셋이 달랐다. 앱이 480, 시트와 오버레이가 640, 나중에 만든
+     화면들이 640 이었다. 그래서 지도에서 카드를 누르면 상세가 좌우로
+     80px 씩 벌어졌고, 목록에서 모집글로 넘어가면 화면이 통째로 넓어졌다.
+     같은 사이트를 오가는데 폭이 바뀌면 다른 사이트로 넘어온 것처럼 보인다.
+
+     값은 640 으로 모았다. 480 을 쓰던 규칙은 둘(.app · .bottomnav)뿐이고
+     나머지 여섯이 640 이었다. --gutter 와 같이, 새 값을 만들지 말고
+     여기서 고른다 */
+  --page-w:    640px;
   --radius:    14px;
   --radius-sm: 10px;
   --tap:       44px;   /* 최소 터치 타깃 */
@@ -104,8 +116,9 @@ a { color: inherit; }
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* 모바일 우선. 640 은 데스크톱에서 한 줄이 너무 길어 앱이 아니라 문서로 읽힌다 */
-  max-width: 480px;
+  /* 폭은 --page-w 하나로 관리한다. 여기만 480 이던 시절에는 시트가
+     열릴 때마다 화면이 160px 넓어졌다 */
+  max-width: var(--page-w);
   margin-inline: auto;
   background: var(--bg);
   /* 하단 탭 높이 + 홈 인디케이터만큼 본문을 띄운다 */
@@ -412,7 +425,7 @@ a { color: inherit; }
   transform: translateX(-50%);
   width: 100%;
   /* .app 과 같은 값이어야 한다. 다르면 탭만 본문보다 넓게 삐져나온다 */
-  max-width: 480px;
+  max-width: var(--page-w);
   display: flex;
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -445,7 +458,7 @@ a { color: inherit; }
 
 
 /* ── 데스크톱 ─────────────────────────────────────────────
-   앱은 모바일 폭(640px)을 유지한다. 대신 그 바깥을 다른 색으로 깔고
+   앱은 모바일 폭(--page-w)을 유지한다. 대신 그 바깥을 다른 색으로 깔고
    경계선·그림자를 줘서, 넓은 화면에서 "가운데 띄워둔 앱"으로 읽히게 한다.
    ------------------------------------------------------- */
 @media (min-width: 700px) {
@@ -467,7 +480,7 @@ a { color: inherit; }
   z-index: 40;
   display: flex;
   flex-direction: column;
-  max-width: 640px;
+  max-width: var(--page-w);
   margin-inline: auto;
   background: var(--bg);
 }
@@ -528,7 +541,7 @@ a { color: inherit; }
   z-index: 50;
   display: flex;
   flex-direction: column;
-  max-width: 640px;
+  max-width: var(--page-w);
   margin-inline: auto;
   background: var(--bg);
 }
