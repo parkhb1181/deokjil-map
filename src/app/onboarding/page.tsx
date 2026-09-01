@@ -150,7 +150,7 @@ const GROUPS: Group[] = [
         name: '백오피스',
         shot: 'admin',
         spec: 'AD',
-        desc: '신고랑 이벤트 등록. 주소 뒤에 숫자를 붙여놨습니다',
+        desc: '신고랑 이벤트 등록. 여기만 PC 화면입니다. 주소 뒤에 숫자를 붙여놨습니다',
         data: '목데이터',
       },
       {

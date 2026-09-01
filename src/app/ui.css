@@ -1930,3 +1930,143 @@
 .header__go svg { width: 21px; height: 21px; }
 .header__go span { font-size: var(--t-small); font-weight: 700; letter-spacing: -0.02em; }
 .header__go:active { background: var(--bg-sunk); }
+
+/* ── 백오피스 (PC) ───────────────────────────────────────
+   이 파일에서 유일하게 휴대폰 폭을 벗어나는 화면이다. 운영자가
+   책상에서 쓰고, 신고를 여러 건 훑어 처리하는 일이라 표가 맞다.
+   --page-w 를 쓰지 않는 이유가 그것이고, 다른 화면이 이 규격을
+   따라오면 안 된다.
+   ------------------------------------------------------- */
+
+.bo { min-height: 100dvh; background: var(--bg-sunk); }
+
+.bo__bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+  padding-inline: 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.bo__logo { font-size: var(--t-strong); color: var(--text-mute); white-space: nowrap; }
+.bo__logo b { color: var(--text); font-weight: 800; }
+
+.bo__tabs { display: flex; gap: 2px; height: 100%; }
+.bo__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 0;
+  /* 밑줄로 현재 위치를 잡는다. 배경을 칠하면 상단 바가 두 층으로
+     보여서 어디까지가 바인지 흐려진다 */
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--text-mute);
+  font: inherit;
+  font-size: var(--t-strong);
+  font-weight: 600;
+  cursor: pointer;
+}
+.bo__tab:hover { color: var(--text); }
+.bo__tab--on { color: var(--text); font-weight: 700; border-bottom-color: var(--accent); }
+
+/* 남은 건수. 탭 안에 두면 들어가 보지 않아도 쌓인 것이 보인다 */
+.bo__badge {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--t-small);
+  font-style: normal;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+.bo__who { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+/* 표는 넓을수록 좋지만 끝이 없으면 눈이 행을 놓친다. 1120 은
+   여섯 칸이 안 눌리면서 한 행을 눈으로 따라갈 수 있는 폭이다 */
+.bo__body { max-width: 1120px; margin-inline: auto; padding: 24px; }
+
+.bo__toolbar { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.bo__h { font-size: var(--t-title); font-weight: 800; letter-spacing: -0.02em; }
+.bo__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__count { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
+
+.bo__scroll {
+  overflow-x: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.bo__table { width: 100%; border-collapse: collapse; font-size: var(--t-sub); }
+.bo__table th {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sunk);
+  color: var(--text-mute);
+  font-size: var(--t-small);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+.bo__table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+.bo__table tr:last-child td { border-bottom: 0; }
+.bo__table tbody tr:hover { background: var(--bg-sunk); }
+
+/* 자동 제한이 걸린 행. 배경을 칠하지 않고 왼쪽에 선만 세운다.
+   목록이 길어졌을 때 칠한 행이 여럿이면 그게 기본처럼 보인다 */
+.bo__tr--hot td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.bo__hot {
+  margin-left: 6px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+
+.bo__subject { font-weight: 600; color: var(--text); max-width: 260px; }
+.bo__detail { display: block; margin-top: 2px; font-size: var(--t-small); color: var(--text-mute); }
+.bo__dim { color: var(--text-mute); white-space: nowrap; }
+.bo__when { font-variant-numeric: tabular-nums; }
+.bo__actcol { text-align: right; white-space: nowrap; }
+.bo__acts { display: inline-flex; gap: 6px; }
+
+/* 등록 폼. 표와 달리 좁게 둔다. 한 줄이 길면 라벨과 값이 눈으로
+   안 이어진다 */
+.bo__panel {
+  max-width: 720px;
+  padding: 24px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.bo__lead { margin-top: 6px; font-size: var(--t-sub); line-height: 1.65; color: var(--text-mute); }
+.bo__grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 4px 16px;
+}
+/* 주소·원문처럼 긴 값은 두 칸을 다 쓴다 */
+.bo__wide { grid-column: 1 / -1; }
+.bo__submit { margin-top: 20px; display: flex; justify-content: flex-end; }

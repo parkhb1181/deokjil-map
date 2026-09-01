@@ -45,7 +45,15 @@ const CROP_H = Math.round(W * 5 / 4)
 /* 내보내는 크기. 3단 격자에서 한 칸이 200px 안팎이라 두 배로 둔다 */
 const OUT_W = 400
 
-/** [파일 이름, 주소] */
+/* 백오피스만 PC 화면이라 따로 찍는다. 휴대폰 폭으로 찍으면 표가
+   옆으로 잘려서, 색인에서 보고 "이것도 앱 화면이구나" 로 읽힌다 */
+const PC_W = 1280
+const PC_H = 800
+/** 줄여서 넣을 폭. 남는 위아래는 배경색으로 채운다 */
+const PC_INNER = 360
+const PAD = { r: 246, g: 246, b: 247 }
+
+/** [파일 이름, 주소, 'pc' 면 데스크톱 폭으로] */
 const SHOTS = [
   ['home', '/'],
   ['event', '/e/pg_8417'],
@@ -58,7 +66,7 @@ const SHOTS = [
   ['me', '/me'],
   ['me-edit', '/me/edit'],
   ['profile', '/u/u_host'],
-  ['admin', '/admin15616'],
+  ['admin', '/admin15616', 'pc'],
   ['terms', '/terms'],
   ['privacy', '/privacy'],
   ['gallery', '/dev/gallery'],
@@ -113,7 +121,8 @@ const started = Date.now()
 let ok = 0
 const failed = []
 
-for (const [name, route] of SHOTS) {
+for (const [name, route, mode] of SHOTS) {
+  const pc = mode === 'pc'
   const raw = path.join(tmp, `${name}.png`)
   try {
     await run(
@@ -125,7 +134,7 @@ for (const [name, route] of SHOTS) {
         '--no-sandbox',
         ...QUIET,
         `--user-data-dir=${path.join(tmp, 'profile')}`,
-        `--window-size=${W},${H}`,
+        `--window-size=${pc ? PC_W : W},${pc ? PC_H : H}`,
         /* 지도와 사진이 들어오기를 기다린다. 짧으면 회색 네모가 찍힌다 */
         '--virtual-time-budget=5000',
         `--screenshot=${raw}`,
@@ -145,11 +154,36 @@ for (const [name, route] of SHOTS) {
     }
   }
 
-  await sharp(raw)
-    .extract({ left: 0, top: 0, width: W, height: CROP_H })
-    .resize(OUT_W)
-    .webp({ quality: 74 })
-    .toFile(path.join(OUT, `${name}.webp`))
+  if (pc) {
+    /* 가로로 넓은 화면을 세로 카드에 담는다. 잘라내면 표의 절반이
+       날아가므로 통째로 줄이고 남는 위아래를 배경색으로 채운다.
+       카드 안에 작은 데스크톱 화면이 떠 있는 모습이 되어, 이것만
+       규격이 다르다는 것이 색인에서 바로 보인다.
+
+       두 번에 나눠 돈다. sharp 는 resize 를 extend 보다 먼저 실행해서
+       한 체인에 붙이면 최종 크기가 어긋난다 */
+    const inner = await sharp(raw)
+      .resize(PC_INNER)
+      .toBuffer()
+    const { height: ih } = await sharp(inner).metadata()
+    const pad = Math.max(0, Math.round((OUT_W * 5) / 4 - (ih ?? 0)))
+    await sharp(inner)
+      .extend({
+        top: Math.floor(pad / 2),
+        bottom: Math.ceil(pad / 2),
+        left: Math.floor((OUT_W - PC_INNER) / 2),
+        right: Math.ceil((OUT_W - PC_INNER) / 2),
+        background: PAD,
+      })
+      .webp({ quality: 74 })
+      .toFile(path.join(OUT, `${name}.webp`))
+  } else {
+    await sharp(raw)
+      .extract({ left: 0, top: 0, width: W, height: CROP_H })
+      .resize(OUT_W)
+      .webp({ quality: 74 })
+      .toFile(path.join(OUT, `${name}.webp`))
+  }
 
   ok++
   process.stdout.write(`\r${ok}/${SHOTS.length} ${name}`.padEnd(44))
