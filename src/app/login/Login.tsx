@@ -34,26 +34,30 @@ export default function Login() {
   return (
     <PageShell>
       <div className="login">
-        <img className="login__mark" src="/duck-face.webp" alt="" width={132} height={132} />
+        {/* 로고부터 설명까지가 한 덩어리다. 남는 공간을 이 덩어리가
+            먹고 그 안에서 가운데로 모인다 */}
+        <div className="login__top">
+          <img className="login__mark" src="/duck-face.webp" alt="" width={112} height={112} />
 
-        <h1 className="login__title">
-          같이 갈 사람,
-          <br />
-          여기서 찾아요
-        </h1>
-        <p className="login__desc">
-          콘서트·팝업·생일카페에 함께 갈 사람을 구합니다.
-          <br />
-          닉네임만 정하면 바로 쓸 수 있어요.
-        </p>
+          <h1 className="login__title">
+            같이 갈 사람,
+            <br />
+            여기서 찾아요
+          </h1>
+          <p className="login__desc">
+            콘서트·팝업·생일카페에 함께 갈 사람을 구합니다.
+            <br />
+            닉네임만 정하면 바로 쓸 수 있어요.
+          </p>
+        </div>
 
+        {/* 카카오 하나만 둔다. 고를 것이 둘이면 어느 쪽으로 가입했는지
+            기억해야 하고, 다음에 다른 쪽을 누르면 남남인 계정이 하나 더
+            생긴다. 국내 서비스에서 카카오를 안 쓰는 사람은 드물다 */}
         <div className="login__acts">
           <Button block tone="kakao" disabled={!!busy} onClick={() => start('kakao')}>
             <KakaoMark />
             {busy === 'kakao' ? '카카오로 이동 중…' : '카카오로 시작하기'}
-          </Button>
-          <Button block tone="ghost" disabled={!!busy} onClick={() => start('google')}>
-            {busy === 'google' ? '구글로 이동 중…' : '구글로 시작하기'}
           </Button>
         </div>
 

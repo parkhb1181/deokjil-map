@@ -37,24 +37,59 @@ export default function Welcome() {
   const [age, setAge] = useState('')
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
-  /* 서버가 409 를 주면 여기 담는다. 사전 조회만으로는 동시 가입 시
-     중복이 생겨 유니크 제약이 최종 방어선이다 (AU-06) */
-  const [taken, setTaken] = useState<string | null>(null)
+  /**
+   * 중복 확인 결과.
+   *
+   * 검사한 이름을 같이 들고 있는 것이 중요하다. 이름만 저장하면
+   * "오리" 로 확인받고 "덕모임" 으로 고쳐서 제출하는 길이 열린다.
+   * 이름이 달라지면 결과는 무효가 된다.
+   *
+   * 이 확인은 사전 조회일 뿐이다. 동시에 같은 이름으로 가입하면
+   * 둘 다 통과하므로 유니크 제약이 최종 방어선이고 서버가 409 를
+   * 준다 (AU-06). 확인을 받았어도 제출에서 막힐 수 있다.
+   */
+  const [checked, setChecked] = useState<{ name: string; free: boolean } | null>(null)
+  const [checking, setChecking] = useState(false)
 
-  const nickError = taken === nick.trim() ? '이미 쓰고 있는 닉네임이에요' : checkNick(nick)
+  const formError = checkNick(nick)
+  const fresh = checked && checked.name === nick.trim() ? checked : null
+
+  const takenError = fresh && !fresh.free ? '이미 쓰고 있는 닉네임이에요' : undefined
+  const nickError = formError ?? takenError
+
+  /**
+   * 화면에 띄울 오류.
+   *
+   * 형식 오류는 제출을 누른 뒤에 보여준다. 두 글자 치는 도중에
+   * "2자 이상이어야 해요" 가 뜨면 쓰는 내내 혼나는 기분이 든다.
+   *
+   * 중복은 다르다. **사용자가 확인 버튼을 눌러 물어본 것이라 바로
+   * 답해야 한다.** 눌렀는데 아무 변화가 없으면 눌린 건지도 모른다.
+   */
+  const shownError = (tried ? formError : undefined) ?? takenError
   const ageError = age ? undefined : '연령대를 골라주세요'
-  const ok = !nickError && !ageError
+  /* 확인을 받아야 넘어간다. 안 받고 제출하면 서버가 튕겨내는데,
+     그때 알려주면 이미 다음 화면을 기대하고 있던 사람이 되돌아온다 */
+  const ok = !nickError && !ageError && !!fresh?.free
+
+  const check = () => {
+    if (formError || checking) return
+    setChecking(true)
+    /* API 가 붙으면 여기서 GET 한다. 지금은 '덕모임' 만 이미 있는
+       이름으로 흉내낸다 */
+    setTimeout(() => {
+      setChecking(false)
+      setChecked({ name: nick.trim(), free: nick.trim() !== '덕모임' })
+    }, 450)
+  }
 
   const submit = () => {
     setTried(true)
     if (!ok) return
     setSending(true)
-    /* API 가 붙으면 여기서 PATCH 하고 409 면 setTaken 한다.
-       지금은 '덕모임' 을 이미 있는 이름으로 흉내낸다 */
-    setTimeout(() => {
-      setSending(false)
-      if (nick.trim() === '덕모임') setTaken(nick.trim())
-    }, 500)
+    /* API 가 붙으면 여기서 PATCH 한다. 409 가 오면 setChecked 로
+       그 이름을 쓰인 것으로 표시한다 */
+    setTimeout(() => setSending(false), 500)
   }
 
   return (
@@ -68,19 +103,25 @@ export default function Welcome() {
 
         <Field
           label="닉네임"
-          error={tried ? nickError : undefined}
-          hint="다른 사람에게 이렇게 보여요"
+          suffix={
+            <Button
+              size="sm"
+              tone="ghost"
+              disabled={!!formError || checking}
+              onClick={check}
+            >
+              {checking ? '확인 중…' : '중복 확인'}
+            </Button>
+          }
+          error={shownError}
+          /* 확인을 받았으면 그 결과가 안내를 대신한다 */
+          hint={fresh?.free ? '쓸 수 있는 닉네임이에요' : '다른 사람에게 이렇게 보여요'}
           count={[nick.trim().length, 10]}
         >
           <TextInput
             placeholder="덕질하는오리"
             value={nick}
-            onChange={(e) => {
-              setNick(e.target.value)
-              /* 이름을 고치면 중복 표시를 지운다. 고쳤는데도 빨간 줄이
-                 남아 있으면 무엇이 문제인지 알 수 없다 */
-              if (taken) setTaken(null)
-            }}
+            onChange={(e) => setNick(e.target.value)}
             maxLength={12}
           />
         </Field>
@@ -100,6 +141,9 @@ export default function Welcome() {
           <Button block disabled={sending} onClick={submit}>
             {sending ? '저장하는 중…' : '시작하기'}
           </Button>
+          {tried && !fresh?.free && !nickError && (
+            <p className="form__note">닉네임 중복 확인을 먼저 눌러주세요</p>
+          )}
         </div>
       </div>
     </PageShell>

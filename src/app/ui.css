@@ -11,6 +11,8 @@
 .fld { display: flex; flex-direction: column; gap: 5px; }
 
 .fld__label {
+  display: flex;
+  align-items: center;
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
@@ -19,6 +21,8 @@
 .fld__req { color: var(--danger); margin-left: 3px; font-size: 12px; }
 /* 선택 표시. 글자라 색을 눌러 둔다 */
 .fld__opt { color: var(--text-mute); margin-left: 5px; font-weight: 400; font-size: var(--t-small); }
+/* 라벨 오른쪽 보조 동작. 라벨 줄이 어차피 비어 있어 여기 둔다 */
+.fld__suffix { margin-left: auto; }
 
 .fld__box {
   display: flex;
@@ -898,21 +902,45 @@
 
 .mine__sub { margin-top: 8px; }
 
-/* ── 로그인 ───────────────────────────────────────────── */
+/* ── 로그인 ───────────────────────────────────────────────
+   당근 온보딩의 배치를 그대로 쓴다. 이 화면만 가운데 정렬인 이유가
+   있다. 다른 화면은 훑거나 읽는 화면이라 왼쪽 시작선이 맞지만,
+   여기는 읽을 것이 세 줄뿐이고 아래 버튼 하나로 끝나는 관문이다.
+   왼쪽에 붙이면 오른쪽이 통째로 비어 화면이 미완성으로 보인다.
 
-/* 왼쪽에서 시작한다. 다른 화면이 전부 그렇다. 로그인만 가운데
-   정렬이면 들어오자마자 시작선이 한 번 흔들리고, 그 다음 화면부터
-   계속 왼쪽이라 첫 화면만 다른 앱처럼 보인다 */
+     로고        화면 위쪽에서 아래로 조금 내려온 자리
+     제목
+     설명
+     (빈 공간)
+     버튼        아래에 붙는다. 엄지가 닿는 곳
+     약관 · 둘러보기
+   ------------------------------------------------------- */
+
 .login {
   display: flex;
   flex-direction: column;
-  padding: 28px var(--gutter) 32px;
+  align-items: center;
+  text-align: center;
+  padding: 0 var(--gutter) 24px;
   min-height: calc(100dvh - 52px);
 }
-.login__mark { width: 104px; height: 104px; object-fit: contain; margin-left: -8px; }
+
+/* 로고부터 설명까지가 한 덩어리다. 남는 공간을 이 덩어리가 먹고
+   그 안에서 가운데로 모인다. 화면이 길든 짧든 같은 자리에 보인다 */
+.login__top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 정확히 가운데면 아래 버튼과 붙어 보인다. 조금 위로 올린다 */
+  padding-bottom: 56px;
+}
+
+.login__mark { width: 112px; height: 112px; object-fit: contain; }
 
 .login__title {
-  margin-top: 6px;
+  margin-top: 18px;
   font-size: var(--t-hero);
   font-weight: 800;
   line-height: 1.36;
@@ -925,15 +953,8 @@
   color: var(--text-dim);
 }
 
-/* 버튼을 화면 아래쪽에 붙인다. 엄지가 닿는 곳이다 */
-.login__acts {
-  width: 100%;
-  margin-top: auto;
-  padding-top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* 버튼은 하나뿐이다. 고를 것이 없으면 고민할 것도 없다 */
+.login__acts { width: 100%; }
 
 .login__terms {
   margin-top: 14px;
@@ -945,15 +966,15 @@
 .login__terms a { color: var(--text-dim); }
 
 .login__skip {
-  align-self: center;
-  margin-top: 18px;
+  margin-top: 14px;
   min-height: var(--tap);
   display: inline-flex;
   align-items: center;
-  font-size: 14px;
+  font-size: var(--t-sub);
   color: var(--text-mute);
   text-decoration: underline;
 }
+
 
 /* 폼 맨 위의 안내. 무엇을 왜 묻는지 한 줄로 알려준다 */
 .form__lead {
@@ -1235,3 +1256,13 @@
   cursor: pointer;
 }
 .epick__clear:hover { background: var(--border-mid); }
+
+/* 제출을 눌렀는데 안 넘어갈 때 그 이유. 버튼 바로 아래에 둔다.
+   왜 안 되는지를 화면 위쪽 어딘가에 두면 찾아 올라가야 한다 */
+.form__note {
+  margin-top: 8px;
+  text-align: center;
+  font-size: var(--t-sub);
+  color: var(--danger);
+  font-weight: 600;
+}

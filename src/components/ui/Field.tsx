@@ -21,6 +21,15 @@ type FieldProps = {
   required?: boolean
   /** 라벨 옆에 '선택' 을 붙인다. required 와 같은 폼에서 섞지 않는다 */
   optional?: boolean
+  /**
+   * 라벨 오른쪽에 붙는 보조 동작. 중복 확인처럼 그 칸에서만 쓰는
+   * 버튼을 둔다 (SEED 의 Suffix Slot).
+   *
+   * 입력칸 오른쪽이 아니라 라벨 옆인 이유가 있다. 입력칸 안에 넣으면
+   * 글자가 길어질 때 버튼에 가려지고, 옆에 붙이면 칸이 좁아진다.
+   * 라벨 줄은 어차피 비어 있다.
+   */
+  suffix?: ReactNode
   /** 에러 문구. 있으면 통째로 에러 모양이 된다 */
   error?: string
   /** 에러가 없을 때 보여줄 안내. 에러와 같이 있으면 에러만 보인다 */
@@ -31,7 +40,7 @@ type FieldProps = {
   children: ReactNode
 }
 
-export function Field({ label, required, optional, error, hint, disabled, count, children }: FieldProps) {
+export function Field({ label, required, optional, suffix, error, hint, disabled, count, children }: FieldProps) {
   const cls = ['fld', error && 'fld--err', disabled && 'fld--off'].filter(Boolean).join(' ')
   const over = count ? count[0] > count[1] : false
   const msg = error ?? hint
@@ -40,11 +49,12 @@ export function Field({ label, required, optional, error, hint, disabled, count,
 
   return (
     <label className={cls}>
-      {label && (
+      {(label || suffix) && (
         <span className="fld__label">
           {label}
           {required && <span className="fld__req" aria-hidden>*</span>}
           {optional && <span className="fld__opt">선택</span>}
+          {suffix && <span className="fld__suffix">{suffix}</span>}
         </span>
       )}
       {children}
