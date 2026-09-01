@@ -16,15 +16,14 @@
  * 않으며 권한 등급 체계도 1차에서는 만들지 않는다" 고 못박았다.
  * PC 로 바꾼 것도 예쁘게 하려는 게 아니라 표가 카드보다 빠르기 때문이다.
  *
- * 세 가지만 한다.
- *   신고 처리 · 유저 제재 · 이벤트 수기 등록
+ * 하는 일은 둘이다. **신고 처리와 유저 제재.**
  *
- * 이벤트 등록이 신규 행사의 유일한 경로다 (AD-01). 크롤러가 생카·팝업만
- * 긁고 콘서트는 안 긁어서, 콘서트 동행을 구하려면 여기서 넣어야 한다.
+ * 이벤트 수기 등록(AD-01)은 뺐다. 그래서 탭도 없앴다. 할 일이 하나면
+ * 탭은 누를 곳만 늘리고 알려주는 것이 없다. 들어오면 바로 신고다.
  */
 import { useState } from 'react'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
-import { Field, TextInput, Select, TextArea } from '@/components/ui/Field'
+import { Field, Select, TextArea } from '@/components/ui/Field'
 
 type Report = {
   id: string
@@ -75,10 +74,7 @@ const REPORTS: Report[] = [
   },
 ]
 
-const TABS = ['신고', '이벤트 등록']
-
 export default function Admin() {
-  const [tab, setTab] = useState(0)
   const [only, setOnly] = useState(true)
   const [act, setAct] = useState<Report | null>(null)
   /* API 가 붙으면 목록을 다시 읽는다. 그때까지는 처리한 결과가
@@ -87,10 +83,6 @@ export default function Admin() {
 
   const close = (id: string) =>
     setReports((prev) => prev.map((r) => (r.id === id ? { ...r, done: true } : r)))
-
-  /* 탭에 붙일 미처리 건수. 필터와 무관하게 전체에서 센다.
-     '처리 안 된 것만' 을 꺼둔 상태에서도 남은 일이 몇 건인지 보여야 한다 */
-  const pending = reports.filter((r) => !r.done).length
 
   /* 자동 제한이 걸린 건을 맨 위로. 야간·주말에 사람이 없어도
      그것만은 먼저 보게 한다 (SF-05). 그 안에서는 최신순이다.
@@ -102,159 +94,81 @@ export default function Admin() {
 
   return (
     <div className="bo">
-      {/* 상단 바는 전체 폭을 가로지른다. 앱 헤더처럼 제목을 가운데
-          두지 않는 것은, 여기가 한 화면을 보는 곳이 아니라 두 가지
-          일을 오가는 작업대이기 때문이다 */}
+      {/* 상단 바는 전체 폭을 가로지른다. 탭이 없어져서 여기 남는 것은
+          이름표와 누구로 들어와 있는지뿐이다 */}
       <header className="bo__bar">
         <span className="bo__logo">
           덕모임 <b>백오피스</b>
         </span>
-
-        <nav className="bo__tabs">
-          {TABS.map((t, i) => (
-            <button
-              key={t}
-              type="button"
-              className={`bo__tab${tab === i ? ' bo__tab--on' : ''}`}
-              aria-current={tab === i ? 'page' : undefined}
-              onClick={() => setTab(i)}
-            >
-              {t}
-              {/* 남은 건수를 탭에 붙인다. 들어가 봐야 아는 구조면
-                  야간에 쌓인 것을 아무도 모른다 */}
-              {i === 0 && pending > 0 && <em className="bo__badge">{pending}</em>}
-            </button>
-          ))}
-        </nav>
-
         {/* 인증이 붙으면 로그인한 운영자 이름이 온다 (Q-13) */}
         <span className="bo__who">운영자</span>
       </header>
 
       <main className="bo__body">
-        {tab === 0 && (
-          <section>
-            <div className="bo__toolbar">
-              <h1 className="bo__h">신고</h1>
-              <label className="bo__filter">
-                <input
-                  type="checkbox"
-                  checked={only}
-                  onChange={(e) => setOnly(e.target.checked)}
-                />
-                처리 안 된 것만
-              </label>
-              <span className="bo__count">{list.length}건</span>
-            </div>
+        <div className="bo__toolbar">
+          <h1 className="bo__h">신고</h1>
+          <label className="bo__filter">
+            <input
+              type="checkbox"
+              checked={only}
+              onChange={(e) => setOnly(e.target.checked)}
+            />
+            처리 안 된 것만
+          </label>
+          <span className="bo__count">{list.length}건</span>
+        </div>
 
-            {list.length === 0 ? (
-              <Blank title="처리할 신고가 없어요" art={false} />
-            ) : (
-              /* 좁은 화면에서는 표가 옆으로 흐른다. 칸을 접어 쌓으면
-                 표로 훑는다는 이점이 사라지므로 그냥 흐르게 둔다.
-                 PC 로 보라고 만든 화면이다 */
-              <div className="bo__scroll">
-                <table className="bo__table">
-                  <thead>
-                    <tr>
-                      <th>대상</th>
-                      <th>신고된 것</th>
-                      <th>사유</th>
-                      <th>신고자</th>
-                      <th>접수</th>
-                      <th className="bo__actcol">처리</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((r) => (
-                      <tr key={r.id} className={r.auto ? 'bo__tr--hot' : undefined}>
-                        <td>
-                          <Badge state="off">{r.target}</Badge>
-                          {r.auto && <span className="bo__hot">자동 제한</span>}
-                        </td>
-                        <td className="bo__subject">{r.subject}</td>
-                        <td>
-                          {r.reason}
-                          {r.detail && <span className="bo__detail">{r.detail}</span>}
-                        </td>
-                        <td className="bo__dim">{r.reporter}</td>
-                        <td className="bo__dim bo__when">{r.at.replace('T', ' ')}</td>
-                        <td className="bo__actcol">
-                          {r.done ? (
-                            <Badge state="done">처리됨</Badge>
-                          ) : (
-                            <span className="bo__acts">
-                              <Button size="sm" tone="ghost" onClick={() => close(r.id)}>
-                                문제 없음
-                              </Button>
-                              <Button size="sm" tone="danger" onClick={() => setAct(r)}>
-                                제재
-                              </Button>
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        )}
-
-        {tab === 1 && (
-          <section className="bo__panel">
-            <h1 className="bo__h">이벤트 등록</h1>
-            <p className="bo__lead">
-              자동 수집은 생카와 팝업만 긁습니다. 콘서트처럼 크롤러가 못 가져오는
-              행사는 여기서 넣어야 목록에 뜹니다.
-            </p>
-
-            {/* 폼은 표만큼 넓힐 이유가 없다. 한 줄이 너무 길면 라벨과
-                값이 눈으로 안 이어진다. 두 칸씩 나눠 세로를 줄인다 */}
-            <div className="bo__grid">
-              <Field label="행사명">
-                <TextInput placeholder="아이유 단독 콘서트" />
-              </Field>
-
-              <Field label="종류">
-                <Select defaultValue="">
-                  <option value="" disabled>골라주세요</option>
-                  <option value="birthday_cafe">생일카페</option>
-                  <option value="popup">팝업</option>
-                  <option value="concert">콘서트</option>
-                </Select>
-              </Field>
-
-              <Field label="시작일">
-                <TextInput type="date" />
-              </Field>
-              <Field label="종료일">
-                <TextInput type="date" />
-              </Field>
-
-              <div className="bo__wide">
-                <Field label="장소" hint="주소를 적으면 좌표는 서버가 찾습니다">
-                  <TextInput placeholder="서울 송파구 올림픽로 25 잠실 주경기장" />
-                </Field>
-              </div>
-
-              {/* 출처를 속이지 않는다. 확인하지 않은 것을 official 로
-                  올리지 않는다 (CLAUDE.md) */}
-              <div className="bo__wide">
-                <Field
-                  label="원문 주소"
-                  hint="주최자·운영사의 실제 공지여야 합니다. 리스팅 사이트 주소를 넣지 마세요"
-                >
-                  <TextInput placeholder="https://" />
-                </Field>
-              </div>
-            </div>
-
-            <div className="bo__submit">
-              <Button>등록하기</Button>
-            </div>
-          </section>
+        {list.length === 0 ? (
+          <Blank title="처리할 신고가 없어요" art={false} />
+        ) : (
+          /* 좁은 화면에서는 표가 옆으로 흐른다. 칸을 접어 쌓으면
+             표로 훑는다는 이점이 사라지므로 그냥 흐르게 둔다.
+             PC 로 보라고 만든 화면이다 */
+          <div className="bo__scroll">
+            <table className="bo__table">
+              <thead>
+                <tr>
+                  <th>대상</th>
+                  <th>신고된 것</th>
+                  <th>사유</th>
+                  <th>신고자</th>
+                  <th>접수</th>
+                  <th className="bo__actcol">처리</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((r) => (
+                  <tr key={r.id} className={r.auto ? 'bo__tr--hot' : undefined}>
+                    <td>
+                      <Badge state="off">{r.target}</Badge>
+                      {r.auto && <span className="bo__hot">자동 제한</span>}
+                    </td>
+                    <td className="bo__subject">{r.subject}</td>
+                    <td>
+                      {r.reason}
+                      {r.detail && <span className="bo__detail">{r.detail}</span>}
+                    </td>
+                    <td className="bo__dim">{r.reporter}</td>
+                    <td className="bo__dim bo__when">{r.at.replace('T', ' ')}</td>
+                    <td className="bo__actcol">
+                      {r.done ? (
+                        <Badge state="done">처리됨</Badge>
+                      ) : (
+                        <span className="bo__acts">
+                          <Button size="sm" tone="ghost" onClick={() => close(r.id)}>
+                            문제 없음
+                          </Button>
+                          <Button size="sm" tone="danger" onClick={() => setAct(r)}>
+                            제재
+                          </Button>
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </main>
 
