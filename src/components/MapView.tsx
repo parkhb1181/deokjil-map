@@ -348,7 +348,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     () =>
       countsByDate(
         events,
-        { date: 'all', kind: filter.kind, district: filter.district, query: '' },
+        { kind: filter.kind, district: filter.district, query: '' },
         today,
         shiftDate(today, 60, today),
       ),

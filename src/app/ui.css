@@ -2348,6 +2348,10 @@
   cursor: pointer;
 }
 .fsheet__list { list-style: none; margin: 0; padding: 0 0 12px; overflow-y: auto; }
+
+/* 목록이 아닌 축(기간 달력)이 들어오는 자리. 목록 항목은 자기 좌우
+   여백을 스스로 갖지만 달력 격자는 통째로 하나라 여기서 준다 */
+.fsheet__custom { padding: 0 var(--gutter) 16px; overflow-y: auto; }
 .fsheet__item {
   width: 100%;
   display: flex;

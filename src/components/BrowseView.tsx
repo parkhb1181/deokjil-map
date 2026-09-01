@@ -5,12 +5,17 @@ import type { EventItem, EventKind } from '@/types'
 import {
   DISTRICT_LABELS,
   EVENT_KIND_LABELS,
+  countsByDate,
   filterEvents,
+  rangeLabel,
+  shiftDate,
   sortByDeadline,
+  type DateRange,
   type DistrictFilter,
   type FilterState,
   type KindFilter,
 } from '@/lib/filters'
+import DateCalendar from './DateCalendar'
 import EventCard from './EventCard'
 import TopSubjects from './TopSubjects'
 import { FilterBar } from './FilterBar'
@@ -26,6 +31,9 @@ interface Props {
 /** 지역 칩은 상위 몇 개까지만 낸다 */
 const DISTRICT_CHIPS = 11
 
+/** 기간 달력에서 고를 수 있는 마지막 날. 지도의 날짜 이동 한계와 같은 값이다 */
+const MAX_AHEAD_DAYS = 60
+
 /**
  * 목록 화면. 예전의 홈과 찾기를 합친 것이다.
  *
@@ -39,6 +47,13 @@ const DISTRICT_CHIPS = 11
  *
  * 날짜 칩은 뺐다. 이 서비스의 질문이 "오늘 뭐 하지"라 기본값이 곧 답이고,
  * 칩 일곱 개가 세로로 40px 를 먹으면서 첫 화면에서 카드를 밀어냈다.
+ *
+ * 대신 기간을 시트 속 달력으로 넣었다. 칩으로 돌아간 것이 아니다.
+ * 접혀 있어 첫 화면을 먹지 않고, 안 고르면 안 걸린다. 기본값은
+ * 여전히 「전부」 라 목록을 열자마자 좁혀지는 일이 없다.
+ *
+ * 지도의 날짜 축과는 다른 축이다. 지도는 화살표로 하루씩 넘기고,
+ * 여기는 "이번 주말" 처럼 며칠을 묶는다. 하루로는 주말을 못 고른다.
  */
 export default function BrowseView({ events, today, filter, onFilter, onOpen }: Props) {
   // 날짜·지역은 여기서 걸지 않는다. 아래에서 축별로 따로 센다
@@ -90,6 +105,16 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
     return opts
   }, [base, filter.kind, filter.district])
 
+  const maxDate = useMemo(() => shiftDate(today, MAX_AHEAD_DAYS, today), [today])
+
+  /* 달력 칸에 찍는 숫자. 다른 축과 같은 규칙으로 자기(기간)만 빼고
+     지역·유형·검색어를 반영한다. 홍대만 보는 중에 서울 전체 건수를
+     찍으면 날짜를 눌러 놓고 빈 화면을 만난다 */
+  const dateCounts = useMemo(
+    () => countsByDate(events, filter, today, maxDate),
+    [events, filter, today, maxDate],
+  )
+
   const visible = useMemo(
     () => sortByDeadline(filterEvents(events, { ...filter, date: 'all' }, today), today),
     [events, filter, today],
@@ -121,6 +146,35 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
             options: districtOptions,
             value: filter.district,
             onPick: (v) => onFilter('district', v as DistrictFilter),
+          },
+          /* 기간은 값이 목록으로 안 떨어져서 시트에 달력을 그린다.
+             지도의 날짜 축(하루씩 이동)과 다른 축이다. "이번 주말"은
+             하루로 표현할 수 없다 */
+          {
+            key: 'range',
+            placeholder: '기간 선택',
+            title: '언제 갈까',
+            options: [],
+            value: filter.range ? 'set' : 'all',
+            pillLabel: filter.range ? rangeLabel(filter.range) : undefined,
+            onPick: () => onFilter('range', null),
+            render: (close) => (
+              <DateCalendar
+                inline
+                mode="range"
+                range={filter.range}
+                selected={null}
+                today={today}
+                maxDate={maxDate}
+                counts={dateCounts}
+                onPick={() => {}}
+                onPickRange={(r: DateRange) => {
+                  onFilter('range', r)
+                  close()
+                }}
+                onClose={close}
+              />
+            ),
           },
         ]}
       />

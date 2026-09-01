@@ -17,16 +17,28 @@ export type DateFilter = 'all' | DateKey
 export type DistrictFilter = District | 'all'
 export type KindFilter = EventKind | 'all'
 
+/**
+ * 목록의 기간 필터. [시작, 끝] 이고 안 고르면 null 이다.
+ *
+ * 지도의 `date` 와 다른 축이다. 지도는 화살표로 하루씩 넘기는
+ * "이날 뭐 열려?" 이고, 목록은 "이번 주말에 갈 곳" 이라 하루로는
+ * 표현할 수 없다. 한 필드로 합치면 지도의 화살표가 기간을 어느 쪽으로
+ * 밀어야 하는지 정할 수 없어진다. 그래서 축을 나눈다.
+ */
+export type DateRange = [DateKey, DateKey]
+
 export interface FilterState {
   district: DistrictFilter
   date: DateFilter
   kind: KindFilter
   query: string
+  /** 목록 전용. 지도는 null 로 두고 `date` 를 쓴다 */
+  range: DateRange | null
 }
 
 /** 기본은 오늘. 앱을 열자마자 "오늘 뭐 열려?"에 답해야 한다 */
 export function defaultFilter(today: DateKey = todayKey()): FilterState {
-  return { district: 'all', date: today, kind: 'all', query: '' }
+  return { district: 'all', date: today, kind: 'all', query: '', range: null }
 }
 
 /** 표시 순서가 곧 홈 섹션 순서다. 팝업·생카 밀도가 높은 곳부터 */
@@ -149,6 +161,25 @@ function matchesDate(ev: EventItem, date: DateFilter, today: DateKey): boolean {
   return overlaps(ev, date, date)
 }
 
+/** 고른 기간과 하루라도 겹치면 통과. 안 골랐으면 전부 통과 */
+function matchesRange(ev: EventItem, range: DateRange | null): boolean {
+  return range ? overlaps(ev, range[0], range[1]) : true
+}
+
+/**
+ * 기간 알약에 적히는 말.
+ *
+ * 하루만 고른 경우 "9.5 ~ 9.5" 라고 적으면 같은 날을 두 번 읽게 된다.
+ * 그때는 요일까지 붙여 "9월 5일 (금)" 으로 쓴다. 요일은 주말인지가
+ * 곧 갈 수 있는지라 이 서비스에서 날짜만큼 중요한 정보다.
+ */
+export function rangeLabel(range: DateRange): string {
+  const [from, to] = range
+  if (from === to) return dateLabel(from)
+  const md = (d: DateKey) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`
+  return `${md(from)} ~ ${md(to)}`
+}
+
 /** 날짜 이동. 오늘보다 과거로는 못 간다. 지난 날짜엔 보여줄 것이 없다 */
 export function shiftDate(date: DateKey, days: number, today: DateKey = todayKey()): DateKey {
   const next = shiftDays(date, days)
@@ -187,10 +218,14 @@ export function monthGrid(year: number, month: number): (DateKey | null)[] {
  * 건수를 보여주면 눌러 놓고 빈 화면을 만나게 된다.
  *
  * 행사는 기간을 가지므로 하루가 아니라 걸치는 모든 날에 더한다.
+ *
+ * 날짜 축(`date` · `range`)은 받지 않는다. 자기 자신을 반영하면 이미
+ * 고른 기간 밖의 날이 전부 0 으로 보여 기간을 바꿀 수가 없다.
+ * 타입에서 빼두면 나중에 실수로 넘길 수도 없다.
  */
 export function countsByDate(
   events: EventItem[],
-  filter: FilterState,
+  filter: Pick<FilterState, 'district' | 'kind' | 'query'>,
   from: DateKey,
   to: DateKey,
 ): Record<DateKey, number> {
@@ -236,6 +271,7 @@ export function filterEvents(
       (filter.district === 'all' || ev.place.district === filter.district) &&
       (filter.kind === 'all' || ev.kind === filter.kind) &&
       matchesDate(ev, filter.date, today) &&
+      matchesRange(ev, filter.range) &&
       matchesQuery(ev, filter.query),
   )
   return sortEvents(matched, today)

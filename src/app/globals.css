@@ -1217,6 +1217,39 @@ a { color: inherit; }
 }
 .cal__day--on .cal__n { color: var(--accent-ink); font-weight: 800; }
 
+/* ── 기간 선택 ────────────────────────────────────────────
+   목록의 「기간」 필터에서만 쓴다. 지도의 날짜 이동은 하루짜리라
+   여기 해당이 없다.
+   ------------------------------------------------------- */
+
+/* 시트 안에서는 떠 있는 상자가 아니다. 시트가 이미 상자라 테두리와
+   그림자를 한 번 더 그리면 액자 속 액자가 된다 */
+.cal--inline {
+  position: static;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+/* 사이에 낀 날. 양 끝(--on)보다 옅게 두어 어디서 시작해 어디서
+   끝나는지가 먼저 읽히게 한다 */
+.cal__day--in {
+  background: var(--accent-soft);
+  border-color: transparent;
+  /* 모서리를 굴리지 않아야 칸이 끊기지 않고 띠 하나로 이어진다 */
+  border-radius: 0;
+}
+.cal__day--in .cal__n { color: var(--accent-ink); font-weight: 700; }
+
+.cal__hint {
+  margin: 10px 2px 0;
+  font-size: var(--t-small);
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
 .datenav__arrow {
   flex: 0 0 auto;
   width: var(--tap);
