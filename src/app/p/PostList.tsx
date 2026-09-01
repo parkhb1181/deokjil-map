@@ -54,13 +54,30 @@ const VIEWS = ['정상', '비었음', '실패', '기다리는 중'] as const
 
 export default function PostList({ posts }: { posts: ListItem[] }) {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('open')
+  const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
 
-  const list = useMemo(
-    () => (tab === 'open' ? posts.filter((p) => p.state === 'open') : posts),
-    [posts, tab],
-  )
+  /**
+   * 상태 탭 + 검색.
+   *
+   * **브라우저에서 거른다.** 목록이 이미 다 내려와 있어서 타자 칠 때마다
+   * 바로 좁혀진다. 서버로 보내면 글자 하나에 한 번씩 왕복한다.
+   *
+   * 글이 늘어 목록을 나눠 받게 되면(페이지네이션) 이 방식은 받아온
+   * 페이지 안에서만 찾게 된다. 그때는 서버로 옮겨야 한다.
+   *
+   * 제목·장소·행사명을 다 본다. 사람들이 "성수" 로도 찾고 "에이티즈"
+   * 로도 찾는데 어느 칸에 있는지는 모른다.
+   */
+  const list = useMemo(() => {
+    const byState = tab === 'open' ? posts.filter((p) => p.state === 'open') : posts
+    const key = q.trim().toLowerCase()
+    if (!key) return byState
+    return byState.filter((p) =>
+      `${p.title} ${p.meet_place} ${p.event_title ?? ''}`.toLowerCase().includes(key),
+    )
+  }, [posts, tab, q])
 
   return (
     <PageShell title="동행 구해요">
@@ -74,6 +91,22 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
       </div>
 
       <div className="plist">
+        {/* 검색은 탭 위에 둔다. 아래에 두면 탭을 바꿀 때마다 검색어가
+            남아 있는지 눈으로 확인하러 내려가야 한다 */}
+        <div className="psearch">
+          <svg viewBox="0 0 16 16" aria-hidden focusable="false">
+            <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="제목 · 장소 · 행사로 찾기"
+            aria-label="모집글 검색"
+          />
+        </div>
+
         <div className="tabs">
           {TABS.map((t) => (
             <button
@@ -111,6 +144,21 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
             title="아직 모집글이 없어요"
             desc="처음으로 동행을 구해보세요"
             action={<Button size="sm" onClick={() => setAsk(true)}>글쓰기</Button>}
+          />
+        )}
+
+        {/* 검색해서 0건인 것과 원래 글이 없는 것은 다르다. 같은 문구를
+            띄우면 "처음으로 동행을 구해보세요" 를 검색 결과에서 보게 된다 */}
+        {view === '정상' && list.length === 0 && q.trim() && (
+          <Blank
+            title={`'${q.trim()}' 로 찾은 글이 없어요`}
+            desc="다른 말로 찾아보거나 직접 글을 써보세요"
+            art={false}
+            action={
+              <Button size="sm" tone="ghost" onClick={() => setQ('')}>
+                검색어 지우기
+              </Button>
+            }
           />
         )}
 

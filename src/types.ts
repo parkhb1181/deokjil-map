@@ -27,7 +27,7 @@ export type PlaceKind = 'cafe' | 'popup_venue'
 /** 생카는 이미 버추얼·애니 캐릭터·배우로 확장됐다. 아이돌에 묶지 않는다 */
 export type SubjectType = 'idol' | 'virtual' | 'character' | 'actor'
 
-export type EventKind = 'birthday_cafe' | 'popup'
+export type EventKind = 'birthday_cafe' | 'popup' | 'concert'
 
 /**
  * 데이터 출처 등급.
@@ -66,7 +66,21 @@ export interface EventItem {
   /** YYYY-MM-DD. 사전순 비교가 곧 날짜 비교가 된다 */
   starts_on: string
   ends_on: string
+  /**
+   * 운영 시간. '12:00~20:00' 처럼 이미 다듬은 문자열이다.
+   * 생카·팝업은 기간 안에서 매일 같은 시간에 연다.
+   */
   open_hours?: string
+  /**
+   * 공연 시작 시각 'HH:mm'. **콘서트만 갖는다.**
+   *
+   * 생카·팝업은 기간 중 아무 때나 가면 되지만 콘서트는 그 시각에
+   * 못 가면 끝이다. open_hours 로 대신할 수 없다. 저건 "언제부터
+   * 언제까지 열려 있나" 고 이건 "몇 시에 시작하나" 다.
+   *
+   * 콘서트는 starts_on 과 ends_on 이 같은 날이다.
+   */
+  starts_at?: string
   /** 선착 n명, 컵홀더 등 */
   perks?: string
   /** 음료 1잔 주문 등 */

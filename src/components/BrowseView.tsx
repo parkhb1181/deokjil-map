@@ -1,9 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
-import type { EventItem } from '@/types'
+import type { EventItem, EventKind } from '@/types'
 import {
   DISTRICT_LABELS,
+  EVENT_KIND_LABELS,
   filterEvents,
   sortByDeadline,
   type DistrictFilter,
@@ -50,12 +51,18 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
   const kindOptions = useMemo(() => {
     const pool = filter.district === 'all' ? base : base.filter((e) => e.place.district === filter.district)
     const count = (k: KindFilter) => (k === 'all' ? pool.length : pool.filter((e) => e.kind === k).length)
+    /* 0 건인 종류는 칩을 안 만든다. 콘서트는 아직 데이터가 없을 수
+       있어서(크롤러가 안 긁고 KOPIS 도 안 붙었다) 늘 그리면 눌러도
+       빈 화면인 칩이 하나 생긴다. 지금 고른 종류는 0 건이어도 남긴다.
+       누른 칩이 사라지면 무엇을 눌렀는지 알 수 없다 */
+    const kinds: KindFilter[] = ['birthday_cafe', 'popup', 'concert']
     return [
       { value: 'all' as KindFilter, label: `전체 ${count('all')}` },
-      { value: 'birthday_cafe' as KindFilter, label: `생카 ${count('birthday_cafe')}` },
-      { value: 'popup' as KindFilter, label: `팝업 ${count('popup')}` },
+      ...kinds
+        .filter((k) => count(k) > 0 || filter.kind === k)
+        .map((k) => ({ value: k, label: `${EVENT_KIND_LABELS[k as EventKind]} ${count(k)}` })),
     ]
-  }, [base, filter.district])
+  }, [base, filter.district, filter.kind])
 
   const districtOptions = useMemo(() => {
     const pool = filter.kind === 'all' ? base : base.filter((e) => e.kind === filter.kind)

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import rawEvents from '@/data/events.json'
+import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 
@@ -25,7 +25,7 @@ import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
  * 새 CSS 를 만들면 상세 화면이 두 벌이 되고 톤이 갈린다.
  */
 
-const ALL = rawEvents as EventItem[]
+const ALL = ALL_EVENTS
 
 // 데이터에 없는 id 는 404 로 떨어뜨린다. 동적 렌더를 허용하면 존재하지 않는
 // 주소가 200 을 돌려주고 색인에 쓰레기가 쌓인다
@@ -96,6 +96,9 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     ['주소', ev.place.address],
     ['기간', `${ev.starts_on} ~ ${ev.ends_on}`],
   ]
+  /* 콘서트는 시작 시각이 곧 정보다. 그 시각에 못 가면 끝이라
+     운영 시간과 다르게 다룬다. 생카·팝업은 기간 중 아무 때나 가면 된다 */
+  if (ev.starts_at) rows.push(['공연 시작', `${ev.starts_on} ${ev.starts_at}`])
   if (ev.open_hours) rows.push(['운영 시간', ev.open_hours])
   if (ev.perks) rows.push(['특전', ev.perks])
   if (ev.conditions) rows.push(['조건', ev.conditions])

@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import rawEvents from '@/data/events.json'
-import type { EventItem } from '@/types'
+import { ALL_EVENTS } from '@/lib/events-source'
 import {
   defaultFilter,
   filterEvents,
@@ -20,8 +19,6 @@ import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
 import { loadCourse, persistCourse } from '@/lib/course'
 import { SaveProvider, type SaveApi } from '@/components/SaveContext'
 import CourseView from '@/components/CourseView'
-
-const ALL_EVENTS = rawEvents as EventItem[]
 
 export default function Page() {
   // 오늘 날짜는 클라이언트에서만 확정한다.

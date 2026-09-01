@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import rawEvents from '@/data/events.json'
+import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
@@ -22,7 +22,7 @@ import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
  * 클래스는 globals.css 의 기존 어휘(sheet/dlist/drow)를 그대로 쓴다.
  */
 
-const ALL = rawEvents as EventItem[]
+const ALL = ALL_EVENTS
 
 export const dynamicParams = false
 

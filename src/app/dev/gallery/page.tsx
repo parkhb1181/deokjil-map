@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import rawEvents from '@/data/events.json'
+import { ALL_EVENTS } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import type { PickableEvent } from '@/components/ui/EventPicker'
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
    자른다. 갤러리는 조각이 실제로 어떻게 도는지 보는 자리라
    가짜 배열을 만들어 넣으면 보는 의미가 없다.
    60건이면 "40개 넘으면 검색하라" 는 줄까지 눌러볼 수 있다 */
-const PICKABLE: PickableEvent[] = (rawEvents as EventItem[]).slice(0, 60).map((e) => ({
+const PICKABLE: PickableEvent[] = ALL_EVENTS.slice(0, 60).map((e) => ({
   id: e.id,
   subject: e.subject,
   title: e.title ?? `${e.subject} ${EVENT_KIND_LABELS[e.kind]}`,
