@@ -29,6 +29,18 @@ const ALL = ALL_EVENTS
 /** 카드에 올릴 사진 수. 세 장이면 한 줄이 차고, 더 넣으면 각각이 너무 작아진다 */
 const SHOTS = 3
 
+/**
+ * 사진 줄 높이. 630 중 400 이라 아래 글자 칸은 230 이다.
+ *
+ * 300 이던 것을 올렸다. 타임라인에서 카드를 멈추게 하는 것은 글자가
+ * 아니라 사진인데, 절반을 글자가 먹고 있었다. 지역 배지와 도메인은
+ * 눌러서 들어온 다음에 읽는 값이라 작아도 된다.
+ *
+ * `scripts/og-shots.mjs` 의 H 와 같은 값이어야 한다. 축소본이 이보다
+ * 작으면 늘어나면서 뭉갠다.
+ */
+const SHOT_H = 400
+
 export function generateStaticParams() {
   const seen = new Set<string>()
   for (const ev of ALL) {
@@ -120,14 +132,14 @@ export default async function Image({ params }: { params: Promise<{ subject: str
       >
         {/* 사진 줄. 없으면 통째로 빼고 글자만 남긴다 */}
         {shots.length > 0 ? (
-          <div style={{ display: 'flex', width: '100%', height: 300 }}>
+          <div style={{ display: 'flex', width: '100%', height: SHOT_H }}>
             {shots.map((src, i) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={i}
                 src={src}
                 width={1200 / shots.length}
-                height={300}
+                height={SHOT_H}
                 style={{ objectFit: 'cover' }}
                 alt=""
               />
@@ -141,67 +153,51 @@ export default async function Image({ params }: { params: Promise<{ subject: str
             flexDirection: 'column',
             flex: 1,
             justifyContent: 'center',
-            padding: '0 72px',
+            padding: '0 64px',
             background: 'linear-gradient(135deg, #fff5f9 0%, #ffe4ee 60%, #ffd0e2 100%)',
           }}
         >
-          <div style={{ display: 'flex', fontSize: 34, color: '#b41f5c' }}>{kindLabel}</div>
+          {/* 개수를 이름에서 떼어 위로 올렸다.
+              알약과 원형 배지를 쓰던 것을 글자 줄로 바꿨다. 사진이 이미
+              둥근 것 없이 꽉 찬 사각형이라, 아래에 동그란 것이 넷 놓이면
+              같은 카드에 규칙이 둘이 된다.
 
-          {/* 이름과 개수. 개수는 배지로 떼어 둔다. 이름 뒤에 단위를 붙이면
-              카페가 아니라 사람을 센 것처럼 읽힌다 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginTop: 4 }}>
-            <div
-              style={{
-                display: 'flex',
-                fontSize: 92,
-                color: '#241a1f',
-                letterSpacing: '-0.04em',
-              }}
-            >
-              {subject}
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minWidth: 96,
-                height: 64,
-                padding: '0 22px',
-                borderRadius: 999,
-                background: '#cb1d63',
-                color: '#ffffff',
-                fontSize: 44,
-              }}
-            >
-              {events.length}
-            </div>
+              단위를 여기 붙일 수 있는 것은 이름과 떨어져 있어서다.
+              이름 바로 뒤에 '곳' 이 오면 그 사람을 센 것처럼 읽힌다 */}
+          <div style={{ display: 'flex', fontSize: 28, color: '#b41f5c' }}>
+            {kindLabel} {events.length}곳
           </div>
 
-          <div style={{ display: 'flex', gap: 12, marginTop: 22 }}>
-            {tags.map((t) => (
-              <div
-                key={t}
-                style={{
-                  display: 'flex',
-                  padding: '8px 22px',
-                  borderRadius: 999,
-                  background: '#ffffff',
-                  border: '3px solid #ff4d8d',
-                  color: '#b41f5c',
-                  fontSize: 30,
-                }}
-              >
-                {t}
-              </div>
-            ))}
+          <div
+            style={{
+              display: 'flex',
+              fontSize: 82,
+              color: '#241a1f',
+              letterSpacing: '-0.04em',
+              marginTop: 2,
+            }}
+          >
+            {subject}
+          </div>
+
+          {/* 지역은 가운뎃점으로 잇는다. 칸을 나누지 않아도 셋이 구분되고
+              넷째가 들어와도 줄이 안 무너진다 */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              marginTop: 14,
+            }}
+          >
+            <div style={{ display: 'flex', fontSize: 27, color: '#8a5a70' }}>
+              {tags.join('  ·  ')}
+            </div>
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
                 marginLeft: 'auto',
-                fontSize: 26,
-                color: '#7a6670',
+                fontSize: 21,
+                color: '#a08a95',
               }}
             >
               {foot}

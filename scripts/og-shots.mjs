@@ -21,9 +21,10 @@ const ROOT = path.resolve(import.meta.dirname, '..')
 const OUT = path.join(ROOT, 'public', 'og')
 /** 대상 하나당 사진 수. OG 카드가 한 줄에 세 칸이다 */
 const SHOTS = 3
-/** 카드 한 칸 크기 */
+/** 카드 한 칸 크기. 세로는 OG 카드의 사진 줄 높이와 같아야 한다.
+    작으면 늘어나면서 뭉개진다 (opengraph-image.tsx 의 SHOT_H) */
 const W = 400
-const H = 300
+const H = 400
 
 const events = JSON.parse(await fs.readFile(path.join(ROOT, 'src/data/events.json'), 'utf8'))
 
