@@ -462,6 +462,30 @@ a.bottomnav__item { text-decoration: none; }
   color: var(--text-mute);
 }
 
+/* 약관·처리방침. 여기 말고는 닿을 길이 없어서 눈에 띄어야 하고,
+   출처 문구보다는 뒤로 물러나야 한다. 그래서 글자는 진하게 두되
+   크기는 그대로 둔다 */
+.footer__legal {
+  margin-top: 12px;
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+}
+.footer__legal a {
+  color: var(--text-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.footer__legal a:active { color: var(--accent-ink); }
+
+/* 운영 주체와 연락처. 처리방침 안에도 있지만 푸터에 한 번 더 둔다.
+   권리자나 이용자가 문서를 다 읽지 않고도 연락할 수 있어야 한다 */
+.footer__who {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+
 
 /* ── 데스크톱 ─────────────────────────────────────────────
    앱은 모바일 폭(--page-w)을 유지한다. 대신 그 바깥을 다른 색으로 깔고

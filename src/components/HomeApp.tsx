@@ -208,6 +208,18 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
             모든 정보는 출처를 표기하며 원문으로 연결됩니다.
             게시를 원치 않으시는 권리자께서는 알려주시면 즉시 내리겠습니다.
           </p>
+
+          {/* 처리방침은 「정보주체가 쉽게 확인할 수 있도록」 공개해야 한다
+              (개인정보보호법 제30조). 지금 GA 와 Clarity 가 돌고 있어서
+              회원 기능이 없어도 그 의무가 이미 걸려 있다.
+
+              여기 말고는 닿을 길이 없다. 주소를 알아야만 열리는 문서는
+              공개한 것이 아니다 */}
+          <p className="footer__legal">
+            <a href="/terms">이용약관</a>
+            <a href="/privacy">개인정보 처리방침</a>
+          </p>
+          <p className="footer__who">덕모임 운영팀 · parkhb1181@gmail.com</p>
         </footer>
 
         <BottomNav companion={wireframe} active={tab} savedCount={saved.length} onChange={setTab} />

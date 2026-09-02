@@ -73,8 +73,8 @@ export default function Login() {
         {/* 약관 동의를 따로 누르게 하지 않는다. 버튼을 누르는 것이
             동의라고 적어두는 방식이 널리 쓰이고 화면이 하나 준다 */}
         <p className="login__terms">
-          시작하면 <a href={wf('/terms')}>이용약관</a>과{' '}
-          <a href={wf('/privacy')}>개인정보 처리방침</a>에 동의하는 것으로 봅니다.
+          시작하면 <a href="/terms">이용약관</a>과{' '}
+          <a href="/privacy">개인정보 처리방침</a>에 동의하는 것으로 봅니다.
         </p>
 
         <a className="login__skip" href={next}>
