@@ -314,14 +314,6 @@ export default function Admin() {
           <div className="bo__deny">
             <p className="bo__dcode">403</p>
             <h1 className="bo__dtitle">접근 권한이 없습니다</h1>
-            <p className="bo__dbody">
-              백오피스는 운영자 계정으로만 들어올 수 있습니다. 잘못 들어오셨다면
-              창을 닫아주세요.
-            </p>
-            <p className="bo__dnote">
-              이 판정은 서버가 합니다. 화면에서 막으면 요청을 직접 보내는 것으로
-              뚫립니다.
-            </p>
           </div>
         </main>
       </div>

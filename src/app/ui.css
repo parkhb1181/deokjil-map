@@ -2385,7 +2385,6 @@
   font-variant-numeric: tabular-nums;
 }
 .bo__dtitle { margin-top: 4px; font-size: var(--t-title); font-weight: 800; color: var(--text); }
-.bo__dbody { margin-top: 10px; font-size: var(--t-sub); line-height: 1.7; color: var(--text-dim); }
 
 /* 수위를 고르면 무슨 일이 일어나는지 한 줄. 「글쓰기 제한」 이라는
    말만으로는 읽기가 열려 있다는 것도, 답이 오면 풀린다는 것도 안 보인다 */
