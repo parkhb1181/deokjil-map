@@ -19,7 +19,6 @@
  * 그 숫자는 자기를 뺀 나머지 조건을 반영한다.
  */
 import { useState, type ReactNode } from 'react'
-import { withBrand } from './BrandLine'
 
 export type Choice = { value: string; label: string; count?: number }
 
@@ -44,12 +43,10 @@ export type Axis = {
   pillLabel?: string
 }
 
-export function FilterBar({ axes, query, onQuery, brand = false }: {
+export function FilterBar({ axes, query, onQuery }: {
   axes: Axis[]
   query: string
   onQuery: (v: string) => void
-  /** 로고를 이 줄에 세울지. 주소가 정한다 (components/BrandLine.tsx) */
-  brand?: boolean
 }) {
   const [open, setOpen] = useState<string | null>(null)
   const sheet = axes.find((a) => a.key === open) ?? null
@@ -61,9 +58,7 @@ export function FilterBar({ axes, query, onQuery, brand = false }: {
 
           와이어프레임 빌드에서는 이 줄에 로고와 동행이 같이 선다.
           헤더가 로고 하나만 이고 91px 를 먹던 것을 여기로 합쳤다 */}
-      {withBrand(
-        <>
-        <div className="fbar__search">
+      <div className="fbar__search">
           <svg viewBox="0 0 16 16" aria-hidden focusable="false">
             <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
             <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -112,9 +107,7 @@ export function FilterBar({ axes, query, onQuery, brand = false }: {
           )
         })}
       </div>
-        </>,
-        brand,
-      )}
+
 
       {sheet && (
         <div className="fsheet" onClick={() => setOpen(null)}>

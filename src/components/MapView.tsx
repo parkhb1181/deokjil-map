@@ -25,7 +25,6 @@ import {
 } from '@/lib/kakao'
 import Chips, { type ChipOption } from './Chips'
 import DateNav from './DateNav'
-import { withBrand } from './BrandLine'
 import EventCard from './EventCard'
 
 interface Props {
@@ -34,8 +33,6 @@ interface Props {
   filter: FilterState
   onFilter: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void
   onOpen: (id: string) => void
-  /** 로고를 검색줄에 세울지. HomeApp 이 주소를 보고 정한다 */
-  brand?: boolean
 }
 
 /** 지도 초기 중심. 데이터가 없을 때만 쓰인다 (서울 시청) */
@@ -124,7 +121,7 @@ type SheetState =
  * 키가 없거나 도메인이 등록되지 않으면 리스트로 폴백한다.
  * 배포 URL이 나와야 도메인 등록이 되는 순서라, 키 없는 상태가 정상 경로다.
  */
-export default function MapView({ events, today, filter, onFilter, onOpen, brand = false }: Props) {
+export default function MapView({ events, today, filter, onFilter, onOpen }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<KakaoMapInstance | null>(null)
   const kakaoRef = useRef<KakaoNamespace | null>(null)
@@ -385,8 +382,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen, brand
       {/* 검색칸을 여기 둔다. 헤더에 있던 것을 내렸다. 지도를 옮겨
           놓고 왜 이 화면인지 모르게 되면 안 되므로, 친 말과 결과 수를
           칸 안에 같이 남긴다 */}
-      {withBrand(
-        <div className="fbar__search mapsearch">
+      <div className="fbar__search mapsearch">
           <svg viewBox="0 0 16 16" aria-hidden focusable="false">
             <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
             <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -413,9 +409,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen, brand
               </button>
             </>
           )}
-        </div>,
-        brand,
-      )}
+      </div>
     </div>
   )
 

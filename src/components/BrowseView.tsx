@@ -28,8 +28,6 @@ interface Props {
   filter: FilterState
   onFilter: <K extends keyof FilterState>(key: K, value: FilterState[K]) => void
   onOpen: (id: string) => void
-  /** 로고를 검색줄에 세울지. HomeApp 이 주소를 보고 정한다 */
-  brand?: boolean
 }
 
 /** 지역 칩은 상위 몇 개까지만 낸다 */
@@ -59,7 +57,7 @@ const MAX_AHEAD_DAYS = 60
  * 지도의 날짜 축과는 다른 축이다. 지도는 화살표로 하루씩 넘기고,
  * 여기는 "이번 주말" 처럼 며칠을 묶는다. 하루로는 주말을 못 고른다.
  */
-export default function BrowseView({ events, today, filter, onFilter, onOpen, brand = false }: Props) {
+export default function BrowseView({ events, today, filter, onFilter, onOpen }: Props) {
   // 날짜·지역은 여기서 걸지 않는다. 아래에서 축별로 따로 센다
   const base = useMemo(
     () => filterEvents(events, { ...filter, date: 'all', district: 'all', kind: 'all' }, today),
@@ -137,7 +135,6 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen, br
           줄에 있으면 옆으로 흐르고, 지금 무엇이 걸려 있는지 보려면
           줄을 끝까지 밀어야 한다 */}
       <FilterBar
-        brand={brand}
         query={filter.query}
         onQuery={(v) => onFilter('query', v)}
         axes={[
