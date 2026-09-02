@@ -19,6 +19,7 @@
  * 그 숫자는 자기를 뺀 나머지 조건을 반영한다.
  */
 import { useState, type ReactNode } from 'react'
+import { withBrand } from './BrandLine'
 
 export type Choice = { value: string; label: string; count?: number }
 
@@ -54,25 +55,30 @@ export function FilterBar({ axes, query, onQuery }: {
   return (
     <div className="fbar">
       {/* 검색이 맨 앞이다. 필터로 좁히는 것보다 이름을 치는 쪽이 빠른
-          경우가 많고, 사람들이 먼저 손을 대는 자리이기도 하다 */}
-      <div className="fbar__search">
-        <svg viewBox="0 0 16 16" aria-hidden focusable="false">
-          <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => onQuery(e.target.value)}
-          placeholder="대상 · 카페명 검색"
-          aria-label="검색"
-        />
-        {query && (
-          <button type="button" className="fbar__x" onClick={() => onQuery('')} aria-label="검색어 지우기">
-            ✕
-          </button>
-        )}
-      </div>
+          경우가 많고, 사람들이 먼저 손을 대는 자리이기도 하다.
+
+          와이어프레임 빌드에서는 이 줄에 로고와 동행이 같이 선다.
+          헤더가 로고 하나만 이고 91px 를 먹던 것을 여기로 합쳤다 */}
+      {withBrand(
+        <div className="fbar__search">
+          <svg viewBox="0 0 16 16" aria-hidden focusable="false">
+            <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => onQuery(e.target.value)}
+            placeholder="대상 · 카페명 검색"
+            aria-label="검색"
+          />
+          {query && (
+            <button type="button" className="fbar__x" onClick={() => onQuery('')} aria-label="검색어 지우기">
+              ✕
+            </button>
+          )}
+        </div>,
+      )}
 
       <div className="fbar__row" role="group" aria-label="필터">
         {axes.map((a) => {

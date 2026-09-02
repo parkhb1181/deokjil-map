@@ -25,6 +25,7 @@ import {
 } from '@/lib/kakao'
 import Chips, { type ChipOption } from './Chips'
 import DateNav from './DateNav'
+import { withBrand } from './BrandLine'
 import EventCard from './EventCard'
 
 interface Props {
@@ -382,34 +383,36 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
       {/* 검색칸을 여기 둔다. 헤더에 있던 것을 내렸다. 지도를 옮겨
           놓고 왜 이 화면인지 모르게 되면 안 되므로, 친 말과 결과 수를
           칸 안에 같이 남긴다 */}
-      <div className="fbar__search mapsearch">
-        <svg viewBox="0 0 16 16" aria-hidden focusable="false">
-          <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          value={filter.query}
-          onChange={(e) => onFilter('query', e.target.value)}
-          placeholder="대상 · 카페명 검색"
-          aria-label="검색"
-        />
-        {searching && (
-          <>
-            <span className="mapsearch__n">
-              {dayEvents.length > 0 ? `${dayEvents.length}곳` : '결과 없음'}
-            </span>
-            <button
-              type="button"
-              className="fbar__x"
-              onClick={() => onFilter('query', '')}
-              aria-label="검색어 지우기"
-            >
-              ✕
-            </button>
-          </>
-        )}
-      </div>
+      {withBrand(
+        <div className="fbar__search mapsearch">
+          <svg viewBox="0 0 16 16" aria-hidden focusable="false">
+            <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={filter.query}
+            onChange={(e) => onFilter('query', e.target.value)}
+            placeholder="대상 · 카페명 검색"
+            aria-label="검색"
+          />
+          {searching && (
+            <>
+              <span className="mapsearch__n">
+                {dayEvents.length > 0 ? `${dayEvents.length}곳` : '결과 없음'}
+              </span>
+              <button
+                type="button"
+                className="fbar__x"
+                onClick={() => onFilter('query', '')}
+                aria-label="검색어 지우기"
+              >
+                ✕
+              </button>
+            </>
+          )}
+        </div>,
+      )}
     </div>
   )
 

@@ -2340,6 +2340,43 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* ── 로고 + 검색 한 줄 ──────────────────────────────────
+   헤더에 로고만 남아 91px 를 먹던 것을 검색줄과 합쳤다.
+   와이어프레임 빌드에서만 켠다 (components/BrandLine.tsx).
+   ------------------------------------------------------- */
+.brandline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 로고는 락업 이미지라 폰트로 다시 못 짠다. 높이만 줄여 검색칸(44px)
+   보다 살짝 크게 둔다. 같은 높이로 맞추면 브랜드가 입력칸의 부속처럼
+   보인다 */
+.brandline__logo { flex: 0 0 auto; display: flex; align-items: center; }
+.brandline__logo .logo { height: 46px; }
+
+/* 검색칸이 남는 폭을 다 가져간다. min-width 를 풀지 않으면 좁은
+   화면에서 입력칸이 로고를 밀어낸다 */
+.brandline .fbar__search { flex: 1; min-width: 0; }
+
+.brandline__go {
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 40px;
+  min-height: var(--tap);
+  border-radius: var(--radius-sm);
+  color: var(--accent-ink);
+  text-decoration: none;
+}
+.brandline__go svg { width: 20px; height: 20px; }
+.brandline__go span { font-size: var(--t-small); font-weight: 700; letter-spacing: -0.02em; }
+.brandline__go:active { background: var(--bg-sunk); }
+
 .fbar__search {
   display: flex;
   align-items: center;

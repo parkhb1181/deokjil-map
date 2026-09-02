@@ -20,7 +20,7 @@ import { closeDetailRoute, openDetailRoute, useRoute } from '@/lib/route'
 import { loadBookmarks, persistBookmarks } from '@/lib/bookmark'
 import { SaveProvider, type SaveApi } from '@/components/SaveContext'
 import BookmarkView from '@/components/BookmarkView'
-import { wf } from '@/lib/wireframe'
+/* wf 는 더 이상 여기서 안 쓴다. 동행 링크가 BrandLine 으로 옮겨갔다 */
 
 export default function Page() {
   // 오늘 날짜는 클라이언트에서만 확정한다.
@@ -121,6 +121,13 @@ export default function Page() {
   return (
     <SaveProvider value={save}>
       <div className="app">
+        {/* 와이어프레임 빌드에서는 헤더를 걷어내고 로고와 동행을
+            검색줄로 내렸다 (components/BrandLine.tsx). 로고 하나가
+            91px 를 이고 첫 화면을 먹던 자리다.
+
+            실서비스는 아직 그대로 둔다. 팀이 먼저 보고 판단한 뒤에
+            옮긴다 */}
+        {!IS_WIREFRAME && (
         <header className="header">
           <div className="header__row">
             <h1 className="header__logo">
@@ -132,29 +139,12 @@ export default function Page() {
                 각자 필터 줄 안에 검색칸을 갖는다. 질의는 여전히 하나라
                 어느 쪽에서 쳐도 양쪽이 같이 움직인다 */}
 
-            {/* 동행으로 나가는 입구. 여기 말고는 지도 앱에서 모집글로
-                가는 길이 없었다. 하단 탭에 넣지 않은 것은 그 셋이
-                같은 데이터(행사)를 다르게 보는 것이라, 성격이 다른
-                동행을 끼우면 넷 다 무슨 묶음인지 흐려지기 때문이다.
-
-                동행이 아직 와이어프레임이라 실서비스에서는 안 그린다.
-                그리면 진짜 방문자가 눌러서 가짜 모집글을 본다 */}
-            {IS_WIREFRAME && (
-            <a className="header__go" href={wf('/p')} aria-label="동행 모집글">
-              <svg viewBox="0 0 24 24" aria-hidden focusable="false">
-                <path
-                  d="M4 6.5h16M4 12h16M4 17.5h10"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span>동행</span>
-            </a>
-            )}
+            {/* 동행 입구는 BrandLine 으로 옮겼다. 이 헤더는 와이어프레임이
+                꺼진 빌드에서만 그려지는데, 동행 자체가 와이어프레임
+                전용이라 여기 두면 영영 안 그려진다 */}
           </div>
         </header>
+        )}
 
         <main className={`main ${tab === 'map' ? 'main--map' : ''}`}>
           {!today ? (
