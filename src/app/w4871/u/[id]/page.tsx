@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Profile, { type ProfileData } from './Profile'
+import ProfileView, { type ProfileData } from '@/components/ProfileView'
 
 /**
  * 공개 프로필.
  *
  * 아직 API 가 없어 목데이터를 읽는다. 붙으면 이 파일만 fetch 로 바꾼다.
+ *
+ * 화면은 `/me` 와 같은 렌더러를 쓴다. 개발용 「보는 사람」 토글을 「나」로
+ * 넘기면 내 화면이 어떻게 보이는지 여기서 바로 확인할 수 있다.
  *
  * 남이 보는 화면이라 나중에는 검색에 걸릴 수 있다. 다만 사람 정보라
  * 색인 여부는 따로 정해야 한다. 지금은 가짜 데이터라 막아 둔다.
@@ -60,5 +63,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params
   const user = USERS[id]
   if (!user) notFound()
-  return <Profile user={user} />
+  return <ProfileView user={user} />
 }
