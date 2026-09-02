@@ -41,6 +41,13 @@ const SHOTS = 3
  */
 const SHOT_H = 400
 
+/**
+ * 줄여 둔 포스터가 있는 곳. `scripts/og-shots.mjs` 의 OUT 과 같아야 한다.
+ *
+ * `public/` 아래가 아니다. 거기 두면 Next 가 정적 파일로 서빙한다.
+ */
+const OG_CACHE = '.og-cache'
+
 export function generateStaticParams() {
   const seen = new Set<string>()
   for (const ev of ALL) {
@@ -101,11 +108,19 @@ export default async function Image({ params }: { params: Promise<{ subject: str
    * scripts/og-shots.mjs 가 빌드 전에 줄여 놓은 파일을 읽는다.
    * 원본을 satori 에 그대로 물리면 "Buffer size limit exceeded" 로 죽고,
    * 이 라우트 안에서 sharp 를 부르면 네이티브 바인딩이 번들과 충돌한다.
+   *
+   * **`public/` 밖에 둔다.** 거기 두면 Next 가 그대로 서빙해서
+   * `duckmoim.com/og/om_15139.jpg` 로 포스터 원본을 누구나 받아갈 수
+   * 있었다. 그건 우리 도메인에서 남의 저작물을 배포하는 것이다.
+   *
+   * 여기서는 HTTP 가 아니라 디스크에서 읽고, 이 라우트가 `force-static`
+   * 이라 그 읽기는 빌드 때 한 번만 일어난다. 그래서 옮겨도 동작이
+   * 달라지지 않고 서빙만 끊긴다.
    */
   const shots = picks
     .map((e) => {
       try {
-        const file = path.join(process.cwd(), 'public', 'og', `${e.id}.jpg`)
+        const file = path.join(process.cwd(), OG_CACHE, `${e.id}.jpg`)
         return `data:image/jpeg;base64,${readFileSync(file).toString('base64')}`
       } catch {
         // 원본이 내려가 축소본이 없을 수 있다. 그 칸은 비운다

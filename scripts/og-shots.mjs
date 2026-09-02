@@ -18,7 +18,18 @@ const require = createRequire(import.meta.url)
 const sharp = require('sharp')
 
 const ROOT = path.resolve(import.meta.dirname, '..')
-const OUT = path.join(ROOT, 'public', 'og')
+/**
+ * 줄인 포스터를 두는 곳. src/app/a/[subject]/opengraph-image.tsx 의
+ * OG_CACHE 와 같아야 한다.
+ *
+ * public/ 아래에 두면 Next 가 그대로 서빙해서
+ * duckmoim.com/og/om_15139.jpg 로 포스터 원본을 누구나 받아갈 수 있다.
+ * 우리 도메인에서 남의 저작물을 배포하는 셈이라 밖으로 뺐다.
+ *
+ * OG 라우트는 HTTP 가 아니라 디스크에서 읽고 그 읽기는 빌드 때 한 번만
+ * 일어나므로, 옮겨도 카드는 그대로 나온다.
+ */
+const OUT = path.join(ROOT, '.og-cache')
 /** 대상 하나당 사진 수. OG 카드가 한 줄에 세 칸이다 */
 const SHOTS = 3
 /** 카드 한 칸 크기. 세로는 OG 카드의 사진 줄 높이와 같아야 한다.
