@@ -2237,7 +2237,17 @@
    줄 맨 앞에서 바로 읽힌다.
    ------------------------------------------------------- */
 
-.fbar { padding: 12px var(--gutter) 0; }
+/* 헤더 대신 여기가 화면 위에 붙는다. 목록이 209장이라 좁히려고
+   매번 맨 위로 올라가야 했다. 배경과 아래 선을 주는 이유는 붙어 있는
+   동안 카드가 이 줄 뒤로 지나가기 때문이다 */
+.fbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px var(--gutter) 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
 
 .fbar__search {
   display: flex;

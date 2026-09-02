@@ -125,10 +125,12 @@ a { color: inherit; }
   padding-bottom: calc(58px + env(safe-area-inset-bottom));
 }
 
+/* 붙여두지 않는다.
+   검색칸을 필터 옆으로 내리고 나서 여기 남은 것이 로고뿐이다.
+   실서비스에서는 동행 버튼도 안 그리므로 로고 하나가 91px 를 물고
+   화면 맨 위에 계속 앉아 있게 된다. 209장을 훑는 내내 필요한 것은
+   로고가 아니라 검색과 필터라, 붙는 자리를 그쪽으로 넘겼다 (.fbar) */
 .header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
   padding: 12px var(--gutter) 10px;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
