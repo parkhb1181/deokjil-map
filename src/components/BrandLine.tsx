@@ -27,15 +27,19 @@ import { IS_WIREFRAME } from '@/lib/wireframe'
 export function BrandLine({ children }: { children: ReactNode }) {
   return (
     <div className="brandline">
+      {/* 로고가 왼쪽 한 칸을 통째로 쓴다. 검색과 필터가 두 줄이므로
+          그 두 줄 높이만큼 세로로 선다 */}
       <h1 className="brandline__logo">
         <Logo />
       </h1>
 
-      {/* 검색칸이 남는 자리를 다 가져간다.
+      {/* 검색과 필터가 오른쪽 칸에 쌓인다. 둘의 왼쪽 시작선이 같아야
+          한 덩어리로 읽힌다. 전에는 검색만 로고 옆에 있고 필터는
+          페이지 끝에서 시작해 두 줄이 어긋나 보였다.
 
           동행 입구는 하단 탭으로 옮겼다. 여기 두었더니 이 줄 하나가
-          브랜드·검색·이동 세 가지를 하게 돼서, 정작 검색칸이 좁아졌다 */}
-      {children}
+          브랜드·검색·이동 세 가지를 하게 돼서 검색칸이 좁아졌다 */}
+      <div className="brandline__stack">{children}</div>
     </div>
   )
 }

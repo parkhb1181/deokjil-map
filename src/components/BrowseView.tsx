@@ -140,7 +140,7 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
         axes={[
           {
             key: 'kind',
-            placeholder: '종류 선택',
+            placeholder: '종류',
             title: '어떤 행사',
             options: kindOptions,
             value: filter.kind,
@@ -148,7 +148,7 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
           },
           {
             key: 'district',
-            placeholder: '지역 선택',
+            placeholder: '지역',
             title: '어느 동네',
             options: districtOptions,
             value: filter.district,
@@ -159,7 +159,7 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
              하루로 표현할 수 없다 */
           {
             key: 'range',
-            placeholder: '기간 선택',
+            placeholder: '기간',
             title: '언제 갈까',
             options: [],
             value: filter.range ? 'set' : 'all',
@@ -215,7 +215,7 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
         <div className="fsheet" onClick={() => setSortOpen(false)}>
           <div className="fsheet__panel" onClick={(e) => e.stopPropagation()}>
             <div className="fsheet__head">
-              <h2>어떤 순서로</h2>
+              <h2>정렬 순</h2>
               <button type="button" onClick={() => setSortOpen(false)} aria-label="닫기">
                 ✕
               </button>

@@ -2344,24 +2344,36 @@
    헤더에 로고만 남아 91px 를 먹던 것을 검색줄과 합쳤다.
    와이어프레임 빌드에서만 켠다 (components/BrandLine.tsx).
    ------------------------------------------------------- */
+/* 두 칸이다. 왼쪽에 로고, 오른쪽에 검색과 필터가 쌓인다.
+   stretch 라야 로고 칸이 오른쪽 두 줄만큼 세로로 선다 */
 .brandline {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 10px;
 }
 
-/* 로고는 락업 이미지라 폰트로 다시 못 짠다. 높이만 줄인다.
+/* 로고 칸.
+   폭을 68px 로 묶는다. 로고는 락업 이미지(가로 1.34:1)라 세로를 두 줄에
+   맞추려면 가로가 120px 을 넘어야 하고, 그러면 필터 버튼 셋이 좁은
+   화면에서 밀린다. 대신 두 줄 높이 가운데에 세운다.
 
-   transform 으로 내리는 이유는 락업 안에서 오리가 위쪽에 치우쳐 있어
-   가운데 정렬로는 검색칸보다 높이 떠 보이기 때문이다. margin 으로
-   내리면 줄 높이가 같이 늘어 검색칸까지 밀려 내려간다. transform 은
-   레이아웃을 건드리지 않는다 */
-.brandline__logo { flex: 0 0 auto; display: flex; align-items: center; }
-.brandline__logo .logo { height: 58px; transform: translateY(5px); }
+   이 숫자 하나가 로고 크기를 정한다. 키우려면 여기만 올리면 되는데,
+   390px 화면에서 100 을 넘기면 검색칸이 읽기 어려워진다 */
+.brandline__logo {
+  flex: 0 0 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brandline__logo .logo { width: 100%; height: auto; }
 
-/* 검색칸이 남는 폭을 다 가져간다. min-width 를 풀지 않으면 좁은
-   화면에서 입력칸이 로고를 밀어낸다 */
-.brandline .fbar__search { flex: 1; min-width: 0; }
+/* 검색과 필터가 쌓이는 칸. 둘의 왼쪽 시작선이 여기서 같아진다 */
+.brandline__stack {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 
 .fbar__search {
   display: flex;

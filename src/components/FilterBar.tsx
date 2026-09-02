@@ -60,6 +60,7 @@ export function FilterBar({ axes, query, onQuery }: {
           와이어프레임 빌드에서는 이 줄에 로고와 동행이 같이 선다.
           헤더가 로고 하나만 이고 91px 를 먹던 것을 여기로 합쳤다 */}
       {withBrand(
+        <>
         <div className="fbar__search">
           <svg viewBox="0 0 16 16" aria-hidden focusable="false">
             <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -77,8 +78,7 @@ export function FilterBar({ axes, query, onQuery }: {
               ✕
             </button>
           )}
-        </div>,
-      )}
+        </div>
 
       <div className="fbar__row" role="group" aria-label="필터">
         {axes.map((a) => {
@@ -110,6 +110,8 @@ export function FilterBar({ axes, query, onQuery }: {
           )
         })}
       </div>
+        </>,
+      )}
 
       {sheet && (
         <div className="fsheet" onClick={() => setOpen(null)}>
