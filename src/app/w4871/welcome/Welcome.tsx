@@ -249,11 +249,15 @@ export default function Welcome() {
             처리방침 제9조에 적어둔 약속과 같은 내용이라 문구도 맞췄다 */}
         {tooYoung && (
           <div className="agebar" role="status">
-            <p className="agebar__head">만 {MIN_AGE}세부터 가입할 수 있어요</p>
+            {/* 제목도 연도로 적는다. 「만 14세부터」 라고 쓰면 경계에
+                걸린 만 14세에게 사실과 다른 말이 된다. 위 birthError 는
+                연도로 적어두고 여기만 나이로 적어서 한 화면에서 두
+                기준이 부딪히고 있었다 (위키 API-설계 2-2) */}
+            <p className="agebar__head">{maxYear}년생까지 가입할 수 있어요</p>
             <p className="agebar__body">
               만 {MIN_AGE}세 미만은 법정대리인의 동의를 받고 그 동의를 확인해야
               개인정보를 처리할 수 있는데(개인정보보호법 제22조의2) 덕모임에는
-              그 절차가 없어서 받지 못합니다.
+              그 절차가 없어서 받지 못합니다. 생일을 받지 않아 연도로 자릅니다.
             </p>
             <p className="agebar__body">
               생일이 지났는지 알 수 없어 출생연도만으로 한 해를 올려 잡습니다.
