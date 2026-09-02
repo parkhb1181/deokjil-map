@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, type ReactNode } from 'react'
-import { IS_WIREFRAME, wf } from '@/lib/wireframe'
+import { wf } from '@/lib/wireframe'
 
 export type Tab = 'browse' | 'map' | 'bookmark'
 
@@ -62,6 +62,8 @@ interface Props {
   /** 담은 개수. 0 이면 배지를 달지 않는다. 빈 배지는 노이즈다 */
   savedCount: number
   onChange: (tab: Tab) => void
+  /** 동행 칸을 넣을지. 와이어프레임 주소에서만 켠다 */
+  companion?: boolean
 }
 
 /**
@@ -70,14 +72,14 @@ interface Props {
  * 레퍼런스 세 서비스(오프메이트·팝플리·팝가)가 모두 쓰는 구조.
  * 이 카테고리의 표준 문법이라 여기서 벗어나면 학습 비용만 생긴다.
  */
-export default function BottomNav({ active, savedCount, onChange }: Props) {
+export default function BottomNav({ active, savedCount, onChange, companion = false }: Props) {
   return (
     <nav className="bottomnav" aria-label="주요 화면">
       {TABS.map((tab) => (
         <Fragment key={tab.id}>
           {/* 동행은 지도와 즐겨찾기 사이에 낀다. 맨 끝에 두면 즐겨찾기가
               가운데로 밀려 손이 기억한 자리가 바뀐다 */}
-          {tab.id === 'bookmark' && IS_WIREFRAME && (
+          {tab.id === 'bookmark' && companion && (
             <a className="bottomnav__item" href={wf(COMPANION.href)}>
               <svg
                 className="bottomnav__icon"

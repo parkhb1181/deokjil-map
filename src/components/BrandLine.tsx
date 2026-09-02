@@ -11,8 +11,8 @@
  * 문제였다. 그래서 채우는 대신 검색줄과 합쳤다. 로고는 브랜드 자리를
  * 지키고, 그 줄은 원래부터 사람이 손을 대는 줄이라 높이가 아깝지 않다.
  *
- * **와이어프레임 빌드에서만 켠다.** 실서비스 화면은 지금 헤더를 그대로
- * 쓴다. 팀이 먼저 보고 판단한 뒤에 옮긴다 (lib/wireframe.ts).
+ * **`/w4871/home` 에서만 켠다.** 실서비스(`/`)는 지금 헤더를 그대로
+ * 쓴다. 팀이 먼저 보고 판단한 뒤에 옮긴다.
  *
  * 동행 입구는 하단 탭으로 옮겼다. 이 줄은 브랜드와 검색만 맡는다.
  *
@@ -22,7 +22,6 @@
  */
 import type { ReactNode } from 'react'
 import Logo from './Logo'
-import { IS_WIREFRAME } from '@/lib/wireframe'
 
 export function BrandLine({ children }: { children: ReactNode }) {
   return (
@@ -47,9 +46,13 @@ export function BrandLine({ children }: { children: ReactNode }) {
 /**
  * 검색칸을 이 줄에 감쌀지 그대로 둘지.
  *
- * 부르는 쪽마다 `IS_WIREFRAME &&` 을 적으면 세 군데에 같은 분기가
- * 생기고 한 곳만 빠뜨리면 로고가 반쪽만 옮겨간다.
+ * 부르는 쪽마다 조건을 적으면 세 군데에 같은 분기가 생기고, 한 곳만
+ * 빠뜨리면 로고가 반쪽만 옮겨간다.
+ *
+ * 빌드 플래그가 아니라 인자로 받는다. 플래그로 가르면 프로덕션 빌드에서
+ * /w4871/home 도 옛 껍데기로 나온다. duckmoim.com 이 와이어프레임 화면을
+ * 그대로 서빙하고 있어서, 어떤 껍데기인지는 빌드가 아니라 주소가 정한다.
  */
-export function withBrand(search: ReactNode): ReactNode {
-  return IS_WIREFRAME ? <BrandLine>{search}</BrandLine> : search
+export function withBrand(search: ReactNode, on: boolean): ReactNode {
+  return on ? <BrandLine>{search}</BrandLine> : search
 }

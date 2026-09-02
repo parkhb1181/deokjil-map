@@ -44,10 +44,12 @@ export type Axis = {
   pillLabel?: string
 }
 
-export function FilterBar({ axes, query, onQuery }: {
+export function FilterBar({ axes, query, onQuery, brand = false }: {
   axes: Axis[]
   query: string
   onQuery: (v: string) => void
+  /** 로고를 이 줄에 세울지. 주소가 정한다 (components/BrandLine.tsx) */
+  brand?: boolean
 }) {
   const [open, setOpen] = useState<string | null>(null)
   const sheet = axes.find((a) => a.key === open) ?? null
@@ -111,6 +113,7 @@ export function FilterBar({ axes, query, onQuery }: {
         })}
       </div>
         </>,
+        brand,
       )}
 
       {sheet && (

@@ -51,6 +51,18 @@ const GROUPS: Group[] = [
         name: '지도 · 목록',
         shot: 'home',
         spec: 'PoC',
+        desc: '지금 나가 있는 화면',
+        data: '실데이터',
+      },
+      {
+        /* 같은 화면의 새 껍데기. 본체는 위와 같은 코드를 쓰고 헤더 자리만
+           다르다. 좋아 보이면 app/page.tsx 의 chrome 을 바꾸는 것으로
+           끝나고 이 줄과 라우트를 지운다 */
+        href: wf('/home'),
+        name: '지도 · 목록 (새 껍데기)',
+        shot: 'home',
+        spec: '검토용',
+        desc: '헤더를 빼고 로고를 검색줄로, 하단 탭에 동행',
         data: '실데이터',
       },
       {
