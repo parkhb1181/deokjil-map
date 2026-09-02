@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
@@ -39,6 +39,13 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
     }
   }, [])
 
+  /* 사진은 우리가 복제해 두지 않고 수집원 서버 주소를 그대로 물고 있다.
+     그쪽이 내리거나 막으면 깨진 그림이 뜬다. 카드(EventCard)와 같은 처리를
+     상세에도 둔다. 불리언 하나로 두면 다음에 연 행사의 멀쩡한 사진까지
+     가려지므로 어느 행사에서 죽었는지를 기억한다 */
+  const [failedId, setFailedId] = useState<string | null>(null)
+  const showImage = Boolean(event.imageUrl) && failedId !== event.id
+
   // 주최자·운영사가 직접 올린 곳인지. 리스팅 사이트로 떨어진 경우와 구분한다
   const official = /instagram\.com|x\.com|twitter\.com/.test(event.sourceUrl)
 
@@ -55,10 +62,15 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
       </div>
 
       <div className="sheet__body">
-        {event.imageUrl ? (
+        {showImage ? (
           <div className="sheet__visual sheet__visual--photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={event.imageUrl} alt="" decoding="async" />
+            <img
+              src={event.imageUrl}
+              alt=""
+              decoding="async"
+              onError={() => setFailedId(event.id)}
+            />
           </div>
         ) : (
           <div

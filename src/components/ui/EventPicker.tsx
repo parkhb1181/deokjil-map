@@ -39,6 +39,11 @@ export function EventPicker({ all, picked, onPick }: {
   const [q, setQ] = useState('')
   const boxRef = useRef<HTMLInputElement>(null)
 
+  /* 사진 주소는 수집원 서버 그대로다. 그쪽이 막으면 깨진 그림이 40개
+     뜬다. 죽은 것만 빈 자리(epick__thumb--none)로 바꾼다 */
+  const [failed, setFailed] = useState<Record<string, true>>({})
+  const die = (id: string) => setFailed((f) => ({ ...f, [id]: true }))
+
   /* 오늘 날짜는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드
      시각이라 그대로 쓰면 배포 다음날부터 끝난 행사가 남는다 */
   const [today, setToday] = useState('')
@@ -71,8 +76,13 @@ export function EventPicker({ all, picked, onPick }: {
     return (
       <div className="epick">
         <div className="epick__picked">
-          {picked.imageUrl ? (
-            <img className="epick__thumb" src={picked.imageUrl} alt="" />
+          {picked.imageUrl && !failed[picked.id] ? (
+            <img
+              className="epick__thumb"
+              src={picked.imageUrl}
+              alt=""
+              onError={() => die(picked.id)}
+            />
           ) : (
             <span className="epick__thumb epick__thumb--none" />
           )}
@@ -160,8 +170,14 @@ export function EventPicker({ all, picked, onPick }: {
                       setQ('')
                     }}
                   >
-                    {e.imageUrl ? (
-                      <img className="epick__thumb" src={e.imageUrl} alt="" loading="lazy" />
+                    {e.imageUrl && !failed[e.id] ? (
+                      <img
+                        className="epick__thumb"
+                        src={e.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        onError={() => die(e.id)}
+                      />
                     ) : (
                       <span className="epick__thumb epick__thumb--none" />
                     )}
