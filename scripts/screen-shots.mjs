@@ -67,8 +67,8 @@ const SHOTS = [
   ['me-edit', '/w4871/me/edit'],
   ['profile', '/w4871/u/u_host'],
   ['admin', '/w4871/admin15616', 'pc'],
-  ['terms', '/w4871/terms'],
-  ['privacy', '/w4871/privacy'],
+  ['terms', '/terms'],
+  ['privacy', '/privacy'],
   ['gallery', '/w4871/dev/gallery'],
   ['notfound', '/없는주소'],
 ]

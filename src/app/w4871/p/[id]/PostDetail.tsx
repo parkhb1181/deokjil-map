@@ -15,7 +15,7 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { canWrite, isClosed, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
+import { canWrite, isClosed, isPlaceholder, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
@@ -119,7 +119,7 @@ export default function PostDetail({ post, comments, hostId }: {
   const [secret, setSecret] = useState(false)
   /** 답글을 다는 대상. null 이면 새 댓글이다 */
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
-  /* 방금 내가 지운 댓글. API 가 붙으면 서버가 deleted 로 내려주므로 없어진다 */
+  /* 방금 내가 지운 댓글. API 가 붙으면 서버가 state 로 내려주므로 없어진다 */
   const [erased, setErased] = useState<string[]>([])
   /* 방금 내가 고친 댓글. 위와 같은 이유로 임시다 */
   const [edited, setEdited] = useState<Record<string, string>>({})
@@ -153,7 +153,7 @@ export default function PostDetail({ post, comments, hostId }: {
 
     return threaded(asServerWouldSend(mine, viewer, hostId)).map((c) =>
       /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
-      erased.includes(c.id) ? { ...c, deleted: true } : c,
+      erased.includes(c.id) ? { ...c, state: 'DELETED' as const } : c,
     )
   }, [comments, viewer.userId, hostId, erased, edited])
 
@@ -319,17 +319,17 @@ export default function PostDetail({ post, comments, hostId }: {
           list.map((c) => (
             <Comment
               key={c.id}
-              name={c.deleted ? '' : c.author.nickname}
+              name={isPlaceholder(c.state) ? '' : c.author.nickname}
               src={c.author.imageUrl ?? undefined}
               time={shortTime(c.createdAt)}
               text={c.body ?? undefined}
               reply={!!c.parentId}
               secret={c.secret}
-              gone={c.deleted}
+              state={c.state}
               host={c.author.id === hostId}
               edited={c.id in edited}
               onAuthor={
-                c.deleted
+                isPlaceholder(c.state)
                   ? undefined
                   : () =>
                       setAsk({
@@ -378,7 +378,7 @@ export default function PostDetail({ post, comments, hostId }: {
                 ) : undefined
               }
               acts={
-                c.deleted ? undefined : (
+                isPlaceholder(c.state) ? undefined : (
                   <>
                     {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
                         그 아래가 없다.

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import type { CompanionPost, PostComment } from '@/types'
 import sample from '@/data/posts.sample.json'
+import { stripBlinded } from '@/lib/comment-perm'
 import PostDetail from './PostDetail'
 
 /**
@@ -13,12 +14,26 @@ import PostDetail from './PostDetail'
  *
  * 비회원도 볼 수 있다 (Q-04 노출함). 그래서 검색에도 걸려야 하는데,
  * 지금은 가짜 데이터라 색인을 막아 둔다.
+ *
+ * **가려진 댓글의 본문은 여기서 뗀다** (AD-07). 화면에서 떼면 늦다.
+ * PostDetail 은 클라이언트 컴포넌트라 넘긴 props 가 HTML 안에 통째로
+ * 실려 나가고, 자리에는 「신고로 가려진 댓글입니다」 가 뜨는데 페이지
+ * 소스에는 원문이 그대로 남는다.
+ *
+ * **비밀 댓글은 여기서 못 뗀다.** 누가 볼 수 있는지가 보는 사람에
+ * 따라 갈리는데, 지금은 그 사람을 화면의 개발용 토글이 정한다. 서버는
+ * 누가 볼지 모르니 다 실어 보내고 화면이 거른다. 그래서 **와이어프레임
+ * 에서는 비밀 댓글 본문이 페이지 소스에 남는다.** 로그인이 붙으면
+ * 이 파일이 fetch 로 바뀌면서 없어진다. 목데이터라 지금은 감수한다.
  */
 const DATA = sample as unknown as {
   hostId: string
   post: CompanionPost
   comments: PostComment[]
 }
+
+/* 보는 사람과 무관하게 떼는 것은 여기서 한 번만 한다 */
+const COMMENTS = stripBlinded(DATA.comments)
 
 export const metadata: Metadata = {
   title: '동행 구해요 · 덕모임',
@@ -31,6 +46,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (id !== DATA.post.id) notFound()
 
   return (
-    <PostDetail post={DATA.post} comments={DATA.comments} hostId={DATA.hostId} />
+    <PostDetail post={DATA.post} comments={COMMENTS} hostId={DATA.hostId} />
   )
 }

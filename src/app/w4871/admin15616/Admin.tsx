@@ -16,33 +16,29 @@
  * 않으며 권한 등급 체계도 1차에서는 만들지 않는다" 고 못박았다.
  * PC 로 바꾼 것도 예쁘게 하려는 게 아니라 표가 카드보다 빠르기 때문이다.
  *
- * 하는 일은 둘이다. **신고 처리와 유저 제재.**
+ * 이벤트 수기 등록(AD-01)은 뺐다. 크롤러가 못 가져오는 행사는 모집글에서
+ * 행사를 안 고르고 올리면 된다.
  *
- * 자동 제재(욕설 필터)는 1차에서 뺐다. 운영자가 손으로 처리한다.
- * 그래서 「자동 제한 발동」 표시와 그것을 위로 올리던 정렬도 없다.
- *
- * 이벤트 수기 등록(AD-01)은 뺐다. 그래서 탭도 없앴다. 할 일이 하나면
- * 탭은 누를 곳만 늘리고 알려주는 것이 없다. 들어오면 바로 신고다.
+ * **탭을 되살렸다.** 한때 할 일이 신고 하나라 없앴는데 셋이 됐다.
+ *   신고 (AD-02 · AD-03 · AD-07)
+ *   제재 (AD-04) — 주는 것만 있고 푸는 자리가 없었다
+ *   기록 (AD-05) — 남긴다고 처리방침에 써놓고 볼 자리가 없었다
  */
 import { useState } from 'react'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
+import type { AuditEntry, AuditKind, SanctionKind } from '@/types'
 
-/**
- * 제재 수위.
- *
- * 가운데 둘이 나이 확인용이다. 처리방침 제10조를 화면으로 옮긴 것이고,
- * **둘을 갈라둔 것이 핵심이다.**
- *
- *   hold    글쓰기만 막고 본인에게 확인을 요청한다. 되돌릴 수 있다
- *   purge   계정과 글을 통째로 지운다. 되돌릴 수 없다
- *
- * 신고가 들어왔다고 바로 지우면 그 자체가 남을 지우는 도구가 된다.
- * 그래서 확인 요청이 먼저고, 답이 없을 때만 파기로 간다.
- *
- * 파기는 제재 목록에 섞여 있지만 성격이 다르다. 벌이 아니라 「우리가
- * 처리하면 안 되는 정보였다」 는 정리라, 아래 시트에서 따로 확인을 받는다.
- */
+/* ── 제재 수위 ─────────────────────────────────────────────
+   가운데 둘이 나이 확인용이다. 처리방침 제10조를 화면으로 옮긴 것이고,
+   **둘을 갈라둔 것이 핵심이다.**
+
+     hold    글쓰기만 막고 본인에게 확인을 요청한다. 되돌릴 수 있다
+     purge   계정과 글을 통째로 지운다. 되돌릴 수 없다
+
+   신고가 들어왔다고 바로 지우면 그 자체가 남을 지우는 도구가 된다.
+   그래서 확인 요청이 먼저고, 답이 없을 때만 파기로 간다. */
+
 type Level = 'warn' | 'hold' | '7d' | 'forever' | 'purge'
 
 const LEVELS: { key: Level; label: string }[] = [
@@ -53,6 +49,33 @@ const LEVELS: { key: Level; label: string }[] = [
   { key: 'purge', label: '계정 삭제 (연령 미달)' },
 ]
 
+const LEVEL_KIND: Record<Level, SanctionKind> = {
+  warn: 'WARNED',
+  hold: 'AGE_HOLD',
+  '7d': 'SUSPENDED',
+  forever: 'BANNED',
+  purge: 'BANNED',
+}
+
+const KIND_TEXT: Record<SanctionKind, string> = {
+  NONE: '없음',
+  WARNED: '경고',
+  AGE_HOLD: '나이 확인',
+  SUSPENDED: '기간 정지',
+  BANNED: '영구 정지',
+}
+
+const AUDIT_TEXT: Record<AuditKind, string> = {
+  SANCTION: '제재',
+  RELEASE: '제재 해제',
+  REPORT: '신고 처리',
+  BLIND: '댓글 블라인드',
+  SECRET_READ: '비밀 댓글 열람',
+  PURGE: '계정 파기',
+}
+
+/* ── 목데이터 ───────────────────────────────────────────── */
+
 type Report = {
   id: string
   target: '유저' | '모집글' | '댓글'
@@ -62,6 +85,12 @@ type Report = {
   reporter: string
   at: string
   done: boolean
+  /** 비밀 댓글 신고. 본문을 보려면 열람 기록을 남겨야 한다 (AD-05) */
+  secret?: boolean
+  /** 비밀 댓글 본문. 열기 전에는 화면에 안 뿌린다 */
+  body?: string
+  /** 어떻게 처리했는지. 처리한 뒤에만 있다 (AD-03) */
+  result?: string
 }
 
 const REPORTS: Report[] = [
@@ -99,6 +128,21 @@ const REPORTS: Report[] = [
     done: false,
   },
   {
+    /* 비밀 댓글 신고. 본문이 처음부터 보이면 안 된다. 채팅이 없어
+       비밀 댓글이 연락처가 오가는 통로라, 여는 것 자체가 남의
+       연락처를 보는 일이다 */
+    id: 'r5',
+    target: '댓글',
+    subject: '비밀 댓글 (에이티즈 팝업 오픈런 같이 하실 분)',
+    reason: '부적절한 내용',
+    detail: '비밀 댓글로 불쾌한 말을 보냈어요.',
+    reporter: '밤샘예매',
+    at: '2026-09-01T22:10',
+    done: false,
+    secret: true,
+    body: '사진 보내주시면 제가 판단해서 연락드릴게요',
+  },
+  {
     id: 'r3',
     target: '댓글',
     subject: '카톡 아이디 night_ticket 입니다',
@@ -107,123 +151,425 @@ const REPORTS: Report[] = [
     reporter: '덕질하는오리',
     at: '2026-08-30T22:05',
     done: true,
+    result: '문제 없음',
   },
 ]
 
-export default function Admin() {
-  const [only, setOnly] = useState(true)
-  const [act, setAct] = useState<Report | null>(null)
-  /* 제재 시트의 수위. 파기를 고르면 확인 한 단계가 더 붙어서
-     defaultValue 로 둘 수 없다 */
-  const [level, setLevel] = useState<Level>('warn')
-  const [sure, setSure] = useState(false)
-  /* API 가 붙으면 목록을 다시 읽는다. 그때까지는 처리한 결과가
-     화면에 남아야 무엇을 처리했는지 알 수 있다 */
-  const [reports, setReports] = useState(REPORTS)
+type SanctionRow = {
+  id: string
+  user: string
+  kind: SanctionKind
+  reason: string
+  issuedAt: string
+  /** 기간 정지만 있다 */
+  until?: string
+}
 
-  const close = (id: string) =>
-    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, done: true } : r)))
+const SANCTIONS: SanctionRow[] = [
+  {
+    id: 's1',
+    user: '조용한덕후',
+    kind: 'SUSPENDED',
+    reason: '약속한 날에 연락 없이 나타나지 않았다는 신고가 세 건 접수되었습니다.',
+    issuedAt: '2026-09-01T09:00',
+    until: '2026-09-08T00:00',
+  },
+  {
+    id: 's2',
+    user: '남은대댓글',
+    kind: 'AGE_HOLD',
+    reason: '가입할 때 적으신 출생연도가 맞는지 확인하려고 합니다.',
+    issuedAt: '2026-09-01T18:20',
+  },
+  {
+    id: 's3',
+    user: '광고봇계정',
+    kind: 'BANNED',
+    reason: '다른 이용자에게 반복적으로 불쾌한 메시지를 보냈습니다.',
+    issuedAt: '2026-08-25T11:00',
+  },
+]
+
+const AUDIT: AuditEntry[] = [
+  {
+    id: 'a3',
+    at: '2026-09-01T18:20',
+    actor: '운영자',
+    kind: 'SANCTION',
+    target: '남은대댓글',
+    detail: '나이 확인 · 가입할 때 적으신 출생연도가 맞는지 확인하려고 합니다.',
+  },
+  {
+    id: 'a2',
+    at: '2026-09-01T09:00',
+    actor: '운영자',
+    kind: 'SECRET_READ',
+    target: '비밀 댓글 c5 (잠실 콘서트 동행)',
+    detail: '신고 r0 처리를 위해 본문 열람',
+  },
+  {
+    id: 'a1',
+    at: '2026-09-01T09:00',
+    actor: '운영자',
+    kind: 'SANCTION',
+    target: '조용한덕후',
+    detail: '기간 정지 7일 · 약속한 날에 연락 없이 나타나지 않았다는 신고가 세 건 접수되었습니다.',
+  },
+]
+
+/* ── 도구 ──────────────────────────────────────────────── */
+
+/** 'YYYY-MM-DDTHH:mm'. 이벤트 처리 중에만 부른다 (렌더 중에 부르지 않는다) */
+function stamp() {
+  const d = new Date()
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+/** 'YYYY-MM-DDTHH:mm' → 'YYYY-MM-DD HH:mm' */
+const readable = (iso: string) => iso.replace('T', ' ')
+
+type Tab = 'reports' | 'sanctions' | 'audit'
+
+const TABS: { key: Tab; label: string; spec: string }[] = [
+  { key: 'reports', label: '신고', spec: 'AD-02 · AD-03 · AD-07' },
+  { key: 'sanctions', label: '제재', spec: 'AD-04' },
+  { key: 'audit', label: '기록', spec: 'AD-05' },
+]
+
+export default function Admin() {
+  /* 인증이 붙기 전까지 개발용이다 (AD-06 · Q-13). 지금 이 화면을
+     막는 것은 주소 끝의 숫자뿐인데 그건 보안이 아니라 자물쇠 그림이다.
+     링크를 아는 사람은 그대로 들어온다.
+
+     그래서 **막히는 화면이 어떻게 생겼는지만 먼저 만들어 둔다.**
+     실제 판정은 서버가 한다. 화면이 판정하면 이 상태를 뒤집는 것으로
+     그냥 뚫린다 */
+  const [admin, setAdmin] = useState(true)
+  const [tab, setTab] = useState<Tab>('reports')
+
+  const [only, setOnly] = useState(true)
+  const [reports, setReports] = useState(REPORTS)
+  const [sanctions, setSanctions] = useState(SANCTIONS)
+  const [audit, setAudit] = useState(AUDIT)
+
+  /* 제재 시트 */
+  const [act, setAct] = useState<Report | null>(null)
+  const [level, setLevel] = useState<Level>('warn')
+  const [why, setWhy] = useState('')
+  const [sure, setSure] = useState(false)
+
+  /* 나머지 시트들. 한 번에 하나만 뜬다 */
+  const [blind, setBlind] = useState<Report | null>(null)
+  const [peek, setPeek] = useState<Report | null>(null)
+  const [release, setRelease] = useState<SanctionRow | null>(null)
+  const [releaseWhy, setReleaseWhy] = useState('')
+
+  /** 본문을 이미 연 신고. 열람은 한 번만 기록한다 */
+  const [opened, setOpened] = useState<string[]>([])
+
+  /**
+   * 기록을 덧붙인다. **여기 말고 audit 을 건드리는 곳을 두지 않는다.**
+   *
+   * 고치거나 지우는 함수는 만들지 않는다. 있으면 언젠가 쓴다.
+   * 처리방침 제8조에 「수정·삭제할 수 없는 기록으로 남습니다」 라고
+   * 공개해둔 약속이라, 화면 쪽에도 그럴 길을 두지 않는다.
+   *
+   * append-only 를 실제로 지키는 것은 서버다. 화면은 그렇게 보일 뿐이다.
+   */
+  const log = (kind: AuditKind, target: string, detail: string) =>
+    setAudit((prev) => [
+      { id: `a_${Date.now()}`, at: stamp(), actor: '운영자', kind, target, detail },
+      ...prev,
+    ])
+
+  /** 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다 */
+  const close = (r: Report, result: string) => {
+    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, done: true, result } : x)))
+    log('REPORT', `${r.target} · ${r.subject}`, `${r.reason} · ${result}`)
+  }
 
   /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
-     순서대로 오래된 것이 위에 남는다.
-
-     자동 제재(욕설 필터)를 1차에서 빼면서 「자동 제한 발동」 건을
-     위로 올리던 규칙도 같이 뺐다. 전부 사람이 신고한 것이라 먼저
-     볼 이유가 있는 줄이 없다 */
+     순서대로 오래된 것이 위에 남는다 */
   const list = reports
     .filter((r) => (only ? !r.done : true))
     .sort((a, b) => (a.at < b.at ? 1 : -1))
 
+  /* 제재 목록도 최근 것이 위다. 오래된 정지는 곧 저절로 풀린다 */
+  const sancList = [...sanctions].sort((a, b) => (a.issuedAt < b.issuedAt ? 1 : -1))
+
+  /* ── 403 ──────────────────────────────────────────────
+     일반 계정으로 들어오면 여기서 끝난다. 목록도 숫자도 안 보여준다.
+     "신고 3건" 같은 것만 보여줘도 그건 이미 정보다 */
+  if (!admin) {
+    return (
+      <div className="bo">
+        <header className="bo__bar">
+          <span className="bo__logo">
+            덕모임 <b>백오피스</b>
+          </span>
+          <DevWho admin={admin} onPick={setAdmin} />
+        </header>
+        <main className="bo__body">
+          <div className="bo__deny">
+            <p className="bo__dcode">403</p>
+            <h1 className="bo__dtitle">접근 권한이 없습니다</h1>
+            <p className="bo__dbody">
+              백오피스는 운영자 계정으로만 들어올 수 있습니다. 잘못 들어오셨다면
+              창을 닫아주세요.
+            </p>
+            <p className="bo__dnote">
+              이 판정은 서버가 합니다. 화면에서 막으면 요청을 직접 보내는 것으로
+              뚫립니다.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="bo">
-      {/* 상단 바는 전체 폭을 가로지른다. 탭이 없어져서 여기 남는 것은
-          이름표와 누구로 들어와 있는지뿐이다 */}
       <header className="bo__bar">
         <span className="bo__logo">
           덕모임 <b>백오피스</b>
         </span>
-        {/* 인증이 붙으면 로그인한 운영자 이름이 온다 (Q-13) */}
-        <span className="bo__who">운영자</span>
+        <DevWho admin={admin} onPick={setAdmin} />
       </header>
 
-      <main className="bo__body">
-        <div className="bo__toolbar">
-          <h1 className="bo__h">신고</h1>
-          <label className="bo__filter">
-            <input
-              type="checkbox"
-              checked={only}
-              onChange={(e) => setOnly(e.target.checked)}
-            />
-            처리 안 된 것만
-          </label>
-          <span className="bo__count">{list.length}건</span>
-        </div>
+      {/* 탭. 셋 다 운영자가 번갈아 보는 것이라 화면을 나누지 않는다.
+          신고를 처리하면 기록이 쌓이고, 제재를 풀어도 기록이 쌓인다 */}
+      <nav className="bo__tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            className="bo__tab"
+            aria-pressed={tab === t.key}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+            <span className="bo__tspec">{t.spec}</span>
+          </button>
+        ))}
+      </nav>
 
-        {list.length === 0 ? (
-          <Blank title="처리할 신고가 없어요" art={false} />
-        ) : (
-          /* 좁은 화면에서는 표가 옆으로 흐른다. 칸을 접어 쌓으면
-             표로 훑는다는 이점이 사라지므로 그냥 흐르게 둔다.
-             PC 로 보라고 만든 화면이다 */
-          <div className="bo__scroll">
-            <table className="bo__table">
-              <thead>
-                <tr>
-                  <th>대상</th>
-                  <th>신고된 것</th>
-                  <th>사유</th>
-                  <th>신고자</th>
-                  <th>접수</th>
-                  <th className="bo__actcol">처리</th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map((r) => (
-                  <tr key={r.id}>
-                    <td>
-                      <Badge state="off">{r.target}</Badge>
-                    </td>
-                    <td className="bo__subject">{r.subject}</td>
-                    <td>
-                      {r.reason}
-                      {r.detail && <span className="bo__detail">{r.detail}</span>}
-                    </td>
-                    <td className="bo__dim">{r.reporter}</td>
-                    <td className="bo__dim bo__when">{r.at.replace('T', ' ')}</td>
-                    <td className="bo__actcol">
-                      {r.done ? (
-                        <Badge state="off">처리됨</Badge>
-                      ) : (
-                        <span className="bo__acts">
-                          <Button size="sm" tone="ghost" onClick={() => close(r.id)}>
-                            문제 없음
-                          </Button>
+      <main className="bo__body">
+        {/* ── 신고 ─────────────────────────────────────── */}
+        {tab === 'reports' && (
+          <>
+            <div className="bo__toolbar">
+              <h1 className="bo__h">신고</h1>
+              <label className="bo__filter">
+                <input
+                  type="checkbox"
+                  checked={only}
+                  onChange={(e) => setOnly(e.target.checked)}
+                />
+                처리 안 된 것만
+              </label>
+              <span className="bo__count">{list.length}건</span>
+            </div>
+
+            {list.length === 0 ? (
+              <Blank title="처리할 신고가 없어요" art={false} />
+            ) : (
+              /* 좁은 화면에서는 표가 옆으로 흐른다. 칸을 접어 쌓으면
+                 표로 훑는다는 이점이 사라지므로 그냥 흐르게 둔다.
+                 PC 로 보라고 만든 화면이다 */
+              <div className="bo__scroll">
+                <table className="bo__table">
+                  <thead>
+                    <tr>
+                      <th>대상</th>
+                      <th>신고된 것</th>
+                      <th>사유</th>
+                      <th>신고자</th>
+                      <th>접수</th>
+                      <th className="bo__actcol">처리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.map((r) => (
+                      <tr key={r.id}>
+                        <td>
+                          <Badge state="off">{r.target}</Badge>
+                        </td>
+                        <td className="bo__subject">
+                          {r.subject}
+                          {/* 비밀 댓글은 본문을 여기 안 뿌린다. 여는
+                              것이 기록에 남는 행위라 한 번 물어본다 */}
+                          {r.secret && (
+                            <span className="bo__peek">
+                              {opened.includes(r.id) ? (
+                                <span className="bo__peeked">{r.body}</span>
+                              ) : (
+                                <button type="button" onClick={() => setPeek(r)}>
+                                  본문 보기
+                                </button>
+                              )}
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {r.reason}
+                          {r.detail && <span className="bo__detail">{r.detail}</span>}
+                        </td>
+                        <td className="bo__dim">{r.reporter}</td>
+                        <td className="bo__dim bo__when">{readable(r.at)}</td>
+                        <td className="bo__actcol">
+                          {r.done ? (
+                            /* 처리한 신고는 다시 처리하지 않는다 (AD-03).
+                               결과를 배지 옆에 남겨야 나중에 왜 그렇게
+                               됐는지 알 수 있다 */
+                            <span className="bo__acts">
+                              <Badge state="off">처리됨</Badge>
+                              {r.result && <span className="bo__result">{r.result}</span>}
+                            </span>
+                          ) : (
+                            <span className="bo__acts">
+                              <Button size="sm" tone="ghost" onClick={() => close(r, '문제 없음')}>
+                                문제 없음
+                              </Button>
+                              {/* 댓글만 가릴 수 있다 (AD-07). 모집글은
+                                  가리는 대신 방장이 내리거나 제재로 간다 */}
+                              {r.target === '댓글' && (
+                                <Button size="sm" tone="ghost" onClick={() => setBlind(r)}>
+                                  블라인드
+                                </Button>
+                              )}
+                              <Button
+                                size="sm"
+                                tone="danger"
+                                onClick={() => {
+                                  /* 시트를 열 때마다 처음으로 되돌린다. 앞
+                                     건에서 파기를 고르고 닫았는데 그 값이
+                                     남아 있으면 다음 사람이 그대로 지워진다 */
+                                  setLevel('warn')
+                                  setWhy('')
+                                  setSure(false)
+                                  setAct(r)
+                                }}
+                              >
+                                제재
+                              </Button>
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── 제재 ─────────────────────────────────────── */}
+        {tab === 'sanctions' && (
+          <>
+            <div className="bo__toolbar">
+              <h1 className="bo__h">제재 중인 회원</h1>
+              <span className="bo__count">{sancList.length}명</span>
+            </div>
+            <p className="bo__lead">
+              기간 정지는 종료일이 지나면 저절로 풀립니다. 여기서 푸는 것은 그
+              전에 푸는 경우이고, 푼 것도 기록에 남습니다.
+            </p>
+
+            {sancList.length === 0 ? (
+              <Blank title="제재 중인 회원이 없어요" art={false} />
+            ) : (
+              <div className="bo__scroll">
+                <table className="bo__table">
+                  <thead>
+                    <tr>
+                      <th>회원</th>
+                      <th>수위</th>
+                      <th>사유</th>
+                      <th>시작</th>
+                      <th>종료</th>
+                      <th className="bo__actcol">처리</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sancList.map((s) => (
+                      <tr key={s.id}>
+                        <td className="bo__subject">{s.user}</td>
+                        <td>
+                          <Badge state="off">{KIND_TEXT[s.kind]}</Badge>
+                        </td>
+                        <td>{s.reason}</td>
+                        <td className="bo__dim bo__when">{readable(s.issuedAt)}</td>
+                        <td className="bo__dim bo__when">
+                          {s.until ? readable(s.until) : '없음'}
+                        </td>
+                        <td className="bo__actcol">
                           <Button
                             size="sm"
-                            tone="danger"
+                            tone="ghost"
                             onClick={() => {
-                              /* 시트를 열 때마다 처음으로 되돌린다. 앞
-                                 건에서 파기를 고르고 닫았는데 그 값이
-                                 남아 있으면 다음 사람이 그대로 지워진다 */
-                              setLevel('warn')
-                              setSure(false)
-                              setAct(r)
+                              setReleaseWhy('')
+                              setRelease(s)
                             }}
                           >
-                            제재
+                            해제
                           </Button>
-                        </span>
-                      )}
-                    </td>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── 기록 ─────────────────────────────────────── */}
+        {tab === 'audit' && (
+          <>
+            <div className="bo__toolbar">
+              <h1 className="bo__h">기록</h1>
+              <span className="bo__count">{audit.length}건</span>
+            </div>
+            <p className="bo__lead">
+              운영자가 한 일을 덧붙이기만 하는 목록입니다.{' '}
+              <b>고치거나 지울 수 없습니다.</b> 제재와 해제, 그리고 비밀 댓글을
+              열어본 사실이 여기 남습니다. 개인정보 처리방침 제8조에 공개해둔
+              약속입니다.
+            </p>
+
+            <div className="bo__scroll">
+              <table className="bo__table">
+                <thead>
+                  <tr>
+                    <th>시각</th>
+                    <th>운영자</th>
+                    <th>한 일</th>
+                    <th>대상</th>
+                    <th>내용</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {audit.map((a) => (
+                    <tr key={a.id}>
+                      <td className="bo__dim bo__when">{readable(a.at)}</td>
+                      <td className="bo__dim">{a.actor}</td>
+                      <td>
+                        <Badge state="off">{AUDIT_TEXT[a.kind]}</Badge>
+                      </td>
+                      <td className="bo__subject">{a.target}</td>
+                      <td>{a.detail}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </main>
 
+      {/* ── 제재 시트 ───────────────────────────────────── */}
       {act && (
         <Sheet
           title={`${act.subject} 제재`}
@@ -237,7 +583,30 @@ export default function Admin() {
                    한 번에 보낸다 */
                 disabled={level === 'purge' && !sure}
                 onClick={() => {
-                  close(act.id)
+                  const label = LEVELS.find((l) => l.key === level)!.label
+                  const reason = why.trim() || '사유 미기재'
+                  if (level === 'purge') {
+                    log('PURGE', act.subject, `연령 미달 · ${reason}`)
+                    /* 파기하면 제재 목록에서도 사라진다. 계정이 없어졌는데
+                       제재 중인 회원으로 남아 있으면 그건 남은 개인정보다 */
+                    setSanctions((prev) => prev.filter((s) => s.user !== act.subject))
+                  } else {
+                    log('SANCTION', act.subject, `${label} · ${reason}`)
+                    /* 같은 사람에게 두 줄이 생기지 않게 먼저 걷어낸다.
+                       제재는 한 사람에 하나다. 경고를 받은 사람이 정지되면
+                       그건 정지 한 줄이지 두 줄이 아니다 */
+                    setSanctions((prev) => [
+                      ...prev.filter((s) => s.user !== act.subject),
+                      {
+                        id: `s_${Date.now()}`,
+                        user: act.subject,
+                        kind: LEVEL_KIND[level],
+                        reason,
+                        issuedAt: stamp(),
+                      },
+                    ])
+                  }
+                  close(act, label)
                   setAct(null)
                 }}
               >
@@ -304,11 +673,136 @@ export default function Admin() {
                   ? '무엇을 확인하려는지 적어주세요'
                   : '어떤 규칙을 어겼는지 적어주세요'
               }
+              value={why}
+              onChange={(e) => setWhy(e.target.value)}
+              rows={3}
+            />
+          </Field>
+        </Sheet>
+      )}
+
+      {/* ── 블라인드 시트 (AD-07) ───────────────────────── */}
+      {blind && (
+        <Sheet
+          title="이 댓글을 가릴까요?"
+          desc="본문이 아무에게도 보이지 않게 됩니다. 자리는 남아서 아래 대댓글이 고아가 되지 않습니다."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setBlind(null)}>취소</Button>
+              <Button
+                tone="danger"
+                onClick={() => {
+                  log('BLIND', blind.subject, `${blind.reason} · ${blind.detail || '상세 없음'}`)
+                  close(blind, '블라인드')
+                  setBlind(null)
+                }}
+              >
+                가리기
+              </Button>
+            </>
+          }
+        >
+          <p className="bo__hint">
+            가린 사유는 그 자리에 적지 않습니다. 신고 내용이 남으면 신고가 곧
+            공개 낙인이 되고, 누가 신고했는지도 짐작됩니다.
+          </p>
+          <p className="bo__hint">
+            1차에서는 이 화면에서 되돌릴 수 없습니다. 잘못 가린 경우도 기록에
+            남으니 그것을 근거로 처리합니다.
+          </p>
+        </Sheet>
+      )}
+
+      {/* ── 비밀 댓글 열람 확인 (AD-05) ─────────────────── */}
+      {peek && (
+        <Sheet
+          title="비밀 댓글 본문을 열까요?"
+          desc="채팅이 없어 비밀 댓글이 연락처를 주고받는 통로입니다. 여는 것은 남의 연락처를 보는 일입니다."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setPeek(null)}>취소</Button>
+              <Button
+                tone="danger"
+                onClick={() => {
+                  setOpened((prev) => [...prev, peek.id])
+                  log('SECRET_READ', peek.subject, `신고 ${peek.id} 처리를 위해 본문 열람`)
+                  setPeek(null)
+                }}
+              >
+                열람하기
+              </Button>
+            </>
+          }
+        >
+          <div className="bo__danger">
+            <p className="bo__dhead">기록에 남습니다</p>
+            <p>
+              누가 언제 어느 댓글을 열어봤는지 기록 탭에 남고, 그 기록은 고치거나
+              지울 수 없습니다. 개인정보 처리방침 제8조에 이렇게 공개했습니다.
+            </p>
+          </div>
+        </Sheet>
+      )}
+
+      {/* ── 해제 시트 (AD-04) ───────────────────────────── */}
+      {release && (
+        <Sheet
+          title={`${release.user} 제재 해제`}
+          desc="해제하면 바로 다시 쓸 수 있게 됩니다. 해제한 사실도 기록에 남습니다."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setRelease(null)}>취소</Button>
+              <Button
+                /* 사유가 없으면 못 푼다. 제재를 줄 때 사유를 적게
+                   해놓고 풀 때는 안 적게 두면, 나중에 왜 풀렸는지
+                   아무도 모른다 */
+                disabled={!releaseWhy.trim()}
+                onClick={() => {
+                  log(
+                    'RELEASE',
+                    release.user,
+                    `${KIND_TEXT[release.kind]} 해제 · ${releaseWhy.trim()}`,
+                  )
+                  setSanctions((prev) => prev.filter((s) => s.id !== release.id))
+                  setRelease(null)
+                }}
+              >
+                해제하기
+              </Button>
+            </>
+          }
+        >
+          <p className="bo__hint">
+            지금 걸린 것은 {KIND_TEXT[release.kind]} 입니다. 사유는 「{release.reason}」
+          </p>
+          <Field label="해제 사유" hint="기록에 남습니다. 본인에게는 보이지 않습니다">
+            <TextArea
+              placeholder="이의 제기를 검토한 결과처럼, 왜 푸는지 적어주세요"
+              value={releaseWhy}
+              onChange={(e) => setReleaseWhy(e.target.value)}
               rows={3}
             />
           </Field>
         </Sheet>
       )}
     </div>
+  )
+}
+
+/**
+ * 누구로 들어와 있나. **개발용이다.**
+ *
+ * 인증이 붙으면 이 토글을 지우고 서버 세션에서 온 운영자 이름만 남긴다.
+ */
+function DevWho({ admin, onPick }: { admin: boolean; onPick: (v: boolean) => void }) {
+  return (
+    <span className="bo__who">
+      <button type="button" aria-pressed={admin} onClick={() => onPick(true)}>
+        운영자
+      </button>
+      <button type="button" aria-pressed={!admin} onClick={() => onPick(false)}>
+        일반 계정
+      </button>
+    </span>
   )
 }

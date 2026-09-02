@@ -2211,8 +2211,6 @@
 .bo__logo { font-size: var(--t-strong); color: var(--text-mute); white-space: nowrap; }
 .bo__logo b { color: var(--text); font-weight: 800; }
 
-.bo__who { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
-
 /* 표는 넓을수록 좋지만 끝이 없으면 눈이 행을 놓친다. 1120 은
    여섯 칸이 안 눌리면서 한 행을 눈으로 따라갈 수 있는 폭이다 */
 .bo__body { max-width: 1120px; margin-inline: auto; padding: 24px; }
@@ -2261,6 +2259,133 @@
 .bo__when { font-variant-numeric: tabular-nums; }
 .bo__actcol { text-align: right; white-space: nowrap; }
 .bo__acts { display: inline-flex; gap: 6px; }
+
+/* ── 백오피스 탭 ───────────────────────────────────────────
+   할 일이 신고 하나일 때는 탭이 없었다. 셋이 되면서 되살렸다.
+
+   상단 바에 넣지 않고 그 아래 한 줄을 따로 쓴다. 바에 몰면 로고와
+   누구로 들어와 있는지와 탭이 한 줄에서 자리를 다투고, 탭이 늘 때마다
+   로고가 밀린다.
+
+   명세 번호를 같이 적는 것은 이 화면이 팀 확인용이기 때문이다. 어느
+   탭이 어느 요구사항인지 눈으로 대조할 수 있어야 한다 */
+.bo__tabs {
+  position: sticky;
+  top: 56px;
+  z-index: 19;
+  display: flex;
+  gap: 2px;
+  padding: 0 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.bo__tab {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: var(--t-strong);
+  font-weight: 600;
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__tab[aria-pressed='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  font-weight: 800;
+}
+.bo__tspec { font-size: var(--t-small); font-weight: 500; color: var(--text-mute); }
+
+/* 탭을 열었을 때 그 목록이 무엇인지 한 줄. 표만 있으면 「기록」 이
+   무엇을 남기는 목록인지 운영자가 짐작해야 한다 */
+.bo__lead {
+  max-width: 78ch;
+  margin: -6px 0 14px;
+  font-size: var(--t-sub);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.bo__lead b { font-weight: 700; color: var(--text); }
+
+/* 누구로 들어와 있나. 인증이 붙으면 버튼을 지우고 이름만 남는다 */
+.bo__who {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.bo__who button {
+  padding: 5px 10px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__who button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+/* 처리 결과. 「처리됨」 만 있으면 무엇으로 처리했는지가 안 남아
+   나중에 같은 신고를 다시 볼 때 판단 근거가 없다 (AD-03) */
+.bo__result { font-size: var(--t-small); color: var(--text-mute); align-self: center; }
+
+/* 비밀 댓글 본문.
+   열기 전에는 버튼만 있다. 여는 것이 기록에 남는 행위라 표에 미리
+   깔아두면 훑기만 해도 열람한 것이 된다 (AD-05) */
+.bo__peek { display: block; margin-top: 4px; }
+.bo__peek button {
+  padding: 3px 9px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.bo__peeked {
+  display: block;
+  padding: 7px 10px;
+  border-left: 2px solid var(--warn);
+  background: var(--warn-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+/* ── 403 ───────────────────────────────────────────────────
+   목록도 숫자도 안 보여준다. 「신고 3건」 같은 것만 보여줘도 그건
+   이미 정보다 */
+.bo__deny {
+  max-width: 46ch;
+  margin: 64px auto;
+  padding: 32px 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.bo__dcode {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+}
+.bo__dtitle { margin-top: 4px; font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.bo__dbody { margin-top: 10px; font-size: var(--t-sub); line-height: 1.7; color: var(--text-dim); }
 
 /* 수위를 고르면 무슨 일이 일어나는지 한 줄. 「글쓰기 제한」 이라는
    말만으로는 읽기가 열려 있다는 것도, 답이 오면 풀린다는 것도 안 보인다 */

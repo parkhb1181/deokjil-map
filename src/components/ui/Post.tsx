@@ -7,8 +7,8 @@
  */
 import type { ReactNode } from 'react'
 import { Avatar, Badge, type PostState } from './Basics'
-import type { ClosedReason } from '@/types'
-import { isClosed } from '@/types'
+import type { ClosedReason, CommentState } from '@/types'
+import { isClosed, isPlaceholder } from '@/types'
 import { swatchOf } from '@/lib/visual'
 
 /* ── 모집글 카드 ──────────────────────────────────────── */
@@ -126,8 +126,15 @@ export type CommentProps = {
   /** 대댓글. 깊이는 1단계로 고정이라 이 아래로는 없다 */
   reply?: boolean
   secret?: boolean
-  /** 삭제된 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
-  gone?: boolean
+  /**
+   * 자리표시자로 바뀐 댓글. 아래 대댓글이 고아가 되지 않게 자리는 남는다.
+   *
+   * `gone` 불리언이었는데 축을 받는다. 본인이 지운 것과 운영자가
+   * 가린 것은 자리에 적히는 문장이 달라야 한다 (AD-07). 「삭제된
+   * 댓글입니다」 로 뭉뚱그리면 신고로 가려진 것을 본인이 지운 것으로
+   * 읽게 되고, 읽는 쪽이 그 사람을 오해한다.
+   */
+  state?: CommentState
   /** 방장 표시. 비밀 댓글을 볼 수 있는 사람이라 눈에 띄어야 한다 */
   host?: boolean
   /** 프로필 사진. 없으면 닉네임 첫 글자에 색을 깐다 */
@@ -153,7 +160,7 @@ export function Comment({
   text,
   reply,
   secret,
-  gone,
+  state = 'ACTIVE',
   host,
   src,
   acts,
@@ -161,13 +168,22 @@ export function Comment({
   edited,
   onAuthor,
 }: CommentProps) {
-  const cls = ['cmt', reply && 'cmt--reply', gone && 'cmt--gone'].filter(Boolean).join(' ')
+  const placeholder = isPlaceholder(state)
+  const cls = ['cmt', reply && 'cmt--reply', placeholder && 'cmt--gone'].filter(Boolean).join(' ')
 
-  if (gone) {
+  if (placeholder) {
     return (
       <div className={cls}>
         <div className="cmt__main">
-          <p className="cmt__text">삭제된 댓글입니다</p>
+          {/* 누가 무엇을 했는지 그대로 적는다. 블라인드에 「삭제」 라고
+              쓰면 본인이 지운 것처럼 보이고, 삭제에 「신고」 라고 쓰면
+              신고받은 적 없는 사람이 신고받은 것이 된다.
+
+              가린 사유는 적지 않는다. 신고 내용이 그 자리에 남으면
+              신고가 곧 공개 낙인이 되고, 누가 신고했는지도 짐작된다 */}
+          <p className="cmt__text">
+            {state === 'BLINDED' ? '신고로 가려진 댓글입니다' : '삭제된 댓글입니다'}
+          </p>
         </div>
       </div>
     )

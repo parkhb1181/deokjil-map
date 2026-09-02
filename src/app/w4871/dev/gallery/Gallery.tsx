@@ -232,7 +232,8 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
               acts={<button>삭제</button>}
             />
             <Comment name="다른사람" time="3분 전" secret />
-            <Comment name="지운사람" time="1분 전" gone />
+            <Comment name="지운사람" time="1분 전" state="DELETED" />
+            <Comment name="가려진사람" time="2분 전" state="BLINDED" />
           </div>
           <p className="g-hint">
             넷째가 권한 없는 사람이 보는 모습이다. 서버가 본문 필드를 빼고 보낸다.

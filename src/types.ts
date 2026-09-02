@@ -248,9 +248,35 @@ export interface PostComment {
    */
   body?: string | null
   secret: boolean
-  /** 지운 댓글. 아래 대댓글이 고아가 되지 않게 자리만 남긴다 */
-  deleted: boolean
+  /**
+   * 댓글 상태 (AD-07).
+   *
+   * `deleted: boolean` 이었는데 축으로 바꿨다. 블라인드가 들어오면서
+   * 상태가 셋이 됐기 때문이다. 불리언 둘로 두면 (지워졌고 동시에
+   * 블라인드됨) 이라는 없는 상태가 표현 가능해지고, 화면이 그때
+   * 무엇을 그릴지 아무도 정하지 않는다.
+   *
+   * 셋 다 아래 대댓글이 고아가 되지 않게 자리는 남긴다. 다른 것은
+   * 자리에 적히는 문장뿐이다. 지운 것과 가려진 것은 한 일도 다르고
+   * 한 사람도 다르다. 본인이 지운 것을 「신고로 가려졌다」 고 적으면
+   * 읽는 쪽이 그 사람을 오해한다.
+   */
+  state: CommentState
   createdAt: string
+}
+
+/**
+ * 댓글 상태.
+ *
+ *   ACTIVE   보통
+ *   BLINDED  신고 처리 결과로 운영자가 가렸다. 본문을 서버가 빼고 보낸다
+ *   DELETED  본인이 지웠다
+ */
+export type CommentState = 'ACTIVE' | 'BLINDED' | 'DELETED'
+
+/** 자리표시자로 바뀐 댓글. 본문 자리에 문장 하나만 남는다 */
+export function isPlaceholder(state: CommentState): boolean {
+  return state !== 'ACTIVE'
 }
 
 /**
@@ -328,4 +354,44 @@ export interface Viewer {
   userId: string | null
   /** 제재. 없으면 NONE 으로 본다 */
   sanction?: Sanction | null
+}
+
+/* ── 감사 로그 (AD-05) ─────────────────────────────────────
+   운영자가 한 일을 남기는 기록. **덧붙이기만 한다.**
+
+   왜 필요한가. 이 서비스에서 운영자가 할 수 있는 일 중 둘이 특히
+   무겁다. 남의 계정을 정지·파기하는 것과 **비밀 댓글을 열어보는
+   것**이다. 채팅이 없어 비밀 댓글이 연락처가 오가는 유일한 통로라,
+   그걸 열람하는 것은 남의 연락처를 보는 일이다.
+
+   개인정보 처리방침 제8조에 「열람 사실은 수정·삭제할 수 없는
+   기록으로 남습니다」 라고 이미 공개했다. 그 약속을 지키는 자리다.
+
+   고치거나 지우는 함수를 두지 않는다. 있으면 언젠가 쓴다. */
+
+export type AuditKind =
+  /** 제재를 주었다 */
+  | 'SANCTION'
+  /** 제재를 풀었다 */
+  | 'RELEASE'
+  /** 신고를 처리했다 */
+  | 'REPORT'
+  /** 댓글을 가렸다 */
+  | 'BLIND'
+  /** 비밀 댓글 본문을 열어봤다 */
+  | 'SECRET_READ'
+  /** 계정을 파기했다 */
+  | 'PURGE'
+
+export interface AuditEntry {
+  id: string
+  /** 'YYYY-MM-DDTHH:mm' */
+  at: string
+  /** 한 사람. 인증이 붙으면 서버가 세션에서 채운다 (AD-06) */
+  actor: string
+  kind: AuditKind
+  /** 무엇에 대해 한 일인지. 닉네임이거나 댓글 요약 */
+  target: string
+  /** 남길 말. 수위·사유·처리 결과 */
+  detail: string
 }
