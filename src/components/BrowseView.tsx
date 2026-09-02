@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import type { EventItem, EventKind } from '@/types'
 import {
   DISTRICT_LABELS,
@@ -9,8 +9,10 @@ import {
   filterEvents,
   rangeLabel,
   shiftDate,
-  sortByDeadline,
+  SORT_LABELS,
+  sortByKey,
   type DateRange,
+  type SortKey,
   type DistrictFilter,
   type FilterState,
   type KindFilter,
@@ -115,9 +117,14 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
     [events, filter, today, maxDate],
   )
 
+  /* 정렬은 필터가 아니라 보기 방식이라 FilterState 에 넣지 않았다.
+     주소로 공유되지도 않고 지도와 공유할 값도 아니다 */
+  const [sort, setSort] = useState<SortKey>('deadline')
+  const [sortOpen, setSortOpen] = useState(false)
+
   const visible = useMemo(
-    () => sortByDeadline(filterEvents(events, { ...filter, date: 'all' }, today), today),
-    [events, filter, today],
+    () => sortByKey(filterEvents(events, { ...filter, date: 'all' }, today), sort, today),
+    [events, filter, today, sort],
   )
 
   return (
@@ -179,10 +186,60 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
         ]}
       />
 
+      {/* 정렬 축을 누를 수 있게 했다. 「마감 임박 순」 이 글자로만 있어서
+          바꿀 수 있는 값인지 알 수 없었다. 시트는 필터와 같은 것을 쓴다.
+          같은 종류의 선택인데 여는 방식이 다르면 두 번 배워야 한다 */}
       <p className="count">
         {visible.length}곳
-        <span className="count__sort">마감 임박 순</span>
+        <button
+          type="button"
+          className="count__sort"
+          onClick={() => setSortOpen(true)}
+          aria-haspopup="dialog"
+        >
+          {SORT_LABELS[sort]}
+          <svg viewBox="0 0 12 12" aria-hidden focusable="false">
+            <path
+              d="M3 4.5L6 7.5L9 4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </p>
+
+      {sortOpen && (
+        <div className="fsheet" onClick={() => setSortOpen(false)}>
+          <div className="fsheet__panel" onClick={(e) => e.stopPropagation()}>
+            <div className="fsheet__head">
+              <h2>어떤 순서로</h2>
+              <button type="button" onClick={() => setSortOpen(false)} aria-label="닫기">
+                ✕
+              </button>
+            </div>
+            <ul className="fsheet__list">
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+                <li key={k}>
+                  <button
+                    type="button"
+                    className={`fsheet__item${sort === k ? ' fsheet__item--on' : ''}`}
+                    aria-pressed={sort === k}
+                    onClick={() => {
+                      setSort(k)
+                      setSortOpen(false)
+                    }}
+                  >
+                    <span>{SORT_LABELS[k]}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       {visible.length === 0 ? (
         <p className="placeholder">

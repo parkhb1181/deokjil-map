@@ -14,13 +14,15 @@
  * **와이어프레임 빌드에서만 켠다.** 실서비스 화면은 지금 헤더를 그대로
  * 쓴다. 팀이 먼저 보고 판단한 뒤에 옮긴다 (lib/wireframe.ts).
  *
+ * 동행 입구는 하단 탭으로 옮겼다. 이 줄은 브랜드와 검색만 맡는다.
+ *
  * 목록과 지도가 검색칸을 각자 갖고 있어서 이 줄도 양쪽에서 쓴다.
  * 즐겨찾기 탭에는 검색칸이 없어 이 줄도 없다. 거기는 하단 탭으로만
  * 들어오는 화면이라 브랜드를 다시 보여줄 자리가 아니다.
  */
 import type { ReactNode } from 'react'
 import Logo from './Logo'
-import { IS_WIREFRAME, wf } from '@/lib/wireframe'
+import { IS_WIREFRAME } from '@/lib/wireframe'
 
 export function BrandLine({ children }: { children: ReactNode }) {
   return (
@@ -29,27 +31,11 @@ export function BrandLine({ children }: { children: ReactNode }) {
         <Logo />
       </h1>
 
-      {/* 검색칸이 남는 자리를 다 가져간다 */}
+      {/* 검색칸이 남는 자리를 다 가져간다.
+
+          동행 입구는 하단 탭으로 옮겼다. 여기 두었더니 이 줄 하나가
+          브랜드·검색·이동 세 가지를 하게 돼서, 정작 검색칸이 좁아졌다 */}
       {children}
-
-      {/* 동행으로 나가는 입구. 헤더에 있던 것을 그대로 옮겼다.
-          여기 말고는 지도 앱에서 모집글로 가는 길이 없다.
-
-          하단 탭에 넣지 않은 것은 그 셋이 같은 데이터(행사)를 다르게
-          보는 것이라, 성격이 다른 동행을 끼우면 넷 다 무슨 묶음인지
-          흐려지기 때문이다. */}
-      <a className="brandline__go" href={wf('/p')} aria-label="동행 모집글">
-        <svg viewBox="0 0 24 24" aria-hidden focusable="false">
-          <path
-            d="M4 6.5h16M4 12h16M4 17.5h10"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-          />
-        </svg>
-        <span>동행</span>
-      </a>
     </div>
   )
 }
