@@ -9,6 +9,7 @@
     "start": "next start -p 3000",
     "typecheck": "tsc --noEmit",
     "predev": "node scripts/check-port.mjs",
+    "prepare": "git config core.hooksPath .githooks || exit 0",
     "dev:lan": "next dev -p 3000 -H 0.0.0.0",
     "prebuild": "node scripts/og-shots.mjs",
     "indexnow": "node scripts/indexnow.mjs"

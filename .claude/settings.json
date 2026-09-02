@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Edit(/.githooks/**)",
+      "Edit(/.github/scripts/**)",
+      "Edit(/.github/workflows/jira-*.yml)",
+      "Edit(/.github/PULL_REQUEST_TEMPLATE.md)"
+    ],
+    "ask": [
+      "Edit(/src/data/events.json)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/guard-shared.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}
