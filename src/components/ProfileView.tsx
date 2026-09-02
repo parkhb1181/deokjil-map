@@ -28,7 +28,7 @@ import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { isClosed, type ClosedReason, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, type ClosedReason, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 
 export type ProfilePost = {
@@ -116,6 +116,14 @@ const SANCTIONS: Record<string, Sanction | null> = {
     reason: '모집글에 같은 내용을 반복해서 올렸습니다.',
     issuedAt: '2026-08-30T14:00',
   },
+  /* 나이 확인. 사유가 본인에게 그대로 보이므로 「신고가 들어왔다」 가
+     아니라 무엇을 확인하려는지를 적는다. 신고가 들어온 사실을 그대로
+     옮기면 누가 신고했는지 짐작하게 되고, 그러면 보복이 온다 */
+  '나이 확인': {
+    kind: 'AGE_HOLD',
+    reason: '가입할 때 적으신 출생연도가 맞는지 확인하려고 합니다.',
+    issuedAt: '2026-09-01T18:20',
+  },
   '7일 정지': {
     kind: 'SUSPENDED',
     reason: '약속한 날에 연락 없이 나타나지 않았다는 신고가 세 건 접수되었습니다.',
@@ -163,8 +171,15 @@ export default function ProfileView({
   )
 
   /* 정지·영구는 화면을 통째로 차지한다 (AD-04). 목록을 보여주고
-     쓰기만 막으면 "왜 안 써지지" 를 알 방법이 없다 */
-  const blocked = Boolean(sanction && sanction.kind !== 'WARNED')
+     쓰기만 막으면 "왜 안 써지지" 를 알 방법이 없다.
+
+     나이 확인은 여기 안 들어간다. 처리방침 제10조가 읽는 것은 막지
+     않는다고 약속했다. 그래서 kind 를 직접 비교하지 않고 isBlocked 를
+     쓴다. 「경고가 아니면 막는다」 로 두면 상태가 하나 늘 때마다
+     읽기까지 막히는 쪽으로 조용히 넘어간다 */
+  const blocked = isBlocked(sanction)
+  /** 쓰기만 막힌 상태. 마이메뉴의 글쓰기를 여기서 막는다 */
+  const noWrite = !canWrite(sanction)
 
   return (
     <PageShell
@@ -284,10 +299,20 @@ export default function ProfileView({
           {/* 마이페이지에서 찾게 되는 것들. 여기 없으면 어디에도 없다 */}
           {mine && (
             <nav className="mymenu">
-              <Link className="mymenu__row" href={wf('/p/new')}>
-                <span>모집글 쓰기</span>
-                <Caret />
-              </Link>
+              {/* 쓰기가 막혀 있으면 들어갈 수 있는 링크로 두지 않는다.
+                  눌러서 쓰기 화면까지 갔다가 거기서 막히면, 채운 것을
+                  잃고 돌아온다. 막힌 것을 여기서 미리 말한다 */}
+              {noWrite ? (
+                <button type="button" className="mymenu__row" disabled>
+                  <span>모집글 쓰기</span>
+                  <span className="mymenu__note">나이 확인 중</span>
+                </button>
+              ) : (
+                <Link className="mymenu__row" href={wf('/p/new')}>
+                  <span>모집글 쓰기</span>
+                  <Caret />
+                </Link>
+              )}
               {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
                   헤매므로 준비 중이라고 적어 둔다 */}
               <button type="button" className="mymenu__row" disabled>

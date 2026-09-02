@@ -91,7 +91,7 @@ const GROUPS: Group[] = [
         name: '모집글 상세',
         shot: 'post',
         spec: 'PO-03 · CM',
-        desc: '댓글과 비밀 댓글이 여기 다 있습니다. 기준 잡은 화면',
+        desc: '댓글과 비밀 댓글이 여기 다 있습니다. 「보는 사람」 에 나이 확인 중이 있어요',
         data: '목데이터',
       },
       {
@@ -120,7 +120,7 @@ const GROUPS: Group[] = [
         name: '가입 정보 입력',
         shot: 'welcome',
         spec: 'AU-02',
-        desc: '닉네임이랑 출생연도',
+        desc: '닉네임이랑 출생연도. 2011년생보다 늦으면 왜 막히는지 뜹니다',
         data: '빈 화면',
       },
       {
@@ -138,7 +138,7 @@ const GROUPS: Group[] = [
         name: '프로필',
         shot: 'profile',
         spec: 'AU-09 · AU-10',
-        desc: '내 것도 남의 것도 같은 화면',
+        desc: '내 것도 남의 것도 같은 화면. 「제재」 를 넘기면 나이 확인·정지가 보입니다',
         data: '목데이터',
       },
     ],
@@ -151,7 +151,7 @@ const GROUPS: Group[] = [
         name: '백오피스',
         shot: 'admin',
         spec: 'AD',
-        desc: '신고 처리랑 제재. 여기만 PC 화면입니다. 주소 뒤에 숫자를 붙여놨습니다',
+        desc: '신고 처리랑 제재. 나이 확인 요청과 계정 삭제가 여기 있습니다. 여기만 PC 화면이에요',
         data: '목데이터',
       },
       {

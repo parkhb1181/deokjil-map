@@ -123,7 +123,24 @@ export function Avatar({ name, src, lg }: { name: string; src?: string; lg?: boo
   )
 }
 
-export function Who({ name, sub, src }: { name: string; sub?: string; src?: string }) {
+export function Who({ name, sub, src, onPress }: {
+  name: string
+  sub?: string
+  src?: string
+  /** 누르면 사람 시트를 연다. 없으면 그냥 글자다 */
+  onPress?: () => void
+}) {
+  if (onPress) {
+    return (
+      <button type="button" className="who who--press" onClick={onPress}>
+        <Avatar name={name} src={src} />
+        <span>
+          <span className="who__name">{name}</span>
+          {sub && <span className="who__sub"> · {sub}</span>}
+        </span>
+      </button>
+    )
+  }
   return (
     <span className="who">
       <Avatar name={name} src={src} />

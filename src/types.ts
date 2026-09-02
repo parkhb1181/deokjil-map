@@ -262,17 +262,48 @@ export interface PostComment {
 export type ViewerRole = 'guest' | 'member' | 'host'
 
 /**
- * 제재. 도메인 문서 6장의 [제재] 축이다.
+ * 계정에 걸린 제한. 도메인 문서 6장의 [제재] 축이다.
  *
  *   NONE       아무것도 없다
  *   WARNED     경고. **막지 않는다.** 다음에 같은 일이 있으면 정지된다는 예고다
+ *   AGE_HOLD   나이 확인 대기. 쓰기만 막고 읽기는 열어둔다
  *   SUSPENDED  기간 정지. until 까지 쓰기가 막힌다
  *   BANNED     영구 정지
  *
  * 가입 축(PENDING_SIGNUP_INFO · ACTIVE · WITHDRAWN)과 독립이다.
  * 가입을 마친 사람도 정지될 수 있고, 정지된 사람도 계정은 살아 있다.
+ *
+ * **AGE_HOLD 는 벌이 아니다.** 만 14세 미만이라는 구체적인 신고가 들어와
+ * 본인에게 확인을 요청했는데 답이 없을 때 거는 상태다 (처리방침 제10조).
+ * 답이 오면 풀고, 끝까지 없으면 계정을 파기한다.
+ *
+ * 이걸 같은 축에 둔 이유는 하나다. **"지금 쓸 수 있나" 를 묻는 자리가
+ * 여러 곳이라 판정이 한 필드에서 나와야 한다.** 나이 확인만 따로 필드를
+ * 두면 게이트마다 두 가지를 다 봐야 하고, 언젠가 한쪽을 빠뜨린다.
+ * 다만 사용자에게 「제재」 라고 말하지 않는다. 문구가 다르다.
  */
-export type SanctionKind = 'NONE' | 'WARNED' | 'SUSPENDED' | 'BANNED'
+export type SanctionKind = 'NONE' | 'WARNED' | 'AGE_HOLD' | 'SUSPENDED' | 'BANNED'
+
+/**
+ * 지금 글·댓글을 쓸 수 있는가.
+ *
+ * 게이트가 모집글 목록의 글쓰기, 모집글 상세의 댓글칸, 프로필의 마이메뉴
+ * 이렇게 흩어져 있다. 각자 kind 를 비교하면 새 상태가 생길 때마다 세 군데를
+ * 고쳐야 하고, 한 곳을 놓치면 막아야 할 사람이 그 길로 쓴다.
+ *
+ * 경고는 통과시킨다. 막을 거면 정지를 주면 된다.
+ *
+ * **화면 판정일 뿐이다.** 실제로 막는 것은 서버다. 화면에서만 막으면
+ * API 를 직접 부르면 그만이다 (AU-07 과 같은 이유).
+ */
+export function canWrite(s?: Sanction | null): boolean {
+  return !s || s.kind === 'NONE' || s.kind === 'WARNED'
+}
+
+/** 읽는 것까지 막히는가. 정지·영구만 화면을 통째로 가린다 (AD-04) */
+export function isBlocked(s?: Sanction | null): boolean {
+  return !!s && (s.kind === 'SUSPENDED' || s.kind === 'BANNED')
+}
 
 /**
  * 본인에게 보여주는 제재 내용.

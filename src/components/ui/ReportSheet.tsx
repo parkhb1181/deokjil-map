@@ -20,11 +20,25 @@ import { Field, TextArea, Select } from './Field'
 
 export type ReportTarget = 'user' | 'post' | 'comment'
 
+/**
+ * 나이 신고 사유.
+ *
+ * 「만 14세 미만으로 보입니다」 라고 적으려다 말았다. **신고하는 사람은
+ * 남의 나이를 판정할 수 없다.** 판정을 시키면 어려 보인다는 인상만으로
+ * 신고가 쌓이고, 우리는 그걸로 아무것도 못 한다.
+ *
+ * 그래서 본 것만 적게 한다. 「속인 것 같다」 는 판정이 아니라 인상이고,
+ * 인상만으로는 조치하지 않는다는 것을 아래 note 에서 그대로 말한다.
+ * 처리방침 제10조가 「근거가 추측뿐인 경우 아무 조치도 하지 않는다」 고
+ * 못박아 둔 것과 같은 규칙이다.
+ */
+const AGE_REASON = '나이를 속인 것 같아요'
+
 /* 공통 사유를 앞에 두고 대상별 사유를 뒤에 붙인다. 순서가 화면마다
    달라지면 습관으로 누르던 자리가 바뀐다 */
 const COMMON = ['광고 · 홍보', '부적절한 내용', '욕설 · 비방']
 const EXTRA: Record<ReportTarget, string[]> = {
-  user: ['약속을 지키지 않음', '사칭'],
+  user: ['약속을 지키지 않음', '사칭', AGE_REASON],
   post: ['허위 정보', '동행과 무관한 글'],
   comment: ['허위 정보'],
 }
@@ -48,9 +62,15 @@ export function ReportSheet({ target, name, onClose }: {
   const title = target === 'user' && name ? `${name} ${TITLE.user}` : TITLE[target]
   const reasons = [...COMMON, ...EXTRA[target]]
 
+  /* 나이 신고만 자세히 칸이 필수다. 다른 사유는 신고된 글·댓글이
+     그 자체로 증거지만, 나이는 화면에 남는 것이 없어 신고자가 무엇을
+     보았는지 적지 않으면 판단할 재료가 하나도 없다 */
+  const ageCase = reason === AGE_REASON
+  const needDetail = ageCase && !detail.trim()
+
   const submit = () => {
     setTried(true)
-    if (!reason) return
+    if (!reason || needDetail) return
     /* API 가 붙으면 여기서 POST 한다. 같은 대상을 두 번 신고하면
        서버가 막는다 (SF-01) */
     onClose()
@@ -78,12 +98,21 @@ export function ReportSheet({ target, name, onClose }: {
 
       <Field
         label="자세히"
-        optional
-        hint="적어주시면 처리가 빨라져요"
+        optional={!ageCase}
+        error={tried && needDetail ? '무엇을 보고 그렇게 생각했는지 적어주세요' : undefined}
+        hint={
+          ageCase
+            ? '본인이 밝힌 말이나 글이 있으면 어디서 봤는지 적어주세요. 어려 보인다는 인상만으로는 조치하지 않습니다'
+            : '적어주시면 처리가 빨라져요'
+        }
         count={[detail.length, 300]}
       >
         <TextArea
-          placeholder="어떤 점이 문제였는지 적어주세요"
+          placeholder={
+            ageCase
+              ? '어느 글·댓글에서 무엇을 보았는지 적어주세요'
+              : '어떤 점이 문제였는지 적어주세요'
+          }
           value={detail}
           onChange={(e) => setDetail(e.target.value)}
           rows={3}

@@ -445,6 +445,95 @@
 /* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
 .cmt__hidden { font-size: var(--t-sub); color: var(--text-mute); font-style: italic; }
 
+/* 아바타와 이름을 누르면 사람 시트가 뜬다. 버튼이지만 버튼처럼
+   보이면 안 된다. 댓글 줄에 버튼이 하나 더 생긴 것처럼 읽힌다 */
+/* align-self 를 주지 않으면 버튼이 줄 높이만큼 늘어나고 그 안에서
+   아바타가 가운데로 내려간다. 감싸기 전에는 아바타가 고정 높이라
+   저절로 위에 붙어 있었다 */
+.cmt__avatar {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+.cmt__namebtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.cmt__namebtn:active { text-decoration: underline; }
+
+/* 글쓴이 줄도 같다 */
+.who--press {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.who--press:active .who__name { text-decoration: underline; }
+
+/* 본문 아래의 「이 글 신고」. 카운터 줄 오른쪽 끝으로 민다.
+   댓글 수와 나란히 두면 같은 종류로 읽히므로 색을 빼고 밑줄만 준다 */
+.post__report {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.post__report:active { color: var(--accent-ink); }
+
+/* ── 사람 시트 ──────────────────────────────────────────
+   아바타를 누르면 뜬다. 프로필로 바로 보내지 않는 이유는
+   components/ui/PersonSheet.tsx 머리에 적어 두었다.
+   ------------------------------------------------------- */
+.psheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(36, 26, 31, .38);
+}
+.psheet__panel {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px 18px 0 0;
+  background: var(--surface);
+  padding: 24px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+}
+
+.psheet__who { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.psheet__name { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.psheet__meta { justify-content: center; }
+
+/* 둘이 같은 폭이다. 상세보기가 왼쪽인 이유는 대부분 궁금해서 누르기
+   때문이다. 신고를 크게 두면 누를 때마다 고발하는 화면이 된다 */
+.psheet__acts { margin-top: 18px; display: flex; gap: 8px; }
+.psheet__acts > * { flex: 1; }
+.psheet__go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 /* ── 댓글 수정 (CM-09) ───────────────────────────────────
    고치는 것은 그 자리에서 일어난다. 맨 아래 입력칸을 빌려 쓰면
    새 댓글을 쓰는 것과 구분이 안 된다.
@@ -827,6 +916,26 @@
   font-size: 14px;
   color: var(--text-dim);
 }
+
+/* 나이 확인으로 막힌 자리.
+   비회원 게이트와 한 줄 차이다. "언제 풀리나" 를 덧붙여야 해서
+   왼쪽이 두 줄이 된다. 그러면 가운데 정렬이 어긋나 보여 위로 붙인다.
+   색은 사안 배너(.sanc--hold)와 맞춘다. 같은 상태를 두 자리에서
+   다른 색으로 말하면 다른 일로 읽힌다 */
+.write__gate--hold {
+  align-items: flex-start;
+  border-color: rgba(217, 119, 6, .24);
+  background: var(--warn-soft);
+}
+.write__gate--hold p { min-width: 0; }
+.write__gate--hold p span {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--t-small);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.write__gate--hold .btn { flex: 0 0 auto; }
 
 /* 답글을 다는 중이라는 표시.
 
@@ -2153,6 +2262,41 @@
 .bo__actcol { text-align: right; white-space: nowrap; }
 .bo__acts { display: inline-flex; gap: 6px; }
 
+/* 수위를 고르면 무슨 일이 일어나는지 한 줄. 「글쓰기 제한」 이라는
+   말만으로는 읽기가 열려 있다는 것도, 답이 오면 풀린다는 것도 안 보인다 */
+.bo__hint {
+  margin-top: -4px;
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
+/* 계정 파기 칸.
+   되돌릴 수 없는 것은 되돌릴 수 있는 것과 같은 얼굴이면 안 된다.
+   위험한 것이라 빨강을 쓰는 게 아니라, 운영자가 손을 멈추게 하려고 쓴다 */
+.bo__danger {
+  padding: 12px 14px;
+  border: 1px solid rgba(200, 30, 30, .24);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  font-size: var(--t-sub);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.bo__dhead {
+  margin-bottom: 4px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--danger);
+}
+.bo__danger .chk { margin-top: 10px; }
+.bo__dnote {
+  margin-top: 8px;
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
 /* ── 모집글 검색 ─────────────────────────────────────────
    행사 고르기(.epick__search)와 같은 모양을 쓴다. 같은 일을 하는
    칸이 화면마다 다르게 생기면 어느 쪽이 검색인지 매번 다시 알아봐야
@@ -2580,6 +2724,51 @@
   text-decoration: none;
 }
 .sanc__link svg { width: 12px; height: 12px; }
+
+/* 나이 확인 요청.
+   같은 뼈대를 쓰되 색만 빨강에서 주황으로 내린다. 벌이 아니라 물음이라
+   경고와 같은 빨강을 쓰면 받는 쪽이 처벌로 읽는다. 반대로 회색으로
+   두면 그냥 안내문이 되어 답을 안 준다. 그 사이가 주황이다 */
+.sanc--hold { border-color: rgba(217, 119, 6, .24); background: var(--warn-soft); }
+.sanc--hold .sanc__icon,
+.sanc--hold .sanc__head,
+.sanc--hold .sanc__link { color: var(--warn); }
+
+/* ── 가입 나이 안내 ───────────────────────────────────────
+   출생연도가 하한에 못 미칠 때 가입 화면에 펴는 칸.
+
+   오류 한 줄(fld__msg)로 끝내지 않는 이유는, 그 줄이 「고쳐 쓰라」 는
+   뜻으로 읽히기 때문이다. 여기서는 고쳐 쓰면 안 된다. 근거와 나가는
+   길을 같이 줘야 잘못 막힌 사람이 연락할 수 있다.
+
+   빨강을 쓰지 않는다. 이 사람은 잘못한 것이 없다 */
+.agebar {
+  margin: 4px 0 0;
+  padding: 14px 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.agebar__head {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+.agebar__body {
+  margin-top: 7px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.agebar__link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* 정지 안내. 화면을 통째로 차지한다 (AD-04) */
 .sblock { padding: 48px var(--gutter) 40px; text-align: center; }

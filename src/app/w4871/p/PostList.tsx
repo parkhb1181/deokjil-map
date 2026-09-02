@@ -59,6 +59,11 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
+  /* 쓰기 상태. VIEWS 에 넣지 않은 이유는 그것이 목록 자체의 상태라
+     거기에 섞으면 「나이 확인 중」 을 고르는 순간 목록이 사라지기
+     때문이다. 여기서 막는 것은 글쓰기 하나뿐이고 목록은 그대로다.
+     인증이 붙으면 이 상태와 아래 막대를 지운다 */
+  const [hold, setHold] = useState(false)
 
   /**
    * 상태 탭 + 검색.
@@ -90,6 +95,14 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
             {v}
           </button>
         ))}
+      </div>
+
+      {/* 나이 확인 중인 사람에게 글쓰기가 어떻게 막히는지 확인한다.
+          목록은 그대로 읽힌다 (처리방침 제10조) */}
+      <div className="whoami">
+        <b>쓰기</b>
+        <button aria-pressed={!hold} onClick={() => setHold(false)}>가능</button>
+        <button aria-pressed={hold} onClick={() => setHold(true)}>나이 확인 중</button>
       </div>
 
       <div className="plist">
@@ -205,17 +218,35 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
         글쓰기
       </button>
 
+      {/* 막힌 사유에 따라 시트가 갈린다. 로그인하라는 말과 나이 확인
+          중이라는 말은 사용자가 할 일이 정반대다. 하나로 뭉뚱그리면
+          이미 로그인한 사람에게 또 로그인하라고 하게 된다 */}
       {ask && (
-        <Sheet
-          title="로그인이 필요해요"
-          desc="모집글을 쓰려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(false)}>나중에</Button>
-              <Button tone="kakao" onClick={() => setAsk(false)}>카카오로 시작하기</Button>
-            </>
-          }
-        />
+        hold ? (
+          <Sheet
+            title="나이 확인 중이에요"
+            desc="확인이 끝날 때까지 글과 댓글을 쓸 수 없어요. 답을 주시면 바로 풀립니다. 읽는 것은 그대로 하실 수 있어요."
+            foot={
+              <>
+                <Button tone="ghost" onClick={() => setAsk(false)}>닫기</Button>
+                <a className="btn btn--primary" href="mailto:help@duckmoim.com">
+                  확인해주기
+                </a>
+              </>
+            }
+          />
+        ) : (
+          <Sheet
+            title="로그인이 필요해요"
+            desc="모집글을 쓰려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
+            foot={
+              <>
+                <Button tone="ghost" onClick={() => setAsk(false)}>나중에</Button>
+                <Button tone="kakao" onClick={() => setAsk(false)}>카카오로 시작하기</Button>
+              </>
+            }
+          />
+        )
       )}
     </PageShell>
   )

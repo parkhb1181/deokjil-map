@@ -135,9 +135,12 @@ export default function Welcome() {
    * 적으면 그 사람은 자기가 왜 막혔는지 알 수 없다. 연도로 말하면 어긋날
    * 일이 없다.
    */
+  /** 나이 때문에 막힌 상태. 오류 한 줄로 끝내지 않고 아래에 사유를 편다 */
+  const tooYoung = !!birth && age !== null && age < MIN_BIRTH_AGE
+
   const birthError = !birth
     ? '출생연도를 골라주세요'
-    : age !== null && age < MIN_BIRTH_AGE
+    : tooYoung
       ? `${maxYear}년생까지 가입할 수 있어요`
       : undefined
 
@@ -212,7 +215,7 @@ export default function Welcome() {
             기다리게 하면 헛수고를 시키는 셈이다 */}
         <Field
           label="출생연도"
-          error={tried || (birth && age !== null && age < MIN_BIRTH_AGE) ? birthError : undefined}
+          error={tried || tooYoung ? birthError : undefined}
           hint={
             maxYear
               ? `${maxYear}년생까지 가입할 수 있어요. 나이는 공개되지 않아요`
@@ -234,6 +237,34 @@ export default function Welcome() {
             ))}
           </Select>
         </Field>
+
+        {/* 막힌 사람에게는 오류 한 줄로 끝내지 않는다.
+            "안 됩니다" 만 있고 왜 안 되는지가 없으면 남는 선택이
+            뒤로 가서 다른 연도를 고르는 것뿐이다. 그러면 우리가 막고
+            싶었던 사람은 통과하고, 잘못 막힌 사람은 그냥 나간다.
+
+            그래서 셋을 적는다. **근거 · 한계 · 나가는 길.**
+            법이 그은 선이라는 것, 연 나이로 재느라 만 14세인데도
+            막히는 경우가 있다는 것, 그럴 때 어디로 말하면 되는지다.
+            처리방침 제9조에 적어둔 약속과 같은 내용이라 문구도 맞췄다 */}
+        {tooYoung && (
+          <div className="agebar" role="status">
+            <p className="agebar__head">만 {MIN_AGE}세부터 가입할 수 있어요</p>
+            <p className="agebar__body">
+              만 {MIN_AGE}세 미만은 법정대리인의 동의를 받고 그 동의를 확인해야
+              개인정보를 처리할 수 있는데(개인정보보호법 제22조의2) 덕모임에는
+              그 절차가 없어서 받지 못합니다.
+            </p>
+            <p className="agebar__body">
+              생일이 지났는지 알 수 없어 출생연도만으로 한 해를 올려 잡습니다.
+              그래서 이미 만 {MIN_AGE}세가 되신 분도 올해는 막힐 수 있어요.
+              그런 경우 아래로 알려주시면 확인하고 열어드립니다.
+            </p>
+            <a className="agebar__link" href="mailto:help@duckmoim.com">
+              help@duckmoim.com
+            </a>
+          </div>
+        )}
 
         <div className="form__foot">
           <Button block disabled={sending} onClick={submit}>

@@ -143,6 +143,8 @@ export type CommentProps = {
   edit?: ReactNode
   /** 고친 적 있는 댓글. 답글이 달린 뒤 말이 바뀌면 읽는 쪽이 알아야 한다 */
   edited?: boolean
+  /** 아바타·이름을 누르면 사람 시트를 연다. 지운 댓글에는 없다 */
+  onAuthor?: () => void
 }
 
 export function Comment({
@@ -157,6 +159,7 @@ export function Comment({
   acts,
   edit,
   edited,
+  onAuthor,
 }: CommentProps) {
   const cls = ['cmt', reply && 'cmt--reply', gone && 'cmt--gone'].filter(Boolean).join(' ')
 
@@ -172,10 +175,24 @@ export function Comment({
 
   return (
     <div className={cls}>
-      <Avatar name={name} src={src} />
+      {/* 아바타와 이름이 한 버튼이다. 둘을 따로 두면 이름을 누른 사람과
+          그림을 누른 사람이 다른 결과를 얻는다 */}
+      {onAuthor ? (
+        <button type="button" className="cmt__avatar" onClick={onAuthor} aria-label={`${name} 님 보기`}>
+          <Avatar name={name} src={src} />
+        </button>
+      ) : (
+        <Avatar name={name} src={src} />
+      )}
       <div className="cmt__main">
         <div className="cmt__head">
-          <span className="who__name">{name}</span>
+          {onAuthor ? (
+            <button type="button" className="cmt__namebtn who__name" onClick={onAuthor}>
+              {name}
+            </button>
+          ) : (
+            <span className="who__name">{name}</span>
+          )}
           {host && <Badge state="off">방장</Badge>}
           {secret && (
             <span className="cmt__lock">

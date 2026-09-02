@@ -15,12 +15,14 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isClosed, type CompanionPost, type PostComment, type Viewer, type ViewerRole } from '@/types'
+import { canWrite, isClosed, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { Comment, LockMark } from '@/components/ui/Post'
+import { PersonSheet } from '@/components/ui/PersonSheet'
+import { WriteGate } from '@/components/ui/SanctionNotice'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
@@ -49,11 +51,24 @@ function shortTime(iso: string) {
   return `${Number(m)}/${Number(day)} ${t}`
 }
 
-const ROLES: { key: ViewerRole; id: string | null; label: string }[] = [
+const ROLES: { key: ViewerRole; id: string | null; label: string; sanction?: Sanction }[] = [
   { key: 'guest', id: null, label: '비회원' },
   { key: 'member', id: 'u_b', label: '일반 회원' },
   { key: 'member', id: 'u_a', label: '댓글 작성자' },
   { key: 'host', id: 'u_host', label: '방장' },
+  /* 나이 확인 대기. 읽는 것은 그대로 되고 쓰는 것만 막힌다는 것을
+     여기서 확인한다. 정지·영구는 프로필 화면에서 본다. 그쪽은 화면을
+     통째로 가려서 모집글 상세까지 올 일이 없다 */
+  {
+    key: 'member',
+    id: 'u_b',
+    label: '나이 확인 중',
+    sanction: {
+      kind: 'AGE_HOLD',
+      reason: '가입할 때 적으신 출생연도가 맞는지 확인하려고 합니다.',
+      issuedAt: '2026-09-01T18:20',
+    },
+  },
 ]
 
 /**
@@ -72,6 +87,10 @@ type Ask =
   | { k: 'report' }
   | { k: 'report-comment' }
   | { k: 'delete'; id: string }
+  /* 아바타를 눌러 연 사람 시트. 누구인지 같이 들고 다녀야 시트가
+     열린 것과 보고 있는 사람이 어긋나지 않는다 */
+  | { k: 'person'; user: PostAuthor; isMe: boolean }
+  | { k: 'report-user'; name: string }
 
 /* 무엇을 하려다 막혔는지에 따라 문구가 달라진다. 신고하려다 막힌
    사람에게 댓글 얘기를 하면 자기가 누른 것이 먹힌 것인지 알 수 없다 */
@@ -90,7 +109,11 @@ export default function PostDetail({ post, comments, hostId }: {
   /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
      아래 whoami 막대를 지우고 서버 세션에서 채운다 */
   const [pick, setPick] = useState(3)
-  const viewer: Viewer = { role: ROLES[pick].key, userId: ROLES[pick].id }
+  const viewer: Viewer = {
+    role: ROLES[pick].key,
+    userId: ROLES[pick].id,
+    sanction: ROLES[pick].sanction ?? null,
+  }
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
@@ -111,6 +134,10 @@ export default function PostDetail({ post, comments, hostId }: {
 
   const isHost = viewer.userId === hostId
   const isGuest = !viewer.userId
+  /* 나이 확인 중이면 읽기는 그대로 두고 쓰기만 막는다 (처리방침 제10조).
+     kind 를 여기서 비교하지 않는 이유는 게이트가 여러 화면에 흩어져
+     있어서다. 판정은 types.ts 한 곳에서만 한다 */
+  const noWrite = !canWrite(viewer.sanction)
 
   const gate = (why: LoginWhy) => setAsk({ k: 'login', why })
 
@@ -221,6 +248,9 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <div className="post__who">
           <Who
+            onPress={() =>
+              setAsk({ k: 'person', user: post.author, isMe: post.author.id === viewer.userId })
+            }
             name={post.author.nickname}
             src={post.author.imageUrl ?? undefined}
             sub={`${post.author.doneCount ? `동행 ${post.author.doneCount}회` : '첫 동행'} · ${dateOnly(post.createdAt)}`}
@@ -255,6 +285,19 @@ export default function PostDetail({ post, comments, hostId }: {
           {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
           {post.state === 'CLOSED' && post.closedReason === 'DEADLINE' && <span>행사가 끝났어요</span>}
           {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
+
+          {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
+             「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
+             갈리지 않는다. 본문 바로 아래라야 「이 글」 임이 분명하다 */}
+          {!isHost && (
+            <button
+              type="button"
+              className="post__report"
+              onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report' }))}
+            >
+              이 글 신고
+            </button>
+          )}
         </div>
       </article>
 
@@ -285,6 +328,16 @@ export default function PostDetail({ post, comments, hostId }: {
               gone={c.deleted}
               host={c.author.id === hostId}
               edited={c.id in edited}
+              onAuthor={
+                c.deleted
+                  ? undefined
+                  : () =>
+                      setAsk({
+                        k: 'person',
+                        user: c.author,
+                        isMe: c.author.id === viewer.userId,
+                      })
+              }
               edit={
                 editing?.id === c.id ? (
                   <div className="cmt__edit">
@@ -328,17 +381,28 @@ export default function PostDetail({ post, comments, hostId }: {
                 c.deleted ? undefined : (
                   <>
                     {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
-                        그 아래가 없다 */}
-                    {!c.parentId && (
+                        그 아래가 없다.
+
+                        쓰기가 막힌 사람에게도 안 보인다. 눌러도 입력칸이
+                        안 뜨는 버튼을 남겨두면 눌린 건지 고장난 건지 모른다.
+                        막힌 사유는 아래 입력칸 자리에서 한 번 말한다 */}
+                    {!c.parentId && !noWrite && (
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
                     {c.author.id === viewer.userId ? (
                       <>
                         {/* 비밀 댓글도 본문은 고칠 수 있다. 못 바꾸는
-                            것은 비밀 여부뿐이다 (CM-09) */}
-                        <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
-                          수정
-                        </button>
+                            것은 비밀 여부뿐이다 (CM-09).
+
+                            쓰기가 막히면 고치는 것도 막힌다. 고치기는
+                            새로 쓰는 것과 같은 일이다. 대신 **삭제는
+                            남긴다.** 자기가 쓴 것을 지우는 것은 언제나
+                            할 수 있어야 한다 (처리방침 제11조) */}
+                        {!noWrite && (
+                          <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
+                            수정
+                          </button>
+                        )}
                         {/* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
                             한 번 묻는다 */}
                         <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
@@ -381,6 +445,11 @@ export default function PostDetail({ post, comments, hostId }: {
               로그인
             </Button>
           </div>
+        ) : noWrite && viewer.sanction ? (
+          /* 나이 확인 게이트. 비회원 게이트와 같은 자리다. 로그인은
+             되어 있는데 쓰기만 막힌 상태라, 로그인하라고 하면 이미
+             한 일을 또 하라는 말이 된다 */
+          <WriteGate sanction={viewer.sanction} what="댓글" />
         ) : (
           <>
             {replyTo && (
@@ -476,6 +545,23 @@ export default function PostDetail({ post, comments, hostId }: {
             </>
           }
         />
+      )}
+
+      {ask?.k === 'person' && (
+        <PersonSheet
+          user={ask.user}
+          isMe={ask.isMe}
+          onClose={() => setAsk(null)}
+          /* 시트 위에 시트를 쌓지 않는다. 사람 시트를 닫고 신고 시트를
+             연다. 겹치면 뒤엣것을 닫았을 때 앞엣것이 남는다 */
+          onReport={() =>
+            isGuest ? gate('report') : setAsk({ k: 'report-user', name: ask.user.nickname })
+          }
+        />
+      )}
+
+      {ask?.k === 'report-user' && (
+        <ReportSheet target="user" name={ask.name} onClose={() => setAsk(null)} />
       )}
 
       {ask?.k === 'report' && (

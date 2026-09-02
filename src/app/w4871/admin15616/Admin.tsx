@@ -26,7 +26,32 @@
  */
 import { useState } from 'react'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
-import { Field, Select, TextArea } from '@/components/ui/Field'
+import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
+
+/**
+ * 제재 수위.
+ *
+ * 가운데 둘이 나이 확인용이다. 처리방침 제10조를 화면으로 옮긴 것이고,
+ * **둘을 갈라둔 것이 핵심이다.**
+ *
+ *   hold    글쓰기만 막고 본인에게 확인을 요청한다. 되돌릴 수 있다
+ *   purge   계정과 글을 통째로 지운다. 되돌릴 수 없다
+ *
+ * 신고가 들어왔다고 바로 지우면 그 자체가 남을 지우는 도구가 된다.
+ * 그래서 확인 요청이 먼저고, 답이 없을 때만 파기로 간다.
+ *
+ * 파기는 제재 목록에 섞여 있지만 성격이 다르다. 벌이 아니라 「우리가
+ * 처리하면 안 되는 정보였다」 는 정리라, 아래 시트에서 따로 확인을 받는다.
+ */
+type Level = 'warn' | 'hold' | '7d' | 'forever' | 'purge'
+
+const LEVELS: { key: Level; label: string }[] = [
+  { key: 'warn', label: '경고' },
+  { key: 'hold', label: '나이 확인 요청 (글쓰기 제한)' },
+  { key: '7d', label: '7일 정지' },
+  { key: 'forever', label: '영구 정지' },
+  { key: 'purge', label: '계정 삭제 (연령 미달)' },
+]
 
 type Report = {
   id: string
@@ -61,6 +86,19 @@ const REPORTS: Report[] = [
     done: false,
   },
   {
+    /* 나이 신고. 신고자가 무엇을 보았는지 적게 되어 있어(ReportSheet)
+       여기 사유 칸에 그 문장이 그대로 온다. 어려 보인다는 인상만 온
+       신고는 「문제 없음」 으로 닫는다 (처리방침 제10조) */
+    id: 'r4',
+    target: '유저',
+    subject: '남은대댓글',
+    reason: '나이를 속인 것 같아요',
+    detail: '댓글에 "저 중1인데 엄마가 안 된대요" 라고 적혀 있어요.',
+    reporter: '조용한덕후',
+    at: '2026-09-01T20:31',
+    done: false,
+  },
+  {
     id: 'r3',
     target: '댓글',
     subject: '카톡 아이디 night_ticket 입니다',
@@ -75,6 +113,10 @@ const REPORTS: Report[] = [
 export default function Admin() {
   const [only, setOnly] = useState(true)
   const [act, setAct] = useState<Report | null>(null)
+  /* 제재 시트의 수위. 파기를 고르면 확인 한 단계가 더 붙어서
+     defaultValue 로 둘 수 없다 */
+  const [level, setLevel] = useState<Level>('warn')
+  const [sure, setSure] = useState(false)
   /* API 가 붙으면 목록을 다시 읽는다. 그때까지는 처리한 결과가
      화면에 남아야 무엇을 처리했는지 알 수 있다 */
   const [reports, setReports] = useState(REPORTS)
@@ -157,7 +199,18 @@ export default function Admin() {
                           <Button size="sm" tone="ghost" onClick={() => close(r.id)}>
                             문제 없음
                           </Button>
-                          <Button size="sm" tone="danger" onClick={() => setAct(r)}>
+                          <Button
+                            size="sm"
+                            tone="danger"
+                            onClick={() => {
+                              /* 시트를 열 때마다 처음으로 되돌린다. 앞
+                                 건에서 파기를 고르고 닫았는데 그 값이
+                                 남아 있으면 다음 사람이 그대로 지워진다 */
+                              setLevel('warn')
+                              setSure(false)
+                              setAct(r)
+                            }}
+                          >
                             제재
                           </Button>
                         </span>
@@ -180,25 +233,79 @@ export default function Admin() {
               <Button tone="ghost" onClick={() => setAct(null)}>취소</Button>
               <Button
                 tone="danger"
+                /* 파기는 확인을 받아야 눌린다. 나머지는 되돌릴 수 있어
+                   한 번에 보낸다 */
+                disabled={level === 'purge' && !sure}
                 onClick={() => {
                   close(act.id)
                   setAct(null)
                 }}
               >
-                제재하기
+                {level === 'purge' ? '계정 삭제하기' : '제재하기'}
               </Button>
             </>
           }
         >
           <Field label="수위">
-            <Select defaultValue="warn">
-              <option value="warn">경고</option>
-              <option value="7d">7일 정지</option>
-              <option value="forever">영구 정지</option>
+            <Select value={level} onChange={(e) => setLevel(e.target.value as Level)}>
+              {LEVELS.map((l) => (
+                <option key={l.key} value={l.key}>
+                  {l.label}
+                </option>
+              ))}
             </Select>
           </Field>
-          <Field label="사유" hint="본인에게 보이는 문구입니다">
-            <TextArea placeholder="어떤 규칙을 어겼는지 적어주세요" rows={3} />
+
+          {/* 나이 확인은 무엇이 일어나는지 한 줄로 알려준다. 「글쓰기
+              제한」 이라는 말만으로는 읽기가 열려 있다는 것과 답이 오면
+              풀린다는 것이 안 보인다 */}
+          {level === 'hold' && (
+            <p className="bo__hint">
+              본인에게 확인을 요청하고 글·댓글만 막습니다. 읽는 것은 막지 않습니다.
+              답을 받으면 풀고, 끝까지 없으면 그때 파기합니다.
+            </p>
+          )}
+
+          {/* 파기는 되돌릴 수 없다. 그래서 무엇이 지워지는지 먼저 적고,
+              무엇을 근거로 판단했는지를 손으로 확인받는다.
+
+              신고가 들어왔다는 사실만으로는 지우지 않는다. 그렇게 두면
+              신고가 남의 계정을 지우는 버튼이 된다 (처리방침 제10조) */}
+          {level === 'purge' && (
+            <div className="bo__danger">
+              <p className="bo__dhead">되돌릴 수 없습니다</p>
+              <p>
+                계정과 그 계정으로 받은 개인정보를 모두 파기합니다. 쓴 글과 댓글도
+                함께 지우며 자리표시자를 남기지 않습니다.
+              </p>
+              <Checkbox
+                label="본인이 밝힌 내용을 직접 확인했습니다"
+                checked={sure}
+                onChange={(e) => setSure(e.target.checked)}
+              />
+              <p className="bo__dnote">
+                어려 보인다는 인상이나 신고 접수만으로는 파기하지 않습니다. 근거가
+                추측뿐이면 위에서 「나이 확인 요청」 을 고르세요.
+              </p>
+            </div>
+          )}
+
+          <Field
+            label="사유"
+            hint={
+              level === 'purge'
+                ? '기록에만 남습니다. 파기된 계정에는 보여줄 화면이 없습니다'
+                : '본인에게 보이는 문구입니다'
+            }
+          >
+            <TextArea
+              placeholder={
+                level === 'hold'
+                  ? '무엇을 확인하려는지 적어주세요'
+                  : '어떤 규칙을 어겼는지 적어주세요'
+              }
+              rows={3}
+            />
           </Field>
         </Sheet>
       )}
