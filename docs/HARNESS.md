@@ -250,7 +250,7 @@ cp .env.example .env.local           # 키 없으면 지도가 리스트로 폴�
 npm run dev
 ```
 
-읽는 순서는 [README](../../README.md) 의 파일 구조, [CLAUDE.md](../../CLAUDE.md)
+읽는 순서는 [README](../README.md) 의 파일 구조, [CLAUDE.md](../CLAUDE.md)
 의 작업 규칙이다. 특히 **출처 표기와 원본 재게시 금지**는 어기면 사용자가
 헛걸음하고 지표가 오염된다.
 
