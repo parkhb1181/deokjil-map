@@ -1880,6 +1880,84 @@
 }
 .legal__back { margin-top: 28px; font-size: var(--t-sub); }
 
+/* ── 약관·처리방침 본문 ─────────────────────────────────
+   조문이 길어서 읽는 자리가 흐트러지지 않게 줄간격을 넉넉히 준다.
+   법 문서는 훑는 것이 아니라 한 줄씩 읽는 글이다.
+   ------------------------------------------------------- */
+
+/* 검토 전이라는 사실을 맨 위에서 못 박는다. 아래로 내리면 다 읽고
+   나서야 알게 된다 */
+.legal__draft {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.legal__draft b { color: var(--accent-ink); font-weight: 700; }
+
+.legal__dates { margin-top: 8px; font-size: var(--t-small); }
+
+.legal__sec { margin-top: 4px; }
+
+.legal__p {
+  margin-top: 8px;
+  font-size: var(--t-sub);
+  line-height: 1.75;
+  color: var(--text-mute);
+}
+
+.legal__list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.legal__list li {
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
+/* 표만 옆으로 밀린다. 페이지째 흐르면 본문 왼쪽 시작선이 어긋난다 */
+.legal__tablewrap { margin-top: 12px; overflow-x: auto; }
+.legal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+.legal__table th,
+.legal__table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  word-break: keep-all;
+}
+.legal__table th {
+  background: var(--bg-sunk);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.legal__table td { color: var(--text-mute); }
+
+/* 조문에 딸리는 단서. 본문과 같은 무게로 두면 어디까지가 조문이고
+   어디부터가 부연인지 갈리지 않는다 */
+.legal__note {
+  margin-top: 10px;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
 /* ── 만날 자리 찍기 ────────────────────────────────────── */
 
 .ppick { margin-top: -6px; }

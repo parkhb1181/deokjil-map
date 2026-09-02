@@ -116,16 +116,8 @@ const GROUPS: Group[] = [
         name: '가입 정보 입력',
         shot: 'welcome',
         spec: 'AU-02',
-        desc: '닉네임이랑 연령대',
+        desc: '닉네임이랑 출생연도',
         data: '빈 화면',
-      },
-      {
-        href: wf('/me'),
-        name: '내 활동',
-        shot: 'me',
-        spec: 'AU-08',
-        desc: '내가 쓴 글, 내가 단 댓글',
-        data: '목데이터',
       },
       {
         href: wf('/me/edit'),
@@ -135,10 +127,14 @@ const GROUPS: Group[] = [
         data: '목데이터',
       },
       {
+        /* 내 활동(/me)과 한 화면이 됐다. 「보는 사람」 을 「나」 로 넘기면
+           제재 안내·내 댓글 탭까지 그대로 뜬다. 줄을 둘로 두면 같은
+           화면을 두 번 여는 셈이라 하나로 줄였다 */
         href: wf('/u/u_host'),
-        name: '남의 프로필',
+        name: '프로필',
         shot: 'profile',
-        spec: 'AU-05',
+        spec: 'AU-09 · AU-10',
+        desc: '내 것도 남의 것도 같은 화면',
         data: '목데이터',
       },
     ],

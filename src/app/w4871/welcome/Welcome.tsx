@@ -10,18 +10,39 @@
  * 서버 인터셉터다. 화면에서만 막으면 API 를 직접 부르면 그만이다.
  *
  * **성별은 받지 않는다.** 참여 조건을 두지 않기로 하면서 성별로
- * 거를 일이 없어졌다. 남은 이유는 미성년 차단 하나인데 그건 연령만으로
+ * 거를 일이 없어졌다. 남은 이유는 미성년 차단 하나인데 그건 나이만으로
  * 된다. 쓰지도 않을 것을 받아두면 유출됐을 때 잃을 것만 늘어난다.
+ *
+ * **연령대 선택을 출생연도로 바꿨다.** 전에는 「20대 초반」 부터 시작하는
+ * 목록이라 10대가 고를 것이 없었다. 막힌 것처럼 보이지만 실제로는
+ * 열일곱이 「20대 초반」 을 누르면 그만이었다. 막지도 못하고 기록도
+ * 남지 않는 쪽이 제일 나쁘다. 연도를 받으면 판정이 서버에서 되고
+ * 거절 사유를 본인에게 말해줄 수 있다.
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button } from '@/components/ui/Basics'
 import { Field, TextInput, Select } from '@/components/ui/Field'
 
-/* 미성년을 빼기로 한 기본값을 따른다 (Q-05 기본값: 미성년 제외).
-   허용하기로 바뀌면 여기에 줄을 더한다 */
-const AGES = ['20대 초반', '20대 후반', '30대 초반', '30대 후반', '40대 이상']
+/**
+ * 가입 하한. **연 나이** 기준이다.
+ *
+ * 미성년을 빼기로 한 기본값을 따른다 (Q-05 기본값: 미성년 제외).
+ * 낯선 성인과 대면으로 만나는 서비스라 그렇게 정했다.
+ *
+ * 연 나이(올해 − 출생연도)를 쓰는 이유는 청소년보호법이 그 기준이라
+ * 생년월일까지 안 받아도 법과 같은 판정이 나오기 때문이다. 최소수집
+ * 원칙에도 맞는다.
+ *
+ * 낮추기로 하면 이 숫자만 바꾸면 된다. 다만 **14 밑으로는 내릴 수 없다.**
+ * 만 14세 미만은 법정대리인 동의가 있어야 개인정보를 처리할 수 있는데
+ * (개인정보보호법 제22조의2) 그 절차가 우리에게 없다.
+ */
+const MIN_AGE = 19
+
+/** 고를 수 있는 가장 오래된 출생연도. 목록 길이를 정하는 값일 뿐이다 */
+const OLDEST = 80
 
 /** 서버에도 같은 규칙이 있다. 화면은 먼저 알려주는 역할일 뿐이다 */
 function checkNick(v: string) {
@@ -39,8 +60,14 @@ export default function Welcome() {
      마치고 그 글로 돌아가야 한다. 없으면 홈 */
   const next = useSearchParams().get('next') || '/'
   const [nick, setNick] = useState('')
-  const [age, setAge] = useState('')
+  const [birth, setBirth] = useState('')
   const [tried, setTried] = useState(false)
+
+  /* 올해는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드 시각이라
+     그대로 쓰면 12월에 빌드한 것이 해가 바뀐 뒤 목록과 나이 계산을
+     한 해씩 어긋나게 한다 (CLAUDE.md) */
+  const [thisYear, setThisYear] = useState<number | null>(null)
+  useEffect(() => setThisYear(new Date().getFullYear()), [])
   const [sending, setSending] = useState(false)
   /**
    * 중복 확인 결과.
@@ -72,10 +99,31 @@ export default function Welcome() {
    * 답해야 한다.** 눌렀는데 아무 변화가 없으면 눌린 건지도 모른다.
    */
   const shownError = (tried ? formError : undefined) ?? takenError
-  const ageError = age ? undefined : '연령대를 골라주세요'
+
+  /* 고를 수 있는 연도. 올해부터 거꾸로 편다. 자기 연도가 목록 위쪽에
+     있는 사람이 드물어 최근 연도를 앞에 두는 편이 덜 굴린다 */
+  const years =
+    thisYear === null ? [] : Array.from({ length: OLDEST + 1 }, (_, i) => thisYear - i)
+
+  /** 연 나이. 올해 − 출생연도 */
+  const age = thisYear !== null && birth ? thisYear - Number(birth) : null
+
+  /**
+   * 나이 때문에 막힌 것은 「고르라」 가 아니라 「왜 안 되는지」 를 말한다.
+   *
+   * 목록에서 미성년 연도를 빼버리면 고를 것이 없어 화면이 고장난 것처럼
+   * 보이고, 결국 아무 연도나 누르게 된다. 고르게 두고 사유를 말하는 편이
+   * 낫다. 서버도 같은 판정을 한다. 화면은 먼저 알려주는 역할일 뿐이다.
+   */
+  const birthError = !birth
+    ? '출생연도를 골라주세요'
+    : age !== null && age < MIN_AGE
+      ? `만 ${MIN_AGE}세 이상만 가입할 수 있어요`
+      : undefined
+
   /* 확인을 받아야 넘어간다. 안 받고 제출하면 서버가 튕겨내는데,
      그때 알려주면 이미 다음 화면을 기대하고 있던 사람이 되돌아온다 */
-  const ok = !nickError && !ageError && !!fresh?.free
+  const ok = !nickError && !birthError && !!fresh?.free
 
   const check = () => {
     if (formError || checking) return
@@ -106,7 +154,7 @@ export default function Welcome() {
     <PageShell title="시작하기">
       <div className="form">
         <p className="form__lead">
-          닉네임과 연령대만 정하면 바로 쓸 수 있어요.
+          닉네임과 출생연도만 정하면 바로 쓸 수 있어요.
           <br />
           나중에 프로필에서 바꿀 수 있습니다.
         </p>
@@ -139,13 +187,26 @@ export default function Welcome() {
           />
         </Field>
 
-        {/* 미성년을 빼기로 한 기본값을 따른다. 허용으로 바뀌면
-            AGES 에 줄을 더한다 */}
-        <Field label="연령대" error={tried ? ageError : undefined}>
-          <Select value={age} onChange={(e) => setAge(e.target.value)}>
-            <option value="" disabled>골라주세요</option>
-            {AGES.map((a) => (
-              <option key={a} value={a}>{a}</option>
+        {/* 나이 때문에 막힌 것은 눌러본 뒤가 아니라 고른 즉시 알린다.
+            형식 오류와 달리 고쳐 쓸 수 있는 값이 아니라, 제출까지
+            기다리게 하면 헛수고를 시키는 셈이다 */}
+        <Field
+          label="출생연도"
+          error={tried || (birth && age !== null && age < MIN_AGE) ? birthError : undefined}
+          hint={`만 ${MIN_AGE}세 이상만 가입할 수 있어요. 나이는 공개되지 않아요`}
+        >
+          <Select
+            value={birth}
+            disabled={thisYear === null}
+            onChange={(e) => setBirth(e.target.value)}
+          >
+            <option value="" disabled>
+              골라주세요
+            </option>
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
             ))}
           </Select>
         </Field>
