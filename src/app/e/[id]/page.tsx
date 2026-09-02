@@ -8,6 +8,7 @@ import { PlaceActions } from '@/components/ui/PlaceActions'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { SaveHeart } from '@/components/ui/SaveHeart'
 import { wf } from '@/lib/wireframe'
+import { posterSrc } from '@/lib/poster'
 
 /**
  * 이벤트 상세, 검색에 걸리는 실주소.
@@ -226,7 +227,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               3:4 사이의 세로형이라 가로로 자르면 절반도 안 보인다.
               잘린다면 아래가 잘리게 위를 붙든다 */}
           {ev.imageUrl && (
-            <img className="sheet__poster" src={ev.imageUrl} alt="" />
+            <img className="sheet__poster" src={posterSrc(ev.imageUrl)} alt="" />
           )}
 
           <div className="sheet__head">

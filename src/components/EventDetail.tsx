@@ -5,6 +5,7 @@ import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
 import DetailMap from './DetailMap'
+import { posterSrc } from '@/lib/poster'
 
 interface Props {
   event: EventItem
@@ -66,7 +67,7 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
           <div className="sheet__visual sheet__visual--photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={event.imageUrl}
+              src={posterSrc(event.imageUrl)}
               alt=""
               decoding="async"
               onError={() => setFailedId(event.id)}

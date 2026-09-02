@@ -6,6 +6,7 @@ import type { EventItem } from '@/types'
 import { DISTRICT_LABELS } from '@/lib/filters'
 import { queryHref } from '@/lib/route'
 import { track } from '@/lib/analytics'
+import { posterSrc } from '@/lib/poster'
 
 interface Props {
   events: EventItem[]
@@ -94,7 +95,7 @@ export default function TopSubjects({ events, today }: Props) {
         <span className="rank__photo">
           {top.image && !failed[top.subject] && (
             <Image
-              src={top.image}
+              src={posterSrc(top.image)!}
               alt=""
               fill
               sizes="420px"
@@ -122,7 +123,7 @@ export default function TopSubjects({ events, today }: Props) {
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
                 {r.image && !failed[r.subject] && (
-                  <Image src={r.image} alt="" fill sizes="120px" onError={() => die(r.subject)} />
+                  <Image src={posterSrc(r.image)!} alt="" fill sizes="120px" onError={() => die(r.subject)} />
                 )}
               </span>
               <span className="rank__num">{i + 2}</span>

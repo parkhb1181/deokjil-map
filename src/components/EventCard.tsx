@@ -12,6 +12,7 @@ import {
   shortRange,
 } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
+import { posterSrc } from '@/lib/poster'
 import { useSave } from './SaveContext'
 
 interface Props {
@@ -51,7 +52,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
           {/* 원본이 장당 수 MB 라 그대로 물리면 목록이 무너진다.
               카드 크기로 줄여 받는다. 수집원이 원본을 내리면 폴백 색 블록으로 넘어간다 */}
           <Image
-            src={event.imageUrl!}
+            src={posterSrc(event.imageUrl)!}
             alt=""
             fill
             sizes="240px"

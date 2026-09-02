@@ -37,6 +37,29 @@ const SHOTS = 3
 const W = 400
 const H = 400
 
+/**
+ * 수집원에 줄여 달라고 부탁한 주소.
+ *
+ * src/lib/poster.ts 와 같은 규칙이다. 여기서 다시 쓴 이유는 이 스크립트가
+ * 순수 Node ESM 이라 TypeScript 모듈을 못 불러와서다. 규칙이 바뀌면
+ * 양쪽을 같이 고쳐야 한다.
+ *
+ * 여기서는 더 작게 부른다. 어차피 ${W}x${H} 로 줄일 것이고, 원본을
+ * 그대로 받으면 108장에 수백 MB 가 오간다. 그게 빌드 시간이고 곧 요금이다.
+ */
+function source(url) {
+  try {
+    const u = new URL(url)
+    if (u.hostname !== 'img2.offmate.kr') return url
+    if (u.searchParams.has('w')) return url
+    /* 줄일 목표 폭의 두 배. 딱 맞게 받으면 자를 여유가 없다 */
+    u.searchParams.set('w', String(W * 2))
+    return u.toString()
+  } catch {
+    return url
+  }
+}
+
 const events = JSON.parse(await fs.readFile(path.join(ROOT, 'src/data/events.json'), 'utf8'))
 
 // 대상별로 앞에서 세 장씩만. 전부 받으면 216장이라 빌드가 길어진다
@@ -70,7 +93,7 @@ await Promise.all(
       const ev = queue.shift()
       if (!ev) return
       try {
-        const res = await fetch(ev.imageUrl)
+        const res = await fetch(source(ev.imageUrl))
         if (!res.ok) throw new Error(String(res.status))
         const bytes = new Uint8Array(await res.arrayBuffer())
         const out = await sharp(bytes)
