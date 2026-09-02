@@ -34,7 +34,7 @@ export default function SeoIndex({ events }: { events: EventItem[] }) {
               <li key={ev.id}>
                 <a href={`/e/${encodeURIComponent(ev.id)}`}>
                   {ev.subject} {EVENT_KIND_LABELS[ev.kind]} · {ev.place.name} ·{' '}
-                  {ev.starts_on}~{ev.ends_on}
+                  {ev.startsOn}~{ev.endsOn}
                 </a>
               </li>
             ))}

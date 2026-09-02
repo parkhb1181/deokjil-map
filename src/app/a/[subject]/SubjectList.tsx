@@ -63,7 +63,7 @@ export function SubjectList({ events }: { events: EventItem[] }) {
                 <a href={`/e/${encodeURIComponent(ev.id)}`}>{ev.place.name}</a>
                 {' · '}
                 {EVENT_KIND_LABELS[ev.kind]}
-                {' · '}~{ev.ends_on}
+                {' · '}~{ev.endsOn}
                 {ev.perks ? ` · ${ev.perks}` : ''}
               </span>
             </div>

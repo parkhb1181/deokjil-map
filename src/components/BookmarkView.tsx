@@ -35,8 +35,8 @@ export default function BookmarkView({
   const savedSet = new Set(saved)
   const picked = events.filter((e) => savedSet.has(e.id))
 
-  const live = picked.filter((e) => e.ends_on >= today)
-  const ended = picked.filter((e) => e.ends_on < today)
+  const live = picked.filter((e) => e.endsOn >= today)
+  const ended = picked.filter((e) => e.endsOn < today)
   const groups = groupByDistrict(sortEvents(live, today))
 
   if (picked.length === 0) {

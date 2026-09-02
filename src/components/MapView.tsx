@@ -348,7 +348,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
     () =>
       countsByDate(
         events,
-        { date: 'all', kind: filter.kind, district: filter.district, query: '' },
+        { kind: filter.kind, district: filter.district, query: '' },
         today,
         shiftDate(today, 60, today),
       ),
@@ -383,32 +383,32 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
           놓고 왜 이 화면인지 모르게 되면 안 되므로, 친 말과 결과 수를
           칸 안에 같이 남긴다 */}
       <div className="fbar__search mapsearch">
-        <svg viewBox="0 0 16 16" aria-hidden focusable="false">
-          <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        <input
-          type="search"
-          value={filter.query}
-          onChange={(e) => onFilter('query', e.target.value)}
-          placeholder="대상 · 카페명 검색"
-          aria-label="검색"
-        />
-        {searching && (
-          <>
-            <span className="mapsearch__n">
-              {dayEvents.length > 0 ? `${dayEvents.length}곳` : '결과 없음'}
-            </span>
-            <button
-              type="button"
-              className="fbar__x"
-              onClick={() => onFilter('query', '')}
-              aria-label="검색어 지우기"
-            >
-              ✕
-            </button>
-          </>
-        )}
+          <svg viewBox="0 0 16 16" aria-hidden focusable="false">
+            <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            value={filter.query}
+            onChange={(e) => onFilter('query', e.target.value)}
+            placeholder="대상 · 카페명 검색"
+            aria-label="검색"
+          />
+          {searching && (
+            <>
+              <span className="mapsearch__n">
+                {dayEvents.length > 0 ? `${dayEvents.length}곳` : '결과 없음'}
+              </span>
+              <button
+                type="button"
+                className="fbar__x"
+                onClick={() => onFilter('query', '')}
+                aria-label="검색어 지우기"
+              >
+                ✕
+              </button>
+            </>
+          )}
       </div>
     </div>
   )
@@ -515,13 +515,13 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
                     <div className="mapsheet__row">
                       <dt>기간</dt>
                       <dd>
-                        {sheetEvent.starts_on} ~ {sheetEvent.ends_on}
+                        {sheetEvent.startsOn} ~ {sheetEvent.endsOn}
                       </dd>
                     </div>
-                    {sheetEvent.open_hours && (
+                    {sheetEvent.openHours && (
                       <div className="mapsheet__row">
                         <dt>운영시간</dt>
-                        <dd>{sheetEvent.open_hours}</dd>
+                        <dd>{sheetEvent.openHours}</dd>
                       </div>
                     )}
                     {sheetEvent.perks && (

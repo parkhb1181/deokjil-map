@@ -15,12 +15,14 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isClosed, type CompanionPost, type PostComment, type Viewer, type ViewerRole } from '@/types'
+import { canWrite, isClosed, isPlaceholder, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
 import { ReportSheet } from '@/components/ui/ReportSheet'
-import { Comment } from '@/components/ui/Post'
+import { Comment, LockMark } from '@/components/ui/Post'
+import { PersonSheet } from '@/components/ui/PersonSheet'
+import { WriteGate } from '@/components/ui/SanctionNotice'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
@@ -49,11 +51,24 @@ function shortTime(iso: string) {
   return `${Number(m)}/${Number(day)} ${t}`
 }
 
-const ROLES: { key: ViewerRole; id: string | null; label: string }[] = [
+const ROLES: { key: ViewerRole; id: string | null; label: string; sanction?: Sanction }[] = [
   { key: 'guest', id: null, label: '비회원' },
   { key: 'member', id: 'u_b', label: '일반 회원' },
   { key: 'member', id: 'u_a', label: '댓글 작성자' },
   { key: 'host', id: 'u_host', label: '방장' },
+  /* 나이 확인 대기. 읽는 것은 그대로 되고 쓰는 것만 막힌다는 것을
+     여기서 확인한다. 정지·영구는 프로필 화면에서 본다. 그쪽은 화면을
+     통째로 가려서 모집글 상세까지 올 일이 없다 */
+  {
+    key: 'member',
+    id: 'u_b',
+    label: '나이 확인 중',
+    sanction: {
+      kind: 'AGE_HOLD',
+      reason: '가입할 때 적으신 출생연도가 맞는지 확인하려고 합니다.',
+      issuedAt: '2026-09-01T18:20',
+    },
+  },
 ]
 
 /**
@@ -72,6 +87,10 @@ type Ask =
   | { k: 'report' }
   | { k: 'report-comment' }
   | { k: 'delete'; id: string }
+  /* 아바타를 눌러 연 사람 시트. 누구인지 같이 들고 다녀야 시트가
+     열린 것과 보고 있는 사람이 어긋나지 않는다 */
+  | { k: 'person'; user: PostAuthor; isMe: boolean }
+  | { k: 'report-user'; name: string }
 
 /* 무엇을 하려다 막혔는지에 따라 문구가 달라진다. 신고하려다 막힌
    사람에게 댓글 얘기를 하면 자기가 누른 것이 먹힌 것인지 알 수 없다 */
@@ -90,14 +109,22 @@ export default function PostDetail({ post, comments, hostId }: {
   /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
      아래 whoami 막대를 지우고 서버 세션에서 채운다 */
   const [pick, setPick] = useState(3)
-  const viewer: Viewer = { role: ROLES[pick].key, user_id: ROLES[pick].id }
+  const viewer: Viewer = {
+    role: ROLES[pick].key,
+    userId: ROLES[pick].id,
+    sanction: ROLES[pick].sanction ?? null,
+  }
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
   /** 답글을 다는 대상. null 이면 새 댓글이다 */
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null)
-  /* 방금 내가 지운 댓글. API 가 붙으면 서버가 deleted 로 내려주므로 없어진다 */
+  /* 방금 내가 지운 댓글. API 가 붙으면 서버가 state 로 내려주므로 없어진다 */
   const [erased, setErased] = useState<string[]>([])
+  /* 방금 내가 고친 댓글. 위와 같은 이유로 임시다 */
+  const [edited, setEdited] = useState<Record<string, string>>({})
+  /** 지금 고치고 있는 댓글. null 이면 아무것도 안 고치는 중 */
+  const [editing, setEditing] = useState<{ id: string; draft: string } | null>(null)
   const boxRef = useRef<HTMLTextAreaElement>(null)
   /* 'report' 는 모집글 신고, 'report-comment' 는 댓글 신고다. 하나로
      묶어 뒀더니 댓글의 신고를 눌러도 모집글 신고 시트가 떴다.
@@ -105,21 +132,30 @@ export default function PostDetail({ post, comments, hostId }: {
      부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
   const [ask, setAsk] = useState<Ask>(null)
 
-  const isHost = viewer.user_id === hostId
-  const isGuest = !viewer.user_id
+  const isHost = viewer.userId === hostId
+  const isGuest = !viewer.userId
+  /* 나이 확인 중이면 읽기는 그대로 두고 쓰기만 막는다 (처리방침 제10조).
+     kind 를 여기서 비교하지 않는 이유는 게이트가 여러 화면에 흩어져
+     있어서다. 판정은 types.ts 한 곳에서만 한다 */
+  const noWrite = !canWrite(viewer.sanction)
 
   const gate = (why: LoginWhy) => setAsk({ k: 'login', why })
 
   /* 서버가 보냈을 모습으로 만든 뒤 계층 정렬한다. API 가 붙으면
      asServerWouldSend 만 빠지고 나머지는 그대로다 */
-  const list = useMemo(
-    () =>
-      threaded(asServerWouldSend(comments, viewer, hostId)).map((c) =>
-        /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
-        erased.includes(c.id) ? { ...c, deleted: true } : c,
-      ),
-    [comments, viewer.user_id, hostId, erased],
-  )
+  const list = useMemo(() => {
+    /* 고친 본문을 먼저 갈아끼운다. **반드시 권한 필터보다 앞이어야
+       한다.** 뒤에 놓으면 서버가 지운 body 를 화면이 도로 끼워넣는
+       꼴이 되어, 비밀 댓글이 볼 권한 없는 사람에게 열린다.
+       secret 은 건드리지 않는다. 작성 후 비밀 여부는 못 바꾼다
+       (명세 CM-03·CM-09) */
+    const mine = comments.map((c) => (c.id in edited ? { ...c, body: edited[c.id] } : c))
+
+    return threaded(asServerWouldSend(mine, viewer, hostId)).map((c) =>
+      /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
+      erased.includes(c.id) ? { ...c, state: 'DELETED' as const } : c,
+    )
+  }, [comments, viewer.userId, hostId, erased, edited])
 
   /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
      칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
@@ -134,13 +170,26 @@ export default function PostDetail({ post, comments, hostId }: {
     setErased((prev) => [...prev, id])
     /* 지운 댓글에 답글을 쓰고 있었다면 그 자리도 같이 접는다 */
     setReplyTo((r) => (r?.id === id ? null : r))
+    /* 고치던 중에 지웠다면 입력칸도 접는다 */
+    setEditing((e) => (e?.id === id ? null : e))
     setAsk(null)
+  }
+
+  /* 고치기는 본문만 바꾼다. 비밀 여부는 작성 후 못 바꾼다 (CM-03).
+     그래서 여기에 체크박스가 없다. 비밀 댓글도 본문은 고칠 수 있다 */
+  const saveEdit = () => {
+    if (!editing) return
+    const body = editing.draft.trim()
+    if (!body || body.length > 500) return
+    /* 아직 API 가 없다. 붙으면 PATCH 하고 목록을 다시 읽는다 */
+    setEdited((prev) => ({ ...prev, [editing.id]: body }))
+    setEditing(null)
   }
 
   const submit = () => {
     if (isGuest) return gate('comment')
     /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다.
-       parent_id 는 replyTo?.id 로 나간다 */
+       parentId 는 replyTo?.id 로 나간다 */
     setDraft('')
     setSecret(false)
     setReplyTo(null)
@@ -153,7 +202,7 @@ export default function PostDetail({ post, comments, hostId }: {
         isHost ? (
           /* 끝난 글에는 완료 버튼을 남기지 않는다. 되돌릴 수 없다고
              말해놓고 다시 누를 수 있게 두는 셈이 된다 */
-          post.state === 'open' && (
+          post.state === 'OPEN' && (
             <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
               모집 완료
             </Button>
@@ -183,25 +232,28 @@ export default function PostDetail({ post, comments, hostId }: {
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
-      {post.event_image_url && (
-        <img className="post__cover" src={post.event_image_url} alt="" />
+      {post.eventImageUrl && (
+        <img className="post__cover" src={post.eventImageUrl} alt="" />
       )}
 
       <article className="post">
         <div className="post__tags">
           <Badge state={post.state} />
-          {post.event_id && post.event_title && (
-            <a className="post__event" href={`/e/${post.event_id}`}>
-              {post.event_title}
+          {post.eventId && post.eventTitle && (
+            <a className="post__event" href={`/e/${post.eventId}`}>
+              {post.eventTitle}
             </a>
           )}
         </div>
 
         <div className="post__who">
           <Who
+            onPress={() =>
+              setAsk({ k: 'person', user: post.author, isMe: post.author.id === viewer.userId })
+            }
             name={post.author.nickname}
-            src={post.author.image_url ?? undefined}
-            sub={`${post.author.done_count ? `동행 ${post.author.done_count}회` : '첫 동행'} · ${dateOnly(post.created_at)}`}
+            src={post.author.imageUrl ?? undefined}
+            sub={`${post.author.doneCount ? `동행 ${post.author.doneCount}회` : '첫 동행'} · ${dateOnly(post.createdAt)}`}
           />
         </div>
 
@@ -209,29 +261,43 @@ export default function PostDetail({ post, comments, hostId }: {
 
         <div className="post__map">
           <PlaceMap
-            lat={post.meet_point.lat}
-            lng={post.meet_point.lng}
-            label={post.meet_point.place}
+            lat={post.meetPoint.lat}
+            lng={post.meetPoint.lng}
+            label={post.meetPoint.place}
           />
         </div>
 
         {/* 두 줄로 끝낸다. 날짜와 인원이 위, 장소와 마감이 아래다.
             넷을 다 굵게 쓰면 제목과 무게가 비슷해져 둘 다 안 읽힌다 */}
         <p className="post__when">
-          {whenText(post.meet_at)}
+          {whenText(post.meetAt)}
           {post.capacity ? ` · ${post.capacity}명 모집` : ''}
         </p>
         <p className="post__sub">
-          {post.meet_point.place} · {dateOnly(post.closes_at)} 마감
+          {post.meetPoint.place} · {dateOnly(post.closesAt)} 마감
         </p>
 
         <div className="post__body">{post.body}</div>
 
 
         <div className="post__count">
-          <span>댓글 <b>{post.comment_count}</b></span>
-          {post.state === 'done' && <span>모집이 끝났어요</span>}
-          {post.state === 'ended' && <span>행사가 끝났어요</span>}
+          <span>댓글 <b>{post.commentCount}</b></span>
+          {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
+          {post.state === 'CLOSED' && post.closedReason === 'DEADLINE' && <span>행사가 끝났어요</span>}
+          {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
+
+          {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
+             「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
+             갈리지 않는다. 본문 바로 아래라야 「이 글」 임이 분명하다 */}
+          {!isHost && (
+            <button
+              type="button"
+              className="post__report"
+              onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report' }))}
+            >
+              이 글 신고
+            </button>
+          )}
         </div>
       </article>
 
@@ -253,26 +319,94 @@ export default function PostDetail({ post, comments, hostId }: {
           list.map((c) => (
             <Comment
               key={c.id}
-              name={c.deleted ? '' : c.author.nickname}
-              src={c.author.image_url ?? undefined}
-              time={shortTime(c.created_at)}
+              name={isPlaceholder(c.state) ? '' : c.author.nickname}
+              src={c.author.imageUrl ?? undefined}
+              time={shortTime(c.createdAt)}
               text={c.body ?? undefined}
-              reply={!!c.parent_id}
+              reply={!!c.parentId}
               secret={c.secret}
-              gone={c.deleted}
+              state={c.state}
               host={c.author.id === hostId}
+              edited={c.id in edited}
+              onAuthor={
+                isPlaceholder(c.state)
+                  ? undefined
+                  : () =>
+                      setAsk({
+                        k: 'person',
+                        user: c.author,
+                        isMe: c.author.id === viewer.userId,
+                      })
+              }
+              edit={
+                editing?.id === c.id ? (
+                  <div className="cmt__edit">
+                    <Field>
+                      <TextArea
+                        autoFocus
+                        value={editing.draft}
+                        onChange={(e) => setEditing({ id: c.id, draft: e.target.value })}
+                        rows={2}
+                        placeholder="댓글을 고쳐보세요"
+                      />
+                    </Field>
+                    <div className="cmt__editopts">
+                      {/* 비밀 여부는 여기서 못 바꾼다. 공개로 바꾸면
+                          비밀인 줄 알고 적은 연락처가 그대로 열린다 */}
+                      {c.secret && (
+                        <span className="cmt__lock">
+                          <LockMark />비밀 유지
+                        </span>
+                      )}
+                      <span
+                        className={`write__count${editing.draft.length > 500 ? ' write__count--over' : ''}`}
+                      >
+                        {editing.draft.length}/500
+                      </span>
+                      <Button size="sm" tone="ghost" onClick={() => setEditing(null)}>
+                        취소
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={!editing.draft.trim() || editing.draft.length > 500}
+                        onClick={saveEdit}
+                      >
+                        저장
+                      </Button>
+                    </div>
+                  </div>
+                ) : undefined
+              }
               acts={
-                c.deleted ? undefined : (
+                isPlaceholder(c.state) ? undefined : (
                   <>
                     {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
-                        그 아래가 없다 */}
-                    {!c.parent_id && (
+                        그 아래가 없다.
+
+                        쓰기가 막힌 사람에게도 안 보인다. 눌러도 입력칸이
+                        안 뜨는 버튼을 남겨두면 눌린 건지 고장난 건지 모른다.
+                        막힌 사유는 아래 입력칸 자리에서 한 번 말한다 */}
+                    {!c.parentId && !noWrite && (
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
-                    {c.author.id === viewer.user_id ? (
-                      /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
-                         한 번 묻는다 */
-                      <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                    {c.author.id === viewer.userId ? (
+                      <>
+                        {/* 비밀 댓글도 본문은 고칠 수 있다. 못 바꾸는
+                            것은 비밀 여부뿐이다 (CM-09).
+
+                            쓰기가 막히면 고치는 것도 막힌다. 고치기는
+                            새로 쓰는 것과 같은 일이다. 대신 **삭제는
+                            남긴다.** 자기가 쓴 것을 지우는 것은 언제나
+                            할 수 있어야 한다 (처리방침 제11조) */}
+                        {!noWrite && (
+                          <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
+                            수정
+                          </button>
+                        )}
+                        {/* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
+                            한 번 묻는다 */}
+                        <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                      </>
                     ) : (
                       <button onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report-comment' }))}>
                         신고
@@ -296,9 +430,11 @@ export default function PostDetail({ post, comments, hostId }: {
             뒤는 그 행사 자체가 지나갔다 */}
         {isClosed(post.state) ? (
           <p className="write__gate">
-            {post.state === 'done'
-              ? '모집이 끝나 댓글을 받지 않아요'
-              : '행사가 끝나 댓글을 받지 않아요'}
+            {post.state === 'CANCELED'
+              ? '취소된 모집이라 댓글을 받지 않아요'
+              : post.closedReason === 'MANUAL'
+                ? '모집이 끝나 댓글을 받지 않아요'
+                : '행사가 끝나 댓글을 받지 않아요'}
           </p>
         ) : isGuest ? (
           /* 비회원 게이트. 보는 것은 다 열고 쓰는 것만 막는다.
@@ -309,6 +445,11 @@ export default function PostDetail({ post, comments, hostId }: {
               로그인
             </Button>
           </div>
+        ) : noWrite && viewer.sanction ? (
+          /* 나이 확인 게이트. 비회원 게이트와 같은 자리다. 로그인은
+             되어 있는데 쓰기만 막힌 상태라, 로그인하라고 하면 이미
+             한 일을 또 하라는 말이 된다 */
+          <WriteGate sanction={viewer.sanction} what="댓글" />
         ) : (
           <>
             {replyTo && (
@@ -404,6 +545,23 @@ export default function PostDetail({ post, comments, hostId }: {
             </>
           }
         />
+      )}
+
+      {ask?.k === 'person' && (
+        <PersonSheet
+          user={ask.user}
+          isMe={ask.isMe}
+          onClose={() => setAsk(null)}
+          /* 시트 위에 시트를 쌓지 않는다. 사람 시트를 닫고 신고 시트를
+             연다. 겹치면 뒤엣것을 닫았을 때 앞엣것이 남는다 */
+          onReport={() =>
+            isGuest ? gate('report') : setAsk({ k: 'report-user', name: ask.user.nickname })
+          }
+        />
+      )}
+
+      {ask?.k === 'report-user' && (
+        <ReportSheet target="user" name={ask.name} onClose={() => setAsk(null)} />
       )}
 
       {ask?.k === 'report' && (

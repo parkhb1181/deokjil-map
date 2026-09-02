@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS } from '@/lib/filters'
 import { queryHref } from '@/lib/route'
 import { track } from '@/lib/analytics'
+import { posterSrc } from '@/lib/poster'
 
 interface Props {
   events: EventItem[]
@@ -35,7 +36,7 @@ const MAX = 10
  */
 export default function TopSubjects({ events, today }: Props) {
   const ranks = useMemo<Rank[]>(() => {
-    const live = events.filter((e) => e.ends_on >= today)
+    const live = events.filter((e) => e.endsOn >= today)
     const bucket = new Map<string, EventItem[]>()
     for (const ev of live) {
       const key = ev.subject.trim()
@@ -59,17 +60,23 @@ export default function TopSubjects({ events, today }: Props) {
             .slice(0, 2)
             .map(([d]) => DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d),
           place: list[0].place.name,
-          image: list.find((e) => e.image_url)?.image_url,
+          image: list.find((e) => e.imageUrl)?.imageUrl,
         }
       })
       .sort((a, b) => b.count - a.count || a.subject.localeCompare(b.subject, 'ko'))
       .slice(0, MAX)
   }, [events, today])
 
+  /* 사진은 수집원 서버 주소를 그대로 물고 있어 그쪽이 내리거나 막으면
+     깨진 그림이 뜬다. .rank__hero·.rank__card 가 이미 어두운 바탕을
+     깔고 있어 사진만 빼면 순위 카드는 그대로 읽힌다 */
+  const [failed, setFailed] = useState<Record<string, true>>({})
+  const die = (subject: string) => setFailed((f) => ({ ...f, [subject]: true }))
+
   // 한 명뿐이면 순위가 아니다. 줄 세울 게 있을 때만 내보낸다
   if (ranks.length < 3) return null
 
-  const total = events.filter((e) => e.ends_on >= today).length
+  const total = events.filter((e) => e.endsOn >= today).length
   const [top, ...rest] = ranks
 
   const go = (r: Rank, i: number) => {
@@ -86,7 +93,16 @@ export default function TopSubjects({ events, today }: Props) {
 
       <button type="button" className="rank__hero" onClick={() => go(top, 0)}>
         <span className="rank__photo">
-          {top.image && <Image src={top.image} alt="" fill sizes="420px" priority />}
+          {top.image && !failed[top.subject] && (
+            <Image
+              src={posterSrc(top.image)!}
+              alt=""
+              fill
+              sizes="420px"
+              priority
+              onError={() => die(top.subject)}
+            />
+          )}
         </span>
         <span className="rank__badge">1위</span>
         <span className="rank__info">
@@ -106,7 +122,9 @@ export default function TopSubjects({ events, today }: Props) {
           <li key={r.subject} className="rank__item">
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
-                {r.image && <Image src={r.image} alt="" fill sizes="120px" />}
+                {r.image && !failed[r.subject] && (
+                  <Image src={posterSrc(r.image)!} alt="" fill sizes="120px" onError={() => die(r.subject)} />
+                )}
               </span>
               <span className="rank__num">{i + 2}</span>
               <span className="rank__cardinfo">

@@ -157,15 +157,15 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
       >
         <Case label="배지">
           <div className="g-inline">
-            <Badge state="open" />
-            <Badge state="done" />
+            <Badge state="OPEN" />
+            <Badge state="CLOSED" />
             <Badge state="off">방장</Badge>
           </div>
         </Case>
         <Case label="모집중 · 완료 · 사진 없음">
           <div className="g-stack g-stack--bleed">
             <PostCard
-              state="open"
+              state="OPEN"
               title="아이유 콘서트 같이 가실 분"
               when="9/14 (토) 18:00"
               where="잠실 주경기장"
@@ -173,7 +173,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
               comments={7}
             />
             <PostCard
-              state="done"
+              state="CLOSED"
               title="세븐틴 팝업 오전에 같이 가요"
               when="9/7 (일) 08:00"
               where="성수동"
@@ -181,7 +181,7 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
               comments={12}
             />
             <PostCard
-              state="open"
+              state="OPEN"
               title="붙은 행사가 없어 포스터가 없는 글"
               when="9/20 (일) 13:00"
               where="홍대입구역 9번 출구"
@@ -232,7 +232,8 @@ export default function Gallery({ events }: { events: PickableEvent[] }) {
               acts={<button>삭제</button>}
             />
             <Comment name="다른사람" time="3분 전" secret />
-            <Comment name="지운사람" time="1분 전" gone />
+            <Comment name="지운사람" time="1분 전" state="DELETED" />
+            <Comment name="가려진사람" time="2분 전" state="BLINDED" />
           </div>
           <p className="g-hint">
             넷째가 권한 없는 사람이 보는 모습이다. 서버가 본문 필드를 빼고 보낸다.

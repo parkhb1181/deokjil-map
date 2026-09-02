@@ -12,7 +12,7 @@
  * 읽혀 비어 있어도 그런가 보다 하고 넘어간다.
  *
  * 고칠 수 있는 것은 셋뿐이다. 사진 · 닉네임 · 한줄소개.
- * 연령대는 여기서 못 고친다. 미성년 차단에 쓰는 값이라 가입 때
+ * 출생연도는 여기서 못 고친다. 만 14세 미만 차단에 쓰는 값이라 가입 때
  * 한 번 받고 잠근다. 성별은 아예 받지 않는다.
  */
 import { useState } from 'react'
@@ -24,9 +24,9 @@ import { Field, TextInput, TextArea } from '@/components/ui/Field'
 /* 로그인이 없어 내 정보를 서버에서 못 받는다. 붙으면 지운다 */
 const ME = {
   nickname: '덕질하는오리',
-  image_url: '/avatar/a1.webp',
+  imageUrl: '/avatar/a1.webp',
   bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
-  age: '20대 후반',
+  age: '1999년',
 }
 
 /** 가입 때와 같은 규칙이다. 두 화면이 다르게 굴면 한쪽에서 통과한
@@ -95,7 +95,7 @@ export default function EditProfile() {
           폼 중간에 끼워 넣으면 비어 있어도 넘어가게 된다 */}
       <div className="pedit__pic">
         <label className="myid__pic">
-          <Avatar name={nick || ME.nickname} src={ME.image_url} lg />
+          <Avatar name={nick || ME.nickname} src={ME.imageUrl} lg />
           <span className="myid__cam" aria-hidden>
             <svg viewBox="0 0 16 16">
               <path
@@ -156,10 +156,10 @@ export default function EditProfile() {
           />
         </Field>
 
-        {/* 연령대는 못 고친다. 미성년 차단에 쓰는 값이라 가입 때 한 번
+        {/* 출생연도는 못 고친다. 만 14세 미만 차단에 쓰는 값이라 가입 때 한 번
             받고 잠근다. 칸을 숨기지 않고 잠긴 채로 보여주는 것은,
             없으면 어디서 고치는지 찾아 헤매기 때문이다 */}
-        <Field label="연령대" disabled hint="가입할 때 정한 값이라 바꿀 수 없어요">
+        <Field label="출생연도" disabled hint="가입할 때 정한 값이라 바꿀 수 없어요">
           <TextInput value={ME.age} disabled readOnly />
         </Field>
       </div>

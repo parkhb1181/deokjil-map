@@ -23,20 +23,20 @@ for (const e of events) {
   const at = `${e.id} (${e.subject})`
 
   // 출처를 속이지 않는다. CLAUDE.md 1번 규칙.
-  // source_url 은 주최자 원문이어야 한다. 리스팅이 여기 오면 화면의
+  // sourceUrl 은 주최자 원문이어야 한다. 리스팅이 여기 오면 화면의
   // "공식 공지 보기" 가 경쟁 리스팅으로 연결된다
-  if (!e.source_url) {
-    problems.push(`${at}: source_url 이 없다`)
-  } else if (/popga\.co\.kr|offmate/.test(e.source_url)) {
-    problems.push(`${at}: source_url 이 리스팅이다. ${e.source_url}`)
+  if (!e.sourceUrl) {
+    problems.push(`${at}: sourceUrl 이 없다`)
+  } else if (/popga\.co\.kr|offmate/.test(e.sourceUrl)) {
+    problems.push(`${at}: sourceUrl 이 리스팅이다. ${e.sourceUrl}`)
   }
 
   if (e.trust === 'official') {
     problems.push(`${at}: 확인되지 않은 것을 official 로 올렸다`)
   }
 
-  if (!e.starts_on || !e.ends_on || e.starts_on > e.ends_on) {
-    problems.push(`${at}: 기간이 뒤집혔거나 비어 있다 (${e.starts_on} ~ ${e.ends_on})`)
+  if (!e.startsOn || !e.endsOn || e.startsOn > e.endsOn) {
+    problems.push(`${at}: 기간이 뒤집혔거나 비어 있다 (${e.startsOn} ~ ${e.endsOn})`)
   }
 
   if (!Number.isFinite(e.place?.lat) || !Number.isFinite(e.place?.lng)) {

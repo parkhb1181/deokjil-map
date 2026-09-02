@@ -1,5 +1,5 @@
 {
-  "note": "와이어프레임용 가상 콘서트. 개발에서만 목록에 섞인다 (src/lib/events-source.ts). 대상명·장소가 전부 가상이고 source_url 은 example.com 이다. events.sample.json 과 같은 규칙이며, 실제 일정으로 오인될 여지를 없애기 위함이다. KOPIS 오픈API 가 붙으면 이 파일을 지운다.",
+  "note": "와이어프레임용 가상 콘서트. 개발에서만 목록에 섞인다 (src/lib/events-source.ts). 대상명·장소가 전부 가상이고 sourceUrl 은 example.com 이다. events.sample.json 과 같은 규칙이며, 실제 일정으로 오인될 여지를 없애기 위함이다. KOPIS 오픈API 가 붙으면 이 파일을 지운다.",
   "events": [
     {
       "id": "mock_con_1",
@@ -12,13 +12,13 @@
         "kind": "popup_venue"
       },
       "subject": "샘플아이돌 하린",
-      "subject_type": "idol",
+      "subjectType": "idol",
       "kind": "concert",
-      "starts_on": "2026-09-19",
-      "ends_on": "2026-09-19",
-      "starts_at": "19:00",
+      "startsOn": "2026-09-19",
+      "endsOn": "2026-09-19",
+      "startsAt": "19:00",
       "title": "샘플아이돌 하린 단독 콘서트 [가상]",
-      "source_url": "https://example.com/sample/mock_con_1",
+      "sourceUrl": "https://example.com/sample/mock_con_1",
       "trust": "parsed",
       "goods": []
     },
@@ -33,13 +33,13 @@
         "kind": "popup_venue"
       },
       "subject": "샘플그룹 노바",
-      "subject_type": "idol",
+      "subjectType": "idol",
       "kind": "concert",
-      "starts_on": "2026-09-26",
-      "ends_on": "2026-09-26",
-      "starts_at": "18:30",
+      "startsOn": "2026-09-26",
+      "endsOn": "2026-09-26",
+      "startsAt": "18:30",
       "title": "샘플그룹 노바 월드투어 서울 [가상]",
-      "source_url": "https://example.com/sample/mock_con_2",
+      "sourceUrl": "https://example.com/sample/mock_con_2",
       "trust": "parsed",
       "goods": []
     },
@@ -54,13 +54,13 @@
         "kind": "popup_venue"
       },
       "subject": "샘플밴드 파랑",
-      "subject_type": "idol",
+      "subjectType": "idol",
       "kind": "concert",
-      "starts_on": "2026-10-03",
-      "ends_on": "2026-10-03",
-      "starts_at": "17:00",
+      "startsOn": "2026-10-03",
+      "endsOn": "2026-10-03",
+      "startsAt": "17:00",
       "title": "샘플밴드 파랑 단독 공연 [가상]",
-      "source_url": "https://example.com/sample/mock_con_3",
+      "sourceUrl": "https://example.com/sample/mock_con_3",
       "trust": "parsed",
       "goods": []
     },
@@ -75,13 +75,13 @@
         "kind": "popup_venue"
       },
       "subject": "샘플아이돌 하린",
-      "subject_type": "idol",
+      "subjectType": "idol",
       "kind": "concert",
-      "starts_on": "2026-10-11",
-      "ends_on": "2026-10-11",
-      "starts_at": "19:30",
+      "startsOn": "2026-10-11",
+      "endsOn": "2026-10-11",
+      "startsAt": "19:30",
       "title": "샘플아이돌 하린 팬미팅 [가상]",
-      "source_url": "https://example.com/sample/mock_con_4",
+      "sourceUrl": "https://example.com/sample/mock_con_4",
       "trust": "parsed",
       "goods": []
     }

@@ -17,16 +17,28 @@ export type DateFilter = 'all' | DateKey
 export type DistrictFilter = District | 'all'
 export type KindFilter = EventKind | 'all'
 
+/**
+ * 목록의 기간 필터. [시작, 끝] 이고 안 고르면 null 이다.
+ *
+ * 지도의 `date` 와 다른 축이다. 지도는 화살표로 하루씩 넘기는
+ * "이날 뭐 열려?" 이고, 목록은 "이번 주말에 갈 곳" 이라 하루로는
+ * 표현할 수 없다. 한 필드로 합치면 지도의 화살표가 기간을 어느 쪽으로
+ * 밀어야 하는지 정할 수 없어진다. 그래서 축을 나눈다.
+ */
+export type DateRange = [DateKey, DateKey]
+
 export interface FilterState {
   district: DistrictFilter
   date: DateFilter
   kind: KindFilter
   query: string
+  /** 목록 전용. 지도는 null 로 두고 `date` 를 쓴다 */
+  range: DateRange | null
 }
 
 /** 기본은 오늘. 앱을 열자마자 "오늘 뭐 열려?"에 답해야 한다 */
 export function defaultFilter(today: DateKey = todayKey()): FilterState {
-  return { district: 'all', date: today, kind: 'all', query: '' }
+  return { district: 'all', date: today, kind: 'all', query: '', range: null }
 }
 
 /** 표시 순서가 곧 홈 섹션 순서다. 팝업·생카 밀도가 높은 곳부터 */
@@ -85,7 +97,7 @@ export function weekendRange(today: DateKey = todayKey()): [DateKey, DateKey] {
 
 /** 이벤트 기간이 [from, to]와 하루라도 겹치는가 */
 export function overlaps(ev: EventItem, from: DateKey, to: DateKey): boolean {
-  return ev.starts_on <= to && ev.ends_on >= from
+  return ev.startsOn <= to && ev.endsOn >= from
 }
 
 export function isOngoing(ev: EventItem, today: DateKey = todayKey()): boolean {
@@ -103,7 +115,7 @@ function diffDays(from: DateKey, to: DateKey): number {
 
 /** 종료까지 남은 일수. 0이면 오늘 종료, 음수면 이미 끝난 것 */
 export function daysLeft(ev: EventItem, today: DateKey = todayKey()): number {
-  return diffDays(today, ev.ends_on)
+  return diffDays(today, ev.endsOn)
 }
 
 /**
@@ -112,10 +124,10 @@ export function daysLeft(ev: EventItem, today: DateKey = todayKey()): number {
  * 항상 '다음에 닥칠 마감'을 가리킨다. 시작 전이면 시작까지, 진행 중이면 종료까지.
  */
 export function periodLabel(ev: EventItem, today: DateKey = todayKey()): string {
-  if (ev.ends_on < today) return '종료'
+  if (ev.endsOn < today) return '종료'
 
-  if (ev.starts_on > today) {
-    return `시작 D-${diffDays(today, ev.starts_on)}`
+  if (ev.startsOn > today) {
+    return `시작 D-${diffDays(today, ev.startsOn)}`
   }
 
   const left = daysLeft(ev, today)
@@ -145,8 +157,27 @@ export function matchesQuery(ev: EventItem, query: string): boolean {
 
 function matchesDate(ev: EventItem, date: DateFilter, today: DateKey): boolean {
   // 이미 끝난 이벤트는 목록에서 뺀다. 지난 정보는 없는 정보보다 나쁘다 (4.3)
-  if (date === 'all') return ev.ends_on >= today
+  if (date === 'all') return ev.endsOn >= today
   return overlaps(ev, date, date)
+}
+
+/** 고른 기간과 하루라도 겹치면 통과. 안 골랐으면 전부 통과 */
+function matchesRange(ev: EventItem, range: DateRange | null): boolean {
+  return range ? overlaps(ev, range[0], range[1]) : true
+}
+
+/**
+ * 기간 알약에 적히는 말.
+ *
+ * 하루만 고른 경우 "9.5 ~ 9.5" 라고 적으면 같은 날을 두 번 읽게 된다.
+ * 그때는 요일까지 붙여 "9월 5일 (금)" 으로 쓴다. 요일은 주말인지가
+ * 곧 갈 수 있는지라 이 서비스에서 날짜만큼 중요한 정보다.
+ */
+export function rangeLabel(range: DateRange): string {
+  const [from, to] = range
+  if (from === to) return dateLabel(from)
+  const md = (d: DateKey) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`
+  return `${md(from)} ~ ${md(to)}`
 }
 
 /** 날짜 이동. 오늘보다 과거로는 못 간다. 지난 날짜엔 보여줄 것이 없다 */
@@ -187,10 +218,14 @@ export function monthGrid(year: number, month: number): (DateKey | null)[] {
  * 건수를 보여주면 눌러 놓고 빈 화면을 만나게 된다.
  *
  * 행사는 기간을 가지므로 하루가 아니라 걸치는 모든 날에 더한다.
+ *
+ * 날짜 축(`date` · `range`)은 받지 않는다. 자기 자신을 반영하면 이미
+ * 고른 기간 밖의 날이 전부 0 으로 보여 기간을 바꿀 수가 없다.
+ * 타입에서 빼두면 나중에 실수로 넘길 수도 없다.
  */
 export function countsByDate(
   events: EventItem[],
-  filter: FilterState,
+  filter: Pick<FilterState, 'district' | 'kind' | 'query'>,
   from: DateKey,
   to: DateKey,
 ): Record<DateKey, number> {
@@ -202,8 +237,8 @@ export function countsByDate(
     if (!matchesQuery(ev, filter.query)) continue
     if (!overlaps(ev, from, to)) continue
 
-    let day = ev.starts_on < from ? from : ev.starts_on
-    const last = ev.ends_on > to ? to : ev.ends_on
+    let day = ev.startsOn < from ? from : ev.startsOn
+    const last = ev.endsOn > to ? to : ev.endsOn
     while (day <= last) {
       counts[day] = (counts[day] ?? 0) + 1
       day = shiftDays(day, 1)
@@ -220,8 +255,8 @@ export function sortEvents(events: EventItem[], today: DateKey = todayKey()): Ev
     const ao = isOngoing(a, today) ? 0 : 1
     const bo = isOngoing(b, today) ? 0 : 1
     if (ao !== bo) return ao - bo
-    if (a.starts_on !== b.starts_on) return a.starts_on < b.starts_on ? -1 : 1
-    if (a.ends_on !== b.ends_on) return a.ends_on < b.ends_on ? -1 : 1
+    if (a.startsOn !== b.startsOn) return a.startsOn < b.startsOn ? -1 : 1
+    if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
     return a.id < b.id ? -1 : 1
   })
 }
@@ -236,6 +271,7 @@ export function filterEvents(
       (filter.district === 'all' || ev.place.district === filter.district) &&
       (filter.kind === 'all' || ev.kind === filter.kind) &&
       matchesDate(ev, filter.date, today) &&
+      matchesRange(ev, filter.range) &&
       matchesQuery(ev, filter.query),
   )
   return sortEvents(matched, today)
@@ -263,7 +299,7 @@ export function baseForSections(
       (ev) =>
         (filter.district === 'all' || ev.place.district === filter.district) &&
         (filter.kind === 'all' || ev.kind === filter.kind) &&
-        ev.ends_on >= today,
+        ev.endsOn >= today,
     ),
     today,
   )
@@ -282,8 +318,71 @@ export function sortByDeadline(events: EventItem[], today: DateKey = todayKey())
     const ao = isOngoing(a, today) ? 0 : 1
     const bo = isOngoing(b, today) ? 0 : 1
     if (ao !== bo) return ao - bo
-    if (a.ends_on !== b.ends_on) return a.ends_on < b.ends_on ? -1 : 1
-    if (a.starts_on !== b.starts_on) return a.starts_on < b.starts_on ? -1 : 1
+    if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
+    if (a.startsOn !== b.startsOn) return a.startsOn < b.startsOn ? -1 : 1
+    return a.id < b.id ? -1 : 1
+  })
+}
+
+/**
+ * 목록 정렬 축.
+ *
+ * 지금 가진 필드로 셀 수 있는 것만 넣었다. 「가까운 순」 은 넣지 않는다.
+ * 사용자의 현재 위치가 필요한데 우리는 위치 권한을 요청하지 않고,
+ * 요청하는 순간 위치정보사업 신고 대상이 된다.
+ */
+export type SortKey = 'deadline' | 'name' | 'perks'
+
+export const SORT_LABELS: Record<SortKey, string> = {
+  deadline: '마감 임박 순',
+  name: '가나다 순',
+  perks: '특전 많은 순',
+}
+
+/**
+ * 「특전 6종」 에서 6 을 뽑는다.
+ *
+ * 211건 중 195건이 이 형태다. 나머지는 팝업 MD 특전이라 한 문단짜리
+ * 서술형이고 개수를 셀 수 없다. 못 세는 것은 0 으로 두어 뒤로 보낸다.
+ * 0 으로 두는 것이 맞는 이유는, 개수를 모르는 것과 없는 것을 이 화면이
+ * 구분해 보여줄 방법이 없어서다.
+ */
+function perkCount(ev: EventItem): number {
+  const m = /특전\s*(\d+)\s*종/.exec(ev.perks ?? '')
+  return m ? Number(m[1]) : 0
+}
+
+/**
+ * 고른 축으로 세운다.
+ *
+ * 어느 축이든 **진행 중인 것이 먼저다.** 오늘 갈 수 없는 곳이 목록
+ * 맨 위에 오면 정렬을 바꾼 보람이 없다. 그 안에서만 축이 갈린다.
+ */
+export function sortByKey(
+  events: EventItem[],
+  key: SortKey,
+  today: DateKey = todayKey(),
+): EventItem[] {
+  if (key === 'deadline') return sortByDeadline(events, today)
+
+  const ongoing = (e: EventItem) => (isOngoing(e, today) ? 0 : 1)
+
+  return [...events].sort((a, b) => {
+    const o = ongoing(a) - ongoing(b)
+    if (o !== 0) return o
+
+    if (key === 'name') {
+      /* 한글 정렬은 코드포인트 순서와 사전 순서가 달라 localeCompare 가
+         필요하다. '가'(AC00) 와 '까'(AE4C) 사이에 '나' 가 끼어 있다 */
+      const n = a.subject.localeCompare(b.subject, 'ko')
+      if (n !== 0) return n
+    } else {
+      const p = perkCount(b) - perkCount(a)
+      if (p !== 0) return p
+    }
+
+    // 동률이면 마감 임박 순으로 되돌린다. 매번 같은 순서가 나와야 한다
+    if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
     return a.id < b.id ? -1 : 1
   })
 }
@@ -291,7 +390,7 @@ export function sortByDeadline(events: EventItem[], today: DateKey = todayKey())
 /** 카드용 짧은 기간 표기. 연도는 뺀다. 지난 것은 싣지 않으니 올해가 아닌 것이 없다 */
 export function shortRange(ev: EventItem): string {
   const md = (d: DateKey) => `${Number(d.slice(5, 7))}.${Number(d.slice(8, 10))}`
-  return `${md(ev.starts_on)} ~ ${md(ev.ends_on)}`
+  return `${md(ev.startsOn)} ~ ${md(ev.endsOn)}`
 }
 
 /**

@@ -22,14 +22,14 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 
 ### 출처를 속이지 않는다
 
-`source_url`은 **주최자·운영사의 실제 원문**을 가리킨다. 확인하지 않은 것을
+`sourceUrl`은 **주최자·운영사의 실제 원문**을 가리킨다. 확인하지 않은 것을
 `trust: 'official'`로 올리지 않는다. 리스팅에서 가져온 것은 `parsed`다.
 
 이 표기가 틀리면 사용자가 헛걸음하고, 그러면 재방문 지표가 오염돼
 *제품 매력도* 때문인지 *데이터 품질* 때문인지 구분할 수 없게 된다.
 그게 이번 PoC에서 가장 피해야 하는 상황이다 (poc-plan 1번).
 
-경쟁 리스팅 링크를 화면에 노출하지 않는다. `listing_url`은 데이터에만 남긴다.
+경쟁 리스팅 링크를 화면에 노출하지 않는다. `listingUrl`은 데이터에만 남긴다.
 
 ### 원본을 재게시하지 않는다
 
@@ -114,8 +114,8 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 
 # This is NOT the Next.js you know
 
-This version has breaking changes, APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev`, verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->

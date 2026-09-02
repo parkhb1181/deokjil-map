@@ -55,7 +55,7 @@ function find(raw: string): { subject: string; events: EventItem[] } | null {
   const events = bySubject().get(subject)
   if (!events) return null
   // 마감 임박 순. 목록 화면과 같은 축이라야 두 화면이 같은 것을 말한다
-  return { subject, events: [...events].sort((a, b) => a.ends_on.localeCompare(b.ends_on)) }
+  return { subject, events: [...events].sort((a, b) => a.endsOn.localeCompare(b.endsOn)) }
 }
 
 /** 지역별 개수를 많은 순으로. "홍대 12 · 용산 9" */

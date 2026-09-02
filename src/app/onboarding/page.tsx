@@ -47,7 +47,11 @@ const GROUPS: Group[] = [
     lead: '검색으로 들어오는 쪽. 원래 있던 화면들입니다.',
     rows: [
       {
-        href: '/',
+        /* 실서비스 주소(/)가 아니라 와이어프레임 쪽을 가리킨다.
+           그쪽이라야 로그인 버튼과 하단 탭의 동행이 보인다. duckmoim.com
+           은 와이어프레임 플래그 없이 빌드되어서 / 로 보내면 그 둘이
+           빠진 화면이 나온다 */
+        href: wf('/home'),
         name: '지도 · 목록',
         shot: 'home',
         spec: 'PoC',
@@ -87,7 +91,7 @@ const GROUPS: Group[] = [
         name: '모집글 상세',
         shot: 'post',
         spec: 'PO-03 · CM',
-        desc: '댓글과 비밀 댓글이 여기 다 있습니다. 기준 잡은 화면',
+        desc: '댓글과 비밀 댓글이 여기 다 있습니다. 「보는 사람」 에 나이 확인 중이 있어요',
         data: '목데이터',
       },
       {
@@ -116,16 +120,8 @@ const GROUPS: Group[] = [
         name: '가입 정보 입력',
         shot: 'welcome',
         spec: 'AU-02',
-        desc: '닉네임이랑 연령대',
+        desc: '닉네임이랑 출생연도. 2011년생보다 늦으면 왜 막히는지 뜹니다',
         data: '빈 화면',
-      },
-      {
-        href: wf('/me'),
-        name: '내 활동',
-        shot: 'me',
-        spec: 'AU-08',
-        desc: '내가 쓴 글, 내가 단 댓글',
-        data: '목데이터',
       },
       {
         href: wf('/me/edit'),
@@ -135,10 +131,14 @@ const GROUPS: Group[] = [
         data: '목데이터',
       },
       {
+        /* 내 활동(/me)과 한 화면이 됐다. 「보는 사람」 을 「나」 로 넘기면
+           제재 안내·내 댓글 탭까지 그대로 뜬다. 줄을 둘로 두면 같은
+           화면을 두 번 여는 셈이라 하나로 줄였다 */
         href: wf('/u/u_host'),
-        name: '남의 프로필',
+        name: '프로필',
         shot: 'profile',
-        spec: 'AU-05',
+        spec: 'AU-09 · AU-10',
+        desc: '내 것도 남의 것도 같은 화면. 「제재」 를 넘기면 나이 확인·정지가 보입니다',
         data: '목데이터',
       },
     ],
@@ -151,24 +151,24 @@ const GROUPS: Group[] = [
         name: '백오피스',
         shot: 'admin',
         spec: 'AD',
-        desc: '신고 처리랑 제재. 여기만 PC 화면입니다. 주소 뒤에 숫자를 붙여놨습니다',
+        desc: '신고 · 제재 · 기록 세 탭. 「일반 계정」 으로 넘기면 403 이 뜹니다. 여기만 PC 화면이에요',
         data: '목데이터',
       },
       {
-        href: wf('/terms'),
+        href: '/terms',
         name: '이용약관',
         shot: 'terms',
         spec: '명세 밖',
-        desc: '아직 안 썼습니다',
-        data: '빈 화면',
+        desc: '실서비스 주소입니다. 푸터에서 이어집니다',
+        data: '실데이터',
       },
       {
-        href: wf('/privacy'),
+        href: '/privacy',
         name: '개인정보 처리방침',
         shot: 'privacy',
         spec: '명세 밖',
-        desc: '아직 안 썼습니다',
-        data: '빈 화면',
+        desc: '실서비스 주소입니다. 푸터에서 이어집니다',
+        data: '실데이터',
       },
       {
         href: wf('/dev/gallery'),

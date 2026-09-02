@@ -26,18 +26,37 @@ export function canSeeSecret(
   hostId: string,
 ): boolean {
   if (!comment.secret) return true
-  if (!viewer.user_id) return false
+  if (!viewer.userId) return false
 
   /* 내가 쓴 것 */
-  if (comment.author.id === viewer.user_id) return true
+  if (comment.author.id === viewer.userId) return true
 
   /* 방장. 사람을 고르려면 다 봐야 한다 */
-  if (viewer.user_id === hostId) return true
+  if (viewer.userId === hostId) return true
 
   /* 내 댓글에 달린 비밀 대댓글. 부모가 공개든 비밀이든 같다 */
-  if (parent && parent.author.id === viewer.user_id) return true
+  if (parent && parent.author.id === viewer.userId) return true
 
   return false
+}
+
+/**
+ * 가려진 댓글의 본문을 뗀다 (AD-07).
+ *
+ * **이건 서버 쪽에서 부른다.** 아래 asServerWouldSend 와 달리 보는
+ * 사람이 누구인지와 무관하기 때문이다. 가려진 댓글은 아무도 못 본다.
+ *
+ * 클라이언트 컴포넌트에 넘기기 전에 떼야 하는 이유가 있다. props 로
+ * 넘긴 값은 HTML 안에 통째로 실려 나간다. 화면에서만 지우면 자리에는
+ * 「신고로 가려진 댓글입니다」 가 뜨지만 페이지 소스에는 원문이
+ * 그대로 남는다. 실제로 그랬고, 그건 가린 것이 아니다.
+ */
+export function stripBlinded(comments: PostComment[]): PostComment[] {
+  return comments.map((c) => {
+    if (c.state !== 'BLINDED') return c
+    const { body, ...rest } = c
+    return rest
+  })
 }
 
 /**
@@ -53,7 +72,18 @@ export function asServerWouldSend(
 ): PostComment[] {
   const byId = new Map(comments.map((c) => [c.id, c]))
   return comments.map((c) => {
-    const parent = c.parent_id ? byId.get(c.parent_id) ?? null : null
+    /* 가려진 댓글은 본문을 아무에게도 보내지 않는다 (AD-07).
+       비밀 권한보다 먼저 본다. 순서를 뒤집으면 방장은 자기 글에
+       달린 가려진 댓글의 본문을 그대로 받는다. 가린 이유가 대개
+       그 본문 때문인데 그러면 가린 것이 아니다.
+
+       화면에서 지우는 것이 아니라 응답에서 뺀다. 화면이 가리면
+       개발자 도구로 그냥 읽힌다 */
+    if (c.state === 'BLINDED') {
+      const { body, ...rest } = c
+      return rest
+    }
+    const parent = c.parentId ? byId.get(c.parentId) ?? null : null
     if (canSeeSecret(c, parent, viewer, hostId)) return c
     const { body, ...rest } = c
     return rest
@@ -67,16 +97,16 @@ export function asServerWouldSend(
  * 루트 기준으로 잘라야 대댓글이 부모와 떨어지지 않는다.
  */
 export function threaded(comments: PostComment[]): PostComment[] {
-  const roots = comments.filter((c) => !c.parent_id)
+  const roots = comments.filter((c) => !c.parentId)
   const kids = new Map<string, PostComment[]>()
   for (const c of comments) {
-    if (!c.parent_id) continue
-    const list = kids.get(c.parent_id) ?? []
+    if (!c.parentId) continue
+    const list = kids.get(c.parentId) ?? []
     list.push(c)
-    kids.set(c.parent_id, list)
+    kids.set(c.parentId, list)
   }
   const byTime = (a: PostComment, b: PostComment) =>
-    a.created_at < b.created_at ? -1 : 1
+    a.createdAt < b.createdAt ? -1 : 1
 
   return roots.sort(byTime).flatMap((r) => [r, ...(kids.get(r.id) ?? []).sort(byTime)])
 }

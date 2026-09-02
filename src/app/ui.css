@@ -211,6 +211,13 @@
 /* 종료. 모집 완료와 같은 회색이되 테두리만 남긴다.
    둘 다 끝난 글이라 색을 나누면 목록에 회색 계열이 둘이 되어 오히려
    구분이 흐려진다. 글자('모집 완료' / '종료')가 이미 다르다 */
+/* 취소. 종료와 같은 회색 테두리다. 둘 다 "더 못 들어간다" 는 사실이
+   같고, 글자가 이미 다르다 */
+.state--canceled {
+  background: transparent;
+  color: var(--gone);
+  box-shadow: inset 0 0 0 1px var(--border-mid);
+}
 .state--ended {
   background: transparent;
   color: var(--gone);
@@ -437,6 +444,113 @@
 
 /* 권한이 없으면 서버가 본문을 지워 보낸다. 여기서 가리는 게 아니다 */
 .cmt__hidden { font-size: var(--t-sub); color: var(--text-mute); font-style: italic; }
+
+/* 아바타와 이름을 누르면 사람 시트가 뜬다. 버튼이지만 버튼처럼
+   보이면 안 된다. 댓글 줄에 버튼이 하나 더 생긴 것처럼 읽힌다 */
+/* align-self 를 주지 않으면 버튼이 줄 높이만큼 늘어나고 그 안에서
+   아바타가 가운데로 내려간다. 감싸기 전에는 아바타가 고정 높이라
+   저절로 위에 붙어 있었다 */
+.cmt__avatar {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+.cmt__namebtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.cmt__namebtn:active { text-decoration: underline; }
+
+/* 글쓴이 줄도 같다 */
+.who--press {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.who--press:active .who__name { text-decoration: underline; }
+
+/* 본문 아래의 「이 글 신고」. 카운터 줄 오른쪽 끝으로 민다.
+   댓글 수와 나란히 두면 같은 종류로 읽히므로 색을 빼고 밑줄만 준다 */
+.post__report {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.post__report:active { color: var(--accent-ink); }
+
+/* ── 사람 시트 ──────────────────────────────────────────
+   아바타를 누르면 뜬다. 프로필로 바로 보내지 않는 이유는
+   components/ui/PersonSheet.tsx 머리에 적어 두었다.
+   ------------------------------------------------------- */
+.psheet {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(36, 26, 31, .38);
+}
+.psheet__panel {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px 18px 0 0;
+  background: var(--surface);
+  padding: 24px var(--gutter) calc(20px + env(safe-area-inset-bottom));
+}
+
+.psheet__who { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.psheet__name { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.psheet__meta { justify-content: center; }
+
+/* 둘이 같은 폭이다. 상세보기가 왼쪽인 이유는 대부분 궁금해서 누르기
+   때문이다. 신고를 크게 두면 누를 때마다 고발하는 화면이 된다 */
+.psheet__acts { margin-top: 18px; display: flex; gap: 8px; }
+.psheet__acts > * { flex: 1; }
+.psheet__go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+/* ── 댓글 수정 (CM-09) ───────────────────────────────────
+   고치는 것은 그 자리에서 일어난다. 맨 아래 입력칸을 빌려 쓰면
+   새 댓글을 쓰는 것과 구분이 안 된다.
+   ------------------------------------------------------- */
+
+/* 작성 시각 옆. 시각과 같은 무게로 두어 본문을 읽는 눈을 막지 않는다 */
+.cmt__edited { font-size: var(--t-small); color: var(--text-mute); }
+
+.cmt__edit { display: flex; flex-direction: column; gap: 8px; }
+
+.cmt__editopts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* 글자수를 버튼 쪽으로 밀어 붙인다. 자물쇠는 왼쪽에 남는다 */
+.cmt__editopts .write__count { margin-left: auto; }
 
 /* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
 .cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
@@ -802,6 +916,26 @@
   font-size: 14px;
   color: var(--text-dim);
 }
+
+/* 나이 확인으로 막힌 자리.
+   비회원 게이트와 한 줄 차이다. "언제 풀리나" 를 덧붙여야 해서
+   왼쪽이 두 줄이 된다. 그러면 가운데 정렬이 어긋나 보여 위로 붙인다.
+   색은 사안 배너(.sanc--hold)와 맞춘다. 같은 상태를 두 자리에서
+   다른 색으로 말하면 다른 일로 읽힌다 */
+.write__gate--hold {
+  align-items: flex-start;
+  border-color: rgba(217, 119, 6, .24);
+  background: var(--warn-soft);
+}
+.write__gate--hold p { min-width: 0; }
+.write__gate--hold p span {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--t-small);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.write__gate--hold .btn { flex: 0 0 auto; }
 
 /* 답글을 다는 중이라는 표시.
 
@@ -1518,6 +1652,19 @@
 .myid__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
 .myid__meta { margin-top: 3px; justify-content: center; }
 
+/* 한줄소개. 남에게 보이는 문구라 내 화면에서도 보여야 무엇이 걸려
+   있는지 안다. 가운데 정렬이라 폭을 묶어두지 않으면 한 줄이 화면
+   끝까지 뻗어 읽는 눈이 되돌아오는 거리가 길어진다 */
+.myid__bio {
+  margin: 8px auto 0;
+  max-width: 34ch;
+  font-size: var(--t-sub);
+  line-height: 1.55;
+  color: var(--text-mute);
+  white-space: pre-wrap;
+}
+.myid__bio--none { color: var(--text-mute); font-style: italic; }
+
 /* ── 마이페이지 메뉴 ──────────────────────────────────── */
 
 .mymenu { border-top: 8px solid var(--bg-sunk); }
@@ -1855,6 +2002,84 @@
 }
 .legal__back { margin-top: 28px; font-size: var(--t-sub); }
 
+/* ── 약관·처리방침 본문 ─────────────────────────────────
+   조문이 길어서 읽는 자리가 흐트러지지 않게 줄간격을 넉넉히 준다.
+   법 문서는 훑는 것이 아니라 한 줄씩 읽는 글이다.
+   ------------------------------------------------------- */
+
+/* 검토 전이라는 사실을 맨 위에서 못 박는다. 아래로 내리면 다 읽고
+   나서야 알게 된다 */
+.legal__draft {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border-mid);
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+.legal__draft b { color: var(--accent-ink); font-weight: 700; }
+
+.legal__dates { margin-top: 8px; font-size: var(--t-small); }
+
+.legal__sec { margin-top: 4px; }
+
+.legal__p {
+  margin-top: 8px;
+  font-size: var(--t-sub);
+  line-height: 1.75;
+  color: var(--text-mute);
+}
+
+.legal__list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.legal__list li {
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
+/* 표만 옆으로 밀린다. 페이지째 흐르면 본문 왼쪽 시작선이 어긋난다 */
+.legal__tablewrap { margin-top: 12px; overflow-x: auto; }
+.legal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+.legal__table th,
+.legal__table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  word-break: keep-all;
+}
+.legal__table th {
+  background: var(--bg-sunk);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.legal__table td { color: var(--text-mute); }
+
+/* 조문에 딸리는 단서. 본문과 같은 무게로 두면 어디까지가 조문이고
+   어디부터가 부연인지 갈리지 않는다 */
+.legal__note {
+  margin-top: 10px;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
 /* ── 만날 자리 찍기 ────────────────────────────────────── */
 
 .ppick { margin-top: -6px; }
@@ -1922,6 +2147,28 @@
    좁은 화면에서는 검색칸이 줄고 이 버튼은 그대로 남는다.
    ------------------------------------------------------- */
 
+/* 헤더 오른쪽의 로그인.
+   로고만 남아 비어 있던 자리다. 카카오 노랑을 그대로 쓰되 크기를 줄인다.
+   로그인 화면의 큰 버튼과 같은 색이라야 눌렀을 때 이어지는 것이 보인다 */
+.header__login {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fee500;
+  color: rgba(0, 0, 0, .85);
+  font-size: var(--t-sub);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.header__login svg { width: 15px; height: 15px; }
+.header__login:active { background: #f2d900; }
+
 .header__go {
   flex: 0 0 auto;
   display: inline-flex;
@@ -1963,8 +2210,6 @@
 }
 .bo__logo { font-size: var(--t-strong); color: var(--text-mute); white-space: nowrap; }
 .bo__logo b { color: var(--text); font-weight: 800; }
-
-.bo__who { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
 
 /* 표는 넓을수록 좋지만 끝이 없으면 눈이 행을 놓친다. 1120 은
    여섯 칸이 안 눌리면서 한 행을 눈으로 따라갈 수 있는 폭이다 */
@@ -2014,6 +2259,167 @@
 .bo__when { font-variant-numeric: tabular-nums; }
 .bo__actcol { text-align: right; white-space: nowrap; }
 .bo__acts { display: inline-flex; gap: 6px; }
+
+/* ── 백오피스 탭 ───────────────────────────────────────────
+   할 일이 신고 하나일 때는 탭이 없었다. 셋이 되면서 되살렸다.
+
+   상단 바에 넣지 않고 그 아래 한 줄을 따로 쓴다. 바에 몰면 로고와
+   누구로 들어와 있는지와 탭이 한 줄에서 자리를 다투고, 탭이 늘 때마다
+   로고가 밀린다.
+
+   명세 번호를 같이 적는 것은 이 화면이 팀 확인용이기 때문이다. 어느
+   탭이 어느 요구사항인지 눈으로 대조할 수 있어야 한다 */
+.bo__tabs {
+  position: sticky;
+  top: 56px;
+  z-index: 19;
+  display: flex;
+  gap: 2px;
+  padding: 0 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.bo__tab {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: var(--t-strong);
+  font-weight: 600;
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__tab[aria-pressed='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  font-weight: 800;
+}
+.bo__tspec { font-size: var(--t-small); font-weight: 500; color: var(--text-mute); }
+
+/* 탭을 열었을 때 그 목록이 무엇인지 한 줄. 표만 있으면 「기록」 이
+   무엇을 남기는 목록인지 운영자가 짐작해야 한다 */
+.bo__lead {
+  max-width: 78ch;
+  margin: -6px 0 14px;
+  font-size: var(--t-sub);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.bo__lead b { font-weight: 700; color: var(--text); }
+
+/* 누구로 들어와 있나. 인증이 붙으면 버튼을 지우고 이름만 남는다 */
+.bo__who {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.bo__who button {
+  padding: 5px 10px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  cursor: pointer;
+}
+.bo__who button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+/* 처리 결과. 「처리됨」 만 있으면 무엇으로 처리했는지가 안 남아
+   나중에 같은 신고를 다시 볼 때 판단 근거가 없다 (AD-03) */
+.bo__result { font-size: var(--t-small); color: var(--text-mute); align-self: center; }
+
+/* 비밀 댓글 본문.
+   열기 전에는 버튼만 있다. 여는 것이 기록에 남는 행위라 표에 미리
+   깔아두면 훑기만 해도 열람한 것이 된다 (AD-05) */
+.bo__peek { display: block; margin-top: 4px; }
+.bo__peek button {
+  padding: 3px 9px;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.bo__peeked {
+  display: block;
+  padding: 7px 10px;
+  border-left: 2px solid var(--warn);
+  background: var(--warn-soft);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+/* ── 403 ───────────────────────────────────────────────────
+   목록도 숫자도 안 보여준다. 「신고 3건」 같은 것만 보여줘도 그건
+   이미 정보다 */
+.bo__deny {
+  max-width: 46ch;
+  margin: 64px auto;
+  padding: 32px 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.bo__dcode {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+}
+.bo__dtitle { margin-top: 4px; font-size: var(--t-title); font-weight: 800; color: var(--text); }
+
+/* 수위를 고르면 무슨 일이 일어나는지 한 줄. 「글쓰기 제한」 이라는
+   말만으로는 읽기가 열려 있다는 것도, 답이 오면 풀린다는 것도 안 보인다 */
+.bo__hint {
+  margin-top: -4px;
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
+/* 계정 파기 칸.
+   되돌릴 수 없는 것은 되돌릴 수 있는 것과 같은 얼굴이면 안 된다.
+   위험한 것이라 빨강을 쓰는 게 아니라, 운영자가 손을 멈추게 하려고 쓴다 */
+.bo__danger {
+  padding: 12px 14px;
+  border: 1px solid rgba(200, 30, 30, .24);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  font-size: var(--t-sub);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.bo__dhead {
+  margin-bottom: 4px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--danger);
+}
+.bo__danger .chk { margin-top: 10px; }
+.bo__dnote {
+  margin-top: 8px;
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-mute);
+}
 
 /* ── 모집글 검색 ─────────────────────────────────────────
    행사 고르기(.epick__search)와 같은 모양을 쓴다. 같은 일을 하는
@@ -2212,7 +2618,17 @@
    줄 맨 앞에서 바로 읽힌다.
    ------------------------------------------------------- */
 
-.fbar { padding: 12px var(--gutter) 0; }
+/* 헤더 대신 여기가 화면 위에 붙는다. 목록이 209장이라 좁히려고
+   매번 맨 위로 올라가야 했다. 배경과 아래 선을 주는 이유는 붙어 있는
+   동안 카드가 이 줄 뒤로 지나가기 때문이다 */
+.fbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px var(--gutter);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
 
 .fbar__search {
   display: flex;
@@ -2246,10 +2662,12 @@
   cursor: pointer;
 }
 
+/* 검색칸 위아래 간격을 같게 둔다. 위가 12 인데 아래가 10 이면
+   필터 줄이 검색칸에 붙어 한 덩어리로 읽힌다. 둘은 다른 축이다 */
 .fbar__row {
   display: flex;
   gap: 6px;
-  margin-top: 10px;
+  margin-top: 12px;
   /* 축이 늘면 옆으로 흐른다. 접었기 때문에 둘뿐이라 지금은 안 흐른다 */
   overflow-x: auto;
   scrollbar-width: none;
@@ -2341,6 +2759,10 @@
   cursor: pointer;
 }
 .fsheet__list { list-style: none; margin: 0; padding: 0 0 12px; overflow-y: auto; }
+
+/* 목록이 아닌 축(기간 달력)이 들어오는 자리. 목록 항목은 자기 좌우
+   여백을 스스로 갖지만 달력 격자는 통째로 하나라 여기서 준다 */
+.fsheet__custom { padding: 0 var(--gutter) 16px; overflow-y: auto; }
 .fsheet__item {
   width: 100%;
   display: flex;
@@ -2364,3 +2786,177 @@
 /* 지도 위 검색칸. 반투명 흰 바탕이라 지도가 비쳐도 글자가 읽힌다 */
 .mapcontrols .fbar__search { background: rgba(255, 255, 255, .94); height: 40px; }
 .mapsearch__n { flex: 0 0 auto; font-size: var(--t-small); color: var(--text-mute); }
+
+/* ── 제재 안내 ───────────────────────────────────────────
+   백오피스에서 제재를 주기만 하고 받는 쪽에 알려주는 자리가 없었다.
+   무엇을 잘못했는지 모르면 고칠 수가 없고, 그러면 제재가 사람을
+   고치는 장치가 아니라 그냥 벌이 된다.
+   ------------------------------------------------------- */
+
+/* 경고 배너.
+   당근 SEED 의 Callout 구조다 — 앞머리 아이콘 · 제목 · 본문 · 링크.
+   전에는 글자 세 줄만 쌓아서 무엇이 제목이고 무엇이 사유인지 눈으로
+   안 끊겼다. 아이콘이 왼쪽 기둥을 잡아주면 본문이 한 덩어리로 읽힌다 */
+.sanc {
+  display: flex;
+  gap: 10px;
+  margin: 12px var(--gutter) 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(200, 30, 30, .22);
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+}
+.sanc__icon { flex: 0 0 auto; width: 20px; height: 20px; margin-top: 1px; color: var(--danger); }
+.sanc__main { flex: 1; min-width: 0; }
+
+.sanc__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--danger);
+}
+/* 언제 받았는지. 오른쪽 끝으로 밀어 제목과 한 줄을 나눠 쓴다 */
+.sanc__when {
+  margin-left: auto;
+  font-size: var(--t-small);
+  font-weight: 500;
+  color: var(--text-mute);
+}
+
+/* 사유가 본문이다. 제목보다 크게 두지는 않되 색을 진하게 해서
+   부연(sanc__note)과 무게를 가른다 */
+.sanc__body {
+  margin-top: 5px;
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text);
+}
+.sanc__note { margin-top: 3px; font-size: var(--t-small); line-height: 1.6; color: var(--text-mute); }
+
+/* 읽고 나서 할 수 있는 것. 없으면 "왜 받았지" 도 "잘못됐는데" 도
+   어디서 말할 수가 없다 */
+.sanc__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 9px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--danger);
+  text-decoration: none;
+}
+.sanc__link svg { width: 12px; height: 12px; }
+
+/* 나이 확인 요청.
+   같은 뼈대를 쓰되 색만 빨강에서 주황으로 내린다. 벌이 아니라 물음이라
+   경고와 같은 빨강을 쓰면 받는 쪽이 처벌로 읽는다. 반대로 회색으로
+   두면 그냥 안내문이 되어 답을 안 준다. 그 사이가 주황이다 */
+.sanc--hold { border-color: rgba(217, 119, 6, .24); background: var(--warn-soft); }
+.sanc--hold .sanc__icon,
+.sanc--hold .sanc__head,
+.sanc--hold .sanc__link { color: var(--warn); }
+
+/* ── 가입 나이 안내 ───────────────────────────────────────
+   출생연도가 하한에 못 미칠 때 가입 화면에 펴는 칸.
+
+   오류 한 줄(fld__msg)로 끝내지 않는 이유는, 그 줄이 「고쳐 쓰라」 는
+   뜻으로 읽히기 때문이다. 여기서는 고쳐 쓰면 안 된다. 근거와 나가는
+   길을 같이 줘야 잘못 막힌 사람이 연락할 수 있다.
+
+   빨강을 쓰지 않는다. 이 사람은 잘못한 것이 없다 */
+.agebar {
+  margin: 4px 0 0;
+  padding: 14px 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.agebar__head {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+}
+.agebar__body {
+  margin-top: 7px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-dim);
+}
+.agebar__link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: var(--t-sub);
+  font-weight: 700;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* 정지 안내. 화면을 통째로 차지한다 (AD-04) */
+.sblock { padding: 48px var(--gutter) 40px; text-align: center; }
+.sblock__art { display: block; margin: 0 auto 14px; opacity: .5; }
+.sblock__title {
+  font-size: var(--t-title);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+/* 사유.
+   왼쪽 색선에 연한 배경을 깔던 것을 그만뒀다. 그건 마크다운 인용구
+   모양이라 경고·정보·주의가 전부 같은 얼굴이 된다.
+
+   여기 사유는 곁다리 알림이 아니라 이 화면의 본문이다. 그래서 통지서
+   모양으로 바꿨다 — 라벨이 머리줄에 앉고 본문은 흰 바탕에 놓인다.
+   운영자가 사람으로서 적어 보낸 말이라는 것이 그 편이 잘 읽힌다.
+
+   색은 머리줄에만 남긴다. 본문까지 붉게 깔면 글자가 경고문처럼
+   읽혀서 정작 무슨 내용인지가 흐려진다 */
+.sblock__reason {
+  margin: 20px auto 0;
+  max-width: 34ch;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-align: left;
+}
+.sblock__rlabel {
+  padding: 9px 16px;
+  background: var(--bg-sunk);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t-small);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-mute);
+}
+.sblock__rtext {
+  padding: 16px;
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+/* 언제 다시 쓸 수 있나. 사용자가 알고 싶은 것은 이것이지 언제
+   벌받았나가 아니다. 크게 세우고 제재일은 밑에 작게 둔다.
+   전에는 둘을 같은 크기로 나란히 놓아 한 덩어리로 보였다 */
+.sblock__until {
+  margin-top: 26px;
+  font-size: var(--t-title);
+  color: var(--text-mute);
+}
+.sblock__until b { font-size: var(--t-hero); font-weight: 800; color: var(--text); }
+.sblock__until span { margin-left: 4px; }
+.sblock__until--ban { font-size: var(--t-title); font-weight: 800; color: var(--text); }
+.sblock__since { margin-top: 6px; font-size: var(--t-sub); color: var(--text-mute); }
+
+.sblock__note { margin-top: 20px; font-size: var(--t-sub); line-height: 1.6; color: var(--text-mute); }
+/* 이의 제기 경로. 없으면 사용자가 할 수 있는 것이 하나도 없다 */
+.sblock__appeal {
+  margin-top: 22px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
+.sblock__appeal a { color: var(--accent-ink); font-weight: 600; }

@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
 import DetailMap from './DetailMap'
+import { posterSrc } from '@/lib/poster'
 
 interface Props {
   event: EventItem
@@ -39,8 +40,15 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
     }
   }, [])
 
+  /* 사진은 우리가 복제해 두지 않고 수집원 서버 주소를 그대로 물고 있다.
+     그쪽이 내리거나 막으면 깨진 그림이 뜬다. 카드(EventCard)와 같은 처리를
+     상세에도 둔다. 불리언 하나로 두면 다음에 연 행사의 멀쩡한 사진까지
+     가려지므로 어느 행사에서 죽었는지를 기억한다 */
+  const [failedId, setFailedId] = useState<string | null>(null)
+  const showImage = Boolean(event.imageUrl) && failedId !== event.id
+
   // 주최자·운영사가 직접 올린 곳인지. 리스팅 사이트로 떨어진 경우와 구분한다
-  const official = /instagram\.com|x\.com|twitter\.com/.test(event.source_url)
+  const official = /instagram\.com|x\.com|twitter\.com/.test(event.sourceUrl)
 
   const sw = swatchFor(event)
   const left = daysLeft(event, today)
@@ -55,10 +63,15 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
       </div>
 
       <div className="sheet__body">
-        {event.image_url ? (
+        {showImage ? (
           <div className="sheet__visual sheet__visual--photo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={event.image_url} alt="" decoding="async" />
+            <img
+              src={posterSrc(event.imageUrl)}
+              alt=""
+              decoding="async"
+              onError={() => setFailedId(event.id)}
+            />
           </div>
         ) : (
           <div
@@ -89,8 +102,8 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
         </div>
 
         <dl className="dlist">
-          <Row label="기간" value={`${event.starts_on} ~ ${event.ends_on}`} />
-          {event.open_hours && <Row label="운영시간" value={event.open_hours} />}
+          <Row label="기간" value={`${event.startsOn} ~ ${event.endsOn}`} />
+          {event.openHours && <Row label="운영시간" value={event.openHours} />}
           {event.perks && <Row label="특전" value={event.perks} />}
           {event.conditions && <Row label="조건" value={event.conditions} />}
           <Row label="정보 출처" value={TRUST_LABELS[event.trust]} />
@@ -105,12 +118,12 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
             <ul className="goods__list">
               {event.goods
                 .slice()
-                .sort((a, b) => a.sort_order - b.sort_order)
+                .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((g) => (
                   <li key={g.id} className="goods__item">
                     <span>{g.name}</span>
                     {/* 랜덤 품목은 "품절" 개념이 아니라 "지금 뭐가 나오나"가 관심사다 */}
-                    {g.is_random && <span className="goods__random">랜덤</span>}
+                    {g.isRandom && <span className="goods__random">랜덤</span>}
                   </li>
                 ))}
             </ul>
@@ -125,7 +138,7 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
             주최자·운영사의 공식 게시물일 때만 주요 동선으로 올린다 */}
         <a
           className={`sourcelink ${official ? '' : 'sourcelink--weak'}`}
-          href={event.source_url}
+          href={event.sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => onOpenSource(event)}
@@ -133,10 +146,10 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
           {official ? '공식 공지 보기 ↗' : '정보 원문 보기 ↗'}
         </a>
 
-        {event.reservation_url && (
+        {event.reservationUrl && (
           <a
             className="sourcelink sourcelink--sub"
-            href={event.reservation_url}
+            href={event.reservationUrl}
             target="_blank"
             rel="noopener noreferrer"
           >

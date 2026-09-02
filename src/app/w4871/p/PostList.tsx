@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { MeetPoint, PostState } from '@/types'
+import type { ClosedReason, MeetPoint, PostState } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Blank, Skeleton } from '@/components/ui/Basics'
 import { PostCard } from '@/components/ui/Post'
@@ -20,18 +20,19 @@ import { wf } from '@/lib/wireframe'
 
 export type ListItem = {
   id: string
-  event_id: string | null
-  event_title: string | null
+  eventId: string | null
+  eventTitle: string | null
   title: string
   excerpt: string
   state: PostState
+  closedReason?: ClosedReason | null
   capacity: number | null
-  meet_at: string
-  meet_point: MeetPoint
-  author: { id: string; nickname: string; image_url?: string | null; done_count?: number }
-  comment_count: number
+  meetAt: string
+  meetPoint: MeetPoint
+  author: { id: string; nickname: string; imageUrl?: string | null; doneCount?: number }
+  commentCount: number
   /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
-  image_url?: string | null
+  imageUrl?: string | null
 }
 
 /** '2026-09-14T09:00' → '9/14 (월) 09:00' */
@@ -45,7 +46,7 @@ function whenShort(iso: string) {
 /* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면
    목록이 두 배가 되고 정작 갈 수 있는 글이 묻힌다 */
 const TABS = [
-  { key: 'open', label: '모집중' },
+  { key: 'OPEN', label: '모집중' },
   { key: 'all', label: '전체' },
 ] as const
 
@@ -54,10 +55,15 @@ const TABS = [
 const VIEWS = ['정상', '비었음', '실패', '기다리는 중'] as const
 
 export default function PostList({ posts }: { posts: ListItem[] }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('open')
+  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('OPEN')
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
+  /* 쓰기 상태. VIEWS 에 넣지 않은 이유는 그것이 목록 자체의 상태라
+     거기에 섞으면 「나이 확인 중」 을 고르는 순간 목록이 사라지기
+     때문이다. 여기서 막는 것은 글쓰기 하나뿐이고 목록은 그대로다.
+     인증이 붙으면 이 상태와 아래 막대를 지운다 */
+  const [hold, setHold] = useState(false)
 
   /**
    * 상태 탭 + 검색.
@@ -72,11 +78,11 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
    * 로도 찾는데 어느 칸에 있는지는 모른다.
    */
   const list = useMemo(() => {
-    const byState = tab === 'open' ? posts.filter((p) => p.state === 'open') : posts
+    const byState = tab === 'OPEN' ? posts.filter((p) => p.state === 'OPEN') : posts
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
-      `${p.title} ${p.meet_point.place} ${p.event_title ?? ''}`.toLowerCase().includes(key),
+      `${p.title} ${p.meetPoint.place} ${p.eventTitle ?? ''}`.toLowerCase().includes(key),
     )
   }, [posts, tab, q])
 
@@ -89,6 +95,14 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
             {v}
           </button>
         ))}
+      </div>
+
+      {/* 나이 확인 중인 사람에게 글쓰기가 어떻게 막히는지 확인한다.
+          목록은 그대로 읽힌다 (처리방침 제10조) */}
+      <div className="whoami">
+        <b>쓰기</b>
+        <button aria-pressed={!hold} onClick={() => setHold(false)}>가능</button>
+        <button aria-pressed={hold} onClick={() => setHold(true)}>나이 확인 중</button>
       </div>
 
       <div className="plist">
@@ -175,11 +189,12 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                     댓글 수는 글자 줄이 아니라 오른쪽 말풍선으로 나간다 */}
                 <PostCard
                   state={p.state}
+                  reason={p.closedReason}
                   title={p.title}
-                  when={whenShort(p.meet_at)}
-                  where={p.meet_point.place}
-                  image={p.image_url}
-                  comments={p.comment_count}
+                  when={whenShort(p.meetAt)}
+                  where={p.meetPoint.place}
+                  image={p.imageUrl}
+                  comments={p.commentCount}
                 />
               </Link>
             ))}
@@ -203,17 +218,35 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
         글쓰기
       </button>
 
+      {/* 막힌 사유에 따라 시트가 갈린다. 로그인하라는 말과 나이 확인
+          중이라는 말은 사용자가 할 일이 정반대다. 하나로 뭉뚱그리면
+          이미 로그인한 사람에게 또 로그인하라고 하게 된다 */}
       {ask && (
-        <Sheet
-          title="로그인이 필요해요"
-          desc="모집글을 쓰려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(false)}>나중에</Button>
-              <Button tone="kakao" onClick={() => setAsk(false)}>카카오로 시작하기</Button>
-            </>
-          }
-        />
+        hold ? (
+          <Sheet
+            title="나이 확인 중이에요"
+            desc="확인이 끝날 때까지 글과 댓글을 쓸 수 없어요. 답을 주시면 바로 풀립니다. 읽는 것은 그대로 하실 수 있어요."
+            foot={
+              <>
+                <Button tone="ghost" onClick={() => setAsk(false)}>닫기</Button>
+                <a className="btn btn--primary" href="mailto:help@duckmoim.com">
+                  확인해주기
+                </a>
+              </>
+            }
+          />
+        ) : (
+          <Sheet
+            title="로그인이 필요해요"
+            desc="모집글을 쓰려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
+            foot={
+              <>
+                <Button tone="ghost" onClick={() => setAsk(false)}>나중에</Button>
+                <Button tone="kakao" onClick={() => setAsk(false)}>카카오로 시작하기</Button>
+              </>
+            }
+          />
+        )
       )}
     </PageShell>
   )

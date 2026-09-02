@@ -12,6 +12,7 @@ import {
   shortRange,
 } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
+import { posterSrc } from '@/lib/poster'
 import { useSave } from './SaveContext'
 
 interface Props {
@@ -36,7 +37,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
 
   const left = daysLeft(event, today)
   const urgent = left >= 0 && left <= 1
-  const showImage = Boolean(event.image_url) && !imageFailed
+  const showImage = Boolean(event.imageUrl) && !imageFailed
   const sw = swatchFor(event)
   const perks = shortPerks(event)
 
@@ -51,7 +52,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
           {/* 원본이 장당 수 MB 라 그대로 물리면 목록이 무너진다.
               카드 크기로 줄여 받는다. 수집원이 원본을 내리면 폴백 색 블록으로 넘어간다 */}
           <Image
-            src={event.image_url!}
+            src={posterSrc(event.imageUrl)!}
             alt=""
             fill
             sizes="240px"
@@ -84,7 +85,7 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
         </div>
 
         <div className="card__meta">
-          {event.open_hours ?? shortRange(event)}
+          {event.openHours ?? shortRange(event)}
           {/* 특전은 이 카테고리에서 갈지 말지를 가르는 정보다. 상세까지 숨기지 않는다 */}
           {perks && <span className="card__perks">{perks}</span>}
         </div>
