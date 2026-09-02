@@ -1543,6 +1543,19 @@
 .myid__name { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
 .myid__meta { margin-top: 3px; justify-content: center; }
 
+/* 한줄소개. 남에게 보이는 문구라 내 화면에서도 보여야 무엇이 걸려
+   있는지 안다. 가운데 정렬이라 폭을 묶어두지 않으면 한 줄이 화면
+   끝까지 뻗어 읽는 눈이 되돌아오는 거리가 길어진다 */
+.myid__bio {
+  margin: 8px auto 0;
+  max-width: 34ch;
+  font-size: var(--t-sub);
+  line-height: 1.55;
+  color: var(--text-mute);
+  white-space: pre-wrap;
+}
+.myid__bio--none { color: var(--text-mute); font-style: italic; }
+
 /* ── 마이페이지 메뉴 ──────────────────────────────────── */
 
 .mymenu { border-top: 8px solid var(--bg-sunk); }

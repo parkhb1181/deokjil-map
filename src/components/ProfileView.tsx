@@ -21,7 +21,7 @@
  * 하나 준다.** `GET /users/{id}` 가 본인일 때만 댓글·제재를 더 실어
  * 보내면 된다. API 를 붙이기 전에 하는 편이 싸다.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
@@ -65,50 +65,31 @@ export type MyComment = {
   replied: boolean
 }
 
+/**
+ * 프로필에 싣는 값.
+ *
+ * **마지막 활동 시각과 가입월을 뺐다.** 「3일 이내 활동」 · 「2026년 6월
+ * 가입」 이 그것이다. 둘 다 낯선 사람이 나를 가늠하는 데 쓰라고 둔
+ * 값인데, 실제로는 그 사람이 언제 접속하는지와 얼마나 오래 있었는지를
+ * 남에게 알려준다. 연령대를 공개 프로필에서 뺀 것과 같은 이유다.
+ * 쓰지도 않을 것을 내보이면 잃을 것만 늘어난다.
+ *
+ * 타입에서도 뺀다. 화면에서만 가리고 응답에 남겨두면 개발자 도구로
+ * 그냥 읽힌다. 서버가 애초에 안 보내야 한다.
+ */
 export type ProfileData = {
   id: string
   nickname: string
   imageUrl?: string | null
   bio?: string | null
   doneCount: number
-  joinedAt: string
-  /**
-   * 마지막 활동 시각. 알림이 없는 서비스라 "내 댓글을 볼 사람인가" 가
-   * 여기 걸린다. 서버가 채우며 아직 응답에 없다 (docs/FRONTEND.md)
-   */
-  lastSeenAt?: string | null
   posts: ProfilePost[]
-}
-
-function monthOf(iso: string) {
-  const [y, m] = iso.split('T')[0].split('-')
-  return `${y}년 ${Number(m)}월`
 }
 
 function whenShort(iso: string) {
   const [d, t] = iso.split('T')
   const [, m, day] = d.split('-')
   return `${Number(m)}/${Number(day)} ${t}`
-}
-
-/** 'YYYY-MM-DD' 두 개의 날짜 차이. 날짜만 있는 값이라 UTC 로 읽어 시차를 없앤다 */
-function daysBetween(from: string, to: string) {
-  const p = (s: string) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10))
-  return Math.round((p(to) - p(from)) / 86400000)
-}
-
-/**
- * 마지막 활동을 사람이 읽는 말로. 정확한 시각을 적지 않는 이유는
- * 그게 필요한 정보가 아니어서다. 알고 싶은 것은 "지금 연락이 닿나" 다.
- */
-function activeLabel(lastSeen: string, today: string) {
-  const d = daysBetween(lastSeen.split('T')[0], today)
-  if (d <= 0) return '오늘 활동'
-  if (d === 1) return '어제 활동'
-  if (d <= 3) return '3일 이내 활동'
-  if (d <= 7) return '일주일 이내 활동'
-  if (d <= 30) return '한 달 이내 활동'
-  return '한 달 넘게 활동 없음'
 }
 
 /** 목록 행 오른쪽 끝의 꺾쇠. 누를 수 있다는 표시다 */
@@ -168,17 +149,6 @@ export default function ProfileView({
   const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
   const sanction = mine ? SANCTIONS[sanc] : null
 
-  /* 오늘 날짜는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드
-     시각이라 그대로 쓰면 배포 다음날부터 "3일 이내" 가 어긋난다 */
-  const [today, setToday] = useState('')
-  useEffect(() => {
-    const d = new Date()
-    const p = (n: number) => String(n).padStart(2, '0')
-    setToday(`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`)
-  }, [])
-
-  const active = today && user.lastSeenAt ? activeLabel(user.lastSeenAt, today) : null
-
   /* 진행 중인 것이 먼저다. 그 안에서는 만나는 날이 가까운 순,
      끝난 것은 최근 것부터 */
   const posts = useMemo(
@@ -198,7 +168,7 @@ export default function ProfileView({
 
   return (
     <PageShell
-      title={mine ? '내 활동' : '프로필'}
+      title={mine ? '내 프로필' : '프로필'}
       right={
         mine ? undefined : (
           /* 점 세 개가 아니라 「신고」 라고 적는다. 차단을 뺀 뒤로
@@ -274,6 +244,14 @@ export default function ProfileView({
                 <p className="myid__meta meta">
                   <span>동행 {user.doneCount}회</span>
                 </p>
+                {/* 한줄소개를 내 화면에도 띄운다. 남에게 보이는 문구라
+                    내 화면에서 안 보이면 무엇이 걸려 있는지 모른 채로
+                    남는다. 비어 있으면 채우라고 말해준다 */}
+                {user.bio ? (
+                  <p className="myid__bio">{user.bio}</p>
+                ) : (
+                  <p className="myid__bio myid__bio--none">한줄소개를 아직 안 썼어요</p>
+                )}
               </div>
 
               {/* 수정 화면으로 간다. 전에는 공개 프로필로 보냈는데 그건
@@ -291,12 +269,7 @@ export default function ProfileView({
                 <Avatar name={user.nickname} src={user.imageUrl ?? undefined} />
                 <div className="prof__idmain">
                   <h1 className="prof__name">{user.nickname}</h1>
-
-                  <p className="prof__meta meta">
-                    {/* 활동 시각은 서버가 아직 안 준다. 없으면 칸이 하나 준다 */}
-                    {active && <span>{active}</span>}
-                    <span>{monthOf(user.joinedAt)} 가입</span>
-                  </p>
+                  {/* 활동 시각과 가입월을 뺐다. 이유는 ProfileData 주석에 */}
                 </div>
               </div>
 

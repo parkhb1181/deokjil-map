@@ -14,16 +14,13 @@ import ProfileView, { type ProfileData } from '@/components/ProfileView'
  * 색인 여부는 따로 정해야 한다. 지금은 가짜 데이터라 막아 둔다.
  */
 const USERS: Record<string, ProfileData> = {
-  /* 채울 것이 다 있는 사람. 서버가 아직 안 주는 두 값
-     (lastSeenAt · district) 이 들어왔을 때의 모습이다 */
+  /* 채울 것이 다 있는 사람. 서버가 아직 안 주는 두 값 (district) 이 들어왔을 때의 모습이다 */
   u_host: {
     id: 'u_host',
     nickname: '덕질하는오리',
     imageUrl: '/avatar/a1.webp',
     bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
     doneCount: 3,
-    joinedAt: '2026-06-11T00:00',
-    lastSeenAt: '2026-08-30T21:10',
     posts: [
       {
         id: 'p1',
@@ -48,7 +45,6 @@ const USERS: Record<string, ProfileData> = {
     imageUrl: '/avatar/a3.webp',
     bio: null,
     doneCount: 0,
-    joinedAt: '2026-08-29T00:00',
     posts: [],
   },
 }

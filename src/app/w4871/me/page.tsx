@@ -21,8 +21,6 @@ const ME: ProfileData = {
   imageUrl: '/avatar/a1.webp',
   bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
   doneCount: 3,
-  joinedAt: '2026-06-11T00:00',
-  lastSeenAt: '2026-08-30T21:10',
   posts: [
     {
       id: 'p1',
@@ -73,7 +71,7 @@ const MY_COMMENTS: MyComment[] = [
 ]
 
 export const metadata: Metadata = {
-  title: '내 활동 · 덕모임',
+  title: '내 프로필 · 덕모임',
   robots: { index: false, follow: false },
 }
 
