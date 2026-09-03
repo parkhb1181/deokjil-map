@@ -23,6 +23,15 @@ const BLOCK = [
   'rm .github/PULL_REQUEST_TEMPLATE.md',
   'cp /tmp/x .github/scripts/pr_body.py',
   'tee .githooks/prepare-commit-msg < /tmp/x',
+  /* 인터프리터로 쓰기. `sed` 가 못 다루는 것(여러 줄 JSX·한글·따옴표)을
+     이렇게 고치는 일이 잦아서, 여기가 뚫려 있으면 제일 자주 새는 구멍이
+     된다. 실제로 처음에는 아래 셋이 전부 그냥 통과했다 */
+  `node -e "require('fs').writeFileSync('.githooks/prepare-commit-msg','x')"`,
+  `node -e "const fs = require('fs'); fs.writeFileSync('.github/scripts/jira.sh','x')"`,
+  `python -c "open('.github/PULL_REQUEST_TEMPLATE.md','w').write('x')"`,
+  'awk -i inplace "1" .githooks/prepare-commit-msg',
+  /* 힙독으로 넘기는 것도 같은 일이다. 줄바꿈이 끼어 있어도 걸려야 한다 */
+  "node - <<'EOF'\nimport fs from 'node:fs'\nfs.writeFileSync('.githooks/prepare-commit-msg', 'x')\nEOF",
 ]
 
 const PASS = [
@@ -31,6 +40,13 @@ const PASS = [
   'grep -n jira .github/scripts/jira.sh',
   'git diff .github/workflows/jira-pr-sync.yml',
   'cat .github/PULL_REQUEST_TEMPLATE.md > /dev/null',
+  /* 인터프리터로 **읽는** 것은 통과해야 한다. 이름만 보고 막으면 여기가
+     같이 막히고, 그러면 백엔드 원본이 어떻게 생겼는지 볼 방법이 없어져
+     규칙을 지키기가 오히려 어려워진다 */
+  `node -e "console.log(require('fs').readFileSync('.githooks/prepare-commit-msg','utf8'))"`,
+  `python -c "print(open('.github/scripts/jira.sh').read())"`,
+  `python -c "print(open('.github/scripts/jira.sh', 'r').read())"`,
+  'git show HEAD:.githooks/prepare-commit-msg | node -e "process.stdin.pipe(process.stdout)"',
   // refresh-data.yml 은 우리 것이라 보호 대상이 아니다
   'cat .github/workflows/refresh-data.yml',
   // 보호 경로가 아니면 무엇을 하든 통과한다
@@ -38,6 +54,11 @@ const PASS = [
   'sed -i "s/x/y/" src/app/page.tsx',
   'rm -rf .next',
   'rm -rf node_modules/.cache',
+  /* 보호 대상이 아닌 파일은 인터프리터로 마음껏 고친다. 이게 막히면
+     평소 작업이 통째로 멈춘다 */
+  `node -e "require('fs').writeFileSync('src/app/page.tsx','x')"`,
+  "node - <<'EOF'\nimport fs from 'node:fs'\nfs.writeFileSync('src/lib/poster.ts', 'x')\nEOF",
+  'node scripts/og-shots.mjs',
 ]
 
 const run = (command) =>
