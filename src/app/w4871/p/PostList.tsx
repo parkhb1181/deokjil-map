@@ -17,6 +17,7 @@ import { Button, Blank, Skeleton } from '@/components/ui/Basics'
 import { PostCard } from '@/components/ui/Post'
 import { Sheet } from '@/components/ui/Basics'
 import { wf } from '@/lib/wireframe'
+import { whenShort } from '@/lib/when'
 
 export type ListItem = {
   id: string
@@ -33,14 +34,6 @@ export type ListItem = {
   commentCount: number
   /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
   imageUrl?: string | null
-}
-
-/** '2026-09-14T09:00' → '9/14 (월) 09:00' */
-function whenShort(iso: string) {
-  const [d, t] = iso.split('T')
-  const [y, m, day] = d.split('-').map(Number)
-  const dow = '일월화수목금토'[new Date(y, m - 1, day).getDay()]
-  return `${m}/${day} (${dow}) ${t}`
 }
 
 /* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면

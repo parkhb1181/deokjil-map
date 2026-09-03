@@ -30,6 +30,7 @@ import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
 import { canWrite, isBlocked, isClosed, type ClosedReason, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
+import { shortTime as whenShort } from '@/lib/when'
 
 export type ProfilePost = {
   id: string
@@ -84,12 +85,6 @@ export type ProfileData = {
   bio?: string | null
   doneCount: number
   posts: ProfilePost[]
-}
-
-function whenShort(iso: string) {
-  const [d, t] = iso.split('T')
-  const [, m, day] = d.split('-')
-  return `${Number(m)}/${Number(day)} ${t}`
 }
 
 /** 목록 행 오른쪽 끝의 꺾쇠. 누를 수 있다는 표시다 */

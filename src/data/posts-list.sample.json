@@ -9,7 +9,7 @@
       "excerpt": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요. 오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다.",
       "state": "OPEN",
       "capacity": 4,
-      "meetAt": "2026-09-14T09:00",
+      "meetAt": "2026-09-14T09:00:00+09:00",
       "author": {
         "id": "u_host",
         "nickname": "덕질하는오리",
@@ -30,7 +30,7 @@
       "excerpt": "주말은 사람이 너무 많아서 평일 낮에 가려고요. 저는 반차 쓰고 갑니다. 근처에서 커피 한 잔 하고 헤어져도 좋고요.",
       "state": "OPEN",
       "capacity": 2,
-      "meetAt": "2026-09-03T14:00",
+      "meetAt": "2026-09-03T14:00:00+09:00",
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
@@ -51,7 +51,7 @@
       "excerpt": "이번 주말에 홍대 쪽 생카 세 군데를 하루에 다 돌아보려고 합니다. 동선은 짜뒀고 같이 도실 분 있으면 좋겠어요.",
       "state": "OPEN",
       "capacity": 3,
-      "meetAt": "2026-09-06T11:00",
+      "meetAt": "2026-09-06T11:00:00+09:00",
       "author": {
         "id": "u_b",
         "nickname": "조용한덕후",
@@ -72,7 +72,7 @@
       "excerpt": "첫날에 가야 굿즈가 남아 있을 것 같아서요. 오픈 30분 전에 만나서 줄 서려고 합니다.",
       "state": "CLOSED",
       "capacity": 3,
-      "meetAt": "2026-08-28T10:30",
+      "meetAt": "2026-08-28T10:30:00+09:00",
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
@@ -94,7 +94,7 @@
       "excerpt": "첫날에 가야 굿즈가 남아 있을 것 같아서요. 오픈 30분 전에 만나서 줄 서려고 합니다.",
       "state": "CLOSED",
       "capacity": 3,
-      "meetAt": "2026-08-20T13:00",
+      "meetAt": "2026-08-20T13:00:00+09:00",
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
@@ -103,11 +103,11 @@
       },
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
-      "closesAt": "2026-08-20T13:00",
+      "closesAt": "2026-08-20T13:00:00+09:00",
       "meetPoint": {
         "place": "성수동 원위의 작업실"
       },
-      "closedReason": "DEADLINE"
+      "closedReason": "MEET_TIME_PASSED"
     }
   ]
 }

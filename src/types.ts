@@ -146,12 +146,16 @@ export type PostState = 'OPEN' | 'CLOSED' | 'CANCELED'
  * 닫힌 까닭. CLOSED 일 때만 있다.
  *
  *   MANUAL    방장이 「모집 완료」 를 눌렀다
- *   DEADLINE  마감 시각이 지나 배치가 닫았다
+ *   MEET_TIME_PASSED  만남 시각이 지나 배치가 닫았다
  *
- * DEADLINE 은 서버가 판정한다. 화면이 판정하지 않는다. 기기 시계가
+ * 이름이 긴 것은 백엔드 계약을 따랐기 때문이다. 한때 DEADLINE 이었는데
+ * 도메인 모델링 6장이 MEET_TIME_PASSED 로 적고 있어 맞췄다. 응답 필드
+ * 값이라 우리가 고쳐 부를 수 없다
+ *
+ * MEET_TIME_PASSED 은 서버가 판정한다. 화면이 판정하지 않는다. 기기 시계가
  * 제각각이고, 누가 열어봐야만 상태가 바뀌는 구조가 된다.
  */
-export type ClosedReason = 'MANUAL' | 'DEADLINE'
+export type ClosedReason = 'MANUAL' | 'MEET_TIME_PASSED'
 
 /**
  * 더 못 들어가는 글인가.

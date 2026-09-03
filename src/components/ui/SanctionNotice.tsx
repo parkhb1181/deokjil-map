@@ -25,6 +25,7 @@
  * 아니라 확인 절차이고, 본인이 답하면 그날로 풀린다.
  */
 import type { Sanction } from '@/types'
+import { dayText as untilText } from '@/lib/when'
 
 const KIND_LABEL: Record<string, string> = {
   WARNED: '경고를 받았어요',
@@ -35,14 +36,6 @@ const KIND_LABEL: Record<string, string> = {
 
 /** 확인 문의를 받는 곳. 제재 이의와 같은 주소를 쓴다 */
 const HELP = 'help@duckmoim.com'
-
-/** '2026-09-08T00:00' → '9월 8일 (화)' */
-function untilText(iso: string) {
-  const [d] = iso.split('T')
-  const [y, m, day] = d.split('-').map(Number)
-  const dow = '일월화수목금토'[new Date(y, m - 1, day).getDay()]
-  return `${m}월 ${day}일 (${dow})`
-}
 
 /** 느낌표. 이모지를 쓰지 않는다. 기기마다 모양이 달라 톤이 흐트러진다 */
 function AlertMark() {

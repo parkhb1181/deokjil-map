@@ -28,6 +28,7 @@ import { useState } from 'react'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
 import type { AuditEntry, AuditKind, SanctionKind } from '@/types'
+import { stamp, fullText as readable } from '@/lib/when'
 
 /* ── 제재 수위 ─────────────────────────────────────────────
    가운데 둘이 나이 확인용이다. 처리방침 제10조를 화면으로 옮긴 것이고,
@@ -219,15 +220,8 @@ const AUDIT: AuditEntry[] = [
 
 /* ── 도구 ──────────────────────────────────────────────── */
 
-/** 'YYYY-MM-DDTHH:mm'. 이벤트 처리 중에만 부른다 (렌더 중에 부르지 않는다) */
-function stamp() {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
-}
-
-/** 'YYYY-MM-DDTHH:mm' → 'YYYY-MM-DD HH:mm' */
-const readable = (iso: string) => iso.replace('T', ' ')
+/* 시각은 lib/when 이 맡는다. 계약이 ISO-8601 로 못박아서
+   화면마다 따로 쪼개면 포맷이 바뀔 때 전부 깨진다 */
 
 type Tab = 'reports' | 'sanctions' | 'audit'
 

@@ -26,30 +26,8 @@ import { WriteGate } from '@/components/ui/SanctionNotice'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
+import { whenText, dateOnly, shortTime } from '@/lib/when'
 
-/** '2026-09-14T15:00' → '9월 14일 (일) 오후 3:00' */
-function whenText(iso: string) {
-  const [d, t] = iso.split('T')
-  const [y, m, day] = d.split('-').map(Number)
-  const [hh, mm] = t.split(':').map(Number)
-  const dow = '일월화수목금토'[new Date(y, m - 1, day).getDay()]
-  const ampm = hh < 12 ? '오전' : '오후'
-  const h12 = hh % 12 === 0 ? 12 : hh % 12
-  return `${m}월 ${day}일 (${dow}) ${ampm} ${h12}:${String(mm).padStart(2, '0')}`
-}
-
-/** '2026-08-30T09:12' → '8월 30일' */
-function dateOnly(iso: string) {
-  const [, m, d] = iso.split('T')[0].split('-')
-  return `${Number(m)}월 ${Number(d)}일`
-}
-
-/** '2026-08-30T09:12' → '8/30 09:12' */
-function shortTime(iso: string) {
-  const [d, t] = iso.split('T')
-  const [, m, day] = d.split('-')
-  return `${Number(m)}/${Number(day)} ${t}`
-}
 
 const ROLES: { key: ViewerRole; id: string | null; label: string; sanction?: Sanction }[] = [
   { key: 'guest', id: null, label: '비회원' },
@@ -283,7 +261,7 @@ export default function PostDetail({ post, comments, hostId }: {
         <div className="post__count">
           <span>댓글 <b>{post.commentCount}</b></span>
           {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
-          {post.state === 'CLOSED' && post.closedReason === 'DEADLINE' && <span>행사가 끝났어요</span>}
+          {post.state === 'CLOSED' && post.closedReason === 'MEET_TIME_PASSED' && <span>행사가 끝났어요</span>}
           {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
 
           {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때

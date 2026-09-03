@@ -66,7 +66,7 @@ const STATE_LABEL: Record<PostState, string> = {
  * 상태는 CLOSED 하나지만 사람에게는 두 가지 사실이다.
  */
 export function stateLabel(state: PostState, reason?: ClosedReason | null): string {
-  if (state === 'CLOSED' && reason === 'DEADLINE') return '종료'
+  if (state === 'CLOSED' && reason === 'MEET_TIME_PASSED') return '종료'
   return STATE_LABEL[state]
 }
 
@@ -78,7 +78,7 @@ export function Badge({ state, reason, children }: {
   const label = children ?? (state === 'off' ? '' : stateLabel(state, reason))
   /* 클래스는 소문자로. CSS 에서 대문자 선택자는 눈에 안 익고,
      끝난 까닭까지 클래스로 가르면 회색이 두 벌이 된다 */
-  const cls = state === 'off' ? 'off' : state === 'CLOSED' && reason === 'DEADLINE' ? 'ended' : state.toLowerCase()
+  const cls = state === 'off' ? 'off' : state === 'CLOSED' && reason === 'MEET_TIME_PASSED' ? 'ended' : state.toLowerCase()
   return <span className={`state state--${cls}`}>{label}</span>
 }
 
