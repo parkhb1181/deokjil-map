@@ -22,13 +22,14 @@
 import Link from 'next/link'
 import { Avatar, Button } from '@/components/ui/Basics'
 import { wf } from '@/lib/wireframe'
+import { LAST_SEEN_LABEL, type LastSeen } from '@/types'
 
 export type PersonSheetUser = {
   id: string
   nickname: string
   imageUrl?: string | null
-  /** 완료한 동행 횟수. 없으면 「첫 동행」 으로 적는다 */
-  doneCount?: number
+  /** 마지막 접속 구간. 없으면 그 줄을 통째로 뺀다 */
+  lastSeen?: LastSeen
 }
 
 export function PersonSheet({
@@ -52,7 +53,7 @@ export function PersonSheet({
           <Avatar name={user.nickname} src={user.imageUrl ?? undefined} lg />
           <p className="psheet__name">{user.nickname}</p>
           <p className="psheet__meta meta">
-            <span>{user.doneCount ? `동행 ${user.doneCount}회` : '첫 동행'}</span>
+            {user.lastSeen && <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>}
           </p>
         </div>
 

@@ -129,24 +129,32 @@ export interface EventItem {
 /**
  * 모집글 상태.
  *
- *   OPEN      모집중
- *   CLOSED    닫혔다. 왜 닫혔는지는 closedReason 이 말한다
- *   CANCELED  방장이 취소했다. 사유가 필수다
+ *   OPEN    모집중
+ *   CLOSED  닫혔다. 왜 닫혔는지는 closedReason 이 말한다
  *
  * **끝난 까닭을 상태가 아니라 closedReason 으로 나눈다.** 한때
  * done · ended 두 상태로 두었는데, 그러면 닫히는 경로가 늘 때마다
  * 상태가 하나씩 늘어난다. 상태는 "무엇을 할 수 있나" 를 정하고,
  * 까닭은 "왜 그렇게 됐나" 를 말한다. 둘은 다른 축이다.
  *
- * CLOSED 와 CANCELED 는 종착이다. 재개방은 없고 취소는 되돌릴 수 없다.
+ * 그래놓고 CANCELED 만 상태로 남겨뒀었다. 우리 원칙을 우리가 안
+ * 지킨 셈이고, 계약(도메인 모델링 6장)의 상태 전이도표와도 어긋났다.
+ * 취소를 closedReason 으로 옮겨 둘 다 해결했다.
+ *
+ * CLOSED 는 종착이다. 재개방은 없다.
  */
-export type PostState = 'OPEN' | 'CLOSED' | 'CANCELED'
+export type PostState = 'OPEN' | 'CLOSED'
 
 /**
  * 닫힌 까닭. CLOSED 일 때만 있다.
  *
- *   MANUAL    방장이 「모집 완료」 를 눌렀다
+ *   MANUAL            방장이 「모집 완료」 를 눌렀다. 사람을 다 구했다
  *   MEET_TIME_PASSED  만남 시각이 지나 배치가 닫았다
+ *   CANCELED          방장이 취소했다. 안 간다. cancelReason 이 필수다
+ *
+ * **MANUAL 과 CANCELED 를 갈라두는 것이 중요하다.** 이미 댓글을 단
+ * 사람에게 둘은 정반대 소식이다. 앞은 "나 뽑혔나" 이고 뒤는 "이 모임이
+ * 없어졌다" 다. 화면 문구도 그래서 다르다.
  *
  * 이름이 긴 것은 백엔드 계약을 따랐기 때문이다. 한때 DEADLINE 이었는데
  * 도메인 모델링 6장이 MEET_TIME_PASSED 로 적고 있어 맞췄다. 응답 필드
@@ -155,7 +163,7 @@ export type PostState = 'OPEN' | 'CLOSED' | 'CANCELED'
  * MEET_TIME_PASSED 은 서버가 판정한다. 화면이 판정하지 않는다. 기기 시계가
  * 제각각이고, 누가 열어봐야만 상태가 바뀌는 구조가 된다.
  */
-export type ClosedReason = 'MANUAL' | 'MEET_TIME_PASSED'
+export type ClosedReason = 'MANUAL' | 'MEET_TIME_PASSED' | 'CANCELED'
 
 /**
  * 더 못 들어가는 글인가.
@@ -169,12 +177,45 @@ export function isClosed(state: PostState): boolean {
   return state !== 'OPEN'
 }
 
+/**
+ * 마지막 접속 시각을 구간으로 뭉갠 값 (도메인 7.2).
+ *
+ * 공개 프로필에 나가는 값이라 정확한 시각을 그대로 내리면 특정인의
+ * 활동 패턴이 추적된다. 낯선 사람과 대면으로 만나는 서비스이고
+ * 1차에 차단이 없어서 더 그렇다.
+ *
+ * 본인 조회(/me)에서도 같은 구간값이다. 경로마다 형태가 다르면
+ * 조립 지점이 갈라진다. 구간 계산 기준은 KST.
+ */
+export type LastSeen =
+  | 'TODAY'          // 24시간 이내
+  | 'WITHIN_3_DAYS'  // 3일 이내
+  | 'WITHIN_WEEK'    // 7일 이내
+  | 'WITHIN_MONTH'   // 30일 이내
+  | 'LONG_AGO'       // 그 이상
+
+/** 구간값을 화면 글자로. 문구가 갈리면 같은 값이 화면마다 달리 읽힌다 */
+export const LAST_SEEN_LABEL: Record<LastSeen, string> = {
+  TODAY: '오늘 활동',
+  WITHIN_3_DAYS: '3일 이내 활동',
+  WITHIN_WEEK: '일주일 이내 활동',
+  WITHIN_MONTH: '한 달 이내 활동',
+  LONG_AGO: '한 달 넘게 활동 없음',
+}
+
 export interface PostAuthor {
   id: string
   nickname: string
   imageUrl?: string | null
-  /** 완료한 동행 횟수. 처음이면 0 */
-  doneCount?: number
+  /**
+   * 마지막 접속 구간. 동행을 구할 때 "이 사람이 요즘 오나" 가
+   * 판단 근거라 넣는다 (AU-09).
+   *
+   * 완료한 동행 횟수(doneCount)를 대신 보여주고 있었는데 뺐다.
+   * 횟수는 "이 사람이 믿을 만한가" 를 숫자 하나로 요약하는 값이라,
+   * 처음 온 사람이 영원히 0 으로 남고 그게 곧 낙인이 된다.
+   */
+  lastSeen?: LastSeen
 }
 
 /**
@@ -214,7 +255,7 @@ export interface CompanionPost {
   state: PostState
   /** CLOSED 일 때만 온다. 왜 닫혔는지 */
   closedReason?: ClosedReason | null
-  /** CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
+  /** closedReason 이 CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
   cancelReason?: string | null
   /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
   capacity: number | null
@@ -267,7 +308,31 @@ export interface PostComment {
    */
   state: CommentState
   createdAt: string
+  /**
+   * 이 댓글에 지금 할 수 있는 것 (CM-18). 서버가 보는 사람에 맞춰 채운다.
+   * 자리표시자(삭제·블라인드)에는 빈 배열이 온다
+   */
+  availableActions: CommentAction[]
 }
+
+/**
+ * 댓글에 무엇을 할 수 있나 (CM-18).
+ *
+ * **서버가 정해서 내려준다.** 화면이 계산하지 않는다.
+ *
+ * 전에는 `c.author.id === viewer.userId` 같은 식으로 화면이 직접
+ * 판정했다. 그러면 권한 규칙이 서버와 화면 두 곳에 살고, 규칙이 바뀔 때
+ * 한쪽만 고치면 조용히 어긋난다. 본인 댓글에 신고 버튼이 뜨는 종류의
+ * 버그가 거기서 나온다.
+ *
+ * 목록에 없는 것은 버튼을 그리지 않는다. 눌러보고 403 을 받는 것이
+ * 아니라 애초에 안 보인다.
+ */
+export type CommentAction =
+  | 'REPLY'   // 답글. 루트 댓글에만 붙는다 (깊이 1단계, CM-02)
+  | 'EDIT'    // 수정. 작성자 본인만 (CM-09)
+  | 'DELETE'  // 삭제. 작성자 또는 방장 (CM-10)
+  | 'REPORT'  // 신고. 남의 댓글에만 (CM-14)
 
 /**
  * 댓글 상태.

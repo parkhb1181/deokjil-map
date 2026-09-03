@@ -15,7 +15,7 @@
  */
 import { useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { canWrite, isClosed, isPlaceholder, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
+import { canWrite, isClosed, isPlaceholder, LAST_SEEN_LABEL, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, Badge, Who, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, TextArea, Checkbox } from '@/components/ui/Field'
@@ -231,7 +231,12 @@ export default function PostDetail({ post, comments, hostId }: {
             }
             name={post.author.nickname}
             src={post.author.imageUrl ?? undefined}
-            sub={`${post.author.doneCount ? `동행 ${post.author.doneCount}회` : '첫 동행'} · ${dateOnly(post.createdAt)}`}
+            sub={[
+              post.author.lastSeen && LAST_SEEN_LABEL[post.author.lastSeen],
+              dateOnly(post.createdAt),
+            ]
+              .filter(Boolean)
+              .join(' · ')}
           />
         </div>
 
@@ -262,7 +267,7 @@ export default function PostDetail({ post, comments, hostId }: {
           <span>댓글 <b>{post.commentCount}</b></span>
           {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
           {post.state === 'CLOSED' && post.closedReason === 'MEET_TIME_PASSED' && <span>행사가 끝났어요</span>}
-          {post.state === 'CANCELED' && <span>취소된 모집이에요</span>}
+          {post.state === 'CLOSED' && post.closedReason === 'CANCELED' && <span>취소된 모집이에요</span>}
 
           {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
              「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
@@ -356,44 +361,34 @@ export default function PostDetail({ post, comments, hostId }: {
                 ) : undefined
               }
               acts={
-                isPlaceholder(c.state) ? undefined : (
-                  <>
-                    {/* 답글에는 답글을 달지 않는다. 깊이가 1단계라
-                        그 아래가 없다.
+                /* **서버가 준 목록대로만 그린다** (CM-18). 여기서
+                   `c.author.id === viewer.userId` 같은 판정을 하지 않는다.
+                   같은 규칙이 두 곳에 살면 한쪽만 고쳤을 때 조용히
+                   어긋나고, 본인 댓글에 신고 버튼이 뜨는 종류의 버그가
+                   거기서 나온다.
 
-                        쓰기가 막힌 사람에게도 안 보인다. 눌러도 입력칸이
-                        안 뜨는 버튼을 남겨두면 눌린 건지 고장난 건지 모른다.
-                        막힌 사유는 아래 입력칸 자리에서 한 번 말한다 */}
-                    {!c.parentId && !noWrite && (
+                   비회원은 목록이 비어서 아무것도 안 그려진다. 로그인
+                   게이트는 아래 입력칸 자리가 따로 세운다 */
+                c.availableActions.length === 0 ? undefined : (
+                  <>
+                    {c.availableActions.includes('REPLY') && (
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
-                    {c.author.id === viewer.userId ? (
-                      <>
-                        {/* 비밀 댓글도 본문은 고칠 수 있다. 못 바꾸는
-                            것은 비밀 여부뿐이다 (CM-09).
-
-                            쓰기가 막히면 고치는 것도 막힌다. 고치기는
-                            새로 쓰는 것과 같은 일이다. 대신 **삭제는
-                            남긴다.** 자기가 쓴 것을 지우는 것은 언제나
-                            할 수 있어야 한다 (처리방침 제11조) */}
-                        {!noWrite && (
-                          <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
-                            수정
-                          </button>
-                        )}
-                        {/* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이
-                            한 번 묻는다 */}
-                        <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
-                      </>
-                    ) : (
-                      <button onClick={() => (isGuest ? gate('report') : setAsk({ k: 'report-comment' }))}>
-                        신고
+                    {c.availableActions.includes('EDIT') && (
+                      <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
+                        수정
                       </button>
+                    )}
+                    {c.availableActions.includes('DELETE') && (
+                      /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이 한 번 묻는다 */
+                      <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                    )}
+                    {c.availableActions.includes('REPORT') && (
+                      <button onClick={() => setAsk({ k: 'report-comment' })}>신고</button>
                     )}
                   </>
                 )
-              }
-            />
+              }            />
           ))
         )}
       </section>
@@ -408,7 +403,7 @@ export default function PostDetail({ post, comments, hostId }: {
             뒤는 그 행사 자체가 지나갔다 */}
         {isClosed(post.state) ? (
           <p className="write__gate">
-            {post.state === 'CANCELED'
+            {post.closedReason === 'CANCELED'
               ? '취소된 모집이라 댓글을 받지 않아요'
               : post.closedReason === 'MANUAL'
                 ? '모집이 끝나 댓글을 받지 않아요'

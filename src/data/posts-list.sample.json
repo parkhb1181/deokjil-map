@@ -14,7 +14,7 @@
         "id": "u_host",
         "nickname": "덕질하는오리",
         "imageUrl": "/avatar/a1.webp",
-        "doneCount": 3
+        "lastSeen": "WITHIN_WEEK"
       },
       "commentCount": 5,
       "imageUrl": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
@@ -35,7 +35,7 @@
         "id": "u_a",
         "nickname": "밤샘예매",
         "imageUrl": "/avatar/a2.webp",
-        "doneCount": 1
+        "lastSeen": "WITHIN_WEEK"
       },
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp",
@@ -56,7 +56,7 @@
         "id": "u_b",
         "nickname": "조용한덕후",
         "imageUrl": "/avatar/a3.webp",
-        "doneCount": 0
+        "lastSeen": "WITHIN_MONTH"
       },
       "commentCount": 0,
       "imageUrl": null,
@@ -77,7 +77,7 @@
         "id": "u_d",
         "nickname": "남은대댓글",
         "imageUrl": "/avatar/a5.webp",
-        "doneCount": 2
+        "lastSeen": "WITHIN_MONTH"
       },
       "commentCount": 8,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
@@ -99,7 +99,7 @@
         "id": "u_d",
         "nickname": "남은대댓글",
         "imageUrl": "/avatar/a5.webp",
-        "doneCount": 2
+        "lastSeen": "WITHIN_MONTH"
       },
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",

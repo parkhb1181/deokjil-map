@@ -1,4 +1,4 @@
-import type { PostComment, Viewer } from '@/types'
+import { canWrite, type CommentAction, type PostComment, type Viewer } from '@/types'
 
 /**
  * 비밀 댓글을 볼 수 있는가.
@@ -79,14 +79,15 @@ export function asServerWouldSend(
 
        화면에서 지우는 것이 아니라 응답에서 뺀다. 화면이 가리면
        개발자 도구로 그냥 읽힌다 */
+    const availableActions = actionsFor(c, viewer, hostId)
     if (c.state === 'BLINDED') {
       const { body, ...rest } = c
-      return rest
+      return { ...rest, availableActions }
     }
     const parent = c.parentId ? byId.get(c.parentId) ?? null : null
-    if (canSeeSecret(c, parent, viewer, hostId)) return c
+    if (canSeeSecret(c, parent, viewer, hostId)) return { ...c, availableActions }
     const { body, ...rest } = c
-    return rest
+    return { ...rest, availableActions }
   })
 }
 
@@ -109,4 +110,42 @@ export function threaded(comments: PostComment[]): PostComment[] {
     a.createdAt < b.createdAt ? -1 : 1
 
   return roots.sort(byTime).flatMap((r) => [r, ...(kids.get(r.id) ?? []).sort(byTime)])
+}
+
+/**
+ * 서버가 채워 보낼 `availableActions` 를 계산한다 (CM-18).
+ *
+ * **여기가 유일한 판정 지점이다.** 화면은 이 배열을 받아 그리기만 한다.
+ * 전에는 화면이 `c.author.id === viewer.userId` 로 직접 따졌는데, 그러면
+ * 같은 규칙이 서버와 화면 두 곳에 살고 한쪽만 고치면 조용히 어긋난다.
+ *
+ * API 가 붙으면 이 함수는 지운다. 그때는 서버가 채워 보낸 배열이 그대로 온다.
+ */
+export function actionsFor(
+  comment: PostComment,
+  viewer: Viewer,
+  hostId: string,
+): CommentAction[] {
+  /* 자리표시자에는 아무것도 못 한다. 지운 글을 또 지울 수 없고,
+     가려진 글을 신고해봐야 이미 조치된 것이다 */
+  if (comment.state !== 'ACTIVE') return []
+
+  /* 비회원은 볼 수만 있다. 로그인 게이트는 화면이 따로 세운다 */
+  if (!viewer.userId) return []
+
+  const mine = comment.author.id === viewer.userId
+  const isHost = viewer.userId === hostId
+  /* 제재로 쓰기가 막히면 새로 쓰는 것과 고치는 것이 빠진다.
+     삭제와 신고는 남는다. 자기가 쓴 것을 지우는 것은 언제나 할 수
+     있어야 하고(처리방침 제11조), 신고는 막을 이유가 없다 */
+  const canWriteNow = canWrite(viewer.sanction)
+
+  const acts: CommentAction[] = []
+  /* 답글은 루트에만. 깊이가 1단계로 고정이라 그 아래가 없다 (CM-02) */
+  if (!comment.parentId && canWriteNow) acts.push('REPLY')
+  if (mine && canWriteNow) acts.push('EDIT')
+  if (mine || isHost) acts.push('DELETE')
+  /* 본인 댓글에는 신고가 안 붙는다. CM-18 의 검증 기준이 이것이다 */
+  if (!mine) acts.push('REPORT')
+  return acts
 }

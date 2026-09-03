@@ -14,8 +14,8 @@
     "author": {
       "id": "u_host",
       "nickname": "덕질하는오리",
-      "doneCount": 3,
-      "imageUrl": "/avatar/a1.webp"
+      "imageUrl": "/avatar/a1.webp",
+      "lastSeen": "WITHIN_WEEK"
     },
     "commentCount": 6,
     "eventImageUrl": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
@@ -32,8 +32,8 @@
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
-        "doneCount": 1,
-        "imageUrl": "/avatar/a2.webp"
+        "imageUrl": "/avatar/a2.webp",
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": "저 갈게요! 굿즈 줄도 같이 설 수 있어요",
       "secret": false,
@@ -46,8 +46,8 @@
       "author": {
         "id": "u_host",
         "nickname": "덕질하는오리",
-        "doneCount": 3,
-        "imageUrl": "/avatar/a1.webp"
+        "imageUrl": "/avatar/a1.webp",
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": "좋아요! 비밀 댓글로 연락처 남겨주시면 제가 연락드릴게요",
       "secret": false,
@@ -60,8 +60,8 @@
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
-        "doneCount": 1,
-        "imageUrl": "/avatar/a2.webp"
+        "imageUrl": "/avatar/a2.webp",
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": "카톡 아이디 night_ticket 입니다",
       "secret": true,
@@ -74,8 +74,8 @@
       "author": {
         "id": "u_b",
         "nickname": "조용한덕후",
-        "doneCount": 0,
-        "imageUrl": "/avatar/a3.webp"
+        "imageUrl": "/avatar/a3.webp",
+        "lastSeen": "WITHIN_MONTH"
       },
       "body": "혹시 아직 자리 있나요? 저도 가고 싶어요. 연락처는 010-0000-0000 입니다",
       "secret": true,
@@ -88,8 +88,8 @@
       "author": {
         "id": "u_c",
         "nickname": "지운사람",
-        "doneCount": 0,
-        "imageUrl": "/avatar/a4.webp"
+        "imageUrl": "/avatar/a4.webp",
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": null,
       "secret": false,
@@ -102,8 +102,8 @@
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
-        "doneCount": 2,
-        "imageUrl": "/avatar/a5.webp"
+        "imageUrl": "/avatar/a5.webp",
+        "lastSeen": "WITHIN_MONTH"
       },
       "body": "위 댓글이 지워져도 이 답글은 남습니다",
       "secret": false,
@@ -117,7 +117,7 @@
         "id": "u_ad",
         "nickname": "표팔이",
         "imageUrl": null,
-        "doneCount": 0
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": "이 공연 표 정가보다 싸게 넘겨요. 연락 주세요",
       "secret": false,
@@ -130,8 +130,8 @@
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
-        "doneCount": 1,
-        "imageUrl": "/avatar/a2.webp"
+        "imageUrl": "/avatar/a2.webp",
+        "lastSeen": "WITHIN_WEEK"
       },
       "body": "이런 건 여기서 하시면 안 돼요",
       "secret": false,

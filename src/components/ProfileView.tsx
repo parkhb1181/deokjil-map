@@ -28,7 +28,7 @@ import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { canWrite, isBlocked, isClosed, type ClosedReason, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, LAST_SEEN_LABEL, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 import { shortTime as whenShort } from '@/lib/when'
 
@@ -83,7 +83,7 @@ export type ProfileData = {
   nickname: string
   imageUrl?: string | null
   bio?: string | null
-  doneCount: number
+  lastSeen?: LastSeen
   posts: ProfilePost[]
 }
 
@@ -252,7 +252,7 @@ export default function ProfileView({
               <div className="myid__main">
                 <p className="myid__name">{user.nickname}</p>
                 <p className="myid__meta meta">
-                  <span>동행 {user.doneCount}회</span>
+                  {user.lastSeen && <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>}
                 </p>
                 {/* 한줄소개를 내 화면에도 띄운다. 남에게 보이는 문구라
                     내 화면에서 안 보이면 무엇이 걸려 있는지 모른 채로
