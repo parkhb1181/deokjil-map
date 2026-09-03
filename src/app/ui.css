@@ -2082,13 +2082,21 @@
 
 /* ── 만날 자리 찍기 ────────────────────────────────────── */
 
-.ppick { margin-top: -6px; }
+/* 지도와 이름칸이 한 덩어리다. 밖에 별도 항목으로 두었더니 둘이
+   다른 물건처럼 보였다. 테두리 하나로 묶고 안에서 선으로 나눈다 */
+.ppick {
+  margin-top: -6px;
+  border: 1px solid var(--field-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--field-bg);
+}
+.ppick--err { border-color: var(--danger); }
+
 .ppick__canvas,
 .ppick__fake {
   position: relative;
   height: 200px;
-  border: 1px solid var(--field-border);
-  border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--bg-sunk);
 }
@@ -2125,9 +2133,31 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--border);
   font-size: var(--t-small);
   color: var(--text-mute);
+}
+
+/* 찍은 자리의 이름. 좌표 줄 바로 아래라 무엇에 붙는 이름인지 이어진다 */
+.ppick__name { border-top: 1px solid var(--border); }
+.ppick__name input {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--text);
+}
+.ppick__name input::placeholder { color: var(--text-mute); }
+.ppick__name input:disabled { background: var(--field-off-bg); color: var(--field-off-ink); }
+.ppick__name input:focus { outline: 0; box-shadow: inset var(--focus-ring); }
+
+.ppick__err {
+  padding: 0 12px 9px;
+  font-size: var(--t-small);
+  color: var(--danger);
 }
 .ppick__at { font-variant-numeric: tabular-nums; }
 .ppick__clear {
@@ -2960,3 +2990,19 @@
   color: var(--text-mute);
 }
 .sblock__appeal a { color: var(--accent-ink); font-weight: 600; }
+
+/* 지도를 못 불러온 자리. 핀이 필수라 여기서는 글을 못 올린다.
+   조용히 사라지는 것보다 안 된다고 말하는 편이 낫다 */
+.ppick--dead { border-color: var(--border-mid); }
+.ppick__dead {
+  padding: 28px 16px;
+  text-align: center;
+  background: var(--bg-sunk);
+}
+.ppick__deadhead { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.ppick__deadbody {
+  margin: 6px 0 12px;
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-dim);
+}

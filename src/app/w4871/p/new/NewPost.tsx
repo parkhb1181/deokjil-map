@@ -179,32 +179,22 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           />
         </Field>
 
-        {/* 글과 핀을 같이 받는다. 핀은 "여기 어디쯤" 이고 글은
+        {/* 글과 핀을 한 덩어리로 받는다. 핀은 "여기 어디쯤" 이고 글은
             "성수역 3번 출구" 다. 핀만 있으면 도착해서도 서로 못 찾고,
             글만 있으면 처음 가는 동네에서 그게 어디인지 모른다.
 
-            **핀이 필수다** (PO-03). 계약이 좌표 누락을 400 으로 막는다.
-            한때 선택으로 두고 서버가 지오코딩하게 했는데, 그러면 좌표
-            없는 글이 생기고 지도를 못 그린다.
+            **별도 「만나는 곳」 항목을 없앴다.** 지도와 입력칸이 따로
+            있으니 다른 물건처럼 보였다. 찍은 자리 바로 아래에서 이름을
+            적으면 무엇에 붙이는 이름인지가 눈으로 이어진다.
 
-            **핀을 먼저 찍고 그 위에 이름을 적는다.** 순서를 뒤집었다.
-            글을 먼저 받으면 핀은 "이미 적었는데 또 해야 하나" 로
-            읽혀 안 찍는다. 지도를 먼저 두면 찍은 자리가 어디인지
-            보이는 채로 이름을 적게 된다 */}
-        <PlacePicker pin={pin} label={f.place} onPick={setPin} />
-        {tried && !pin && <p className="form__note form__note--err">지도에서 만날 자리를 찍어주세요</p>}
-
-        <Field
-          label="만나는 곳"
-          error={show('place')}
-          hint={pin ? '찍은 자리를 뭐라고 부를지 적어주세요' : '먼저 지도에서 자리를 찍어주세요'}
-        >
-          <TextInput
-            placeholder="성수역 3번 출구처럼 찾기 쉬운 곳"
-            value={f.place}
-            onChange={(e) => set('place')(e.target.value)}
-          />
-        </Field>
+            핀이 필수다 (PO-03). 계약이 좌표 누락을 400 으로 막는다 */}
+        <PlacePicker
+          pin={pin}
+          label={f.place}
+          onPick={setPin}
+          onLabel={set('place')}
+          error={tried ? (!pin ? '지도에서 만날 자리를 찍어주세요' : errors.place) : undefined}
+        />
 
         {/* 선택지가 적어서 드롭다운이 아니라 칩이다. 무엇을 고를 수
             있는지가 열어보기 전에 보이고 한 번만 누르면 된다.
