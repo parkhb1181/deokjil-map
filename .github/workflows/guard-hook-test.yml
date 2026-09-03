@@ -1,0 +1,29 @@
+name: 공용 파일 보호 훅 테스트
+
+# 훅은 깨져도 아무 일이 일어나지 않는다. 그냥 통과시킨다. 패턴을 손볼 때
+# 조용히 무력화되는 것을 막으려고 붙였다 (docs/HARNESS.md 「왜 두 겹인가」).
+on:
+  pull_request:
+    paths: ['.claude/hooks/**']
+  push:
+    branches: [main]
+    paths: ['.claude/hooks/**']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: 막아야 할 것과 통과해야 할 것
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v5
+
+      - name: Node 설치
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 시험
+        run: node .claude/hooks/guard-shared.test.mjs

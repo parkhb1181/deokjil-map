@@ -1,0 +1,57 @@
+name: 커밋 메시지 티켓 키 검사
+
+# 커밋 제목의 [STAR-N] 은 .githooks/prepare-commit-msg 가 붙인다. 그런데 훅은
+# 클론마다 켜야 하고 `prepare` 스크립트가 실패를 삼키므로, 안 켜져 있으면
+# 키가 조용히 빠진 채 커밋이 성공한다. Jira 연동만 끊기고 아무도 모른다.
+# 훅은 빠른 피드백, 여기가 강제다 (docs/HARNESS.md).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: 커밋 제목에 티켓 키가 있는가
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: 검사
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.head_ref }}
+          PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+        run: |
+          key=${PROJECT_KEY:-STAR}
+
+          # 브랜치에 키가 없으면 훅도 붙일 것이 없다. 핫픽스와 봇 PR 이 여기
+          # 해당하고, jira-pr-sync 도 같은 판단으로 건너뛴다.
+          if ! printf '%s' "$BRANCH" | grep -qE "${key}-[0-9]+"; then
+            echo "::notice::'${BRANCH}' 에 ${key} 키가 없어 건너뜁니다 (핫픽스·봇 PR 은 정상)"
+            exit 0
+          fi
+
+          # 머지 커밋은 제외한다. 제목을 훅이 건드리지 않는 대상이다.
+          bad=0
+          for sha in $(git rev-list --no-merges "$BASE".."$HEAD"); do
+            subject=$(git log -1 --format=%s "$sha")
+            case "$subject" in
+              Revert*) continue ;;
+            esac
+            if ! printf '%s' "$subject" | grep -qE "^\[${key}-[0-9]+\]"; then
+              echo "::error::$(printf '%s' "$sha" | cut -c1-7) 제목에 [${key}-N] 이 없습니다 — ${subject}"
+              bad=1
+            fi
+          done
+
+          if [ "$bad" = 1 ]; then
+            echo "::error::커밋 훅이 꺼져 있을 수 있습니다. 'git config core.hooksPath .githooks' 로 켜고 'git rebase' 로 제목을 고치세요."
+            exit 1
+          fi
+          echo "::notice::모든 커밋 제목에 ${key} 키가 있습니다"
