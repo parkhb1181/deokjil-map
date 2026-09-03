@@ -200,6 +200,8 @@ npm run dev        # localhost:3000, 포트 고정
 sed -i 's/x/y/' .githooks/prepare-commit-msg
 cat > .github/scripts/jira.sh
 git checkout main -- .github/workflows/jira-dispatch.yml
+node -e "require('fs').writeFileSync('.githooks/prepare-commit-msg','x')"
+python -c "open('.github/PULL_REQUEST_TEMPLATE.md','w').write('x')"
 ```
 
 그래서 `.claude/hooks/guard-shared.mjs` 를 PreToolUse 로 걸어 그 문을 닫는다.
@@ -207,9 +209,24 @@ Bash 명령에 보호 경로와 쓰기 표현이 같이 나오면 exit 2 로 막
 통과시킨다. `cat .githooks/...` 는 되고 `cat > .githooks/...` 는 안 된다.
 설정 파일과 훅 스크립트는 이 문서와 별도 변경으로 올린다.
 
+**인터프리터는 이름이 아니라 쓰는 함수로 가른다.** 위 예시의 뒤 두 줄이
+그것이다. `node` 나 `python` 이 보인다고 막으면 `node -e "readFileSync(...)"`
+같은 읽기까지 막힌다. 그러면 백엔드 원본이 어떻게 생겼는지 볼 방법이 없어져
+「사본이 갈라진다」 에서 요청할 내용을 적을 수가 없다. 그래서 이름과
+`writeFileSync` 계열이나 `open(..., 'w')` 이 **같이** 있을 때만 막는다.
+
+이 갈래는 뒤늦게 붙었다. 처음에는 `sed` · `cp` · `tee` 같은 명령만 알아서
+인터프리터로 쓰는 길이 통째로 열려 있었다. 하필 `sed` 로 못 다루는 것 —
+여러 줄 JSX, 한글이 섞인 문장, 따옴표가 꼬이는 코드 — 을 그렇게 고치므로,
+막으려던 실수가 제일 자주 나는 경로에서 그대로 통과하고 있었다.
+
 **이것도 완전하지 않다.** 쓰기를 표현하는 방법은 무한하고 훅에 적힌 패턴은
 유한하다. 훅은 로컬이라 끌 수도 있다. 그래도 **여기까지가 이 저장소에 필요한
 전부다.** 위에 적었듯 승인으로 막을 상대가 없다.
+
+패턴을 고칠 때는 `guard-shared.test.mjs` 를 같이 늘린다. **막아야 할 것만
+시험하면 「전부 막기」 로도 만점이 나온다.** 통과해야 할 목록이 읽기와 평소
+작업을 지켜주는 쪽이다.
 
 ### 사본이 갈라진다
 
