@@ -99,7 +99,9 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
   const submit = () => {
     setTried(true)
-    if (Object.keys(errors).length) {
+    /* 핀이 validate 밖에 있는 이유는 그 함수가 Form 만 받기 때문이다.
+       pin 은 지도 컴포넌트가 들고 있는 별도 상태라 여기서 같이 본다 */
+    if (Object.keys(errors).length || !pin) {
       /* 첫 번째 잘못된 칸으로 데려간다. 어디가 틀렸는지 찾게 두면
          긴 폼에서는 화면 밖에 있어 안 보인다 */
       document.querySelector('.fld--err')?.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -181,13 +183,21 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             "성수역 3번 출구" 다. 핀만 있으면 도착해서도 서로 못 찾고,
             글만 있으면 처음 가는 동네에서 그게 어디인지 모른다.
 
-            핀은 선택이다. 안 찍으면 서버가 적어준 글을 지오코딩해
-            채운다. 전에 하던 그대로라 핀이 생겼다고 못 쓰게 되는
-            글이 없다 (Q-03 을 이렇게 닫는다) */}
+            **핀이 필수다** (PO-03). 계약이 좌표 누락을 400 으로 막는다.
+            한때 선택으로 두고 서버가 지오코딩하게 했는데, 그러면 좌표
+            없는 글이 생기고 지도를 못 그린다.
+
+            **핀을 먼저 찍고 그 위에 이름을 적는다.** 순서를 뒤집었다.
+            글을 먼저 받으면 핀은 "이미 적었는데 또 해야 하나" 로
+            읽혀 안 찍는다. 지도를 먼저 두면 찍은 자리가 어디인지
+            보이는 채로 이름을 적게 된다 */}
+        <PlacePicker pin={pin} label={f.place} onPick={setPin} />
+        {tried && !pin && <p className="form__note form__note--err">지도에서 만날 자리를 찍어주세요</p>}
+
         <Field
           label="만나는 곳"
           error={show('place')}
-          hint={pin ? '핀 찍은 자리로 지도를 그려요' : '핀을 안 찍으면 적어준 곳으로 표시해요'}
+          hint={pin ? '찍은 자리를 뭐라고 부를지 적어주세요' : '먼저 지도에서 자리를 찍어주세요'}
         >
           <TextInput
             placeholder="성수역 3번 출구처럼 찾기 쉬운 곳"
@@ -195,8 +205,6 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
             onChange={(e) => set('place')(e.target.value)}
           />
         </Field>
-
-        <PlacePicker pin={pin} label={f.place} onPick={setPin} />
 
         {/* 선택지가 적어서 드롭다운이 아니라 칩이다. 무엇을 고를 수
             있는지가 열어보기 전에 보이고 한 번만 누르면 된다.

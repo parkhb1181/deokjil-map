@@ -229,14 +229,18 @@ export interface PostAuthor {
  * 어디쯤" 이다. 핀만 있으면 도착해서도 서로 못 찾고, 글만 있으면
  * 처음 가는 동네에서 그게 어디인지 모른다.
  *
- * 핀은 선택이다. 안 찍으면 서버가 place 를 지오코딩해 좌표를 채운다.
- * 지오코딩도 실패하면 좌표가 없고 그때는 지도를 안 그린다.
+ * **핀이 필수다** (PO-03). 계약이 좌표 누락을 400 으로 막는다. 한때
+ * 선택으로 두고 서버가 지오코딩하게 했는데, 그러면 좌표 없는 글이 생기고
+ * 그 글은 지도를 못 그린다. 지오코딩이 실패할 자리도 남는다.
+ *
+ * 쓰기 화면은 지도를 먼저 두고 그 위에 이름을 적게 한다. 글을 먼저
+ * 받으면 핀이 "이미 적었는데 또 해야 하나" 로 읽혀 안 찍는다.
  */
 export interface MeetPoint {
-  /** 글쓴이가 적은 장소. 이 값은 늘 있다 */
+  /** 글쓴이가 적은 장소. "성수역 3번 출구" */
   place: string
-  lat?: number | null
-  lng?: number | null
+  lat: number
+  lng: number
 }
 
 export interface CompanionPost {
@@ -265,6 +269,12 @@ export interface CompanionPost {
   closesAt: string
   createdAt: string
   author: PostAuthor
+  /**
+   * 댓글 수 (CM-12). **서버가 조회할 때 센다.** 저장된 값이 아니다.
+   *
+   * 세는 규칙: 비밀 댓글은 포함, 삭제·블라인드는 제외, 대댓글은 포함.
+   * 화면은 받은 숫자를 그대로 그린다. 다시 세지 않는다.
+   */
   commentCount: number
 }
 
@@ -463,4 +473,66 @@ export interface AuditEntry {
   target: string
   /** 남길 말. 수위·사유·처리 결과 */
   detail: string
+}
+
+/* ── API 응답 껍데기 ──────────────────────────────────────
+   아직 API 레이어가 없지만 모양을 먼저 못박는다. 화면이 어떤 형태를
+   받을지 정해두지 않으면 붙이는 날 화면을 같이 고치게 된다.
+
+   계약: 04-협업-규칙/API-컨벤션.md
+   ------------------------------------------------------- */
+
+/**
+ * 커서 페이지네이션 응답 (API 컨벤션).
+ *
+ * OFFSET 을 쓰지 않는다. 목록에 글이 계속 들어오는데 OFFSET 으로
+ * 넘기면 2페이지를 볼 때 1페이지에서 본 글이 또 오거나 빠진다.
+ *
+ * 커서는 정렬 키를 Base64 로 인코딩한 불투명 문자열이다.
+ * **화면이 값을 해석하지 않는다.** 받은 것을 그대로 돌려보낸다.
+ *
+ * 마지막 페이지에서 nextCursor 는 null, hasNext 는 false 다.
+ */
+export interface Page<T> {
+  items: T[]
+  nextCursor: string | null
+  hasNext: boolean
+}
+
+/** 목록 요청 파라미터. size 는 기본 20, 최대 50 */
+export interface PageQuery {
+  cursor?: string
+  size?: number
+}
+
+/**
+ * 에러 응답 (API 컨벤션).
+ *
+ * message 는 **그대로 화면에 띄울 수 있는 문구**로 온다. 화면이 code 를
+ * 보고 문구를 새로 만들지 않는다. 그렇게 하면 서버가 새 코드를 추가할
+ * 때마다 화면이 "알 수 없는 오류" 를 띄운다.
+ *
+ * 비밀 댓글 본문과 개인정보는 여기 담기지 않는다.
+ */
+export interface ApiError {
+  /** `POST_NOT_FOUND` 처럼 도메인_상황 대문자 스네이크 */
+  code: string
+  message: string
+  /** 필드 단위 검증 실패(400)일 때만 온다 */
+  fieldErrors?: FieldError[]
+}
+
+export interface FieldError {
+  field: string
+  reason: string
+}
+
+/** 응답이 에러인지 본다. 화면 여러 곳에서 같은 판정을 하게 된다 */
+export function isApiError(v: unknown): v is ApiError {
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof (v as ApiError).code === 'string' &&
+    typeof (v as ApiError).message === 'string'
+  )
 }

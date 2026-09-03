@@ -19,7 +19,9 @@
       "commentCount": 5,
       "imageUrl": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
       "meetPoint": {
-        "place": "더현대 서울 지하 1층 팝업 아이코닉"
+        "place": "더현대 서울 지하 1층 팝업 아이코닉",
+        "lat": 37.5256381078,
+        "lng": 126.9289384556
       }
     },
     {
@@ -40,7 +42,9 @@
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp",
       "meetPoint": {
-        "place": "성수역 3번 출구"
+        "place": "성수역 3번 출구",
+        "lat": 37.54462,
+        "lng": 127.05592
       }
     },
     {
@@ -61,7 +65,9 @@
       "commentCount": 0,
       "imageUrl": null,
       "meetPoint": {
-        "place": "홍대입구역 9번 출구"
+        "place": "홍대입구역 9번 출구",
+        "lat": 37.55719,
+        "lng": 126.925381
       }
     },
     {
@@ -82,7 +88,9 @@
       "commentCount": 8,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
       "meetPoint": {
-        "place": "성수동 원위의 작업실"
+        "place": "성수동 원위의 작업실",
+        "lat": 37.54418,
+        "lng": 127.05592
       },
       "closedReason": "MANUAL"
     },
@@ -105,7 +113,9 @@
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
       "closesAt": "2026-08-20T13:00:00+09:00",
       "meetPoint": {
-        "place": "성수동 원위의 작업실"
+        "place": "성수동 원위의 작업실",
+        "lat": 37.54418,
+        "lng": 127.05592
       },
       "closedReason": "MEET_TIME_PASSED"
     }

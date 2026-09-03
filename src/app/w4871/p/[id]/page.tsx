@@ -35,6 +35,20 @@ const DATA = sample as unknown as {
 /* 보는 사람과 무관하게 떼는 것은 여기서 한 번만 한다 */
 const COMMENTS = stripBlinded(DATA.comments)
 
+/**
+ * 댓글 수를 여기서 센다 (CM-12).
+ *
+ * 목데이터에 숫자가 박혀 있었는데, 댓글을 고칠 때마다 그 숫자를 같이
+ * 안 고치면 어긋난다. 실제로 블라인드 댓글을 넣으면서 손으로 6 을
+ * 적었다. 계약이 "저장하지 않고 조회 시 센다" 인 이유가 이것이다.
+ *
+ * 세는 규칙도 계약 그대로다. 비밀 포함, 삭제·블라인드 제외, 대댓글 포함.
+ */
+const POST = {
+  ...DATA.post,
+  commentCount: DATA.comments.filter((c) => c.state === 'ACTIVE').length,
+}
+
 export const metadata: Metadata = {
   title: '동행 구해요 · 덕모임',
   robots: { index: false, follow: false },
@@ -46,6 +60,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (id !== DATA.post.id) notFound()
 
   return (
-    <PostDetail post={DATA.post} comments={COMMENTS} hostId={DATA.hostId} />
+    <PostDetail post={POST} comments={COMMENTS} hostId={DATA.hostId} />
   )
 }
