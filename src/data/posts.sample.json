@@ -2,13 +2,13 @@
   "note": "개발용 가짜 데이터. 이벤트는 events.json 의 실제 건을 가리킨다. 제목·본문·댓글만 지어냈다. 포스터를 복제하지 않으려고 imageUrl 은 원본 서버 주소를 그대로 쓴다.",
   "post": {
     "id": "p1",
-    "eventId": "pg_8417",
-    "eventTitle": "에이티즈 X 애니티즈 팝업",
-    "title": "에이티즈 팝업 오픈런 같이 하실 분",
-    "content": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요.\n\n오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다. 굿즈는 각자 원하는 걸로 사면 되고요.\n\n처음 뵙는 거라 부담스러우시면 줄만 같이 서도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
+    "eventId": "pg_8709",
+    "eventTitle": "빅뱅 20주년 미디어 전시",
+    "title": "빅뱅 전시 같이 보실 분",
+    "content": "혼자 가려니 심심해서 같이 보실 분 찾아요.\n\n오전 11시쯤 을지로입구역에서 만나서 같이 들어가려고 합니다. 다 보고 나서 근처에서 점심 먹어요. 굿즈는 각자 원하는 걸로 사면 되고요.\n\n처음 뵙는 거라 부담스러우시면 전시만 같이 봐도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
     "status": "OPEN",
     "capacity": 4,
-    "meetAt": "2026-09-14T09:00:00+09:00",
+    "meetAt": "2026-09-14T11:00:00+09:00",
     "closesAt": "2026-09-12T23:59:00+09:00",
     "createdAt": "2026-08-29T21:10:00+09:00",
     "author": {
@@ -18,11 +18,11 @@
       "lastSeen": "WITHIN_WEEK"
     },
     "commentCount": 6,
-    "eventImageUrl": "https://cdn.popga.co.kr/spot/8417/main/0d0515e8-01f4-4fa6-8def-3fa4030d1063_1786265342238_thumbnail_MAIN_W480.webp",
+    "eventImageUrl": "https://cdn.popga.co.kr/spot/8709/main/ec9b2b7b-13c8-466c-99c3-5ce047fad9d1_1787804156147_thumbnail_MAIN_W480.webp",
     "meetPoint": {
-      "place": "더현대 서울 지하 1층 팝업 아이코닉",
-      "lat": 37.5256381078,
-      "lng": 126.9289384556
+      "place": "을지로입구역 5번 출구",
+      "lat": 37.5660509514,
+      "lng": 126.9823729018
     }
   },
   "comments": [
@@ -35,7 +35,7 @@
         "imageUrl": "/avatar/a2.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "content": "저 갈게요! 굿즈 줄도 같이 설 수 있어요",
+      "content": "저 갈게요! 굿즈도 같이 보고 싶어요",
       "secret": false,
       "createdAt": "2026-08-30T09:12:00+09:00",
       "status": "ACTIVE"
