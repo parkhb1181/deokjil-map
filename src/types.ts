@@ -106,7 +106,25 @@ export interface EventItem {
   /** 사전예약 링크 */
   reservationUrl?: string
   trust: Trust
-  goods: Goods[]
+  /**
+   * 팝업 굿즈 품목. **없을 수 있다.**
+   *
+   * 백엔드가 행사 데이터를 DB 로 옮기면서 굿즈 테이블을 만들지 않았다
+   * (백엔드 PR #12). 수집한 202건이 전부 빈 배열이고 명세에도 굿즈
+   * 요구사항이 없어서, 이미 죽어 있는 기능에 테이블을 미리 만들 이유가
+   * 없다고 본 것이다.
+   *
+   * 그래서 응답에 이 필드가 아예 없을 수 있다. 필수로 두면 API 가
+   * 붙는 날 `goods.length` 에서 터진다. 화면 쪽은 goodsOf 로 받는다.
+   *
+   * 팝업 굿즈를 보여주기로 하면 그때 백엔드에 테이블을 요청한다.
+   */
+  goods?: Goods[]
+}
+
+/** 굿즈 목록. 없으면 빈 배열이다. 화면이 `?? []` 를 흩뿌리지 않게 한다 */
+export function goodsOf(ev: Pick<EventItem, 'goods'>): Goods[] {
+  return ev.goods ?? []
 }
 
 /* ── 동행 모집 ─────────────────────────────────────────────

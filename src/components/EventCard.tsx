@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import type { EventItem } from '@/types'
+import { goodsOf } from '@/types'
 import {
   DISTRICT_LABELS,
   EVENT_KIND_LABELS,
@@ -91,8 +92,8 @@ export default function EventCard({ event, today, variant, onOpen }: Props) {
         </div>
 
         <div className="card__foot">
-          {event.goods.length > 0 && (
-            <span className="card__goods">굿즈 {event.goods.length}품목</span>
+          {goodsOf(event).length > 0 && (
+            <span className="card__goods">굿즈 {goodsOf(event).length}품목</span>
           )}
         </div>
       </div>

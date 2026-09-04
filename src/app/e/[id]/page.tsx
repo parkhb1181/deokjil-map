@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ALL_EVENTS } from '@/lib/events-source'
-import type { EventItem } from '@/types'
+import { goodsOf, type EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { IS_WIREFRAME } from '@/lib/wireframe'
 import { PlaceActions } from '@/components/ui/PlaceActions'
@@ -294,11 +294,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               </section>
             )}
 
-            {ev.goods.length > 0 && (
+            {goodsOf(ev).length > 0 && (
               <section className="evt__sec">
                 <h2 className="evt__h">굿즈</h2>
                 <p className="evt__chips">
-                  {ev.goods.map((g) => (
+                  {goodsOf(ev).map((g) => (
                     <span className="evt__chip" key={g.id}>
                       {g.name}
                       {/* 랜덤 품목은 "품절" 이 아니라 "지금 뭐가 나오나" 가

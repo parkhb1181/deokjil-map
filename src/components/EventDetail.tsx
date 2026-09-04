@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { EventItem } from '@/types'
+import { goodsOf, type EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
 import DetailMap from './DetailMap'
@@ -109,14 +109,14 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
           <Row label="정보 출처" value={TRUST_LABELS[event.trust]} />
         </dl>
 
-        {event.goods.length > 0 && (
+        {goodsOf(event).length > 0 && (
           <section className="goods">
-            <h3 className="goods__title">굿즈 {event.goods.length}품목</h3>
+            <h3 className="goods__title">굿즈 {goodsOf(event).length}품목</h3>
             <p className="goods__note">
               공식 라인업 기준입니다. 실시간 재고는 준비 중이에요.
             </p>
             <ul className="goods__list">
-              {event.goods
+              {goodsOf(event)
                 .slice()
                 .sort((a, b) => a.sortOrder - b.sortOrder)
                 .map((g) => (
