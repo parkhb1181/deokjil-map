@@ -62,7 +62,6 @@ type Ask =
   | null
   | { k: 'login'; why: LoginWhy }
   | { k: 'done' }
-  | { k: 'cancel' }
   | { k: 'report' }
   | { k: 'report-comment' }
   | { k: 'delete'; id: string }
@@ -111,7 +110,6 @@ export default function PostDetail({ post, comments, hostId }: {
      부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
   const [ask, setAsk] = useState<Ask>(null)
   /** 취소 사유. 시트가 닫히면 비운다 */
-  const [cancelWhy, setCancelWhy] = useState('')
 
   const isHost = viewer.userId === hostId
   const isGuest = !viewer.userId
@@ -181,22 +179,15 @@ export default function PostDetail({ post, comments, hostId }: {
       title="동행 구해요"
       right={
         isHost ? (
-          /* 끝난 글에는 둘 다 남기지 않는다. 되돌릴 수 없다고
-             말해놓고 다시 누를 수 있게 두는 셈이 된다.
+          /* 끝난 글에는 남기지 않는다. 되돌릴 수 없다고 말해놓고
+             다시 누를 수 있게 두는 셈이 된다.
 
-             **완료와 취소를 갈라둔다.** 이미 댓글을 단 사람에게 둘은
-             정반대 소식이다. 완료는 "사람을 다 구했다" 이고 취소는
-             "이 모임이 없어졌다" 다. 상태는 둘 다 CLOSED 지만
-             closedReason 이 갈린다 */
+             방장 취소는 1차 MVP 에서 뺐다 (2026-09-04). 여기 「취소」 가
+             같이 있었다 */
           post.status === 'OPEN' && (
-            <span className="pshell__acts">
-              <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'cancel' })}>
-                취소
-              </Button>
-              <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
-                모집 완료
-              </Button>
-            </span>
+            <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
+              모집 완료
+            </Button>
           )
         ) : (
           /* 신고도 쓰는 행동이라 로그인 뒤에 한다. 댓글 신고만 막고
@@ -280,7 +271,6 @@ export default function PostDetail({ post, comments, hostId }: {
           <span>댓글 <b>{post.commentCount}</b></span>
           {post.status === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
           {post.status === 'CLOSED' && post.closedReason === 'MEET_TIME_PASSED' && <span>행사가 끝났어요</span>}
-          {post.status === 'CLOSED' && post.closedReason === 'CANCELED' && <span>취소된 모집이에요</span>}
 
           {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
              「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
@@ -416,11 +406,9 @@ export default function PostDetail({ post, comments, hostId }: {
             뒤는 그 행사 자체가 지나갔다 */}
         {isClosed(post.status) ? (
           <p className="write__gate">
-            {post.closedReason === 'CANCELED'
-              ? '취소된 모집이라 댓글을 받지 않아요'
-              : post.closedReason === 'MANUAL'
-                ? '모집이 끝나 댓글을 받지 않아요'
-                : '행사가 끝나 댓글을 받지 않아요'}
+            {post.closedReason === 'MANUAL'
+              ? '모집이 끝나 댓글을 받지 않아요'
+              : '행사가 끝나 댓글을 받지 않아요'}
           </p>
         ) : isGuest ? (
           /* 비회원 게이트. 보는 것은 다 열고 쓰는 것만 막는다.
@@ -518,49 +506,6 @@ export default function PostDetail({ post, comments, hostId }: {
             </>
           }
         />
-      )}
-
-      {/* 취소는 사유가 필수다 (types.ts cancelReason).
-          이미 댓글을 단 사람이 왜 없어졌는지 알아야 하기 때문이다.
-          완료와 달리 상대가 헛물을 켠 셈이라 한 줄이라도 남겨야 한다 */}
-      {ask?.k === 'cancel' && (
-        <Sheet
-          title="모집을 취소할까요?"
-          desc="댓글을 남긴 분들에게 사유가 그대로 보입니다. 되돌릴 수 없어요."
-          foot={
-            <>
-              <Button tone="ghost" onClick={() => setAsk(null)}>아니요</Button>
-              <Button
-                tone="danger"
-                /* 사유 없이는 못 누른다. 「취소되었습니다」 만 뜨면
-                   기다리던 사람은 아무것도 못 알아본다 */
-                disabled={!cancelWhy.trim()}
-                onClick={() => {
-                  /* API 가 붙으면 여기서 POST 한다.
-                     closedReason = CANCELED, cancelReason = 사유 */
-                  setAsk(null)
-                  setCancelWhy('')
-                }}
-              >
-                취소할게요
-              </Button>
-            </>
-          }
-        >
-          <Field
-            label="취소 사유"
-            hint="댓글을 남긴 분들에게 보여요"
-            count={[cancelWhy.length, 100]}
-          >
-            <TextArea
-              autoFocus
-              placeholder="갑자기 일이 생겨서 못 가게 됐어요"
-              value={cancelWhy}
-              onChange={(e) => setCancelWhy(e.target.value)}
-              rows={2}
-            />
-          </Field>
-        </Sheet>
       )}
 
       {ask?.k === 'delete' && (

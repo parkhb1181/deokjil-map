@@ -68,7 +68,6 @@ const STATE_LABEL: Record<PostState, string> = {
 export function stateLabel(state: PostState, reason?: ClosedReason | null): string {
   if (state !== 'CLOSED') return STATE_LABEL[state]
   if (reason === 'MEET_TIME_PASSED') return '종료'
-  if (reason === 'CANCELED') return '취소됨'
   return STATE_LABEL.CLOSED
 }
 

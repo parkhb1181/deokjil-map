@@ -152,10 +152,6 @@ export function goodsOf(ev: Pick<EventItem, 'goods'>): Goods[] {
  * 상태가 하나씩 늘어난다. 상태는 "무엇을 할 수 있나" 를 정하고,
  * 까닭은 "왜 그렇게 됐나" 를 말한다. 둘은 다른 축이다.
  *
- * 그래놓고 CANCELED 만 상태로 남겨뒀었다. 우리 원칙을 우리가 안
- * 지킨 셈이고, 계약(도메인 모델링 6장)의 상태 전이도표와도 어긋났다.
- * 취소를 closedReason 으로 옮겨 둘 다 해결했다.
- *
  * CLOSED 는 종착이다. 재개방은 없다.
  */
 export type PostState = 'OPEN' | 'CLOSED'
@@ -165,11 +161,11 @@ export type PostState = 'OPEN' | 'CLOSED'
  *
  *   MANUAL            방장이 「모집 완료」 를 눌렀다. 사람을 다 구했다
  *   MEET_TIME_PASSED  만남 시각이 지나 배치가 닫았다
- *   CANCELED          방장이 취소했다. 안 간다. cancelReason 이 필수다
  *
- * **MANUAL 과 CANCELED 를 갈라두는 것이 중요하다.** 이미 댓글을 단
- * 사람에게 둘은 정반대 소식이다. 앞은 "나 뽑혔나" 이고 뒤는 "이 모임이
- * 없어졌다" 다. 화면 문구도 그래서 다르다.
+ * **방장 취소는 1차 MVP 에서 뺐다** (2026-09-04). 한때 CANCELED 를
+ * 여기 두고 화면까지 만들었는데, 위키 도메인 6장의 전이도표에는
+ * 처음부터 둘뿐이었다. 우리만 셋이었던 셈이라 빼면서 맞았다.
+ * 되살릴 때는 도메인 6장의 전이도표부터 고친다.
  *
  * 이름이 긴 것은 백엔드 계약을 따랐기 때문이다. 한때 DEADLINE 이었는데
  * 도메인 모델링 6장이 MEET_TIME_PASSED 로 적고 있어 맞췄다. 응답 필드
@@ -178,7 +174,7 @@ export type PostState = 'OPEN' | 'CLOSED'
  * MEET_TIME_PASSED 은 서버가 판정한다. 화면이 판정하지 않는다. 기기 시계가
  * 제각각이고, 누가 열어봐야만 상태가 바뀌는 구조가 된다.
  */
-export type ClosedReason = 'MANUAL' | 'MEET_TIME_PASSED' | 'CANCELED'
+export type ClosedReason = 'MANUAL' | 'MEET_TIME_PASSED'
 
 /**
  * 더 못 들어가는 글인가.
@@ -274,8 +270,6 @@ export interface CompanionPost {
   status: PostState
   /** CLOSED 일 때만 온다. 왜 닫혔는지 */
   closedReason?: ClosedReason | null
-  /** closedReason 이 CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
-  cancelReason?: string | null
   /** 방장 포함 인원. 표시만 하고 자동 마감은 없다 */
   capacity: number | null
   /** 'YYYY-MM-DDTHH:mm'. Date 로 왕복하지 않는다 */

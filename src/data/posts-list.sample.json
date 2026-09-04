@@ -117,8 +117,7 @@
         "lat": 37.54418,
         "lng": 127.05592
       },
-      "closedReason": "CANCELED",
-      "cancelReason": "갑자기 일이 생겨서 못 가게 됐어요"
+      "closedReason": "MANUAL"
     }
   ]
 }
