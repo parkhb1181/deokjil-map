@@ -327,37 +327,21 @@ export function sortByDeadline(events: EventItem[], today: DateKey = todayKey())
 /**
  * 목록 정렬 축.
  *
- * 지금 가진 필드로 셀 수 있는 것만 넣었다. 「가까운 순」 은 넣지 않는다.
- * 사용자의 현재 위치가 필요한데 우리는 위치 권한을 요청하지 않고,
- * 요청하는 순간 위치정보사업 신고 대상이 된다.
+ * 「가까운 순」 은 넣지 않는다. 사용자의 현재 위치가 필요한데 우리는
+ * 위치 권한을 요청하지 않고, 요청하는 순간 위치정보사업 신고 대상이 된다.
+ *
+ * 「특전 많은 순」 도 뺐다. "특전 6종" 에서 6 을 뽑는 방식이었는데,
+ * 서술형으로 적힌 건은 개수를 셀 수 없어 0 으로 두고 뒤로 보냈다.
+ * 특전이 많은데도 뒤로 가는 줄이 생기니 축이 거짓말을 한다.
+ * 특전 자체는 카드와 상세에 그대로 보인다.
  */
-export type SortKey = 'deadline' | 'name' | 'perks'
+export type SortKey = 'deadline' | 'name'
 
 export const SORT_LABELS: Record<SortKey, string> = {
   deadline: '마감 임박 순',
   name: '가나다 순',
-  perks: '특전 많은 순',
 }
 
-/**
- * 「특전 6종」 에서 6 을 뽑는다.
- *
- * 211건 중 195건이 이 형태다. 나머지는 팝업 MD 특전이라 한 문단짜리
- * 서술형이고 개수를 셀 수 없다. 못 세는 것은 0 으로 두어 뒤로 보낸다.
- * 0 으로 두는 것이 맞는 이유는, 개수를 모르는 것과 없는 것을 이 화면이
- * 구분해 보여줄 방법이 없어서다.
- */
-function perkCount(ev: EventItem): number {
-  const m = /특전\s*(\d+)\s*종/.exec(ev.perks ?? '')
-  return m ? Number(m[1]) : 0
-}
-
-/**
- * 고른 축으로 세운다.
- *
- * 어느 축이든 **진행 중인 것이 먼저다.** 오늘 갈 수 없는 곳이 목록
- * 맨 위에 오면 정렬을 바꾼 보람이 없다. 그 안에서만 축이 갈린다.
- */
 export function sortByKey(
   events: EventItem[],
   key: SortKey,
@@ -371,15 +355,10 @@ export function sortByKey(
     const o = ongoing(a) - ongoing(b)
     if (o !== 0) return o
 
-    if (key === 'name') {
-      /* 한글 정렬은 코드포인트 순서와 사전 순서가 달라 localeCompare 가
-         필요하다. '가'(AC00) 와 '까'(AE4C) 사이에 '나' 가 끼어 있다 */
-      const n = a.subject.localeCompare(b.subject, 'ko')
-      if (n !== 0) return n
-    } else {
-      const p = perkCount(b) - perkCount(a)
-      if (p !== 0) return p
-    }
+    /* 한글 정렬은 코드포인트 순서와 사전 순서가 달라 localeCompare 가
+       필요하다. '가'(AC00) 와 '까'(AE4C) 사이에 '나' 가 끼어 있다 */
+    const n = a.subject.localeCompare(b.subject, 'ko')
+    if (n !== 0) return n
 
     // 동률이면 마감 임박 순으로 되돌린다. 매번 같은 순서가 나와야 한다
     if (a.endsOn !== b.endsOn) return a.endsOn < b.endsOn ? -1 : 1
