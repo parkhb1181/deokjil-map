@@ -59,8 +59,15 @@ const EMPTY: Form = {
 const CAPACITY = [2, 3, 4, 5, 6] as const
 const MAX_CAPACITY = CAPACITY[CAPACITY.length - 1]
 
-/** 화면과 서버가 같은 규칙을 봐야 한다. 서버에도 같은 검증이 있다 */
-function validate(f: Form) {
+/**
+ * 화면과 서버가 같은 규칙을 봐야 한다. 서버에도 같은 검증이 있다.
+ *
+ * 고른 행사를 같이 받는 이유는 **만남시각 검증이 행사에 걸리기**
+ * 때문이다 (PO-02). 행사를 안 골랐으면 비교할 대상이 없어 검증하지
+ * 않는다 — 콘서트처럼 우리 데이터에 없는 행사도 있어서 안 고르고
+ * 올릴 수 있어야 한다.
+ */
+function validate(f: Form, event: PickableEvent | null) {
   const e: Partial<Record<keyof Form, string>> = {}
   if (!f.title.trim()) e.title = '제목을 적어주세요'
   else if (f.title.length > 40) e.title = '40자를 넘었어요'
@@ -72,6 +79,15 @@ function validate(f: Form) {
   if (f.capacity && !CAPACITY.includes(Number(f.capacity) as (typeof CAPACITY)[number]))
     e.capacity = `${MAX_CAPACITY}명까지 모을 수 있어요`
   if (!f.meetAt) e.meetAt = '만나는 시간을 정해주세요'
+  /*
+   * 행사가 끝난 뒤로는 못 잡는다 (PO-02, 불변식 I-04).
+   *
+   * endsOn 은 날짜뿐이라 그날 안이면 몇 시든 통과시킨다. 문자열
+   * 비교로 끝나는 이유는 둘 다 'YYYY-MM-DD' 로 시작하는 사전순
+   * 포맷이어서다. Date 를 만들면 타임존 왕복이 끼어든다 (lib/when.ts).
+   */
+  else if (event && f.meetAt.slice(0, 10) > event.endsOn)
+    e.meetAt = `고른 행사가 ${event.endsOn} 에 끝나요`
   if (!f.place.trim()) e.place = '어디서 만날지 적어주세요'
   return e
 }
@@ -93,7 +109,7 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
      묻지 않아도 될 것을 묻는 셈이다 */
   const dirty = Object.values(f).some((v) => v.trim() !== '') || event !== null || pin !== null
 
-  const errors = validate(f)
+  const errors = validate(f, event)
   const show = (k: keyof Form) => (tried ? errors[k] : undefined)
   const set = (k: keyof Form) => (v: string) => setF((p) => ({ ...p, [k]: v }))
 
