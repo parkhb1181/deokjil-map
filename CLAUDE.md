@@ -105,10 +105,36 @@ node crawler/to-events.mjs                    # 정규화 → src/data/events.js
 짧은 아티스트 별칭은 부분일치로 쓰지 않는다. 한국어는 단어 경계가 없어
 "카이"가 "아카이브"에 걸린다. 4자 미만은 태그 정확일치만 인정한다.
 
+## 브랜치
+
+**작업은 `develop` 에서만 한다.** `main` 에 직접 커밋하지 않는다.
+
+```
+develop   여기서 작업하고 여기로 푸시한다
+main      배포용. develop 에서 PR 로만 들어간다
+```
+
+`main` 에 있는 것을 눈치채면 먼저 `develop` 으로 옮기고 시작한다.
+
+**왜 나누나.** `main` 에 푸시하면 Vercel 이 곧장 프로덕션을 다시 굽는다
+(duckmoim.com). 아직 붙는 중인 화면이 실제 방문자에게 그대로 나간다.
+`develop` 은 프리뷰로만 배포돼서, 주소가 따로 나오고 팀이 먼저 본다.
+
+프리뷰 주소는 배포마다 바뀌는 것과 브랜치마다 고정인 것 둘이 나온다.
+공유할 때는 고정인 쪽(`duckmoim-git-develop-…`)을 쓴다.
+
+**푸시는 `team` 과 `origin` 둘 다에 한다.** 팀 저장소가
+`potenup-final/duckmoim-frontend` 이고 개인 저장소가 `parkhb1181/deokjil-map`
+이다. 한쪽만 밀면 갈라진다.
+
 ## 커밋
 
 단계가 끝나면 **커밋과 푸시를 같이** 한다. 커밋 메시지에는 무엇을 했는지보다
 **왜 그렇게 했는지**를 남긴다. 다음에 같은 결정을 다시 논쟁하지 않기 위해서다.
+
+**커밋은 모아서 푸시한다.** 푸시 한 번이 Vercel 빌드 한 번이고 요금이 붙는다.
+문서만 고친 커밋은 `vercel.json` 의 `ignoreCommand` 가 빌드를 건너뛴다
+(`scripts/vercel-ignore.mjs`).
 
 <!-- BEGIN:nextjs-agent-rules -->
 
