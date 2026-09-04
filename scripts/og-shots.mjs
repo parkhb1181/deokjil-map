@@ -38,6 +38,48 @@ const W = 400
 const H = 400
 
 /**
+ * 어떤 사진을 고를지.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **`src/lib/og-picks.ts` 의 `pickShots` 와 같은 규칙이어야 한다.**
+ * 규칙과 그 이유는 그쪽에 적어 뒀다. 여기가 줄여 놓은 것과 카드가
+ * 고르는 것이 어긋나면 그 칸은 그냥 빈다.
+ *
+ * 아래 `source()` 가 `src/lib/poster.ts` 와 갈라져 있는 것과 같은
+ * 사정이다. 이 스크립트는 순수 Node ESM 이라 TypeScript 모듈을 못
+ * 불러온다.
+ */
+function pickShots(events, count) {
+  const lanes = new Map()
+  for (const ev of events.filter((e) => e.imageUrl).sort(byStartThenId)) {
+    const lane = lanes.get(ev.place.district)
+    if (lane) lane.push(ev)
+    else lanes.set(ev.place.district, [ev])
+  }
+
+  const ordered = [...lanes.values()].sort(
+    (a, b) => b.length - a.length || a[0].id.localeCompare(b[0].id),
+  )
+
+  const picked = []
+  for (let round = 0; picked.length < count; round++) {
+    let took = false
+    for (const lane of ordered) {
+      if (round >= lane.length) continue
+      picked.push(lane[round])
+      took = true
+      if (picked.length === count) break
+    }
+    if (!took) break
+  }
+  return picked
+}
+
+function byStartThenId(a, b) {
+  return a.startsOn.localeCompare(b.startsOn) || a.id.localeCompare(b.id)
+}
+
+/**
  * 수집원에 줄여 달라고 부탁한 주소.
  *
  * src/lib/poster.ts 와 같은 규칙이다. 여기서 다시 쓴 이유는 이 스크립트가
@@ -62,17 +104,16 @@ function source(url) {
 
 const events = JSON.parse(await fs.readFile(path.join(ROOT, 'src/data/events.json'), 'utf8'))
 
-// 대상별로 앞에서 세 장씩만. 전부 받으면 216장이라 빌드가 길어진다
-const wanted = new Map()
+// 대상별로 세 장씩만. 전부 받으면 216장이라 빌드가 길어진다
+const bySubject = new Map()
 for (const ev of events) {
   const key = ev.subject?.trim()
-  if (!key || !ev.imageUrl) continue
-  const list = wanted.get(key) ?? []
-  if (list.length >= SHOTS) continue
-  list.push(ev)
-  wanted.set(key, list)
+  if (!key) continue
+  const list = bySubject.get(key)
+  if (list) list.push(ev)
+  else bySubject.set(key, [ev])
 }
-const targets = [...wanted.values()].flat()
+const targets = [...bySubject.values()].flatMap((list) => pickShots(list, SHOTS))
 
 await fs.mkdir(OUT, { recursive: true })
 // 지난 빌드의 잔여물을 남기지 않는다. 종료된 행사 사진이 계속 쌓인다
