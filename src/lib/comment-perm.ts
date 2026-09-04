@@ -3,14 +3,14 @@ import { canWrite, type CommentAction, type PostComment, type Viewer } from '@/t
 /**
  * 비밀 댓글을 볼 수 있는가.
  *
- * **이 판정의 주인은 서버다.** 권한이 없으면 응답에서 body 를 통째로
+ * **이 판정의 주인은 서버다.** 권한이 없으면 응답에서 content 를 통째로
  * 빼고 보낸다. 화면이 가리는 방식이면 응답에 본문이 남아 개발자
  * 도구로 그냥 읽힌다. 채팅이 없어 여기로 연락처가 오가므로 그건
  * 곧 연락처 유출이다.
  *
  * 그럼 이 함수는 왜 있나. 아직 API 가 없어 목데이터를 화면에서
  * 걸러야 하고, 판정 규칙을 한 곳에 적어 백엔드와 맞추기 위해서다.
- * API 가 붙으면 이 함수는 지운다. 그때는 body 가 있으면 보이는
+ * API 가 붙으면 이 함수는 지운다. 그때는 content 가 있으면 보이는
  * 것이고 없으면 안 보이는 것이다.
  *
  * 판정에 쓰는 입력은 넷뿐이다.
@@ -53,8 +53,8 @@ export function canSeeSecret(
  */
 export function stripBlinded(comments: PostComment[]): PostComment[] {
   return comments.map((c) => {
-    if (c.state !== 'BLINDED') return c
-    const { body, ...rest } = c
+    if (c.status !== 'BLINDED') return c
+    const { content, ...rest } = c
     return rest
   })
 }
@@ -62,7 +62,7 @@ export function stripBlinded(comments: PostComment[]): PostComment[] {
 /**
  * 목데이터를 서버가 보낸 것처럼 만든다.
  *
- * 권한이 없는 비밀 댓글의 body 를 지운다. 화면은 body 가 있는지만
+ * 권한이 없는 비밀 댓글의 content 를 지운다. 화면은 content 가 있는지만
  * 보고 그리므로, API 가 붙어도 화면 코드는 그대로다.
  */
 export function asServerWouldSend(
@@ -80,13 +80,13 @@ export function asServerWouldSend(
        화면에서 지우는 것이 아니라 응답에서 뺀다. 화면이 가리면
        개발자 도구로 그냥 읽힌다 */
     const availableActions = actionsFor(c, viewer, hostId)
-    if (c.state === 'BLINDED') {
-      const { body, ...rest } = c
+    if (c.status === 'BLINDED') {
+      const { content, ...rest } = c
       return { ...rest, availableActions }
     }
     const parent = c.parentId ? byId.get(c.parentId) ?? null : null
     if (canSeeSecret(c, parent, viewer, hostId)) return { ...c, availableActions }
-    const { body, ...rest } = c
+    const { content, ...rest } = c
     return { ...rest, availableActions }
   })
 }
@@ -128,7 +128,7 @@ export function actionsFor(
 ): CommentAction[] {
   /* 자리표시자에는 아무것도 못 한다. 지운 글을 또 지울 수 없고,
      가려진 글을 신고해봐야 이미 조치된 것이다 */
-  if (comment.state !== 'ACTIVE') return []
+  if (comment.status !== 'ACTIVE') return []
 
   /* 비회원은 볼 수만 있다. 로그인 게이트는 화면이 따로 세운다 */
   if (!viewer.userId) return []

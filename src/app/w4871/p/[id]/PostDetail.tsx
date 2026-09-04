@@ -126,11 +126,11 @@ export default function PostDetail({ post, comments, hostId }: {
      asServerWouldSend 만 빠지고 나머지는 그대로다 */
   const list = useMemo(() => {
     /* 고친 본문을 먼저 갈아끼운다. **반드시 권한 필터보다 앞이어야
-       한다.** 뒤에 놓으면 서버가 지운 body 를 화면이 도로 끼워넣는
+       한다.** 뒤에 놓으면 서버가 지운 content 를 화면이 도로 끼워넣는
        꼴이 되어, 비밀 댓글이 볼 권한 없는 사람에게 열린다.
        secret 은 건드리지 않는다. 작성 후 비밀 여부는 못 바꾼다
        (명세 CM-03·CM-09) */
-    const mine = comments.map((c) => (c.id in edited ? { ...c, body: edited[c.id] } : c))
+    const mine = comments.map((c) => (c.id in edited ? { ...c, content: edited[c.id] } : c))
 
     return threaded(asServerWouldSend(mine, viewer, hostId)).map((c) =>
       /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
@@ -188,7 +188,7 @@ export default function PostDetail({ post, comments, hostId }: {
              정반대 소식이다. 완료는 "사람을 다 구했다" 이고 취소는
              "이 모임이 없어졌다" 다. 상태는 둘 다 CLOSED 지만
              closedReason 이 갈린다 */
-          post.state === 'OPEN' && (
+          post.status === 'OPEN' && (
             <span className="pshell__acts">
               <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'cancel' })}>
                 취소
@@ -229,7 +229,7 @@ export default function PostDetail({ post, comments, hostId }: {
 
       <article className="post">
         <div className="post__tags">
-          <Badge state={post.state} />
+          <Badge state={post.status} />
           {post.eventId && post.eventTitle && (
             <a className="post__event" href={`/e/${post.eventId}`}>
               {post.eventTitle}
@@ -273,14 +273,14 @@ export default function PostDetail({ post, comments, hostId }: {
           {post.meetPoint.place} · {dateOnly(post.closesAt)} 마감
         </p>
 
-        <div className="post__body">{post.body}</div>
+        <div className="post__body">{post.content}</div>
 
 
         <div className="post__count">
           <span>댓글 <b>{post.commentCount}</b></span>
-          {post.state === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
-          {post.state === 'CLOSED' && post.closedReason === 'MEET_TIME_PASSED' && <span>행사가 끝났어요</span>}
-          {post.state === 'CLOSED' && post.closedReason === 'CANCELED' && <span>취소된 모집이에요</span>}
+          {post.status === 'CLOSED' && post.closedReason === 'MANUAL' && <span>모집이 끝났어요</span>}
+          {post.status === 'CLOSED' && post.closedReason === 'MEET_TIME_PASSED' && <span>행사가 끝났어요</span>}
+          {post.status === 'CLOSED' && post.closedReason === 'CANCELED' && <span>취소된 모집이에요</span>}
 
           {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
              「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
@@ -315,17 +315,17 @@ export default function PostDetail({ post, comments, hostId }: {
           list.map((c) => (
             <Comment
               key={c.id}
-              name={isPlaceholder(c.state) ? '' : c.author.nickname}
+              name={isPlaceholder(c.status) ? '' : c.author.nickname}
               src={c.author.imageUrl ?? undefined}
               time={shortTime(c.createdAt)}
-              text={c.body ?? undefined}
+              text={c.content ?? undefined}
               reply={!!c.parentId}
               secret={c.secret}
-              state={c.state}
+              state={c.status}
               host={c.author.id === hostId}
               edited={c.id in edited}
               onAuthor={
-                isPlaceholder(c.state)
+                isPlaceholder(c.status)
                   ? undefined
                   : () =>
                       setAsk({
@@ -388,7 +388,7 @@ export default function PostDetail({ post, comments, hostId }: {
                       <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
                     )}
                     {c.availableActions.includes('EDIT') && (
-                      <button onClick={() => setEditing({ id: c.id, draft: c.body ?? '' })}>
+                      <button onClick={() => setEditing({ id: c.id, draft: c.content ?? '' })}>
                         수정
                       </button>
                     )}
@@ -414,7 +414,7 @@ export default function PostDetail({ post, comments, hostId }: {
             다르다. "모집이 끝났다" 와 "행사가 끝났다" 는 사용자가
             할 수 있는 일이 다르다. 앞은 다음 글을 기다리면 되고
             뒤는 그 행사 자체가 지나갔다 */}
-        {isClosed(post.state) ? (
+        {isClosed(post.status) ? (
           <p className="write__gate">
             {post.closedReason === 'CANCELED'
               ? '취소된 모집이라 댓글을 받지 않아요'

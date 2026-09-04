@@ -25,12 +25,12 @@ export type ListItem = {
   eventTitle: string | null
   title: string
   excerpt: string
-  state: PostState
+  status: PostState
   closedReason?: ClosedReason | null
   capacity: number | null
   meetAt: string
   meetPoint: MeetPoint
-  author: { id: string; nickname: string; imageUrl?: string | null; doneCount?: number }
+  author: { id: string; nickname: string; imageUrl?: string | null }
   commentCount: number
   /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
   imageUrl?: string | null
@@ -71,7 +71,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
    * 로도 찾는데 어느 칸에 있는지는 모른다.
    */
   const list = useMemo(() => {
-    const byState = tab === 'OPEN' ? posts.filter((p) => p.state === 'OPEN') : posts
+    const byState = tab === 'OPEN' ? posts.filter((p) => p.status === 'OPEN') : posts
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
@@ -181,7 +181,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
 
                     댓글 수는 글자 줄이 아니라 오른쪽 말풍선으로 나간다 */}
                 <PostCard
-                  state={p.state}
+                  state={p.status}
                   reason={p.closedReason}
                   title={p.title}
                   when={whenShort(p.meetAt)}

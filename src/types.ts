@@ -270,8 +270,8 @@ export interface CompanionPost {
    */
   eventImageUrl?: string | null
   title: string
-  body: string
-  state: PostState
+  content: string
+  status: PostState
   /** CLOSED 일 때만 온다. 왜 닫혔는지 */
   closedReason?: ClosedReason | null
   /** closedReason 이 CANCELED 일 때만 온다. 방장이 적는다. 사유는 필수다 */
@@ -316,7 +316,7 @@ export interface PostComment {
    * 화면에서 가리는 게 아니다. 클라이언트가 가리면 응답에 본문이
    * 남아 있어 개발자 도구로 그냥 보인다.
    */
-  body?: string | null
+  content?: string | null
   secret: boolean
   /**
    * 댓글 상태 (AD-07).
@@ -331,7 +331,7 @@ export interface PostComment {
    * 한 사람도 다르다. 본인이 지운 것을 「신고로 가려졌다」 고 적으면
    * 읽는 쪽이 그 사람을 오해한다.
    */
-  state: CommentState
+  status: CommentState
   createdAt: string
   /**
    * 이 댓글에 지금 할 수 있는 것 (CM-18). 서버가 보는 사람에 맞춰 채운다.

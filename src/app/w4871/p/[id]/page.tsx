@@ -46,7 +46,7 @@ const COMMENTS = stripBlinded(DATA.comments)
  */
 const POST = {
   ...DATA.post,
-  commentCount: DATA.comments.filter((c) => c.state === 'ACTIVE').length,
+  commentCount: DATA.comments.filter((c) => c.status === 'ACTIVE').length,
 }
 
 export const metadata: Metadata = {

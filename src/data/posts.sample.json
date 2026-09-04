@@ -5,8 +5,8 @@
     "eventId": "pg_8417",
     "eventTitle": "에이티즈 X 애니티즈 팝업",
     "title": "에이티즈 팝업 오픈런 같이 하실 분",
-    "body": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요.\n\n오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다. 굿즈는 각자 원하는 걸로 사면 되고요.\n\n처음 뵙는 거라 부담스러우시면 줄만 같이 서도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
-    "state": "OPEN",
+    "content": "혼자 가려니 오픈런이 막막해서 같이 가실 분 찾아요.\n\n오전 9시쯤 더현대 서울 앞에서 만나서 줄 같이 서고, 다 돌고 나서 점심 먹으려고 합니다. 굿즈는 각자 원하는 걸로 사면 되고요.\n\n처음 뵙는 거라 부담스러우시면 줄만 같이 서도 괜찮아요.\n연락은 비밀 댓글로 남겨주세요. 확인하고 답글 드릴게요.",
+    "status": "OPEN",
     "capacity": 4,
     "meetAt": "2026-09-14T09:00:00+09:00",
     "closesAt": "2026-09-12T23:59:00+09:00",
@@ -35,10 +35,10 @@
         "imageUrl": "/avatar/a2.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": "저 갈게요! 굿즈 줄도 같이 설 수 있어요",
+      "content": "저 갈게요! 굿즈 줄도 같이 설 수 있어요",
       "secret": false,
       "createdAt": "2026-08-30T09:12:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     },
     {
       "id": "c2",
@@ -49,10 +49,10 @@
         "imageUrl": "/avatar/a1.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": "좋아요! 비밀 댓글로 연락처 남겨주시면 제가 연락드릴게요",
+      "content": "좋아요! 비밀 댓글로 연락처 남겨주시면 제가 연락드릴게요",
       "secret": false,
       "createdAt": "2026-08-30T09:31:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     },
     {
       "id": "c3",
@@ -63,10 +63,10 @@
         "imageUrl": "/avatar/a2.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": "카톡 아이디 night_ticket 입니다",
+      "content": "카톡 아이디 night_ticket 입니다",
       "secret": true,
       "createdAt": "2026-08-30T09:40:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     },
     {
       "id": "c4",
@@ -77,10 +77,10 @@
         "imageUrl": "/avatar/a3.webp",
         "lastSeen": "WITHIN_MONTH"
       },
-      "body": "혹시 아직 자리 있나요? 저도 가고 싶어요. 연락처는 010-0000-0000 입니다",
+      "content": "혹시 아직 자리 있나요? 저도 가고 싶어요. 연락처는 010-0000-0000 입니다",
       "secret": true,
       "createdAt": "2026-08-30T14:02:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     },
     {
       "id": "c5",
@@ -91,10 +91,10 @@
         "imageUrl": "/avatar/a4.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": null,
+      "content": null,
       "secret": false,
       "createdAt": "2026-08-30T15:20:00+09:00",
-      "state": "DELETED"
+      "status": "DELETED"
     },
     {
       "id": "c6",
@@ -105,10 +105,10 @@
         "imageUrl": "/avatar/a5.webp",
         "lastSeen": "WITHIN_MONTH"
       },
-      "body": "위 댓글이 지워져도 이 답글은 남습니다",
+      "content": "위 댓글이 지워져도 이 답글은 남습니다",
       "secret": false,
       "createdAt": "2026-08-30T15:25:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     },
     {
       "id": "c7",
@@ -119,10 +119,10 @@
         "imageUrl": null,
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": "이 공연 표 정가보다 싸게 넘겨요. 연락 주세요",
+      "content": "이 공연 표 정가보다 싸게 넘겨요. 연락 주세요",
       "secret": false,
       "createdAt": "2026-08-30T15:20:00+09:00",
-      "state": "BLINDED"
+      "status": "BLINDED"
     },
     {
       "id": "c8",
@@ -133,10 +133,10 @@
         "imageUrl": "/avatar/a2.webp",
         "lastSeen": "WITHIN_WEEK"
       },
-      "body": "이런 건 여기서 하시면 안 돼요",
+      "content": "이런 건 여기서 하시면 안 돼요",
       "secret": false,
       "createdAt": "2026-08-30T15:41:00+09:00",
-      "state": "ACTIVE"
+      "status": "ACTIVE"
     }
   ],
   "hostId": "u_host"

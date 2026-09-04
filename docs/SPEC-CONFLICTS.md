@@ -44,6 +44,17 @@
 | 댓글 액션을 서버가 정하게 했다 | `comment-perm.ts` |
 | 만남 지점 핀을 필수로 | `types.ts` · `NewPost` |
 | 댓글 수를 조회할 때 세게 | `p/[id]/page.tsx` |
+| 상태 필드 이름을 `status` 로 | `types.ts` · `PostList` · `ProfileView` · `PostDetail` |
+| 본문 필드 이름을 `content` 로 | `types.ts` · `comment-perm.ts` · `PostDetail` |
+| 죽은 `doneCount` 를 `ListItem` 에서 제거 | `p/PostList.tsx` |
+
+
+**09-04 오후에 셋이 더 나왔다.** 댓글 응답 JSON 예시를 필드 단위로는 안
+봤던 탓이다. 위키가 `status` · `content` 로 일관되고 (API 설계 2-5,
+API 컨벤션 공통 응답 형식) 모집글·댓글은 백엔드가 정본이라 프론트가
+움직였다. 행사는 반대로 프론트가 정본이라
+[행사 카탈로그 계약](../../duckmoim-wiki/02-설계-아키텍처/행사-카탈로그-계약.md)
+으로 따로 뺐다.
 
 **아직 백엔드와 말을 맞춰야 하는 것은 이 문서에 넣지 않는다.** 그건
 갈라진 것이 아니라 아직 안 정한 것이라 성격이 다르다.

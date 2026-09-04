@@ -35,7 +35,7 @@ import { shortTime as whenShort } from '@/lib/when'
 export type ProfilePost = {
   id: string
   title: string
-  state: PostState
+  status: PostState
   closedReason?: ClosedReason | null
   meetAt: string
   /**
@@ -157,8 +157,8 @@ export default function ProfileView({
   const posts = useMemo(
     () =>
       [...user.posts].sort((a, b) => {
-        if (a.state !== b.state) return a.state === 'OPEN' ? -1 : 1
-        return a.state === 'OPEN'
+        if (a.status !== b.status) return a.status === 'OPEN' ? -1 : 1
+        return a.status === 'OPEN'
           ? a.meetAt < b.meetAt ? -1 : 1
           : a.meetAt < b.meetAt ? 1 : -1
       }),
@@ -374,7 +374,7 @@ export default function ProfileView({
 
                         <div className="mine__main">
                           <p className="mine__title">
-                            {isClosed(p.state) && <Badge state={p.state} reason={p.closedReason} />}
+                            {isClosed(p.status) && <Badge state={p.status} reason={p.closedReason} />}
                             {p.title}
                           </p>
                           {/* .meta 순서는 어디서 → 언제다 (SCALE.md).

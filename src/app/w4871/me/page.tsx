@@ -25,7 +25,7 @@ const ME: ProfileData = {
     {
       id: 'p1',
       title: '에이티즈 팝업 오픈런 같이 하실 분',
-      state: 'OPEN',
+      status: 'OPEN',
       meetAt: '2026-09-14T09:00',
       district: '여의도',
       /* 모집글 상세(posts.sample.json)가 쓰는 것과 같은 포스터다.
@@ -39,7 +39,7 @@ const ME: ProfileData = {
     {
       id: 'p4',
       title: '원위 팝업 첫날 같이 가요',
-      state: 'CLOSED',
+      status: 'CLOSED',
       closedReason: 'MANUAL',
       meetAt: '2026-08-28T10:30',
       district: '성수',
