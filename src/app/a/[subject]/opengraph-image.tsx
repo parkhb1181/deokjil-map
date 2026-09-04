@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { ImageResponse } from 'next/og'
-import { ALL_EVENTS } from '@/lib/events-source'
+import { getAllEvents } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
@@ -23,8 +23,6 @@ export const dynamic = 'force-static'
  * 숫자에 '곳' 을 붙이지 않는다. 세는 대상은 카페인데 단위가 사람 이름에 붙으면
  * 그 사람을 센 것처럼 읽힌다. 지도 핀과 같은 규칙으로 숫자만 배지에 넣는다.
  */
-
-const ALL = ALL_EVENTS
 
 /** 카드에 올릴 사진 수. 세 장이면 한 줄이 차고, 더 넣으면 각각이 너무 작아진다 */
 const SHOTS = 3
@@ -48,9 +46,9 @@ const SHOT_H = 400
  */
 const OG_CACHE = '.og-cache'
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const seen = new Set<string>()
-  for (const ev of ALL) {
+  for (const ev of await getAllEvents()) {
     const k = ev.subject.trim()
     if (k) seen.add(k)
   }
@@ -86,7 +84,7 @@ async function loadFont(text: string): Promise<ArrayBuffer | null> {
 export default async function Image({ params }: { params: Promise<{ subject: string }> }) {
   const { subject: raw } = await params
   const subject = resolveSubject(raw)
-  const events = ALL.filter((e) => e.subject.trim() === subject)
+  const events = (await getAllEvents()).filter((e) => e.subject.trim() === subject)
 
   const kinds = new Set(events.map((e) => e.kind))
   const kindLabel =

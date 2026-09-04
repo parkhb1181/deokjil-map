@@ -1,4 +1,5 @@
 import HomeApp from '@/components/HomeApp'
+import { getAllEvents } from '@/lib/events-source'
 import { IS_WIREFRAME } from '@/lib/wireframe'
 
 /**
@@ -12,6 +13,6 @@ import { IS_WIREFRAME } from '@/lib/wireframe'
  * 빌드 플래그를 따른다. 로컬과 미리보기 배포에서는 켜지고 실제 배포에서는
  * 꺼진다. 진짜 로그인이 붙으면(AU-01) 이 값을 참으로 고정한다.
  */
-export default function Page() {
-  return <HomeApp wireframe={IS_WIREFRAME} />
+export default async function Page() {
+  return <HomeApp wireframe={IS_WIREFRAME} events={await getAllEvents()} />
 }

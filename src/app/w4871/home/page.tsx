@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import HomeApp from '@/components/HomeApp'
+import { getAllEvents } from '@/lib/events-source'
 
 /**
  * 온보딩에서 누르는 메인 화면.
@@ -22,6 +23,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function Page() {
-  return <HomeApp wireframe />
+export default async function Page() {
+  return <HomeApp wireframe events={await getAllEvents()} />
 }

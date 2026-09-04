@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ALL_EVENTS } from '@/lib/events-source'
+import { getAllEvents } from '@/lib/events-source'
 import { goodsOf, type EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { IS_WIREFRAME } from '@/lib/wireframe'
@@ -31,14 +31,12 @@ import { posterSrc } from '@/lib/poster'
  * 새 CSS 를 만들면 상세 화면이 두 벌이 되고 톤이 갈린다.
  */
 
-const ALL = ALL_EVENTS
-
 // 데이터에 없는 id 는 404 로 떨어뜨린다. 동적 렌더를 허용하면 존재하지 않는
 // 주소가 200 을 돌려주고 색인에 쓰레기가 쌓인다
 export const dynamicParams = false
 
-export function generateStaticParams() {
-  return ALL.map((e) => ({ id: e.id }))
+export async function generateStaticParams() {
+  return (await getAllEvents()).map((e) => ({ id: e.id }))
 }
 
 /** '2026-08-21' → '8월 21일 (금)' */
@@ -103,8 +101,8 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 
-function find(id: string): EventItem | undefined {
-  return ALL.find((e) => e.id === decodeURIComponent(id))
+async function find(id: string): Promise<EventItem | undefined> {
+  return (await getAllEvents()).find((e) => e.id === decodeURIComponent(id))
 }
 
 export async function generateMetadata({
@@ -113,7 +111,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const ev = find(id)
+  const ev = await find(id)
   if (!ev) return {}
 
   const title = `${ev.subject} ${EVENT_KIND_LABELS[ev.kind]} · ${
@@ -132,7 +130,7 @@ export async function generateMetadata({
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const ev = find(id)
+  const ev = await find(id)
   if (!ev) notFound()
 
   const kind = EVENT_KIND_LABELS[ev.kind]
@@ -204,7 +202,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   /* 같은 구역의 다른 행사. 생카는 하루에 여러 곳을 도는 사람이 많아서
      "여기 말고 근처에 뭐가 더 있나" 가 다음 질문이다. 가까운 순으로
      넷만 둔다. 거리는 좌표로 잰다 */
-  const nearby = ALL_EVENTS
+  const nearby = (await getAllEvents())
     .filter((e) => e.id !== ev.id && e.place.district === ev.place.district)
     .map((e) => ({ e, km: distanceKm(ev.place, e.place) }))
     .sort((a, b) => a.km - b.km)

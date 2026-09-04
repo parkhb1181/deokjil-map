@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { ALL_EVENTS } from '@/lib/events-source'
+import { getAllEvents } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
@@ -23,14 +23,12 @@ import { SubjectList } from './SubjectList'
  * 클래스는 globals.css 의 기존 어휘(sheet/dlist/drow)를 그대로 쓴다.
  */
 
-const ALL = ALL_EVENTS
-
 export const dynamicParams = false
 
 /** 대상명 → 그 대상의 이벤트. 대소문자·앞뒤 공백만 정리해서 묶는다 */
-function bySubject(): Map<string, EventItem[]> {
+async function bySubject(): Promise<Map<string, EventItem[]>> {
   const m = new Map<string, EventItem[]>()
-  for (const ev of ALL) {
+  for (const ev of await getAllEvents()) {
     const key = ev.subject.trim()
     if (!key) continue
     const list = m.get(key)
@@ -40,9 +38,9 @@ function bySubject(): Map<string, EventItem[]> {
   return m
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   // 한글 주소와 ASCII 별칭 둘 다 만든다. X 가 한글 앞에서 링크를 끊는다
-  const keys = [...bySubject().keys()]
+  const keys = [...(await bySubject()).keys()]
   const out = keys.map((subject) => ({ subject }))
   for (const [subject, slug] of Object.entries(SUBJECT_SLUGS)) {
     if (keys.includes(subject)) out.push({ subject: slug })
@@ -50,9 +48,9 @@ export function generateStaticParams() {
   return out
 }
 
-function find(raw: string): { subject: string; events: EventItem[] } | null {
+async function find(raw: string): Promise<{ subject: string; events: EventItem[] } | null> {
   const subject = resolveSubject(raw)
-  const events = bySubject().get(subject)
+  const events = (await bySubject()).get(subject)
   if (!events) return null
   // 마감 임박 순. 목록 화면과 같은 축이라야 두 화면이 같은 것을 말한다
   return { subject, events: [...events].sort((a, b) => a.endsOn.localeCompare(b.endsOn)) }
@@ -74,7 +72,7 @@ export async function generateMetadata({
   params: Promise<{ subject: string }>
 }): Promise<Metadata> {
   const { subject: raw } = await params
-  const hit = find(raw)
+  const hit = await find(raw)
   if (!hit) return {}
 
   const { subject, events } = hit
@@ -102,7 +100,7 @@ export default async function SubjectPage({
   params: Promise<{ subject: string }>
 }) {
   const { subject: raw } = await params
-  const hit = find(raw)
+  const hit = await find(raw)
   if (!hit) notFound()
 
   const { subject, events } = hit

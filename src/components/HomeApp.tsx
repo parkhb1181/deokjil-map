@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ALL_EVENTS } from '@/lib/events-source'
+import type { EventItem } from '@/types'
 import {
   defaultFilter,
   filterEvents,
@@ -41,7 +41,21 @@ import BookmarkView from '@/components/BookmarkView'
  * 플래그 없이 빌드되는데 /w4871/* 은 그대로 서빙한다. 그래서 무엇을
  * 그릴지는 빌드가 아니라 주소가 정해야 한다.
  */
-export default function HomeApp({ wireframe }: { wireframe: boolean }) {
+export default function HomeApp({
+  wireframe,
+  events,
+}: {
+  wireframe: boolean
+  /**
+   * 서버가 넘긴 행사 목록.
+   *
+   * 예전에는 이 파일이 `events-source` 를 직접 import 했다. 그러면
+   * API 를 붙일 수 없다 — 클라이언트 컴포넌트는 모듈 최상단에서
+   * await 을 못 하고, 브라우저가 직접 부르면 CORS 와 mixed content 가
+   * 걸린다. 무엇보다 목록이 정적 페이지에 박혀야 ISR 이 의미가 있다.
+   */
+  events: EventItem[]
+}) {
   // 오늘 날짜는 클라이언트에서만 확정한다.
   // 서버 프리렌더 시점(빌드 시각)을 쓰면 배포 다음날부터 하이드레이션이 어긋난다.
   const [today, setToday] = useState<string | null>(null)
@@ -106,7 +120,7 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
   const openDetail = useCallback((id: string) => {
     openedInside.current = true
     openDetailRoute(id)
-    const ev = ALL_EVENTS.find((e) => e.id === id)
+    const ev = events.find((e) => e.id === id)
     track('view_detail', {
       event_id: id,
       kind: ev?.kind,
@@ -122,7 +136,7 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
   }, [])
 
   const detailEvent = useMemo(
-    () => (route.name === 'detail' ? ALL_EVENTS.find((e) => e.id === route.id) ?? null : null),
+    () => (route.name === 'detail' ? events.find((e) => e.id === route.id) ?? null : null),
     [route],
   )
 
@@ -172,10 +186,10 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
 
         <main className={`main ${tab === 'map' ? 'main--map' : ''}`}>
           {!today ? (
-            <SeoIndex events={ALL_EVENTS} />
+            <SeoIndex events={events} />
           ) : tab === 'browse' ? (
             <BrowseView
-              events={ALL_EVENTS}
+              events={events}
               today={today}
               filter={filter}
               onFilter={setField}
@@ -183,7 +197,7 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
             />
           ) : tab === 'map' ? (
             <MapView
-              events={ALL_EVENTS}
+              events={events}
               today={today}
               filter={filter}
               onFilter={setField}
@@ -191,7 +205,7 @@ export default function HomeApp({ wireframe }: { wireframe: boolean }) {
             />
           ) : (
             <BookmarkView
-              events={ALL_EVENTS}
+              events={events}
               today={today}
               saved={saved}
               onOpen={openDetail}
