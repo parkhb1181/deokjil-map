@@ -9,17 +9,17 @@
         "lat": 37.5209,
         "lng": 127.1268,
         "district": "jamsil",
-        "kind": "popup_venue"
+        "kind": "POPUP_VENUE"
       },
       "subject": "샘플아이돌 하린",
-      "subjectType": "idol",
-      "kind": "concert",
+      "subjectType": "IDOL",
+      "kind": "CONCERT",
       "startsOn": "2026-09-19",
       "endsOn": "2026-09-19",
       "startsAt": "19:00",
       "title": "샘플아이돌 하린 단독 콘서트 [가상]",
       "sourceUrl": "https://example.com/sample/mock_con_1",
-      "trust": "parsed",
+      "trust": "PARSED",
       "goods": []
     },
     {
@@ -30,17 +30,17 @@
         "lat": 37.4982,
         "lng": 126.867,
         "district": "etc",
-        "kind": "popup_venue"
+        "kind": "POPUP_VENUE"
       },
       "subject": "샘플그룹 노바",
-      "subjectType": "idol",
-      "kind": "concert",
+      "subjectType": "IDOL",
+      "kind": "CONCERT",
       "startsOn": "2026-09-26",
       "endsOn": "2026-09-26",
       "startsAt": "18:30",
       "title": "샘플그룹 노바 월드투어 서울 [가상]",
       "sourceUrl": "https://example.com/sample/mock_con_2",
-      "trust": "parsed",
+      "trust": "PARSED",
       "goods": []
     },
     {
@@ -51,17 +51,17 @@
         "lat": 37.5473,
         "lng": 127.0745,
         "district": "konkuk",
-        "kind": "popup_venue"
+        "kind": "POPUP_VENUE"
       },
       "subject": "샘플밴드 파랑",
-      "subjectType": "idol",
-      "kind": "concert",
+      "subjectType": "IDOL",
+      "kind": "CONCERT",
       "startsOn": "2026-10-03",
       "endsOn": "2026-10-03",
       "startsAt": "17:00",
       "title": "샘플밴드 파랑 단독 공연 [가상]",
       "sourceUrl": "https://example.com/sample/mock_con_3",
-      "trust": "parsed",
+      "trust": "PARSED",
       "goods": []
     },
     {
@@ -72,17 +72,17 @@
         "lat": 37.4784,
         "lng": 127.0117,
         "district": "gangnam",
-        "kind": "popup_venue"
+        "kind": "POPUP_VENUE"
       },
       "subject": "샘플아이돌 하린",
-      "subjectType": "idol",
-      "kind": "concert",
+      "subjectType": "IDOL",
+      "kind": "CONCERT",
       "startsOn": "2026-10-11",
       "endsOn": "2026-10-11",
       "startsAt": "19:30",
       "title": "샘플아이돌 하린 팬미팅 [가상]",
       "sourceUrl": "https://example.com/sample/mock_con_4",
-      "trust": "parsed",
+      "trust": "PARSED",
       "goods": []
     }
   ]

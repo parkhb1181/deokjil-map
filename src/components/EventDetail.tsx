@@ -16,10 +16,10 @@ interface Props {
 }
 
 const TRUST_LABELS: Record<EventItem['trust'], string> = {
-  official: '공식 채널',
-  partner: '제휴 등록',
-  user: '사용자 제보',
-  parsed: '공지 기반 정리',
+  OFFICIAL: '공식 채널',
+  PARTNER: '제휴 등록',
+  USER: '사용자 제보',
+  PARSED: '공지 기반 정리',
 }
 
 function Row({ label, value }: { label: string; value: string }) {

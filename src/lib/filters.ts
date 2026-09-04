@@ -57,9 +57,9 @@ export const DISTRICT_LABELS: Record<District, string> = {
 }
 
 export const EVENT_KIND_LABELS: Record<EventKind, string> = {
-  birthday_cafe: '생카',
-  popup: '팝업',
-  concert: '콘서트',
+  BIRTHDAY_CAFE: '생카',
+  POPUP: '팝업',
+  CONCERT: '콘서트',
 }
 
 /** 로컬 시각 기준 오늘. 사용자는 한국에 있고 필터링은 전부 브라우저에서 일어난다 */

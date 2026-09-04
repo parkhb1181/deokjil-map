@@ -73,7 +73,7 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
        있어서(크롤러가 안 긁고 KOPIS 도 안 붙었다) 늘 그리면 눌러도
        빈 화면인 칩이 하나 생긴다. 지금 고른 종류는 0 건이어도 남긴다.
        누른 칩이 사라지면 무엇을 눌렀는지 알 수 없다 */
-    const kinds: KindFilter[] = ['birthday_cafe', 'popup', 'concert']
+    const kinds: KindFilter[] = ['BIRTHDAY_CAFE', 'POPUP', 'CONCERT']
     return [
       { value: 'all', label: '전체', count: count('all') },
       ...kinds

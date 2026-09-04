@@ -22,12 +22,12 @@ export type District =
   | 'myeongdong' // 명동 · 중구
   | 'etc'       // 그 외 서울
 
-export type PlaceKind = 'cafe' | 'popup_venue'
+export type PlaceKind = 'CAFE' | 'POPUP_VENUE'
 
 /** 생카는 이미 버추얼·애니 캐릭터·배우로 확장됐다. 아이돌에 묶지 않는다 */
-export type SubjectType = 'idol' | 'virtual' | 'character' | 'actor'
+export type SubjectType = 'IDOL' | 'VIRTUAL' | 'CHARACTER' | 'ACTOR'
 
-export type EventKind = 'birthday_cafe' | 'popup' | 'concert'
+export type EventKind = 'BIRTHDAY_CAFE' | 'POPUP' | 'CONCERT'
 
 /**
  * 데이터 출처 등급.
@@ -36,7 +36,7 @@ export type EventKind = 'birthday_cafe' | 'popup' | 'concert'
  * user      사용자 제보
  * parsed    안내 이미지·텍스트 자동 파싱
  */
-export type Trust = 'official' | 'partner' | 'user' | 'parsed'
+export type Trust = 'OFFICIAL' | 'PARTNER' | 'USER' | 'PARSED'
 
 export interface Place {
   name: string
@@ -109,15 +109,12 @@ export interface EventItem {
   /**
    * 팝업 굿즈 품목. **없을 수 있다.**
    *
-   * 백엔드가 행사 데이터를 DB 로 옮기면서 굿즈 테이블을 만들지 않았다
-   * (백엔드 PR #12). 수집한 202건이 전부 빈 배열이고 명세에도 굿즈
-   * 요구사항이 없어서, 이미 죽어 있는 기능에 테이블을 미리 만들 이유가
-   * 없다고 본 것이다.
+   * 백엔드에 `event_goods` 테이블이 생겼다 (STAR-29). 처음에는 빼고
+   * 갔다가 이관 대상 필드로 되살린 것이라, 스키마는 있는데 수집한
+   * 207건이 아직 전부 빈 배열이다.
    *
-   * 그래서 응답에 이 필드가 아예 없을 수 있다. 필수로 두면 API 가
-   * 붙는 날 `goods.length` 에서 터진다. 화면 쪽은 goodsOf 로 받는다.
-   *
-   * 팝업 굿즈를 보여주기로 하면 그때 백엔드에 테이블을 요청한다.
+   * 그래서 응답에 이 필드가 아예 없거나 빈 배열로 올 수 있다. 필수로
+   * 두면 `goods.length` 에서 터진다. 화면 쪽은 goodsOf 로 받는다.
    */
   goods?: Goods[]
 }

@@ -90,7 +90,7 @@ export default async function Image({ params }: { params: Promise<{ subject: str
 
   const kinds = new Set(events.map((e) => e.kind))
   const kindLabel =
-    kinds.size === 1 ? EVENT_KIND_LABELS[events[0]?.kind ?? 'birthday_cafe'] : '생카·팝업'
+    kinds.size === 1 ? EVENT_KIND_LABELS[events[0]?.kind ?? 'BIRTHDAY_CAFE'] : '생카·팝업'
 
   const byDistrict = new Map<string, number>()
   for (const ev of events) {

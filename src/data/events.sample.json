@@ -7,18 +7,18 @@
       "lat": 37.5551,
       "lng": 126.9242,
       "district": "hongdae",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 하린",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-27",
     "endsOn": "2026-08-29",
     "openHours": "12:00~20:00",
     "perks": "선착 100명 컵홀더 + 포토카드",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0001",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": [],
     "imageUrl": "https://picsum.photos/seed/hongdae1/480/320"
   },
@@ -30,18 +30,18 @@
       "lat": 37.5568,
       "lng": 126.9219,
       "district": "hongdae",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 시온",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-29",
     "endsOn": "2026-08-30",
     "openHours": "11:00~21:00",
     "perks": "선착 50명 아크릴 키링",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0002",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -52,18 +52,18 @@
       "lat": 37.5539,
       "lng": 126.9265,
       "district": "hongdae",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플버추얼 노아",
-    "subjectType": "virtual",
-    "kind": "birthday_cafe",
+    "subjectType": "VIRTUAL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-05",
     "endsOn": "2026-09-07",
     "openHours": "13:00~20:00",
     "perks": "랜덤 포토카드 1종",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0003",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -74,18 +74,18 @@
       "lat": 37.5492,
       "lng": 126.9143,
       "district": "hapjeong",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 라온",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-26",
     "endsOn": "2026-08-27",
     "openHours": "12:00~19:00",
     "perks": "선착 80명 엽서 세트",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0004",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -96,18 +96,18 @@
       "lat": 37.5478,
       "lng": 126.9121,
       "district": "hapjeong",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플캐릭터 미르",
-    "subjectType": "character",
-    "kind": "birthday_cafe",
+    "subjectType": "CHARACTER",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-30",
     "endsOn": "2026-09-03",
     "openHours": "12:00~20:00",
     "perks": "메뉴 주문 시 스티커 증정",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0005",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -118,18 +118,18 @@
       "lat": 37.5447,
       "lng": 127.0562,
       "district": "seongsu",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 유진",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-01",
     "endsOn": "2026-09-04",
     "openHours": "11:00~20:00",
     "perks": "선착 120명 홀로그램 포카",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0006",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -140,18 +140,18 @@
       "lat": 37.5432,
       "lng": 127.0553,
       "district": "seongsu",
-      "kind": "popup_venue"
+      "kind": "POPUP_VENUE"
     },
     "subject": "샘플그룹 NOVA",
-    "subjectType": "idol",
-    "kind": "popup",
+    "subjectType": "IDOL",
+    "kind": "POPUP",
     "startsOn": "2026-08-27",
     "endsOn": "2026-09-06",
     "openHours": "11:00~20:00 (입장 마감 19:30)",
     "perks": "5만원 이상 구매 시 포스터 증정",
     "conditions": "현장 대기 등록 후 입장",
     "sourceUrl": "https://example.com/sample/evt_0007",
-    "trust": "official",
+    "trust": "OFFICIAL",
     "goods": [
       {
         "id": "gd_0701",
@@ -200,18 +200,18 @@
       "lat": 37.4982,
       "lng": 127.0281,
       "district": "gangnam",
-      "kind": "popup_venue"
+      "kind": "POPUP_VENUE"
     },
     "subject": "샘플그룹 LUMEN",
-    "subjectType": "idol",
-    "kind": "popup",
+    "subjectType": "IDOL",
+    "kind": "POPUP",
     "startsOn": "2026-08-29",
     "endsOn": "2026-09-13",
     "openHours": "10:30~20:00",
     "perks": "선착 200명 종이백 증정",
     "conditions": "사전 예약 우선 입장",
     "sourceUrl": "https://example.com/sample/evt_0008",
-    "trust": "official",
+    "trust": "OFFICIAL",
     "goods": [
       {
         "id": "gd_0801",
@@ -254,18 +254,18 @@
       "lat": 37.5487,
       "lng": 126.9156,
       "district": "hapjeong",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 서윤",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-25",
     "endsOn": "2026-08-28",
     "openHours": "12:00~20:00",
     "perks": "선착 60명 아크릴 배지",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0009",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -276,18 +276,18 @@
       "lat": 37.5501,
       "lng": 126.9128,
       "district": "hapjeong",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플아이돌 태오",
-    "subjectType": "idol",
-    "kind": "birthday_cafe",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-27",
     "endsOn": "2026-08-31",
     "openHours": "11:30~21:00",
     "perks": "선착 150명 포토카드 + 컵홀더",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0010",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": [],
     "imageUrl": "https://picsum.photos/seed/hapjeong-taeo/480/320"
   },
@@ -299,18 +299,18 @@
       "lat": 37.5513,
       "lng": 126.9109,
       "district": "hapjeong",
-      "kind": "cafe"
+      "kind": "CAFE"
     },
     "subject": "샘플캐릭터 코코",
-    "subjectType": "character",
-    "kind": "birthday_cafe",
+    "subjectType": "CHARACTER",
+    "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-08-26",
     "endsOn": "2026-08-30",
     "openHours": "13:00~19:00",
     "perks": "메뉴 주문 시 랜덤 스티커",
     "conditions": "음료 1잔 주문",
     "sourceUrl": "https://example.com/sample/evt_0011",
-    "trust": "parsed",
+    "trust": "PARSED",
     "goods": []
   },
   {
@@ -321,18 +321,18 @@
       "lat": 37.5476,
       "lng": 126.9174,
       "district": "hapjeong",
-      "kind": "popup_venue"
+      "kind": "POPUP_VENUE"
     },
     "subject": "샘플그룹 AURA",
-    "subjectType": "idol",
-    "kind": "popup",
+    "subjectType": "IDOL",
+    "kind": "POPUP",
     "startsOn": "2026-08-27",
     "endsOn": "2026-09-02",
     "openHours": "11:00~20:00 (입장 마감 19:30)",
     "perks": "3만원 이상 구매 시 포토카드",
     "conditions": "현장 대기 등록 후 입장",
     "sourceUrl": "https://example.com/sample/evt_0012",
-    "trust": "official",
+    "trust": "OFFICIAL",
     "goods": [
       {
         "id": "gd_1201",

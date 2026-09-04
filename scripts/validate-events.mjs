@@ -31,7 +31,7 @@ for (const e of events) {
     problems.push(`${at}: sourceUrl 이 리스팅이다. ${e.sourceUrl}`)
   }
 
-  if (e.trust === 'official') {
+  if (e.trust === 'OFFICIAL') {
     problems.push(`${at}: 확인되지 않은 것을 official 로 올렸다`)
   }
 

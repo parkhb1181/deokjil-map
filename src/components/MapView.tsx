@@ -261,7 +261,7 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
           ? EVENT_KIND_LABELS[head.kind]
           : // 순서를 고정한다. Set 순회 순서를 그대로 쓰면 묶음마다
             // '생카·팝업' 과 '팝업·생카' 가 섞여 나온다
-            (['birthday_cafe', 'popup'] as const)
+            (['BIRTHDAY_CAFE', 'POPUP'] as const)
               .filter((k) => kinds.has(k))
               .map((k) => EVENT_KIND_LABELS[k])
               .join('·')

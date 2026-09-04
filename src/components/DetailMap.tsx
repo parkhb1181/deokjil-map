@@ -50,7 +50,7 @@ export default function DetailMap({ event }: Props) {
         const el = document.createElement('div')
         el.className = `pin pin--${event.kind} pin--static`
         el.innerHTML =
-          `<span class="pin__kind">${event.kind === 'birthday_cafe' ? '생카' : '팝업'}</span>` +
+          `<span class="pin__kind">${event.kind === 'BIRTHDAY_CAFE' ? '생카' : '팝업'}</span>` +
           `<span class="pin__name"></span>` +
           `<span class="pin__tail"></span>`
         // 장소명은 사용자 데이터라 textContent 로 넣는다
