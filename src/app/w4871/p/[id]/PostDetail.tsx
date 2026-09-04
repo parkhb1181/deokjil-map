@@ -185,9 +185,19 @@ export default function PostDetail({ post, comments, hostId }: {
              방장 취소는 1차 MVP 에서 뺐다 (2026-09-04). 여기 「취소」 가
              같이 있었다 */
           post.status === 'OPEN' && (
-            <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
-              모집 완료
-            </Button>
+            <>
+              {/* 수정도 OPEN 에서만이다 (PO-06). 계약이 CLOSED 수정을
+                  409 로 막는데, 화면에 남겨두면 눌러보고 나서 튕긴다.
+
+                  감싸는 요소를 두지 않는다. shell__right 가 이미 flex 라
+                  버튼 둘이 그대로 나란히 선다 */}
+              <Button size="sm" tone="ghost" onClick={() => router.push(wf(`/p/${post.id}/edit`))}>
+                수정
+              </Button>
+              <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
+                모집 완료
+              </Button>
+            </>
           )
         ) : (
           /* 신고도 쓰는 행동이라 로그인 뒤에 한다. 댓글 신고만 막고
