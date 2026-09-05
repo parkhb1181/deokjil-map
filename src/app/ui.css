@@ -1712,6 +1712,10 @@
 .mymenu__row[disabled] { color: var(--text-mute); cursor: default; }
 .mymenu__row[disabled]:active { background: none; }
 
+/* 로그아웃만 색을 달리한다. 나머지와 같으면 다른 것을 누르러 왔다가
+   실수로 누른다. 되돌리려면 다시 로그인해야 한다 */
+.mymenu__row--out { color: var(--danger); }
+
 .mymenu__caret { width: 16px; height: 16px; margin-left: auto; color: var(--text-mute); }
 .mymenu__note { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
 

@@ -23,10 +23,12 @@
  */
 import { useMemo, useState } from 'react'
 import { useViewer } from '@/lib/auth/useViewer'
+import { signOut } from '@/lib/auth/signout'
 import { USE_API } from '@/lib/api/config'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
-import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
+import { Avatar, Badge, Blank, Button, Sheet, Tabs } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
@@ -156,7 +158,9 @@ export default function ProfileView({
   const [devMine, setDevMine] = useState(isMe)
   const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
   const mine = USE_API ? viewer.userId === user.id : devMine
-  const [ask, setAsk] = useState<null | 'report'>(null)
+  const [ask, setAsk] = useState<null | 'report' | 'logout'>(null)
+  const [leaving, setLeaving] = useState(false)
+  const router = useRouter()
   const [tab, setTab] = useState(0)
   const [empty, setEmpty] = useState(false)
   const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
@@ -329,6 +333,15 @@ export default function ProfileView({
                 <span>알림 설정</span>
                 <span className="mymenu__note">준비 중</span>
               </button>
+              {/* 로그아웃은 맨 아래다. 위에 두면 다른 것을 누르러 왔다가
+                  실수로 누른다. 되돌리려면 다시 로그인해야 한다 */}
+              <button
+                type="button"
+                className="mymenu__row mymenu__row--out"
+                onClick={() => setAsk('logout')}
+              >
+                <span>로그아웃</span>
+              </button>
             </nav>
           )}
 
@@ -434,6 +447,40 @@ export default function ProfileView({
 
       {ask === 'report' && (
         <ReportSheet target="user" name={user.nickname} onClose={() => setAsk(null)} />
+      )}
+
+      {/* 물어보고 나간다. 되돌리려면 다시 로그인해야 해서, 실수로 누른
+          것과 정말 나가려는 것을 가른다 */}
+      {ask === 'logout' && (
+        <Sheet
+          title="로그아웃할까요?"
+          desc="다시 쓰려면 카카오로 로그인하면 돼요."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setAsk(null)}>
+                아니요
+              </Button>
+              <Button
+                tone="danger"
+                disabled={leaving}
+                onClick={async () => {
+                  setLeaving(true)
+                  await signOut()
+                  /*
+                   * 홈으로 보낸다. 있던 자리에 두면 방금 나간 사람이
+                   * 자기 프로필을 보고 있게 된다.
+                   *
+                   * replace 다. 뒤로가기로 이 화면에 돌아와도 이미
+                   * 로그아웃된 뒤라 볼 것이 없다.
+                   */
+                  router.replace(wf('/'))
+                }}
+              >
+                {leaving ? '나가는 중…' : '로그아웃'}
+              </Button>
+            </>
+          }
+        />
       )}
     </PageShell>
   )
