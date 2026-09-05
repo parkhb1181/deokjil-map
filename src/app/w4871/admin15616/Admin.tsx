@@ -25,6 +25,8 @@
  *   기록 (AD-05) — 남긴다고 처리방침에 써놓고 볼 자리가 없었다
  */
 import { useState } from 'react'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
 import type { AuditEntry, AuditKind, SanctionKind } from '@/types'
@@ -69,7 +71,6 @@ const KIND_TEXT: Record<SanctionKind, string> = {
 const AUDIT_TEXT: Record<AuditKind, string> = {
   SANCTION: '제재',
   RELEASE: '제재 해제',
-  REPORT: '신고 처리',
   BLIND: '댓글 블라인드',
   SECRET_READ: '비밀 댓글 열람',
   PURGE: '계정 파기',
@@ -239,7 +240,19 @@ export default function Admin() {
      그래서 **막히는 화면이 어떻게 생겼는지만 먼저 만들어 둔다.**
      실제 판정은 서버가 한다. 화면이 판정하면 이 상태를 뒤집는 것으로
      그냥 뚫린다 */
-  const [admin, setAdmin] = useState(true)
+  /*
+   * 관리자인가 (AD-06).
+   *
+   * 로그인은 카카오 하나로 하고 역할만 얹는다 (2026-09-05 결정).
+   * 서버가 /users/me 에 role 을 실어 주고 화면은 그것만 본다.
+   *
+   * **화면이 판정하지 않는다.** 여기서 정하면 이 상태를 뒤집는 것으로
+   * 그냥 뚫린다. 백오피스 API 자체도 서버가 막아야 하고, 이 화면은
+   * 못 들어가는 사람에게 무엇을 보여줄지만 정한다.
+   */
+  const [devAdmin, setDevAdmin] = useState(true)
+  const { isAdmin } = useViewer({ role: 'guest', userId: null, sanction: null })
+  const admin = USE_API ? !!isAdmin : devAdmin
   const [tab, setTab] = useState<Tab>('reports')
 
   const [only, setOnly] = useState(true)
@@ -277,10 +290,15 @@ export default function Admin() {
       ...prev,
     ])
 
-  /** 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다 */
+  /**
+   * 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다.
+   *
+   * **감사 로그에 남기지 않는다** (2026-09-05). 처리 이력은 신고 자체가
+   * 들고 있고, 감사 로그는 개인정보·비공개 내용 접근과 계정 불이익만
+   * 담는다. 양쪽에 남기면 같은 사실이 두 곳에 적힌다.
+   */
   const close = (r: Report, result: string) => {
     setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, done: true, result } : x)))
-    log('REPORT', `${r.target} · ${r.subject}`, `${r.reason} · ${result}`)
   }
 
   /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
@@ -302,7 +320,7 @@ export default function Admin() {
           <span className="bo__logo">
             덕모임 <b>백오피스</b>
           </span>
-          <DevWho admin={admin} onPick={setAdmin} />
+          {!USE_API && <DevWho admin={devAdmin} onPick={setDevAdmin} />}
         </header>
         <main className="bo__body">
           <div className="bo__deny">
@@ -320,7 +338,7 @@ export default function Admin() {
         <span className="bo__logo">
           덕모임 <b>백오피스</b>
         </span>
-        <DevWho admin={admin} onPick={setAdmin} />
+        {!USE_API && <DevWho admin={devAdmin} onPick={setDevAdmin} />}
       </header>
 
       {/* 탭. 셋 다 운영자가 번갈아 보는 것이라 화면을 나누지 않는다.

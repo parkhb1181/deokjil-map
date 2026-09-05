@@ -31,9 +31,23 @@ interface Me {
   signupCompleted: boolean
   /** 없으면 제재가 없다는 뜻이다 */
   sanction?: Sanction | null
+  /**
+   * 관리자인가 (AD-06).
+   *
+   * 로그인은 모두 카카오 하나로 하고 역할만 얹는다 (2026-09-05 결정).
+   * 관리자 전용 로그인 화면을 만들지 않는다 — 비밀번호를 우리가
+   * 다루면 해싱·재설정·유출 대응을 떠안는데, 그 문 안에 비밀 댓글
+   * 본문이 있다 (CM-17).
+   *
+   * **판정은 서버가 한다.** 화면이 판정하면 상태를 뒤집는 것으로
+   * 그냥 뚫린다. 여기 값은 무엇을 그릴지 정하는 데만 쓴다.
+   */
+  role?: 'USER' | 'ADMIN'
 }
 
 export interface ViewerState {
+  /** 관리자인가. 백오피스가 본다 */
+  isAdmin?: boolean
   viewer: Viewer
   /**
    * 아직 모른다.
@@ -52,16 +66,10 @@ const GUEST: Viewer = { role: 'guest', userId: null, sanction: null }
  * @param hostId   이 글의 방장. 나와 같으면 role 이 host 가 된다
  */
 export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
-  const [state, setState] = useState<ViewerState>(() =>
-    /* API 를 안 쓰면 기다릴 것이 없다. 토글 값이 곧 답이다 */
-    USE_API ? { viewer: GUEST, loading: true } : { viewer: fallback, loading: false },
-  )
+  const [state, setState] = useState<ViewerState>({ viewer: GUEST, loading: true })
 
   useEffect(() => {
-    if (!USE_API) {
-      setState({ viewer: fallback, loading: false })
-      return
-    }
+    if (!USE_API) return
 
     /* 화면을 떠난 뒤 도착한 응답으로 상태를 건드리지 않는다 */
     let alive = true
@@ -88,6 +96,7 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
             userId: me.id,
             sanction: me.sanction ?? null,
           },
+          isAdmin: me.role === 'ADMIN',
           loading: false,
         })
       })
@@ -109,6 +118,16 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
     /* fallback 은 매 렌더 새 객체다. 넣으면 무한 루프가 된다 */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostId])
+
+  /*
+   * API 를 안 쓰면 토글 값이 곧 답이다. **상태에 담지 않고 그대로
+   * 돌려준다.**
+   *
+   * 한때 담았다가 토글이 죽었다 — 이펙트 의존성이 hostId 뿐이라
+   * 토글을 눌러도 다시 돌지 않았다. fallback 을 의존성에 넣으면
+   * 매 렌더 새 객체라 무한 루프가 된다. 담지 않으면 둘 다 없다.
+   */
+  if (!USE_API) return { viewer: fallback, loading: false }
 
   return state
 }
