@@ -168,6 +168,14 @@ const groups = (live: { event: string; artist: string }): Group[] => [
         desc: '내 것도 남의 것도 같은 화면. 「제재」 를 넘기면 나이 확인·정지가 보입니다',
         data: '목데이터',
       },
+      {
+        href: wf('/me/leave'),
+        name: '회원 탈퇴',
+        shot: 'profile',
+        spec: 'AU-11',
+        desc: '무엇이 지워지고 무엇이 남는지 먼저 말합니다',
+        data: '목데이터',
+      },
     ],
   },
   {

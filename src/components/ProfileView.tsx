@@ -342,6 +342,12 @@ export default function ProfileView({
               >
                 <span>로그아웃</span>
               </button>
+              {/* 탈퇴는 로그아웃보다 아래다. 되돌릴 수 없는 것이 더
+                  멀리 있어야 한다. 색은 죽여 둔다 — 빨갛게 두면 눈이
+                  먼저 가고, 여기 오는 사람 대부분은 로그아웃하러 온다 */}
+              <Link className="mymenu__row mymenu__row--quiet" href={wf('/me/leave')}>
+                <span>회원 탈퇴</span>
+              </Link>
             </nav>
           )}
 

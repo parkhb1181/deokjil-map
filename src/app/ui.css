@@ -1716,6 +1716,76 @@
    실수로 누른다. 되돌리려면 다시 로그인해야 한다 */
 .mymenu__row--out { color: var(--danger); }
 
+/* 탈퇴는 색을 죽인다. 빨갛게 두면 로그아웃과 나란히 눈에 들어오는데,
+   여기 오는 사람 대부분은 로그아웃하러 온다 */
+.mymenu__row--quiet { color: var(--text-mute); }
+
+/* ── 회원 탈퇴 ── */
+.leave {
+  padding: 20px var(--gutter) 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.leave__lead {
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.leave__box {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.leave__h {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.leave__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 18px;
+  list-style: disc;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.leave__list b { color: var(--text); font-weight: 700; }
+
+.leave__note {
+  margin-top: 12px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}
+
+.leave__note a { color: var(--text-dim); text-decoration: underline; }
+
+/* 동의는 눌러야 버튼이 열린다. 줄 전체가 누르는 자리다 */
+.leave__agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 4px;
+  font-size: var(--t-body);
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.leave__agree input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
+
+.leave__err {
+  font-size: var(--t-small);
+  color: var(--danger);
+}
+
 .mymenu__caret { width: 16px; height: 16px; margin-left: auto; color: var(--text-mute); }
 .mymenu__note { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
 
