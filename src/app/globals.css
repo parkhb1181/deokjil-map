@@ -1595,7 +1595,14 @@ a.bottomnav__item { text-decoration: none; }
    훑어 내릴 때 그 지점이 기준점이 된다.
    ------------------------------------------------------- */
 .rank {
-  margin: 0 0 14px;
+  /*
+   * 헤더에 붙인다.
+   *
+   * .main 이 위 여백 12px 을 갖는데, 어두운 블록이 첫 자식이라 그
+   * 여백이 흰 띠로 남아 블록이 떠 보인다. 다른 탭(지도·즐겨찾기)은
+   * 그 여백이 필요하므로 .main 을 고치지 않고 여기서만 상쇄한다.
+   */
+  margin: -12px 0 14px;
   padding: 14px 0 15px;
   background: #1c1a20;
   border-bottom: 2px solid var(--accent);
@@ -1617,13 +1624,32 @@ a.bottomnav__item { text-decoration: none; }
 /* 어두운 바탕에서 --text-mute 는 3.36:1 로 모자란다. 연분홍이 8.94:1 */
 .rank__note { font-size: 13px; color: #f5a3c1; font-weight: 600; }
 
+/*
+ * 1위를 왼쪽에 세우고 2~4위를 오른쪽에 쌓는다.
+ *
+ * **포스터가 세로다.** 실측 14장 중 12장이 4:5 안팎이고 가로는 없다.
+ * 가로 배너에 넣으면 cover 가 위아래를 60% 넘게 잘라내는데, 포스터는
+ * 위에 아티스트명 아래에 날짜·장소가 있어서 잘리면 남는 게 없다.
+ *
+ * 왼쪽을 2fr 로 두는 이유 — 1:1 이면 1위가 오른쪽 카드보다 조금 큰
+ * 정도라 순위로 안 읽힌다. 2:1 이면 「하나가 압도적」 으로 보인다.
+ */
+.rank__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  padding: 0 var(--gutter);
+  margin-bottom: 12px;
+}
+
 /* 1위. 나머지와 같은 크기로 두면 순위로 안 읽힌다 */
 .rank__hero {
   position: relative;
   display: block;
-  width: calc(100% - var(--gutter) * 2);
-  margin: 0 var(--gutter) 12px;
-  height: 236px;
+  width: 100%;
+  margin: 0;
+  /* 포스터 비율 그대로. 높이를 고정하지 않아 폭이 바뀌어도 안 잘린다 */
+  aspect-ratio: 4 / 5;
   padding: 0;
   border: 0;
   border-radius: var(--radius);
@@ -1682,6 +1708,24 @@ a.bottomnav__item { text-decoration: none; }
 .rank__more { font-size: 12.5px; color: rgba(255, 255, 255, 0.82); }
 
 /* 2위 이하 */
+/*
+ * 2~5위. 1위 높이를 넷이 나눠 갖는다.
+ *
+ * grid 라 1위가 길어지면 같이 늘어난다. 높이를 px 로 박으면 폭이
+ * 바뀌는 화면에서 어긋난다.
+ */
+.rank__side {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rank__side .rank__item { min-height: 0; }
+.rank__side .rank__card { width: 100%; height: 100%; }
+
+/* 5위 아래. 가로로 흘린다 */
 .rank__rail {
   display: flex;
   gap: 8px;

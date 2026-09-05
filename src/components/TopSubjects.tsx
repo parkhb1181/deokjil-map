@@ -91,6 +91,7 @@ export default function TopSubjects({ events, today }: Props) {
         <p className="rank__note">진행 중 {total}곳</p>
       </div>
 
+      <div className="rank__grid">
       <button type="button" className="rank__hero" onClick={() => go(top, 0)}>
         <span className="rank__photo">
           {top.image && !failed[top.subject] && (
@@ -117,8 +118,9 @@ export default function TopSubjects({ events, today }: Props) {
         </span>
       </button>
 
-      <ol className="rank__rail">
-        {rest.map((r, i) => (
+      {/* 2~5위. 1위 옆에 세워 순위가 한눈에 읽히게 한다 */}
+      <ol className="rank__side">
+        {rest.slice(0, 4).map((r, i) => (
           <li key={r.subject} className="rank__item">
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
@@ -135,6 +137,8 @@ export default function TopSubjects({ events, today }: Props) {
           </li>
         ))}
       </ol>
+      </div>
+
     </section>
   )
 }
