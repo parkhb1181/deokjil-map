@@ -856,6 +856,37 @@ a.bottomnav__item { text-decoration: none; }
   padding-right: 26px;
 }
 
+/* 포스터가 왼쪽, 글이 오른쪽.
+
+   포스터를 위에 통으로 깔지 않은 것은 이 카드가 지도를 덮고 있기
+   때문이다. 세로로 길어질수록 방금 누른 핀 주변이 가려져, 여기가
+   어디인지 보려고 연 카드가 그 답을 지운다. 옆에 세우면 높이가
+   거의 그대로다. */
+.mapsheet__top { display: flex; gap: 10px; align-items: flex-start; }
+.mapsheet__poster {
+  flex: 0 0 74px;
+  /* 포스터는 세로가 길다. 3:4 로 잘라 두면 위쪽 대상명이 남는다 */
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-sunk);
+}
+.mapsheet__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+/* 글칸이 좁아지므로 줄여도 되게 열어 둔다. 안 그러면 긴 주소가
+   포스터를 밀어낸다 */
+.mapsheet__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 .mapsheet__head {
   display: flex;
   align-items: center;
