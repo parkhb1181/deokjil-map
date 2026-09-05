@@ -124,16 +124,22 @@ export default function TopSubjects({ events, today }: Props) {
           <li key={r.subject} className="rank__item">
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
+                {/* 썸네일 칸이 작다. 큰 것을 받아봐야 버린다 */}
                 {r.image && !failed[r.subject] && (
-                  {/* 44px 칸이다. 120px 를 받으면 필요보다 큰 것을 내려받는다.
-                      2배 화면까지 보고 96 으로 준다 */}
                   <Image src={posterSrc(r.image)!} alt="" fill sizes="96px" onError={() => die(r.subject)} />
                 )}
               </span>
               <span className="rank__num">{i + 2}</span>
               <span className="rank__cardinfo">
                 <strong className="rank__cardname">{r.subject}</strong>
-                <span className="rank__cardsub">{r.count}곳</span>
+                {/* 1위와 같은 줄을 쓴다. 곳수만 두면 글자 오른쪽이
+                    비고, 지역은 「갈 수 있나」 를 가르는 값이다 */}
+                <span className="rank__cardsub">
+                  {r.count}곳
+                  {r.districts.length > 0 && (
+                    <span className="rank__region"> · {r.districts.join('·')}</span>
+                  )}
+                </span>
               </span>
             </button>
           </li>

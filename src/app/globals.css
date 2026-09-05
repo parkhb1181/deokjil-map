@@ -1641,6 +1641,18 @@ a.bottomnav__item { text-decoration: none; }
   padding: 0 var(--gutter);
   margin-bottom: 12px;
 }
+/*
+ * 안쪽 글자가 칸을 밀어내지 못하게 한다.
+ *
+ * grid·flex 자식은 기본이 min-width:auto 라 내용이 칸보다 넓으면
+ * 칸을 늘린다. 지역을 넣자마자 오른쪽이 넓어져 1위가 210 에서 177 로
+ * 줄었고, 격자만 막았더니 이번엔 카드가 화면 밖으로 삐져나갔다.
+ * 격자 자식과 카드 안쪽 둘 다 0 으로 눌러야 말줄임이 걸린다.
+ */
+.rank__grid > *,
+.rank__side .rank__card,
+.rank__side .rank__cardinfo { min-width: 0; }
+.rank__side .rank__item { min-width: 0; overflow: hidden; }
 
 /* 1위. 나머지와 같은 크기로 두면 순위로 안 읽힌다 */
 .rank__hero {
@@ -1747,12 +1759,23 @@ a.bottomnav__item { text-decoration: none; }
 }
 /* 배경 사진 위에 깔던 어둠은 목록형에 필요 없다 */
 .rank__side .rank__card::after { display: none; }
+/*
+ * 썸네일이 행 높이를 채운다.
+ *
+ * 44px 로 박아뒀더니 넓은 화면에서 행이 세로로 늘어나는데 사진만
+ * 그대로라 오른쪽이 빈 칸투성이가 됐다. 높이를 따라가고 정사각을
+ * 유지하면 화면이 커질수록 사진도 커진다 — 세로 포스터라 커질수록
+ * 덜 잘린다.
+ *
+ * 위아래 6px 은 카드 모서리와 사진 모서리가 겹쳐 보이지 않게 둔다.
+ */
 .rank__side .rank__photo {
   position: relative;
   inset: auto;
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
+  height: calc(100% - 12px);
+  aspect-ratio: 1 / 1;
+  margin: 6px 0 6px 6px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: #35313c;
@@ -1778,7 +1801,24 @@ a.bottomnav__item { text-decoration: none; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.rank__side .rank__cardsub { font-size: 11.5px; }
+.rank__side .rank__cardsub {
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * 좁은 화면에서는 지역을 감춘다.
+ *
+ * 390px 에서 칸이 140px 밖에 안 돼 「16곳 · …」 로 잘린다. 잘린 말은
+ * 정보가 아니라 빈 칸보다 나쁘다 — 무언가 있다는 것만 알리고 무엇인지는
+ * 안 알려준다. 자리가 생기는 폭부터 보여준다.
+ */
+.rank__region { display: none; }
+@media (min-width: 460px) {
+  .rank__region { display: inline; }
+}
 
 /* 5위 아래. 가로로 흘린다 */
 .rank__rail {
