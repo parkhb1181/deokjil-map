@@ -78,6 +78,22 @@ const AUDIT_TEXT: Record<AuditKind, string> = {
 
 /* ── 목데이터 ───────────────────────────────────────────── */
 
+/**
+ * 신고 처리 상태 (AD-03, 2026-09-05 결정).
+ *
+ * boolean 이었다. 「처리 중」 이 없어서 **관리자 넷이 같은 건을 동시에
+ * 붙잡았다** — 목록에서는 둘 다 미처리로 보이니 둘 다 손을 댄다.
+ *
+ * RESOLVED 는 종착이다. 처리한 신고는 다시 처리하지 않는다.
+ */
+export type ReportStatus = 'PENDING' | 'PROCESSING' | 'RESOLVED'
+
+const STATUS_LABEL: Record<ReportStatus, string> = {
+  PENDING: '미처리',
+  PROCESSING: '처리 중',
+  RESOLVED: '처리됨',
+}
+
 type Report = {
   id: string
   target: '유저' | '모집글' | '댓글'
@@ -86,7 +102,7 @@ type Report = {
   detail: string
   reporter: string
   at: string
-  done: boolean
+  status: ReportStatus
   /** 비밀 댓글 신고. 본문을 보려면 열람 기록을 남겨야 한다 (AD-05) */
   secret?: boolean
   /** 비밀 댓글 본문. 열기 전에는 화면에 안 뿌린다 */
@@ -104,7 +120,7 @@ const REPORTS: Report[] = [
     detail: '만나기로 한 날 연락이 끊겼습니다.',
     reporter: '밤샘예매',
     at: '2026-08-31T09:12',
-    done: false,
+    status: 'PENDING',
   },
   {
     id: 'r2',
@@ -114,7 +130,7 @@ const REPORTS: Report[] = [
     detail: '본문에 쇼핑몰 링크가 있어요.',
     reporter: '남은대댓글',
     at: '2026-08-31T11:40',
-    done: false,
+    status: 'PENDING',
   },
   {
     /* 나이 신고. 신고자가 무엇을 보았는지 적게 되어 있어(ReportSheet)
@@ -127,7 +143,7 @@ const REPORTS: Report[] = [
     detail: '댓글에 "저 중1인데 엄마가 안 된대요" 라고 적혀 있어요.',
     reporter: '조용한덕후',
     at: '2026-09-01T20:31',
-    done: false,
+    status: 'PENDING',
   },
   {
     /* 비밀 댓글 신고. 본문이 처음부터 보이면 안 된다. 채팅이 없어
@@ -140,7 +156,7 @@ const REPORTS: Report[] = [
     detail: '비밀 댓글로 불쾌한 말을 보냈어요.',
     reporter: '밤샘예매',
     at: '2026-09-01T22:10',
-    done: false,
+    status: 'PENDING',
     secret: true,
     body: '사진 보내주시면 제가 판단해서 연락드릴게요',
   },
@@ -152,7 +168,7 @@ const REPORTS: Report[] = [
     detail: '',
     reporter: '덕질하는오리',
     at: '2026-08-30T22:05',
-    done: true,
+    status: 'RESOLVED',
     result: '문제 없음',
   },
 ]
@@ -297,14 +313,26 @@ export default function Admin() {
    * 들고 있고, 감사 로그는 개인정보·비공개 내용 접근과 계정 불이익만
    * 담는다. 양쪽에 남기면 같은 사실이 두 곳에 적힌다.
    */
+  /**
+   * 붙잡거나 놓는다 (PROCESSING ↔ PENDING).
+   *
+   * **감사 로그에 남기지 않는다.** 계정에 불이익을 주는 행위가 아니고,
+   * 누가 집었다 놓았다를 기록해봐야 읽을 사람이 없다.
+   */
+  const take = (r: Report, status: ReportStatus) => {
+    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, status } : x)))
+  }
+
   const close = (r: Report, result: string) => {
-    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, done: true, result } : x)))
+    setReports((prev) =>
+      prev.map((x) => (x.id === r.id ? { ...x, status: 'RESOLVED' as const, result } : x)),
+    )
   }
 
   /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
      순서대로 오래된 것이 위에 남는다 */
   const list = reports
-    .filter((r) => (only ? !r.done : true))
+    .filter((r) => (only ? r.status !== 'RESOLVED' : true))
     .sort((a, b) => (a.at < b.at ? 1 : -1))
 
   /* 제재 목록도 최근 것이 위다. 오래된 정지는 곧 저절로 풀린다 */
@@ -422,16 +450,37 @@ export default function Admin() {
                         <td className="bo__dim">{r.reporter}</td>
                         <td className="bo__dim bo__when">{readable(r.at)}</td>
                         <td className="bo__actcol">
-                          {r.done ? (
+                          {r.status === 'RESOLVED' ? (
                             /* 처리한 신고는 다시 처리하지 않는다 (AD-03).
                                결과를 배지 옆에 남겨야 나중에 왜 그렇게
                                됐는지 알 수 있다 */
                             <span className="bo__acts">
-                              <Badge state="off">처리됨</Badge>
+                              <Badge state="off">{STATUS_LABEL.RESOLVED}</Badge>
                               {r.result && <span className="bo__result">{r.result}</span>}
                             </span>
                           ) : (
                             <span className="bo__acts">
+                              {/* 붙잡았다는 표시. 이것이 없으면 관리자 넷이
+                                  같은 건에 동시에 손을 댄다. 되돌릴 수도
+                                  있어야 한다 — 열어보고 내 건이 아니면
+                                  놓아야 다른 사람이 집는다 */}
+                              {r.status === 'PROCESSING' ? (
+                                <button
+                                  type="button"
+                                  className="bo__hold bo__hold--on"
+                                  onClick={() => take(r, 'PENDING')}
+                                >
+                                  {STATUS_LABEL.PROCESSING}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="bo__hold"
+                                  onClick={() => take(r, 'PROCESSING')}
+                                >
+                                  맡기
+                                </button>
+                              )}
                               <Button size="sm" tone="ghost" onClick={() => close(r, '문제 없음')}>
                                 문제 없음
                               </Button>

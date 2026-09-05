@@ -22,7 +22,14 @@ export type District =
   | 'myeongdong' // 명동 · 중구
   | 'etc'       // 그 외 서울
 
-export type PlaceKind = 'CAFE' | 'POPUP_VENUE'
+/**
+ * 장소 종류.
+ *
+ * 콘서트가 필수로 올라가면서 공연장을 더했다 (EV-10, 2026-09-05).
+ * 그전에는 아레나도 POPUP_VENUE 로 적고 있었다 — 팝업 매장과 잠실
+ * 아레나가 같은 값이면 「어디로 가나」 가 안 갈린다.
+ */
+export type PlaceKind = 'CAFE' | 'POPUP_VENUE' | 'CONCERT_HALL'
 
 /** 생카는 이미 버추얼·애니 캐릭터·배우로 확장됐다. 아이돌에 묶지 않는다 */
 export type SubjectType = 'IDOL' | 'VIRTUAL' | 'CHARACTER' | 'ACTOR'

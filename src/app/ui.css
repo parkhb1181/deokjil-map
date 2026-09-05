@@ -2498,6 +2498,26 @@
    나중에 같은 신고를 다시 볼 때 판단 근거가 없다 (AD-03) */
 .bo__result { font-size: var(--t-small); color: var(--text-mute); align-self: center; }
 
+/* 신고를 붙잡았다는 표시. 버튼처럼 생기되 조치가 아니라 상태라
+   테두리만 둔다. 눌러서 놓을 수 있다 */
+.bo__hold {
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-mute);
+  font-size: var(--t-small);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.bo__hold:hover { background: var(--bg-sunk); }
+
+.bo__hold--on {
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
 /* 비밀 댓글 본문.
    열기 전에는 버튼만 있다. 여는 것이 기록에 남는 행위라 표에 미리
    깔아두면 훑기만 해도 열람한 것이 된다 (AD-05) */
