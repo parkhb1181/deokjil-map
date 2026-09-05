@@ -853,8 +853,13 @@ a.bottomnav__item { text-decoration: none; }
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding-right: 26px;
 }
+/* 닫기 ✕ 는 카드 오른쪽 위 모서리에 떠 있다. 그 아래로 지나가는
+   것은 제목 줄(오른쪽 끝에 마감 D-N 이 붙는다)과, 묶음에서 들어왔을
+   때 그 위에 서는 되돌아가기뿐이다. 여백을 카드 전체에 주면 맨 아래
+   「자세히 보기」 까지 오른쪽만 26px 짧아진다 */
+.mapsheet__head,
+.mapsheet__back { padding-right: 26px; }
 
 /* 포스터가 왼쪽, 글이 오른쪽.
 
@@ -862,11 +867,15 @@ a.bottomnav__item { text-decoration: none; }
    때문이다. 세로로 길어질수록 방금 누른 핀 주변이 가려져, 여기가
    어디인지 보려고 연 카드가 그 답을 지운다. 옆에 세우면 높이가
    거의 그대로다. */
-.mapsheet__top { display: flex; gap: 10px; align-items: flex-start; }
+/* stretch 라서 포스터가 글칸 바닥까지 내려온다. 높이를 고정하면
+   특전이 길 때 포스터 아래가 비고, 그 빈칸이 「자세히 보기」 와
+   글 사이를 갈라놓는다 */
+.mapsheet__top { display: flex; gap: 10px; align-items: stretch; }
 .mapsheet__poster {
-  flex: 0 0 74px;
-  /* 포스터는 세로가 길다. 3:4 로 잘라 두면 위쪽 대상명이 남는다 */
-  aspect-ratio: 3 / 4;
+  flex: 0 0 96px;
+  /* 글이 짧을 때의 바닥값. 포스터는 세로가 길어서 3:4 로 잡으면
+     위쪽 대상명이 남는다 */
+  min-height: 128px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--bg-sunk);
@@ -1003,8 +1012,8 @@ a.bottomnav__item { text-decoration: none; }
   color: var(--accent-ink);
 }
 
+/* 폭을 다 쓴다. 왼쪽에 몰아두면 오른쪽이 그만큼 빈 채로 남는다 */
 .mapsheet__more {
-  align-self: flex-start;
   margin-top: 8px;
   padding: 7px 13px;
   border: 1px solid var(--border-mid);
