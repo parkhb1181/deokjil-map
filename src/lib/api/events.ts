@@ -8,14 +8,14 @@ import { PAGE_SIZE } from './config'
  * **응답 모양이 계약과 다르면 여기서만 고친다.** 화면 코드는 `EventItem`
  * 만 알고, 서버가 무슨 모양으로 주는지는 이 파일 밖으로 나가지 않는다.
  *
- * 계약: 위키 `02-설계-아키텍처/행사-카탈로그-계약.md`
+ * 계약: 위키 `02-설계-아키텍처/화면-계약.md` 1장
  *
  * ─────────────────────────────────────────────────────────
  * **틀리면 조용히 넘기지 않고 던진다.**
  *
  * 빈 값을 채워 넘기면 화면에 회색 카드가 뜨고, 데이터가 없는 건지
- * 모양이 어긋난 건지 알 수가 없다. 빌드가 그 자리에서 멈추고 계약
- * 몇 번이 깨졌는지 말하게 한다. 재검증에서 터지면 Next 가 직전
+ * 모양이 어긋난 건지 알 수가 없다. 빌드가 그 자리에서 멈추고 어느
+ * 필드가 어떻게 어긋났는지 말하게 한다. 재검증에서 터지면 Next 가 직전
  * 정적 페이지를 그대로 내보내므로 사용자는 옛 목록을 본다.
  */
 
@@ -36,7 +36,7 @@ function fail(field: string, why: string): never {
   throw new ApiFailure(
     'CONTRACT_MISMATCH',
     `행사 응답이 계약과 다릅니다 — ${field}: ${why}. ` +
-      '위키 02-설계-아키텍처/행사-카탈로그-계약.md 5장을 보고 맞춘다.',
+      '위키 02-설계-아키텍처/화면-계약.md 의 「행사」 를 보고 맞춘다.',
     0,
   )
 }
@@ -56,9 +56,9 @@ function num(v: unknown, field: string): number {
 
 function toPlace(w: WireEvent): Place {
   if (w.place === null || w.place === undefined) {
-    /* 계약 5장 2번. 엔티티가 place_name 처럼 평탄해서 그대로 나온 경우다 */
+    /* 엔티티가 place_name 처럼 평탄해서 그대로 나온 경우다 */
     if (w.placeName !== undefined) {
-      fail('place', '중첩 객체가 아니라 평탄하게 왔다 (계약 5장 2번)')
+      fail('place', '중첩 객체가 아니라 평탄하게 왔다')
     }
     fail('place', '없다')
   }
@@ -66,11 +66,11 @@ function toPlace(w: WireEvent): Place {
 
   const p = w.place as Record<string, unknown>
 
-  /* 계약 5장 3번. 지역은 코드 문자열이라야 필터가 돈다 */
+  /* 지역은 코드 문자열이라야 필터가 돈다 */
   const district = p.district ?? w.district ?? w.region
   if (district === undefined || district === null) {
     if (w.regionId !== undefined || p.regionId !== undefined) {
-      fail('place.district', 'regionId 숫자만 왔다. 코드 문자열이 있어야 지역 필터가 돈다 (계약 5장 3번)')
+      fail('place.district', 'regionId 숫자만 왔다. 코드 문자열이 있어야 지역 필터가 돈다')
     }
     fail('place.district', '없다')
   }
@@ -91,9 +91,9 @@ function toGoods(v: unknown): Goods[] | undefined {
 
   return v.map((raw, i) => {
     const g = raw as Record<string, unknown>
-    /* 계약 5장 4번. 컨벤션은 is 접두어 금지라 서버가 random 으로 줄 수 있다 */
+    /* 컨벤션은 is 접두어 금지라 서버가 random 으로 줄 수 있다 */
     const random = g.isRandom ?? g.random
-    if (typeof random !== 'boolean') fail(`goods[${i}].isRandom`, '불리언이 아니다 (계약 5장 4번)')
+    if (typeof random !== 'boolean') fail(`goods[${i}].isRandom`, '불리언이 아니다')
     return {
       id: str(g.id ?? `${i}`, `goods[${i}].id`),
       name: str(g.name, `goods[${i}].name`),
@@ -108,7 +108,7 @@ export function toEventItem(raw: unknown): EventItem {
   const w = raw as WireEvent
 
   /*
-   * 계약 5장 1번. 주소가 이 값에 걸린다.
+   * 주소가 이 값에 걸린다.
    *
    * PK 숫자가 오면 `/e/1` 이 되어 지금 색인된 205개 주소가 전부 죽는다.
    * externalId 가 함께 오면 그쪽을 쓴다 — 도메인 4장이 "URL 은 외부
