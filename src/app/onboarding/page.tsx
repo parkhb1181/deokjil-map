@@ -176,6 +176,14 @@ const groups = (live: { event: string; artist: string }): Group[] => [
         desc: '무엇이 지워지고 무엇이 남는지 먼저 말합니다',
         data: '목데이터',
       },
+      {
+        href: wf('/bye'),
+        name: '탈퇴 완료',
+        shot: 'profile',
+        spec: 'AU-11',
+        desc: '탈퇴 직후에만 보이는 화면입니다',
+        data: '빈 화면',
+      },
     ],
   },
   {

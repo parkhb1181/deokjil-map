@@ -1781,6 +1781,38 @@
 
 .leave__agree input { margin-top: 3px; width: 18px; height: 18px; flex: none; }
 
+/* ── 탈퇴 완료 ── */
+.bye {
+  min-height: calc(100dvh - 52px);
+  padding: 0 var(--gutter) 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.bye__mark { opacity: 0.5; margin-bottom: 6px; }
+
+.bye__title {
+  font-size: var(--t-hero);
+  font-weight: 700;
+}
+
+.bye__desc {
+  font-size: var(--t-body);
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.bye__sub {
+  font-size: var(--t-small);
+  line-height: 1.65;
+  color: var(--text-mute);
+  margin-bottom: 14px;
+}
+
 .leave__err {
   font-size: var(--t-small);
   color: var(--danger);

@@ -39,7 +39,7 @@ export default function Leave() {
       /* 서버가 없다. 흐름만 확인하고 홈으로 보낸다 */
       setTimeout(() => {
         clearTokens()
-        router.replace(wf('/'))
+        router.replace(wf('/bye'))
       }, 600)
       return
     }
@@ -52,7 +52,7 @@ export default function Leave() {
       /* 성공했으면 이 기기에서도 나간다. 서버에 계정이 없는데 토큰이
          남아 있으면 다음 요청마다 401 을 받는다 */
       clearTokens()
-      router.replace(wf('/'))
+      router.replace(wf('/bye'))
     } catch (e) {
       setSending(false)
       setFailed(slotFor(e).text)
