@@ -15,8 +15,18 @@ import { issueState, stashNext } from './session'
  * 한다.
  */
 
-/** 카카오 개발자 콘솔의 JavaScript 키. 브라우저에 나가도 되는 값이다 */
-const REST_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY ?? ''
+/**
+ * 카카오 개발자 콘솔의 **REST API 키**.
+ *
+ * JavaScript 키가 아니다. `oauth/authorize` 의 `client_id` 는 REST API
+ * 키를 받는다 (카카오 REST API 문서). JS 키는 지도 SDK 처럼
+ * `Kakao.init` 에 쓰는 값이고 여기서는 안 통한다.
+ *
+ * 브라우저에 나가도 되는 값이다. 인가 주소에 실려 주소창에 그대로
+ * 보인다. 감춰야 하는 것은 **클라이언트 시크릿** 이고 그건 백엔드가
+ * 토큰 교환할 때만 쓴다.
+ */
+const REST_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_KEY ?? ''
 
 /**
  * 카카오 콘솔에 등록한 Redirect URI 와 **글자 하나까지 같아야 한다.**
