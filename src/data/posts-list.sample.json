@@ -13,8 +13,8 @@
       "author": {
         "id": "u_host",
         "nickname": "덕질하는오리",
-        "imageUrl": "/avatar/a1.webp",
-        "lastSeen": "WITHIN_WEEK"
+        "lastSeen": "WITHIN_WEEK",
+        "profileImageUrl": "/avatar/a1.webp"
       },
       "commentCount": 5,
       "imageUrl": "https://cdn.popga.co.kr/spot/8709/main/ec9b2b7b-13c8-466c-99c3-5ce047fad9d1_1787804156147_thumbnail_MAIN_W480.webp",
@@ -36,8 +36,8 @@
       "author": {
         "id": "u_a",
         "nickname": "밤샘예매",
-        "imageUrl": "/avatar/a2.webp",
-        "lastSeen": "WITHIN_WEEK"
+        "lastSeen": "WITHIN_WEEK",
+        "profileImageUrl": "/avatar/a2.webp"
       },
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8166/main/5631c40f-8e7b-41a1-b6a5-e4dfd56c1e01_1784879444994_thumbnail_MAIN_W480.webp",
@@ -59,8 +59,8 @@
       "author": {
         "id": "u_b",
         "nickname": "조용한덕후",
-        "imageUrl": "/avatar/a3.webp",
-        "lastSeen": "WITHIN_MONTH"
+        "lastSeen": "WITHIN_MONTH",
+        "profileImageUrl": "/avatar/a3.webp"
       },
       "commentCount": 0,
       "imageUrl": null,
@@ -82,8 +82,8 @@
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
-        "imageUrl": "/avatar/a5.webp",
-        "lastSeen": "WITHIN_MONTH"
+        "lastSeen": "WITHIN_MONTH",
+        "profileImageUrl": "/avatar/a5.webp"
       },
       "commentCount": 8,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",
@@ -106,8 +106,8 @@
       "author": {
         "id": "u_d",
         "nickname": "남은대댓글",
-        "imageUrl": "/avatar/a5.webp",
-        "lastSeen": "WITHIN_MONTH"
+        "lastSeen": "WITHIN_MONTH",
+        "profileImageUrl": "/avatar/a5.webp"
       },
       "commentCount": 2,
       "imageUrl": "https://cdn.popga.co.kr/spot/8555/main/8ff7e1a5-4683-4f6a-be89-7c82ea29b027_1787064593158_thumbnail_MAIN_W480.webp",

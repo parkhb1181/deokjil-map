@@ -27,7 +27,7 @@ import { LAST_SEEN_LABEL, type LastSeen } from '@/types'
 export type PersonSheetUser = {
   id: string
   nickname: string
-  imageUrl?: string | null
+  profileImageUrl?: string | null
   /** 마지막 접속 구간. 없으면 그 줄을 통째로 뺀다 */
   lastSeen?: LastSeen
 }
@@ -50,7 +50,7 @@ export function PersonSheet({
     <div className="psheet" onClick={onClose}>
       <div className="psheet__panel" onClick={(e) => e.stopPropagation()}>
         <div className="psheet__who">
-          <Avatar name={user.nickname} src={user.imageUrl ?? undefined} lg />
+          <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} lg />
           <p className="psheet__name">{user.nickname}</p>
           <p className="psheet__meta meta">
             {user.lastSeen && <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>}

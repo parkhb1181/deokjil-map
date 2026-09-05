@@ -18,7 +18,7 @@ const USERS: Record<string, ProfileData> = {
   u_host: {
     id: 'u_host',
     nickname: '덕질하는오리',
-    imageUrl: '/avatar/a1.webp',
+    profileImageUrl: '/avatar/a1.webp',
     bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
     lastSeen: 'WITHIN_3_DAYS',
     posts: [
@@ -42,7 +42,7 @@ const USERS: Record<string, ProfileData> = {
   u_b: {
     id: 'u_b',
     nickname: '조용한덕후',
-    imageUrl: '/avatar/a3.webp',
+    profileImageUrl: '/avatar/a3.webp',
     bio: null,
     lastSeen: 'LONG_AGO',
     posts: [],

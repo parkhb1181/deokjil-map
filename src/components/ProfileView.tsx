@@ -85,7 +85,8 @@ export type MyComment = {
 export type ProfileData = {
   id: string
   nickname: string
-  imageUrl?: string | null
+  /** 사람 사진이다. 위 ProfilePost.imageUrl 은 행사 포스터라 다르다 */
+  profileImageUrl?: string | null
   bio?: string | null
   lastSeen?: LastSeen
   posts: ProfilePost[]
@@ -252,7 +253,7 @@ export default function ProfileView({
                바꿀 수 있으면 아바타가 기본값인 채로 남는 사람이 많아진다 */
             <header className="myid">
               <label className="myid__pic">
-                <Avatar name={user.nickname} src={user.imageUrl ?? undefined} lg />
+                <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} lg />
                 <span className="myid__cam" aria-hidden>
                   <svg viewBox="0 0 16 16">
                     <path
@@ -295,7 +296,7 @@ export default function ProfileView({
             <header className="prof">
               <div className="prof__id">
                 {/* 크기는 .prof .avatar 가 56px 로 정한다 */}
-                <Avatar name={user.nickname} src={user.imageUrl ?? undefined} />
+                <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} />
                 <div className="prof__idmain">
                   <h1 className="prof__name">{user.nickname}</h1>
                   {/* 활동 시각과 가입월을 뺐다. 이유는 ProfileData 주석에 */}

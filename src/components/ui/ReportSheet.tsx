@@ -38,8 +38,10 @@ export type ReportTarget = 'user' | 'post' | 'comment'
  * 서버가 `reason` 을 enum 으로 검증한다 (결정 D-6). 라벨을 그대로
  * 보내면 문구를 한 글자만 다듬어도 서버가 400 을 낸다.
  *
- * 다섯은 확정됐다 (2026-09-05). 나머지 넷은 초안이라 정해지면 코드만
- * 바꾸면 된다 — 라벨은 그대로다.
+ * 여덟이다 (2026-09-05 확정). **사칭은 뺐다** — 신고자가 무엇을 근거로
+ * 사칭을 판정하며 접수 후 관리자가 무엇을 할 수 있는지가 없었다. 1차에
+ * 신원 확인 수단이 아예 없어 조치할 수 없는 신고만 쌓인다. 주최자
+ * 사칭은 모집글 내용이라 POST 의 FALSE_INFO 로 받는다.
  */
 export type ReportReason =
   | 'ADVERTISEMENT'
@@ -47,8 +49,6 @@ export type ReportReason =
   | 'ABUSE'
   | 'NO_SHOW'
   | 'AGE_SUSPICION'
-  /* 아래 넷은 아직 확정 전이다 */
-  | 'IMPERSONATION'
   | 'FALSE_INFO'
   | 'OFF_TOPIC'
 
@@ -58,7 +58,6 @@ const LABEL: Record<ReportReason, string> = {
   ABUSE: '욕설 · 비방',
   NO_SHOW: '약속을 지키지 않음',
   AGE_SUSPICION: '나이를 속인 것 같아요',
-  IMPERSONATION: '사칭',
   FALSE_INFO: '허위 정보',
   OFF_TOPIC: '동행과 무관한 글',
 }
@@ -70,7 +69,7 @@ const LABEL: Record<ReportReason, string> = {
    보내면 400 이다 */
 const COMMON: ReportReason[] = ['ADVERTISEMENT', 'INAPPROPRIATE', 'ABUSE']
 const EXTRA: Record<ReportTarget, ReportReason[]> = {
-  user: ['NO_SHOW', 'IMPERSONATION', 'AGE_SUSPICION'],
+  user: ['NO_SHOW', 'AGE_SUSPICION'],
   post: ['FALSE_INFO', 'OFF_TOPIC'],
   comment: ['FALSE_INFO'],
 }

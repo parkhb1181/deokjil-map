@@ -254,7 +254,7 @@ export default function PostDetail({ post, comments, hostId }: {
               setAsk({ k: 'person', user: post.author, isMe: post.author.id === viewer.userId })
             }
             name={post.author.nickname}
-            src={post.author.imageUrl ?? undefined}
+            src={post.author.profileImageUrl ?? undefined}
             sub={[
               post.author.lastSeen && LAST_SEEN_LABEL[post.author.lastSeen],
               dateOnly(post.createdAt),
@@ -326,7 +326,7 @@ export default function PostDetail({ post, comments, hostId }: {
             <Comment
               key={c.id}
               name={isPlaceholder(c.status) ? '' : c.author.nickname}
-              src={c.author.imageUrl ?? undefined}
+              src={c.author.profileImageUrl ?? undefined}
               time={shortTime(c.createdAt)}
               text={c.content ?? undefined}
               reply={!!c.parentId}

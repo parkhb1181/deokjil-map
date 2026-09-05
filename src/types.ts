@@ -224,7 +224,15 @@ export const LAST_SEEN_LABEL: Record<LastSeen, string> = {
 export interface PostAuthor {
   id: string
   nickname: string
-  imageUrl?: string | null
+  /**
+   * 프로필 사진. 업로드한 사람만 값을 갖고 나머지는 null 이다.
+   * 서버는 기본 이미지 주소를 만들지 않는다 — 기본 아바타는 프론트
+   * 정적 리소스라야 디자인이 바뀔 때 DB 를 안 건드린다 (결정 D-2).
+   *
+   * 행사의 imageUrl 과 이름이 갈린다. 하나는 사람이고 하나는 포스터라
+   * 같은 이름을 쓰면 어느 쪽인지 매번 따져야 한다.
+   */
+  profileImageUrl?: string | null
   /**
    * 마지막 접속 구간. 동행을 구할 때 "이 사람이 요즘 오나" 가
    * 판단 근거라 넣는다 (AU-09).

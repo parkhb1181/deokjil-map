@@ -18,7 +18,7 @@ import ProfileView, { type MyComment, type ProfileData } from '@/components/Prof
 const ME: ProfileData = {
   id: 'u_host',
   nickname: '덕질하는오리',
-  imageUrl: '/avatar/a1.webp',
+  profileImageUrl: '/avatar/a1.webp',
   bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
   lastSeen: 'TODAY',
   posts: [
