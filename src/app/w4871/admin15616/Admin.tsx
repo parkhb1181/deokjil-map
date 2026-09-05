@@ -134,7 +134,7 @@ const REPORTS: Report[] = [
        연락처를 보는 일이다 */
     id: 'r5',
     target: '댓글',
-    subject: '비밀 댓글 (에이티즈 팝업 오픈런 같이 하실 분)',
+    subject: '비밀 댓글 (빅뱅 전시 같이 보실 분)',
     reason: '부적절한 내용',
     detail: '비밀 댓글로 불쾌한 말을 보냈어요.',
     reporter: '밤샘예매',

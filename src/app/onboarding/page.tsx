@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { wf } from '@/lib/wireframe'
+import { getRealEvents } from '@/lib/events-source'
+import { sortByDeadline, todayKey } from '@/lib/filters'
 
 /**
  * 온보딩 색인.
@@ -41,7 +43,32 @@ type Group = {
   rows: Row[]
 }
 
-const GROUPS: Group[] = [
+/**
+ * 살아있는 행사·아티스트 주소를 찾는다.
+ *
+ * **id 를 박아두면 언젠가 깨진다.** 크롤러가 매일 돌아 끝난 행사가
+ * 빠지는데, `/e/pg_8417` 을 적어뒀더니 실제로 404 가 됐다 (2026-09-05).
+ * 팀이 화면을 둘러보는 유일한 입구라 여기서 막히면 그 화면을 못 본다.
+ *
+ * 마감이 가까운 것부터 고른다. 사진이 있는 것을 앞세우는 이유는
+ * 이 목록이 사진으로 화면을 고르게 되어 있어서다.
+ */
+async function livePaths(): Promise<{ event: string; artist: string }> {
+  const today = todayKey()
+  const live = sortByDeadline(
+    (await getRealEvents()).filter((e) => e.endsOn >= today),
+    today,
+  )
+  const pick = live.find((e) => e.imageUrl) ?? live[0]
+
+  return {
+    event: pick ? `/e/${encodeURIComponent(pick.id)}` : '/',
+    /* 한글 주소는 인코딩해서 넣는다. 그대로 두면 브라우저마다 다르게 보낸다 */
+    artist: pick ? `/a/${encodeURIComponent(pick.subject.trim())}` : '/',
+  }
+}
+
+const groups = (live: { event: string; artist: string }): Group[] => [
   {
     title: '들어오는 길',
     lead: '검색으로 들어오는 쪽. 원래 있던 화면들입니다.',
@@ -58,7 +85,7 @@ const GROUPS: Group[] = [
         data: '실데이터',
       },
       {
-        href: '/e/pg_8417',
+        href: live.event,
         name: '이벤트 상세',
         shot: 'event',
         spec: 'EV-07',
@@ -66,7 +93,7 @@ const GROUPS: Group[] = [
         data: '실데이터',
       },
       {
-        href: '/a/성호',
+        href: live.artist,
         name: '아티스트로 모아보기',
         shot: 'artist',
         spec: 'SEO',
@@ -189,9 +216,9 @@ const GROUPS: Group[] = [
   },
 ]
 
-const TOTAL = GROUPS.reduce((n, g) => n + g.rows.length, 0)
-
-export default function Page() {
+export default async function Page() {
+  const GROUPS = groups(await livePaths())
+  const TOTAL = GROUPS.reduce((n, g) => n + g.rows.length, 0)
 
   return (
     <div className="ob">
