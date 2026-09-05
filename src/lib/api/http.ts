@@ -53,6 +53,21 @@ function cutoff(ms: number): AbortSignal | undefined {
 type Params = Record<string, string | number | boolean | null | undefined>
 
 function url(path: string, params?: Params): string {
+  /*
+   * 주소가 없으면 여기서 먼저 막는다.
+   *
+   * 안 그러면 `new URL('/api/...')` 가 그냥 던지고, 바깥의 catch 가
+   * 그것을 네트워크 오류로 감싼다. 화면에는 「연결이 불안정해요」 가
+   * 뜨는데 연결은 시도조차 안 한 상태다. 실제로 카카오 로그인을
+   * 붙이다 그 문구를 만났다 (2026-09-05).
+   */
+  if (!API_BASE) {
+    throw new ApiFailure(
+      'NO_API_BASE',
+      'NEXT_PUBLIC_API_BASE 가 비어 있습니다. 서버 주소를 넣어야 부를 수 있습니다',
+      0,
+    )
+  }
   const u = new URL(API_BASE + path)
   for (const [k, v] of Object.entries(params ?? {})) {
     if (v === null || v === undefined || v === '') continue
@@ -72,9 +87,11 @@ function url(path: string, params?: Params): string {
  * (비밀 댓글이 그렇다) 재검증 캐시에 얹으면 남의 응답이 재사용된다.
  */
 export async function apiGet<T>(path: string, params?: Params, token?: string | null): Promise<T> {
+  /* 주소 조립은 try 밖이다. 안에 두면 NO_API_BASE 가 NETWORK 로 감싸진다 */
+  const target = url(path, params)
   let res: Response
   try {
-    res = await fetch(url(path, params), {
+    res = await fetch(target, {
       headers: {
         Accept: 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -151,9 +168,10 @@ export async function apiSend<T>(
   body?: unknown,
   token?: string | null,
 ): Promise<T | null> {
+  const target = url(path)
   let res: Response
   try {
-    res = await fetch(url(path), {
+    res = await fetch(target, {
       method,
       headers: {
         Accept: 'application/json',

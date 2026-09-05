@@ -105,6 +105,12 @@ const RULES: Record<string, Rule> = {
   /* 공통 */
   INVALID_INPUT: { at: 'banner', text: '입력한 내용을 다시 확인해주세요' },
   NETWORK: { at: 'banner', text: '연결이 불안정해요. 잠시 뒤 다시 시도해주세요' },
+  /*
+   * 서버 주소가 안 채워졌다. 개발 중에만 나오고 배포에서는 안 나온다.
+   * 「연결이 불안정해요」 로 뭉뚱그리면 무엇이 문제인지 알 수 없어
+   * 네트워크를 의심하며 시간을 쓴다.
+   */
+  NO_API_BASE: { at: 'banner', text: '서버가 아직 연결되지 않았어요' },
 }
 
 /**
