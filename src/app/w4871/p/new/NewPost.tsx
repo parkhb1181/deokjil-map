@@ -34,16 +34,34 @@ import { wf } from '@/lib/wireframe'
 
 type Form = {
   title: string
-  body: string
+  content: string
   capacity: string
   /** 'YYYY-MM-DDTHH:mm'. 날짜와 시각을 한 칸에서 받는다 */
   meetAt: string
   place: string
 }
 
+/**
+ * 수정할 때 채워 넣을 값 (PO-06).
+ *
+ * 없으면 쓰기, 있으면 수정이다. 화면을 따로 만들지 않는 이유는 묻는
+ * 것이 완전히 같기 때문이다. 두 벌로 두면 칸이 하나 늘 때마다 두
+ * 군데를 고쳐야 하고, 실제로는 한쪽만 고치게 된다.
+ */
+export type PostDraft = {
+  id: string
+  title: string
+  content: string
+  capacity: string
+  meetAt: string
+  place: string
+  eventId: string | null
+  pin: Pin | null
+}
+
 const EMPTY: Form = {
   title: '',
-  body: '',
+  content: '',
   capacity: '',
   meetAt: '',
   place: '',
@@ -72,7 +90,7 @@ function validate(f: Form, event: PickableEvent | null) {
   if (!f.title.trim()) e.title = '제목을 적어주세요'
   else if (f.title.length > 40) e.title = '40자를 넘었어요'
   /* 내용은 선택이다. 안 써도 올라가지만 쓴다면 길이는 지킨다 */
-  if (f.body.length > 500) e.body = '500자를 넘었어요'
+  if (f.content.length > 500) e.content = '500자를 넘었어요'
   /* 인원도 선택이다. 다만 고른 값이 상한을 넘으면 막는다. 칩으로만
      고르게 해뒀어도 서버는 아무 값이나 받을 수 있어서, 같은 규칙이
      양쪽에 있어야 한다 */
@@ -92,22 +110,55 @@ function validate(f: Form, event: PickableEvent | null) {
   return e
 }
 
-export default function NewPost({ events }: { events: PickableEvent[] }) {
+export default function NewPost({
+  events,
+  draft,
+}: {
+  events: PickableEvent[]
+  /** 있으면 수정 화면이다 (PO-06). 없으면 쓰기 */
+  draft?: PostDraft
+}) {
+  const editing = !!draft
   const router = useRouter()
-  const [f, setF] = useState<Form>(EMPTY)
+  const [f, setF] = useState<Form>(
+    draft
+      ? {
+          title: draft.title,
+          content: draft.content,
+          capacity: draft.capacity,
+          meetAt: draft.meetAt,
+          place: draft.place,
+        }
+      : EMPTY,
+  )
   /* 고른 행사. 필수가 아니다 — 콘서트처럼 우리 데이터에 없는 행사도
      있어서 안 고르고도 올릴 수 있어야 한다 (검증에 넣지 않는 이유) */
-  const [event, setEvent] = useState<PickableEvent | null>(null)
-  /* 만날 자리. 안 찍으면 null 이고 서버가 place 를 지오코딩한다 */
-  const [pin, setPin] = useState<Pin | null>(null)
+  const [event, setEvent] = useState<PickableEvent | null>(
+    draft?.eventId ? events.find((e) => e.id === draft.eventId) ?? null : null,
+  )
+  /* 만날 자리. 핀은 필수다 (PO-03). 수정이면 이미 찍혀 있다 */
+  const [pin, setPin] = useState<Pin | null>(draft?.pin ?? null)
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
 
-  /* 한 글자라도 쓴 것이 있는가. 빈 폼에서 나갈 때는 경고하지 않는다.
-     "쓰던 내용은 저장되지 않아요" 를 쓴 것도 없는 사람에게 띄우면
-     묻지 않아도 될 것을 묻는 셈이다 */
-  const dirty = Object.values(f).some((v) => v.trim() !== '') || event !== null || pin !== null
+  /*
+   * 나갈 때 물어볼 것인가.
+   *
+   * 쓰기는 "한 글자라도 썼나" 이고 **수정은 "바꾼 것이 있나" 다.**
+   * 수정 화면은 열자마자 칸이 다 차 있어서, 쓰기와 같은 판정을 쓰면
+   * 아무것도 안 건드리고 나가도 매번 묻는다.
+   */
+  const dirty = editing
+    ? f.title !== draft.title ||
+      f.content !== draft.content ||
+      f.capacity !== draft.capacity ||
+      f.meetAt !== draft.meetAt ||
+      f.place !== draft.place ||
+      (event?.id ?? null) !== draft.eventId ||
+      pin?.lat !== draft.pin?.lat ||
+      pin?.lng !== draft.pin?.lng
+    : Object.values(f).some((v) => v.trim() !== '') || event !== null || pin !== null
 
   const errors = validate(f, event)
   const show = (k: keyof Form) => (tried ? errors[k] : undefined)
@@ -124,20 +175,25 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
       return
     }
     setSending(true)
-    /* API 가 붙으면 여기서 POST 하고, 응답이 준 id 로 그 글에 간다.
-       지금은 만들 수 없으니 목록으로 보낸다.
-
-       replace 다. push 면 뒤로가기가 방금 올린 폼으로 되돌아가고,
-       거기서 다시 올리면 같은 글이 두 번 올라간다 */
+    /*
+     * API 가 붙으면 여기서 부른다. 쓰기는 POST /posts, 수정은
+     * PATCH /posts/{id} 다. 지금은 서버가 없어 목데이터만 보고 있다.
+     *
+     * **수정은 그 글로 돌아간다.** 방금 고친 것이 반영됐는지 바로
+     * 봐야 한다. 목록으로 보내면 다시 찾아 들어가야 한다.
+     *
+     * replace 다. push 면 뒤로가기가 방금 낸 폼으로 되돌아가고,
+     * 거기서 다시 누르면 같은 요청이 두 번 나간다.
+     */
     setTimeout(() => {
       setSending(false)
-      router.replace(wf('/p'))
+      router.replace(editing ? wf(`/p/${draft.id}`) : wf('/p'))
     }, 600)
   }
 
   return (
     <PageShell
-      title="모집글 쓰기"
+      title={editing ? '모집글 수정' : '모집글 쓰기'}
       onBack={() => (dirty ? setAsk(true) : history.back())}
     >
       <div className="form">
@@ -168,11 +224,11 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
 
         {/* 안내를 힌트 줄로 빼지 않고 placeholder 안에 넣었다. 칸마다
             힌트를 달면 한 칸이 89px 이 되어 다섯 칸이 화면을 넘긴다 */}
-        <Field label="내용" error={show('body')} count={[f.body.length, 500]}>
+        <Field label="내용" error={show('content')} count={[f.content.length, 500]}>
           <TextArea
             placeholder={'몇 시에 만나서 무엇을 할지 적어주세요.\n연락은 비밀 댓글로 받아도 좋아요.'}
-            value={f.body}
-            onChange={(e) => set('body')(e.target.value)}
+            value={f.content}
+            onChange={(e) => set('content')(e.target.value)}
             rows={5}
           />
         </Field>
@@ -229,18 +285,26 @@ export default function NewPost({ events }: { events: PickableEvent[] }) {
           내려보기 전엔 올릴 수 있는 상태인지조차 알 수 없다.
           당근도 작성 완료를 하단에 고정한다 */}
       <div className="form__bar">
-        <Button block disabled={sending} onClick={submit}>
-          {sending ? '올리는 중…' : '올리기'}
+        <Button block disabled={sending || (editing && !dirty)} onClick={submit}>
+          {sending
+            ? editing
+              ? '저장하는 중…'
+              : '올리는 중…'
+            : editing
+              ? '저장'
+              : '올리기'}
         </Button>
       </div>
 
       {ask && (
         <Sheet
-          title="그만둘까요?"
-          desc="쓰던 내용은 저장되지 않아요."
+          title={editing ? '수정을 그만둘까요?' : '그만둘까요?'}
+          desc={editing ? '고친 내용은 저장되지 않아요.' : '쓰던 내용은 저장되지 않아요.'}
           foot={
             <>
-              <Button tone="ghost" onClick={() => setAsk(false)}>이어서 쓰기</Button>
+              <Button tone="ghost" onClick={() => setAsk(false)}>
+                {editing ? '이어서 고치기' : '이어서 쓰기'}
+              </Button>
               {/* 시트만 닫으면 그만둔 것이 아니라 쓰던 자리로 되돌아온다.
                   물어놓고 아무것도 안 하는 셈이었다 */}
               <Button tone="danger" onClick={() => history.back()}>그만두기</Button>
