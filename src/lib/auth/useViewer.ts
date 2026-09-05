@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import type { Sanction, Viewer } from '@/types'
-import { apiGet } from '@/lib/api/http'
+import { apiGet, ApiFailure } from '@/lib/api/http'
 import { USE_API } from '@/lib/api/config'
-import { clearTokens, getAccessToken } from './session'
+import { withAuth } from './refresh'
 
 /**
  * 보는 사람이 누구인가.
@@ -63,18 +63,25 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
       return
     }
 
-    const token = getAccessToken()
-    if (!token) {
-      setState({ viewer: GUEST, loading: false })
-      return
-    }
-
     /* 화면을 떠난 뒤 도착한 응답으로 상태를 건드리지 않는다 */
     let alive = true
 
-    apiGet<Me>('/api/v1/users/me', undefined, token)
+    /*
+     * withAuth 가 토큰을 붙이고, 만료면 재발급해 한 번 더 부른다.
+     * 재발급은 진행 중인 것 하나로 묶이므로 화면 여럿이 이 훅을 써도
+     * 서버는 한 번만 맞는다 (refresh.ts).
+     */
+    withAuth<Me | null>(
+      (token) => (token ? apiGet<Me>('/api/v1/users/me', undefined, token) : Promise.resolve(null)),
+      (e) => e instanceof ApiFailure && e.httpStatus === 401,
+    )
       .then((me) => {
         if (!alive) return
+        if (!me) {
+          /* 로그인한 적이 없다. 공개 화면은 그대로 읽힌다 (CM-20) */
+          setState({ viewer: GUEST, loading: false })
+          return
+        }
         setState({
           viewer: {
             role: hostId && me.id === hostId ? 'host' : 'member',
@@ -87,15 +94,12 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
       .catch(() => {
         if (!alive) return
         /*
-         * 토큰이 죽었다. **여기서 재발급을 부르지 않는다.**
+         * 재발급까지 실패했다. Refresh 도 죽었거나(14일 경과·재사용
+         * 탐지) 서버에 못 닿았다. refresh.ts 가 이미 세션을 지웠다.
          *
-         * Refresh Rotation 이라 동시에 두 번 부르면 서버가 그 유저의
-         * 세션을 통째로 폐기한다 (AU-03). 화면 여럿이 이 훅을 쓰므로
-         * 각자 부르면 그 일이 실제로 난다. 재발급은 한 곳에서만 한다.
-         *
-         * 지금은 지우고 비회원으로 떨어뜨린다. 로그인 화면이 열린다.
+         * 비회원으로 떨어뜨린다. 공개 화면은 계속 읽히고, 쓰려고 하면
+         * 로그인 안내가 뜬다.
          */
-        clearTokens()
         setState({ viewer: GUEST, loading: false })
       })
 
