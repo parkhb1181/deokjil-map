@@ -22,6 +22,8 @@
  * 보내면 된다. API 를 붙이기 전에 하는 편이 싸다.
  */
 import { useMemo, useState } from 'react'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
@@ -145,12 +147,21 @@ export default function ProfileView({
 }) {
   /* 로그인이 없어 내 프로필인지 서버가 못 알려준다. 개발용으로 뒤집어
      본다. 같은 렌더러라 이 토글 하나로 두 화면을 나란히 비교할 수 있다 */
-  const [mine, setMine] = useState(isMe)
+  /*
+   * 내 프로필인가.
+   *
+   * API 가 붙으면 서버 세션의 userId 와 이 프로필의 id 를 견준다.
+   * 없으면 아래 막대가 정한다.
+   */
+  const [devMine, setDevMine] = useState(isMe)
+  const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
+  const mine = USE_API ? viewer.userId === user.id : devMine
   const [ask, setAsk] = useState<null | 'report'>(null)
   const [tab, setTab] = useState(0)
   const [empty, setEmpty] = useState(false)
   const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
-  const sanction = mine ? SANCTIONS[sanc] : null
+  /* 제재도 서버가 정한다. 남의 프로필에는 애초에 안 내려온다 */
+  const sanction = USE_API ? (mine ? viewer.sanction : null) : mine ? SANCTIONS[sanc] : null
 
   /* 진행 중인 것이 먼저다. 그 안에서는 만나는 날이 가까운 순,
      끝난 것은 최근 것부터 */
@@ -191,12 +202,14 @@ export default function ProfileView({
         )
       }
     >
-      {/* 개발용. 인증이 붙으면 이 막대들을 통째로 지운다 */}
-      <div className="whoami">
-        <b>보는 사람</b>
-        <button aria-pressed={!mine} onClick={() => setMine(false)}>남</button>
-        <button aria-pressed={mine} onClick={() => setMine(true)}>나</button>
-      </div>
+      {/* 개발용. 서버 세션이 정하기 시작하면 안 그린다 */}
+      {!USE_API && (
+        <div className="whoami">
+          <b>보는 사람</b>
+          <button aria-pressed={!devMine} onClick={() => setDevMine(false)}>남</button>
+          <button aria-pressed={devMine} onClick={() => setDevMine(true)}>나</button>
+        </div>
+      )}
 
       {mine && (
         <>
@@ -207,14 +220,16 @@ export default function ProfileView({
           </div>
 
           {/* 제재를 받은 사람에게 무엇이 보이는지 확인한다 */}
-          <div className="whoami">
-            <b>제재</b>
-            {(Object.keys(SANCTIONS) as (keyof typeof SANCTIONS)[]).map((k) => (
-              <button key={k} aria-pressed={sanc === k} onClick={() => setSanc(k)}>
-                {k}
-              </button>
-            ))}
-          </div>
+          {!USE_API && (
+            <div className="whoami">
+              <b>제재</b>
+              {(Object.keys(SANCTIONS) as (keyof typeof SANCTIONS)[]).map((k) => (
+                <button key={k} aria-pressed={sanc === k} onClick={() => setSanc(k)}>
+                  {k}
+                </button>
+              ))}
+            </div>
+          )}
         </>
       )}
 

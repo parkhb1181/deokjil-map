@@ -10,6 +10,9 @@
  * 행동에 붙는다. 글쓰기를 누를 때 막힌다.
  */
 import { useMemo, useState } from 'react'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
+import { canWrite } from '@/types'
 import Link from 'next/link'
 import type { ClosedReason, MeetPoint, PostState } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
@@ -52,11 +55,19 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
-  /* 쓰기 상태. VIEWS 에 넣지 않은 이유는 그것이 목록 자체의 상태라
-     거기에 섞으면 「나이 확인 중」 을 고르는 순간 목록이 사라지기
-     때문이다. 여기서 막는 것은 글쓰기 하나뿐이고 목록은 그대로다.
-     인증이 붙으면 이 상태와 아래 막대를 지운다 */
-  const [hold, setHold] = useState(false)
+  /*
+   * 글쓰기가 막혔는가.
+   *
+   * VIEWS 에 넣지 않은 이유는 그것이 목록 자체의 상태라, 거기에
+   * 섞으면 「나이 확인 중」 을 고르는 순간 목록이 사라지기 때문이다.
+   * 여기서 막는 것은 글쓰기 하나뿐이고 목록은 그대로다.
+   *
+   * API 가 붙으면 서버가 준 제재 상태가 정한다. 경고는 쓰기를 막지
+   * 않고 배너만 띄운다 (AU-12).
+   */
+  const [devHold, setDevHold] = useState(false)
+  const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
+  const hold = USE_API ? !canWrite(viewer.sanction) : devHold
 
   /**
    * 상태 탭 + 검색.
@@ -91,12 +102,15 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
       </div>
 
       {/* 나이 확인 중인 사람에게 글쓰기가 어떻게 막히는지 확인한다.
-          목록은 그대로 읽힌다 (처리방침 제10조) */}
-      <div className="whoami">
-        <b>쓰기</b>
-        <button aria-pressed={!hold} onClick={() => setHold(false)}>가능</button>
-        <button aria-pressed={hold} onClick={() => setHold(true)}>나이 확인 중</button>
-      </div>
+          목록은 그대로 읽힌다 (처리방침 제10조).
+          서버가 정하기 시작하면 이 막대는 아무것도 못 바꾼다 */}
+      {!USE_API && (
+        <div className="whoami">
+          <b>쓰기</b>
+          <button aria-pressed={!devHold} onClick={() => setDevHold(false)}>가능</button>
+          <button aria-pressed={devHold} onClick={() => setDevHold(true)}>나이 확인 중</button>
+        </div>
+      )}
 
       <div className="plist">
         {/* 검색은 탭 위에 둔다. 아래에 두면 탭을 바꿀 때마다 검색어가

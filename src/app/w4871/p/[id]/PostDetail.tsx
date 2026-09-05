@@ -26,6 +26,8 @@ import { WriteGate } from '@/components/ui/SanctionNotice'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
 import { whenText, dateOnly, shortTime } from '@/lib/when'
 
 
@@ -84,14 +86,19 @@ export default function PostDetail({ post, comments, hostId }: {
   hostId: string
 }) {
   const router = useRouter()
-  /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
-     아래 whoami 막대를 지우고 서버 세션에서 채운다 */
+  /*
+   * 보는 사람.
+   *
+   * API 주소가 있으면 서버 세션이 정하고, 없으면 아래 whoami 막대가
+   * 정한다. 백엔드가 뜨면 막대와 이 pick 상태를 같이 지운다.
+   */
   const [pick, setPick] = useState(3)
-  const viewer: Viewer = {
+  const devViewer: Viewer = {
     role: ROLES[pick].key,
     userId: ROLES[pick].id,
     sanction: ROLES[pick].sanction ?? null,
   }
+  const { viewer } = useViewer(devViewer, hostId)
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
@@ -212,7 +219,9 @@ export default function PostDetail({ post, comments, hostId }: {
         )
       }
     >
-      {/* 개발용. 인증이 붙으면 통째로 지운다 */}
+      {/* 개발용. 서버 세션이 정하기 시작하면 이 막대는 아무것도 못
+          바꾸므로 그리지 않는다. 백엔드가 뜨면 통째로 지운다 */}
+      {!USE_API && (
       <div className="whoami">
         <b>보는 사람</b>
         {ROLES.map((r, i) => (
@@ -221,6 +230,7 @@ export default function PostDetail({ post, comments, hostId }: {
           </button>
         ))}
       </div>
+      )}
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
