@@ -25,18 +25,16 @@ export default function Page() {
       <div className="bye">
         <img className="bye__mark" src="/duck-face.webp" alt="" width={88} height={88} />
 
-        <h1 className="bye__title">탈퇴가 끝났어요</h1>
+        <h1 className="bye__title">탈퇴했어요</h1>
 
         {/* 무엇이 남았는지 한 번 더 말한다. 탈퇴 화면에서 읽었더라도
             방금 일어난 일이라 여기서 확인받고 싶어한다 */}
         <p className="bye__desc">
-          회원 정보를 지웠습니다. 쓰신 글과 댓글은 닉네임 없이 자리표시자로
-          남아 있어요.
+          회원 정보를 지웠어요. 쓰신 글과 댓글은 닉네임 없이 남아 있고요.
         </p>
 
         <p className="bye__sub">
-          다시 오고 싶어지면 카카오로 새로 가입하시면 됩니다. 다만 이전
-          기록은 돌아오지 않아요.
+          언제든 카카오로 새로 가입하면 돼요. 예전 기록은 안 돌아와요.
         </p>
 
         <Link className="btn btn--primary btn--block" href={wf('/')}>

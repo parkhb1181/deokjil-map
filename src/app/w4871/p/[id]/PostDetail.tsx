@@ -183,7 +183,7 @@ export default function PostDetail({ post, comments, hostId }: {
 
   return (
     <PageShell
-      title="동행 구해요"
+      title="동행 모집"
       right={
         isHost ? (
           /* 끝난 글에는 남기지 않는다. 되돌릴 수 없다고 말해놓고

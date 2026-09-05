@@ -32,7 +32,7 @@ import { Avatar, Badge, Blank, Button, Sheet, Tabs } from '@/components/ui/Basic
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { canWrite, isBlocked, isClosed, LAST_SEEN_LABEL, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 import { shortTime as whenShort } from '@/lib/when'
 
@@ -271,9 +271,7 @@ export default function ProfileView({
 
               <div className="myid__main">
                 <p className="myid__name">{user.nickname}</p>
-                <p className="myid__meta meta">
-                  {user.lastSeen && <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>}
-                </p>
+
                 {/* 한줄소개를 내 화면에도 띄운다. 남에게 보이는 문구라
                     내 화면에서 안 보이면 무엇이 걸려 있는지 모른 채로
                     남는다. 비어 있으면 채우라고 말해준다 */}

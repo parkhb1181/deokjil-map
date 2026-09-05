@@ -91,7 +91,7 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
   }, [posts, tab, q])
 
   return (
-    <PageShell title="동행 구해요">
+    <PageShell title="동행 모집">
       <div className="whoami">
         <b>화면</b>
         {VIEWS.map((v) => (

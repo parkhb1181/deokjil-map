@@ -1766,7 +1766,6 @@
   color: var(--text-dim);
 }
 
-.leave__list b { color: var(--text); font-weight: 700; }
 
 .leave__note {
   margin-top: 12px;
@@ -2115,56 +2114,40 @@
 
 /* ── 약관·처리방침 자리 ────────────────────────────────── */
 
-.legal { padding: 24px var(--gutter) 40px; }
-.legal__lead { font-size: var(--t-title); font-weight: 800; color: var(--text); }
-.legal__body {
-  margin-top: 10px;
-  font-size: var(--t-body);
-  line-height: 1.7;
-  color: var(--text-mute);
+/* 글자 크기를 문서 안에서 하나로 맞춘다. 앞머리·조문·목록·표·단서가
+   저마다 다른 크기면 어느 것이 본문인지 눈이 계속 다시 잡는다.
+   굵은 글씨도 안 쓴다 — 굵은 줄은 「여기만 읽어도 된다」 는 신호가
+   되는데 약관에 그런 줄은 없다 */
+.legal {
+  --t-legal: 14px;
+  padding: 24px var(--gutter) 40px;
+  font-size: var(--t-legal);
 }
+/* 앞머리도 본문과 같은 크기다. 여기만 크게 두면 그 한 줄이 요약처럼
+   보이는데, 요약해서 될 글이 아니다 */
+.legal__lead { color: var(--text); }
+/* 조 제목은 굵기가 아니라 색과 위 여백으로만 갈린다. 종이에 인쇄된
+   약관이 그렇게 생겼다 */
 .legal__h {
   margin-top: 26px;
-  font-size: var(--t-strong);
-  font-weight: 700;
+  /* h2 라서 크기를 안 적으면 브라우저 기본값(1.5em)으로 커진다 */
+  font-size: inherit;
+  font-weight: 400;
   color: var(--text);
 }
-.legal__todo { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.legal__todo li {
-  padding-left: 13px;
-  border-left: 2px solid var(--border-mid);
-  font-size: var(--t-sub);
-  line-height: 1.6;
-  color: var(--text-mute);
-}
-.legal__back { margin-top: 28px; font-size: var(--t-sub); }
+.legal__back { margin-top: 28px; }
 
 /* ── 약관·처리방침 본문 ─────────────────────────────────
    조문이 길어서 읽는 자리가 흐트러지지 않게 줄간격을 넉넉히 준다.
    법 문서는 훑는 것이 아니라 한 줄씩 읽는 글이다.
    ------------------------------------------------------- */
 
-/* 검토 전이라는 사실을 맨 위에서 못 박는다. 아래로 내리면 다 읽고
-   나서야 알게 된다 */
-.legal__draft {
-  margin-bottom: 18px;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-sunk);
-  border: 1px solid var(--border-mid);
-  font-size: var(--t-sub);
-  line-height: 1.6;
-  color: var(--text-dim);
-}
-.legal__draft b { color: var(--accent-ink); font-weight: 700; }
-
-.legal__dates { margin-top: 8px; font-size: var(--t-small); }
+.legal__dates { margin-top: 8px; font-size: var(--t-legal); }
 
 .legal__sec { margin-top: 4px; }
 
 .legal__p {
   margin-top: 8px;
-  font-size: var(--t-sub);
   line-height: 1.75;
   color: var(--text-mute);
 }
@@ -2177,7 +2160,6 @@
   gap: 7px;
 }
 .legal__list li {
-  font-size: var(--t-sub);
   line-height: 1.65;
   color: var(--text-mute);
 }
@@ -2187,7 +2169,6 @@
 .legal__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--t-small);
   line-height: 1.55;
 }
 .legal__table th,
@@ -2198,22 +2179,20 @@
   vertical-align: top;
   word-break: keep-all;
 }
+/* 머리 칸은 바탕색으로만 갈린다 */
 .legal__table th {
   background: var(--bg-sunk);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--text);
   white-space: nowrap;
 }
 .legal__table td { color: var(--text-mute); }
 
-/* 조문에 딸리는 단서. 본문과 같은 무게로 두면 어디까지가 조문이고
-   어디부터가 부연인지 갈리지 않는다 */
+/* 조문에 딸리는 단서. 색만 한 칸 흐리게 둔다. 색선을 그어두면
+   조문보다 그쪽이 먼저 눈에 들어온다 */
 .legal__note {
   margin-top: 10px;
-  padding-left: 12px;
-  border-left: 2px solid var(--accent);
-  font-size: var(--t-small);
-  line-height: 1.65;
+  line-height: 1.75;
   color: var(--text-dim);
 }
 
@@ -2464,7 +2443,6 @@
   color: var(--text);
   font-weight: 800;
 }
-.bo__tspec { font-size: var(--t-small); font-weight: 500; color: var(--text-mute); }
 
 /* 탭을 열었을 때 그 목록이 무엇인지 한 줄. 표만 있으면 「기록」 이
    무엇을 남기는 목록인지 운영자가 짐작해야 한다 */
@@ -3186,3 +3164,14 @@
 /* 헤더 오른쪽에 버튼 둘. 방장이 OPEN 글을 볼 때만 나온다.
    완료와 취소는 되돌릴 수 없는 것이 둘 다라 나란히 두고,
    무엇을 누르는지는 시트가 다시 묻는다 */
+
+/* 아티스트 모아보기의 한 줄.
+   포스터를 앞에 세우면서 구·종류·마감을 둘째 줄로 내렸다. 한 줄에 다
+   두면 사진이 먹은 폭 때문에 좁은 화면에서 넉 줄로 접힌다 */
+.drow--shot { align-items: center; }
+.drow__sub {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+}

@@ -12,7 +12,7 @@ import PostList, { type ListItem } from './PostList'
  * 지금은 가짜 데이터라 색인을 막아 둔다.
  */
 export const metadata: Metadata = {
-  title: '동행 구해요 · 덕모임',
+  title: '동행 모집 · 덕모임',
   robots: { index: false, follow: false },
 }
 

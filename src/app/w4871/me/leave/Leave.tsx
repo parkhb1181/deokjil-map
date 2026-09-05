@@ -63,8 +63,8 @@ export default function Leave() {
     <PageShell title="회원 탈퇴" onBack={() => history.back()}>
       <div className="leave">
         <p className="leave__lead">
-          탈퇴하면 계정을 되살릴 수 없어요. 같은 카카오 계정으로 다시
-          가입해도 이전 기록은 돌아오지 않습니다.
+          탈퇴하면 되돌릴 수 없어요. 같은 카카오 계정으로 다시 가입해도
+          예전 기록은 안 돌아와요.
         </p>
 
         {/* 지워지는 것과 남는 것을 나란히 둔다. 하나만 적으면 나머지를
@@ -72,7 +72,7 @@ export default function Leave() {
         <section className="leave__box">
           <h2 className="leave__h">지워지는 것</h2>
           <ul className="leave__list">
-            <li>닉네임 · 한줄소개 · 프로필 사진</li>
+            <li>닉네임, 한줄소개, 프로필 사진</li>
             <li>카카오 연결</li>
           </ul>
         </section>
@@ -81,17 +81,17 @@ export default function Leave() {
           <h2 className="leave__h">남는 것</h2>
           <ul className="leave__list">
             <li>
-              쓴 모집글과 댓글은 <b>닉네임을 지운 채 자리표시자로</b> 남습니다.
-              오가던 대화의 맥락이 끊기지 않게 하려는 것입니다
+              쓰신 모집글과 댓글. 닉네임은 지우고 빈 자리로 둬요. 주고받던
+              말이 중간에 끊기지 않게요
             </li>
             <li>
-              신고·제재 기록은 정해진 기간 동안 남습니다. 제재를 피해 탈퇴한 뒤
-              다시 가입하는 것을 막기 위한 것이고, 그 목적에만 씁니다
+              신고나 이용 제한을 받은 기록. 정해진 기간 동안만 두고, 제재를
+              피해 나갔다 다시 들어오는 것을 막는 데만 써요
             </li>
           </ul>
           <p className="leave__note">
-            자세한 보관 기간은{' '}
-            <Link href="/privacy">개인정보 처리방침</Link> 제3조에 있습니다.
+            얼마나 두는지는{' '}
+            <Link href="/privacy">개인정보 처리방침</Link> 제3조에 적어뒀어요.
           </p>
         </section>
 
@@ -101,7 +101,7 @@ export default function Leave() {
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
           />
-          <span>위 내용을 확인했고, 탈퇴에 동의합니다</span>
+          <span>다 읽었어요. 탈퇴할게요</span>
         </label>
 
         {failed && <p className="leave__err">{failed}</p>}
@@ -109,7 +109,7 @@ export default function Leave() {
 
       <div className="form__bar">
         <Button block tone="danger" disabled={!agreed || sending} onClick={submit}>
-          {sending ? '처리하는 중…' : '탈퇴하기'}
+          {sending ? '탈퇴하는 중…' : '탈퇴하기'}
         </Button>
       </div>
     </PageShell>

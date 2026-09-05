@@ -66,6 +66,8 @@ const SHOTS = [
   ['me', '/w4871/me'],
   ['me-edit', '/w4871/me/edit'],
   ['profile', '/w4871/u/u_host'],
+  ['leave', '/w4871/me/leave'],
+  ['bye', '/w4871/bye'],
   ['admin', '/w4871/admin15616', 'pc'],
   ['terms', '/terms'],
   ['privacy', '/privacy'],

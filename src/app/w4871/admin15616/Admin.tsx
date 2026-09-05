@@ -242,10 +242,12 @@ const AUDIT: AuditEntry[] = [
 
 type Tab = 'reports' | 'sanctions' | 'audit'
 
-const TABS: { key: Tab; label: string; spec: string }[] = [
-  { key: 'reports', label: '신고', spec: 'AD-02 · AD-03 · AD-07' },
-  { key: 'sanctions', label: '제재', spec: 'AD-04' },
-  { key: 'audit', label: '기록', spec: 'AD-05' },
+/* 명세 번호(AD-02 …)는 안 적는다. 우리 문서의 줄 번호라 쓰는
+   사람에게는 아무 뜻이 없고, 문서가 바뀌면 화면이 거짓말을 한다 */
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'reports', label: '신고' },
+  { key: 'sanctions', label: '제재' },
+  { key: 'audit', label: '기록' },
 ]
 
 export default function Admin() {
@@ -381,7 +383,6 @@ export default function Admin() {
             onClick={() => setTab(t.key)}
           >
             {t.label}
-            <span className="bo__tspec">{t.spec}</span>
           </button>
         ))}
       </nav>
