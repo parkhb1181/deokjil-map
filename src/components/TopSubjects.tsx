@@ -125,7 +125,9 @@ export default function TopSubjects({ events, today }: Props) {
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
                 {r.image && !failed[r.subject] && (
-                  <Image src={posterSrc(r.image)!} alt="" fill sizes="120px" onError={() => die(r.subject)} />
+                  {/* 44px 칸이다. 120px 를 받으면 필요보다 큰 것을 내려받는다.
+                      2배 화면까지 보고 96 으로 준다 */}
+                  <Image src={posterSrc(r.image)!} alt="" fill sizes="96px" onError={() => die(r.subject)} />
                 )}
               </span>
               <span className="rank__num">{i + 2}</span>

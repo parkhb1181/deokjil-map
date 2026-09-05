@@ -1631,12 +1631,12 @@ a.bottomnav__item { text-decoration: none; }
  * 가로 배너에 넣으면 cover 가 위아래를 60% 넘게 잘라내는데, 포스터는
  * 위에 아티스트명 아래에 날짜·장소가 있어서 잘리면 남는 게 없다.
  *
- * 왼쪽을 2fr 로 두는 이유 — 1:1 이면 1위가 오른쪽 카드보다 조금 큰
- * 정도라 순위로 안 읽힌다. 2:1 이면 「하나가 압도적」 으로 보인다.
+ * 왼쪽을 1.5fr 로 두는 이유 — 1:1 이면 1위가 조금 큰 정도라 순위로
+ * 안 읽히고, 2:1 이면 블록이 너무 높아 검색창이 한 화면에서 밀린다.
  */
 .rank__grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 8px;
   padding: 0 var(--gutter);
   margin-bottom: 12px;
@@ -1717,13 +1717,68 @@ a.bottomnav__item { text-decoration: none; }
 .rank__side {
   display: grid;
   grid-template-rows: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 .rank__side .rank__item { min-height: 0; }
-.rank__side .rank__card { width: 100%; height: 100%; }
+
+/*
+ * 2~5위는 사진을 배경으로 깔지 않는다.
+ *
+ * 넷을 세로로 쌓으면 한 칸이 폭보다 훨씬 납작해진다(1.75:1). 세로
+ * 포스터를 거기 넣으면 1위보다 더 심하게 잘려서, 무슨 사진인지도
+ * 모르는 띠만 남는다.
+ *
+ * 대신 작은 정사각 썸네일을 왼쪽에 두고 글자를 옆에 세운다. 정사각은
+ * 4:5 에서 잘리는 양이 적고, 순위 목록으로도 그쪽이 자연스럽다.
+ */
+.rank__side .rank__card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 0 8px 0 0;
+  border-radius: var(--radius-sm);
+  background: #26232b;
+  overflow: hidden;
+}
+/* 배경 사진 위에 깔던 어둠은 목록형에 필요 없다 */
+.rank__side .rank__card::after { display: none; }
+.rank__side .rank__photo {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #35313c;
+}
+.rank__side .rank__num {
+  position: relative;
+  top: auto;
+  left: auto;
+  flex: 0 0 auto;
+  margin-left: 2px;
+}
+.rank__side .rank__cardinfo {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.rank__side .rank__cardname {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank__side .rank__cardsub { font-size: 11.5px; }
 
 /* 5위 아래. 가로로 흘린다 */
 .rank__rail {
