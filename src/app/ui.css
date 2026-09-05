@@ -1122,6 +1122,29 @@
      약관 · 둘러보기
    ------------------------------------------------------- */
 
+/* 카카오에서 돌아온 자리. 지나가는 화면이라 글자 한 줄이 전부다 */
+.authwait {
+  padding: 80px var(--gutter);
+  text-align: center;
+  color: var(--text-dim);
+  font-size: var(--t-body);
+}
+
+.authfail {
+  padding: 64px var(--gutter) 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.authfail__msg {
+  font-size: var(--t-body);
+  color: var(--text);
+  line-height: 1.5;
+}
+
 .login {
   display: flex;
   flex-direction: column;
