@@ -690,7 +690,31 @@ a.bottomnav__item { text-decoration: none; }
    원문 링크가 밀려 내려가기 때문이다.
    ------------------------------------------------------- */
 .locmap { margin: 22px var(--gutter) 0; }
+/* 제목과 되돌리기를 한 줄에. 되돌리기는 지도에 딸린 것이라
+   제목에서 멀어지면 무엇을 되돌리는지가 흐려진다 */
+.locmap__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
 .locmap__title { font-size: 17px; font-weight: 700; }
+/* 제목이 없는 화면(행사 상세·모집글)에서는 되돌리기만 오른쪽 끝에 선다.
+   지도 위에 장소명과 주소가 이미 있어 제목을 또 달지 않는다 */
+.locmap__head--bare { justify-content: flex-end; margin-bottom: 2px; }
+
+.locmap__reset {
+  flex: 0 0 auto;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-dim);
+  font-size: var(--t-small);
+  font-weight: 600;
+  padding: 4px 11px;
+  cursor: pointer;
+}
+.locmap__reset:active { background: var(--bg-sunk); }
 
 .locmap__canvas {
   margin-top: 10px;
