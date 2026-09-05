@@ -360,6 +360,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                   {nearby.map(({ e, km }) => (
                     <li key={e.id}>
                       <a className="near__row" href={`/e/${encodeURIComponent(e.id)}`}>
+                        {/* 이름만 있으면 어떤 행사인지 안 그려진다. 포스터가
+                            곧 그 행사의 얼굴이라 작게라도 붙인다 */}
+                        <span className="near__thumb">
+                          {e.imageUrl && <img src={posterSrc(e.imageUrl, 160)} alt="" loading="lazy" />}
+                        </span>
                         <span className="near__main">
                           <span className="near__name">{e.subject}</span>
                           <span className="near__where">{e.place.name}</span>

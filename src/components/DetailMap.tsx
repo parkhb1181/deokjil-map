@@ -40,10 +40,18 @@ export default function DetailMap({ event }: Props) {
         const map = new kakao.maps.Map(containerRef.current, {
           center: pos,
           level: DETAIL_LEVEL,
-          // 시트 안에서 스크롤을 가로채지 않도록 고정한다. 위치를 알려주는
-          // 지도지 탐색하는 지도가 아니다. 둘러보려면 지도 탭이 있다
-          draggable: false,
-          zoomable: false,
+          /*
+           * 움직일 수 있게 둔다.
+           *
+           * 한때 고정했다 — 시트 안에서 세로 스크롤을 가로챌까 봐서다.
+           * 그런데 확대는 새고 있어서, 손대면 커지는데 밀면 안 밀리는
+           * 어중간한 상태가 됐다. 「이게 왜 안 되지」 를 만든다.
+           *
+           * 스크롤 가로채기는 아래 touch-action 으로 막는다. 가로로
+           * 끌면 지도가 움직이고 세로로 쓸면 페이지가 스크롤된다.
+           */
+          draggable: true,
+          zoomable: true,
         })
 
         // 지도 탭과 같은 라벨 핀을 쓴다. 두 화면에서 같은 것이 같아 보여야 한다

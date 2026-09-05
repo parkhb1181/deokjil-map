@@ -700,6 +700,14 @@ a.bottomnav__item { text-decoration: none; }
   /* 카카오가 그리는 타일이 모서리를 넘지 않도록 */
   overflow: hidden;
   background: var(--bg-sunk);
+  /*
+   * 가로 끌기와 확대는 지도가 갖고, 세로 쓸기는 페이지에 넘긴다.
+   *
+   * 지도를 움직일 수 있게 하면서 세로까지 주면, 지도 위에서 페이지를
+   * 못 내려 손가락을 옆으로 옮겨야 한다. pan-y 를 브라우저에 남기면
+   * 그 일이 안 생긴다.
+   */
+  touch-action: pan-y pinch-zoom;
 }
 
 @media (min-width: 700px) {
