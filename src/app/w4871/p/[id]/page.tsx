@@ -50,7 +50,7 @@ const POST = {
 }
 
 export const metadata: Metadata = {
-  title: '동행 구해요 · 덕모임',
+  title: '동행 모집 · 덕모임',
   robots: { index: false, follow: false },
 }
 

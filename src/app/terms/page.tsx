@@ -170,7 +170,7 @@ export default function Page() {
       title="이용약관"
       updated="2026-09-02"
       effective="2026-09-02"
-      lead="덕모임을 쓸 때의 약속입니다. 운영팀이 무엇을 하고 무엇을 하지 않는지, 문제가 생기면 어떻게 처리하는지 적었습니다."
+      lead="덕모임을 쓸 때 운영팀과 회원이 지키기로 한 것입니다."
       sections={SECTIONS}
     />
   )

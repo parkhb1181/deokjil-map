@@ -23,6 +23,16 @@ const DETAIL_LEVEL = 4
 export default function DetailMap({ event }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
+  /*
+   * 지도를 움직였는가.
+   *
+   * 「원래 위치로」 를 늘 띄우면 누를 이유가 없는 버튼이 자리만 먹는다.
+   * 밀어본 사람에게만 보인다.
+   */
+  const [moved, setMoved] = useState(false)
+  /* 되돌리기가 쓸 지도. 이펙트 밖에서 부르므로 ref 로 들고 있는다 */
+  const mapRef = useRef<{ setCenter: (p: unknown) => void; setLevel: (n: number) => void } | null>(null)
+  const homeRef = useRef<unknown>(null)
 
   const { lat, lng } = event.place
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
@@ -40,10 +50,18 @@ export default function DetailMap({ event }: Props) {
         const map = new kakao.maps.Map(containerRef.current, {
           center: pos,
           level: DETAIL_LEVEL,
-          // 시트 안에서 스크롤을 가로채지 않도록 고정한다. 위치를 알려주는
-          // 지도지 탐색하는 지도가 아니다. 둘러보려면 지도 탭이 있다
-          draggable: false,
-          zoomable: false,
+          /*
+           * 움직일 수 있게 둔다.
+           *
+           * 한때 고정했다 — 시트 안에서 세로 스크롤을 가로챌까 봐서다.
+           * 그런데 확대는 새고 있어서, 손대면 커지는데 밀면 안 밀리는
+           * 어중간한 상태가 됐다. 「이게 왜 안 되지」 를 만든다.
+           *
+           * 스크롤 가로채기는 아래 touch-action 으로 막는다. 가로로
+           * 끌면 지도가 움직이고 세로로 쓸면 페이지가 스크롤된다.
+           */
+          draggable: true,
+          zoomable: true,
         })
 
         // 지도 탭과 같은 라벨 핀을 쓴다. 두 화면에서 같은 것이 같아 보여야 한다
@@ -62,6 +80,22 @@ export default function DetailMap({ event }: Props) {
           map,
           yAnchor: 1,
         })
+
+        /* 되돌릴 자리와 지도를 들고 있는다 */
+        mapRef.current = map as never
+        homeRef.current = pos
+
+        /*
+         * 움직였을 때만 되돌리기를 띄운다.
+         *
+         * dragend 와 zoom_changed 를 둘 다 듣는다 — 확대만 해도
+         * 원래 배율에서 벗어나므로 되돌릴 것이 생긴다.
+         */
+        const mark = () => {
+          if (!cancelled) setMoved(true)
+        }
+        kakao.maps.event.addListener(map, 'dragend', mark)
+        kakao.maps.event.addListener(map, 'zoom_changed', mark)
       })
       .catch(() => {
         if (!cancelled) setFailed(true)
@@ -80,7 +114,24 @@ export default function DetailMap({ event }: Props) {
 
   return (
     <section className="locmap">
-      <h3 className="locmap__title">위치</h3>
+      <div className="locmap__head">
+        <h3 className="locmap__title">위치</h3>
+        {/* 밀어본 사람에게만 보인다. 누르면 행사 자리로 되돌아간다 */}
+        {moved && (
+          <button
+            type="button"
+            className="locmap__reset"
+            onClick={() => {
+              if (!mapRef.current || !homeRef.current) return
+              mapRef.current.setLevel(DETAIL_LEVEL)
+              mapRef.current.setCenter(homeRef.current)
+              setMoved(false)
+            }}
+          >
+            원래 위치로
+          </button>
+        )}
+      </div>
       <div ref={containerRef} className="locmap__canvas" />
     </section>
   )

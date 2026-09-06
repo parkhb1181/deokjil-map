@@ -91,6 +91,7 @@ export default function TopSubjects({ events, today }: Props) {
         <p className="rank__note">진행 중 {total}곳</p>
       </div>
 
+      <div className="rank__grid">
       <button type="button" className="rank__hero" onClick={() => go(top, 0)}>
         <span className="rank__photo">
           {top.image && !failed[top.subject] && (
@@ -117,24 +118,35 @@ export default function TopSubjects({ events, today }: Props) {
         </span>
       </button>
 
-      <ol className="rank__rail">
-        {rest.map((r, i) => (
+      {/* 2~5위. 1위 옆에 세워 순위가 한눈에 읽히게 한다 */}
+      <ol className="rank__side">
+        {rest.slice(0, 4).map((r, i) => (
           <li key={r.subject} className="rank__item">
             <button type="button" className="rank__card" onClick={() => go(r, i + 1)}>
               <span className="rank__photo">
+                {/* 썸네일 칸이 작다. 큰 것을 받아봐야 버린다 */}
                 {r.image && !failed[r.subject] && (
-                  <Image src={posterSrc(r.image)!} alt="" fill sizes="120px" onError={() => die(r.subject)} />
+                  <Image src={posterSrc(r.image)!} alt="" fill sizes="96px" onError={() => die(r.subject)} />
                 )}
               </span>
               <span className="rank__num">{i + 2}</span>
               <span className="rank__cardinfo">
                 <strong className="rank__cardname">{r.subject}</strong>
-                <span className="rank__cardsub">{r.count}곳</span>
+                {/* 1위와 같은 줄을 쓴다. 곳수만 두면 글자 오른쪽이
+                    비고, 지역은 「갈 수 있나」 를 가르는 값이다 */}
+                <span className="rank__cardsub">
+                  {r.count}곳
+                  {r.districts.length > 0 && (
+                    <span className="rank__region"> · {r.districts.join('·')}</span>
+                  )}
+                </span>
               </span>
             </button>
           </li>
         ))}
       </ol>
+      </div>
+
     </section>
   )
 }

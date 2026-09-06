@@ -690,7 +690,31 @@ a.bottomnav__item { text-decoration: none; }
    원문 링크가 밀려 내려가기 때문이다.
    ------------------------------------------------------- */
 .locmap { margin: 22px var(--gutter) 0; }
+/* 제목과 되돌리기를 한 줄에. 되돌리기는 지도에 딸린 것이라
+   제목에서 멀어지면 무엇을 되돌리는지가 흐려진다 */
+.locmap__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
 .locmap__title { font-size: 17px; font-weight: 700; }
+/* 제목이 없는 화면(행사 상세·모집글)에서는 되돌리기만 오른쪽 끝에 선다.
+   지도 위에 장소명과 주소가 이미 있어 제목을 또 달지 않는다 */
+.locmap__head--bare { justify-content: flex-end; margin-bottom: 2px; }
+
+.locmap__reset {
+  flex: 0 0 auto;
+  border: 1px solid var(--border-mid);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-dim);
+  font-size: var(--t-small);
+  font-weight: 600;
+  padding: 4px 11px;
+  cursor: pointer;
+}
+.locmap__reset:active { background: var(--bg-sunk); }
 
 .locmap__canvas {
   margin-top: 10px;
@@ -700,6 +724,14 @@ a.bottomnav__item { text-decoration: none; }
   /* 카카오가 그리는 타일이 모서리를 넘지 않도록 */
   overflow: hidden;
   background: var(--bg-sunk);
+  /*
+   * 가로 끌기와 확대는 지도가 갖고, 세로 쓸기는 페이지에 넘긴다.
+   *
+   * 지도를 움직일 수 있게 하면서 세로까지 주면, 지도 위에서 페이지를
+   * 못 내려 손가락을 옆으로 옮겨야 한다. pan-y 를 브라우저에 남기면
+   * 그 일이 안 생긴다.
+   */
+  touch-action: pan-y pinch-zoom;
 }
 
 @media (min-width: 700px) {
@@ -821,7 +853,47 @@ a.bottomnav__item { text-decoration: none; }
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding-right: 26px;
+}
+/* 닫기 ✕ 는 카드 오른쪽 위 모서리에 떠 있다. 그 아래로 지나가는
+   것은 제목 줄(오른쪽 끝에 마감 D-N 이 붙는다)과, 묶음에서 들어왔을
+   때 그 위에 서는 되돌아가기뿐이다. 여백을 카드 전체에 주면 맨 아래
+   「자세히 보기」 까지 오른쪽만 26px 짧아진다 */
+.mapsheet__head,
+.mapsheet__back { padding-right: 26px; }
+
+/* 포스터가 왼쪽, 글이 오른쪽.
+
+   포스터를 위에 통으로 깔지 않은 것은 이 카드가 지도를 덮고 있기
+   때문이다. 세로로 길어질수록 방금 누른 핀 주변이 가려져, 여기가
+   어디인지 보려고 연 카드가 그 답을 지운다. 옆에 세우면 높이가
+   거의 그대로다. */
+/* stretch 라서 포스터가 글칸 바닥까지 내려온다. 높이를 고정하면
+   특전이 길 때 포스터 아래가 비고, 그 빈칸이 「자세히 보기」 와
+   글 사이를 갈라놓는다 */
+.mapsheet__top { display: flex; gap: 10px; align-items: stretch; }
+.mapsheet__poster {
+  flex: 0 0 96px;
+  /* 글이 짧을 때의 바닥값. 포스터는 세로가 길어서 3:4 로 잡으면
+     위쪽 대상명이 남는다 */
+  min-height: 128px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-sunk);
+}
+.mapsheet__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+/* 글칸이 좁아지므로 줄여도 되게 열어 둔다. 안 그러면 긴 주소가
+   포스터를 밀어낸다 */
+.mapsheet__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .mapsheet__head {
@@ -940,8 +1012,8 @@ a.bottomnav__item { text-decoration: none; }
   color: var(--accent-ink);
 }
 
+/* 폭을 다 쓴다. 왼쪽에 몰아두면 오른쪽이 그만큼 빈 채로 남는다 */
 .mapsheet__more {
-  align-self: flex-start;
   margin-top: 8px;
   padding: 7px 13px;
   border: 1px solid var(--border-mid);
@@ -1595,7 +1667,14 @@ a.bottomnav__item { text-decoration: none; }
    훑어 내릴 때 그 지점이 기준점이 된다.
    ------------------------------------------------------- */
 .rank {
-  margin: 0 0 14px;
+  /*
+   * 헤더에 붙인다.
+   *
+   * .main 이 위 여백 12px 을 갖는데, 어두운 블록이 첫 자식이라 그
+   * 여백이 흰 띠로 남아 블록이 떠 보인다. 다른 탭(지도·즐겨찾기)은
+   * 그 여백이 필요하므로 .main 을 고치지 않고 여기서만 상쇄한다.
+   */
+  margin: -12px 0 14px;
   padding: 14px 0 15px;
   background: #1c1a20;
   border-bottom: 2px solid var(--accent);
@@ -1617,13 +1696,44 @@ a.bottomnav__item { text-decoration: none; }
 /* 어두운 바탕에서 --text-mute 는 3.36:1 로 모자란다. 연분홍이 8.94:1 */
 .rank__note { font-size: 13px; color: #f5a3c1; font-weight: 600; }
 
+/*
+ * 1위를 왼쪽에 세우고 2~4위를 오른쪽에 쌓는다.
+ *
+ * **포스터가 세로다.** 실측 14장 중 12장이 4:5 안팎이고 가로는 없다.
+ * 가로 배너에 넣으면 cover 가 위아래를 60% 넘게 잘라내는데, 포스터는
+ * 위에 아티스트명 아래에 날짜·장소가 있어서 잘리면 남는 게 없다.
+ *
+ * 왼쪽을 1.5fr 로 두는 이유 — 1:1 이면 1위가 조금 큰 정도라 순위로
+ * 안 읽히고, 2:1 이면 블록이 너무 높아 검색창이 한 화면에서 밀린다.
+ */
+.rank__grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 8px;
+  padding: 0 var(--gutter);
+  margin-bottom: 12px;
+}
+/*
+ * 안쪽 글자가 칸을 밀어내지 못하게 한다.
+ *
+ * grid·flex 자식은 기본이 min-width:auto 라 내용이 칸보다 넓으면
+ * 칸을 늘린다. 지역을 넣자마자 오른쪽이 넓어져 1위가 210 에서 177 로
+ * 줄었고, 격자만 막았더니 이번엔 카드가 화면 밖으로 삐져나갔다.
+ * 격자 자식과 카드 안쪽 둘 다 0 으로 눌러야 말줄임이 걸린다.
+ */
+.rank__grid > *,
+.rank__side .rank__card,
+.rank__side .rank__cardinfo { min-width: 0; }
+.rank__side .rank__item { min-width: 0; overflow: hidden; }
+
 /* 1위. 나머지와 같은 크기로 두면 순위로 안 읽힌다 */
 .rank__hero {
   position: relative;
   display: block;
-  width: calc(100% - var(--gutter) * 2);
-  margin: 0 var(--gutter) 12px;
-  height: 236px;
+  width: 100%;
+  margin: 0;
+  /* 포스터 비율 그대로. 높이를 고정하지 않아 폭이 바뀌어도 안 잘린다 */
+  aspect-ratio: 4 / 5;
   padding: 0;
   border: 0;
   border-radius: var(--radius);
@@ -1682,6 +1792,107 @@ a.bottomnav__item { text-decoration: none; }
 .rank__more { font-size: 12.5px; color: rgba(255, 255, 255, 0.82); }
 
 /* 2위 이하 */
+/*
+ * 2~5위. 1위 높이를 넷이 나눠 갖는다.
+ *
+ * grid 라 1위가 길어지면 같이 늘어난다. 높이를 px 로 박으면 폭이
+ * 바뀌는 화면에서 어긋난다.
+ */
+.rank__side {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.rank__side .rank__item { min-height: 0; }
+
+/*
+ * 2~5위는 사진을 배경으로 깔지 않는다.
+ *
+ * 넷을 세로로 쌓으면 한 칸이 폭보다 훨씬 납작해진다(1.75:1). 세로
+ * 포스터를 거기 넣으면 1위보다 더 심하게 잘려서, 무슨 사진인지도
+ * 모르는 띠만 남는다.
+ *
+ * 대신 작은 정사각 썸네일을 왼쪽에 두고 글자를 옆에 세운다. 정사각은
+ * 4:5 에서 잘리는 양이 적고, 순위 목록으로도 그쪽이 자연스럽다.
+ */
+.rank__side .rank__card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 0 8px 0 0;
+  border-radius: var(--radius-sm);
+  background: #26232b;
+  overflow: hidden;
+}
+/* 배경 사진 위에 깔던 어둠은 목록형에 필요 없다 */
+.rank__side .rank__card::after { display: none; }
+/*
+ * 썸네일이 행 높이를 채운다.
+ *
+ * 44px 로 박아뒀더니 넓은 화면에서 행이 세로로 늘어나는데 사진만
+ * 그대로라 오른쪽이 빈 칸투성이가 됐다. 높이를 따라가고 정사각을
+ * 유지하면 화면이 커질수록 사진도 커진다 — 세로 포스터라 커질수록
+ * 덜 잘린다.
+ *
+ * 위아래 6px 은 카드 모서리와 사진 모서리가 겹쳐 보이지 않게 둔다.
+ */
+.rank__side .rank__photo {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  height: calc(100% - 12px);
+  aspect-ratio: 1 / 1;
+  margin: 6px 0 6px 6px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #35313c;
+}
+.rank__side .rank__num {
+  position: relative;
+  top: auto;
+  left: auto;
+  flex: 0 0 auto;
+  margin-left: 2px;
+}
+.rank__side .rank__cardinfo {
+  position: relative;
+  inset: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.rank__side .rank__cardname {
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank__side .rank__cardsub {
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * 좁은 화면에서는 지역을 감춘다.
+ *
+ * 390px 에서 칸이 140px 밖에 안 돼 「16곳 · …」 로 잘린다. 잘린 말은
+ * 정보가 아니라 빈 칸보다 나쁘다 — 무언가 있다는 것만 알리고 무엇인지는
+ * 안 알려준다. 자리가 생기는 폭부터 보여준다.
+ */
+.rank__region { display: none; }
+@media (min-width: 460px) {
+  .rank__region { display: inline; }
+}
+
+/* 5위 아래. 가로로 흘린다 */
 .rank__rail {
   display: flex;
   gap: 8px;

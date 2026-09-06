@@ -22,13 +22,17 @@
  * 보내면 된다. API 를 붙이기 전에 하는 편이 싸다.
  */
 import { useMemo, useState } from 'react'
+import { useViewer } from '@/lib/auth/useViewer'
+import { signOut } from '@/lib/auth/signout'
+import { USE_API } from '@/lib/api/config'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
-import { Avatar, Badge, Blank, Button, Tabs } from '@/components/ui/Basics'
+import { Avatar, Badge, Blank, Button, Sheet, Tabs } from '@/components/ui/Basics'
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { canWrite, isBlocked, isClosed, LAST_SEEN_LABEL, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 import { shortTime as whenShort } from '@/lib/when'
 
@@ -81,7 +85,8 @@ export type MyComment = {
 export type ProfileData = {
   id: string
   nickname: string
-  imageUrl?: string | null
+  /** 사람 사진이다. 위 ProfilePost.imageUrl 은 행사 포스터라 다르다 */
+  profileImageUrl?: string | null
   bio?: string | null
   lastSeen?: LastSeen
   posts: ProfilePost[]
@@ -145,12 +150,23 @@ export default function ProfileView({
 }) {
   /* 로그인이 없어 내 프로필인지 서버가 못 알려준다. 개발용으로 뒤집어
      본다. 같은 렌더러라 이 토글 하나로 두 화면을 나란히 비교할 수 있다 */
-  const [mine, setMine] = useState(isMe)
-  const [ask, setAsk] = useState<null | 'report'>(null)
+  /*
+   * 내 프로필인가.
+   *
+   * API 가 붙으면 서버 세션의 userId 와 이 프로필의 id 를 견준다.
+   * 없으면 아래 막대가 정한다.
+   */
+  const [devMine, setDevMine] = useState(isMe)
+  const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
+  const mine = USE_API ? viewer.userId === user.id : devMine
+  const [ask, setAsk] = useState<null | 'report' | 'logout'>(null)
+  const [leaving, setLeaving] = useState(false)
+  const router = useRouter()
   const [tab, setTab] = useState(0)
   const [empty, setEmpty] = useState(false)
   const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
-  const sanction = mine ? SANCTIONS[sanc] : null
+  /* 제재도 서버가 정한다. 남의 프로필에는 애초에 안 내려온다 */
+  const sanction = USE_API ? (mine ? viewer.sanction : null) : mine ? SANCTIONS[sanc] : null
 
   /* 진행 중인 것이 먼저다. 그 안에서는 만나는 날이 가까운 순,
      끝난 것은 최근 것부터 */
@@ -191,12 +207,14 @@ export default function ProfileView({
         )
       }
     >
-      {/* 개발용. 인증이 붙으면 이 막대들을 통째로 지운다 */}
-      <div className="whoami">
-        <b>보는 사람</b>
-        <button aria-pressed={!mine} onClick={() => setMine(false)}>남</button>
-        <button aria-pressed={mine} onClick={() => setMine(true)}>나</button>
-      </div>
+      {/* 개발용. 서버 세션이 정하기 시작하면 안 그린다 */}
+      {!USE_API && (
+        <div className="whoami">
+          <b>보는 사람</b>
+          <button aria-pressed={!devMine} onClick={() => setDevMine(false)}>남</button>
+          <button aria-pressed={devMine} onClick={() => setDevMine(true)}>나</button>
+        </div>
+      )}
 
       {mine && (
         <>
@@ -207,14 +225,16 @@ export default function ProfileView({
           </div>
 
           {/* 제재를 받은 사람에게 무엇이 보이는지 확인한다 */}
-          <div className="whoami">
-            <b>제재</b>
-            {(Object.keys(SANCTIONS) as (keyof typeof SANCTIONS)[]).map((k) => (
-              <button key={k} aria-pressed={sanc === k} onClick={() => setSanc(k)}>
-                {k}
-              </button>
-            ))}
-          </div>
+          {!USE_API && (
+            <div className="whoami">
+              <b>제재</b>
+              {(Object.keys(SANCTIONS) as (keyof typeof SANCTIONS)[]).map((k) => (
+                <button key={k} aria-pressed={sanc === k} onClick={() => setSanc(k)}>
+                  {k}
+                </button>
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -233,7 +253,7 @@ export default function ProfileView({
                바꿀 수 있으면 아바타가 기본값인 채로 남는 사람이 많아진다 */
             <header className="myid">
               <label className="myid__pic">
-                <Avatar name={user.nickname} src={user.imageUrl ?? undefined} lg />
+                <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} lg />
                 <span className="myid__cam" aria-hidden>
                   <svg viewBox="0 0 16 16">
                     <path
@@ -251,9 +271,7 @@ export default function ProfileView({
 
               <div className="myid__main">
                 <p className="myid__name">{user.nickname}</p>
-                <p className="myid__meta meta">
-                  {user.lastSeen && <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>}
-                </p>
+
                 {/* 한줄소개를 내 화면에도 띄운다. 남에게 보이는 문구라
                     내 화면에서 안 보이면 무엇이 걸려 있는지 모른 채로
                     남는다. 비어 있으면 채우라고 말해준다 */}
@@ -276,7 +294,7 @@ export default function ProfileView({
             <header className="prof">
               <div className="prof__id">
                 {/* 크기는 .prof .avatar 가 56px 로 정한다 */}
-                <Avatar name={user.nickname} src={user.imageUrl ?? undefined} />
+                <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} />
                 <div className="prof__idmain">
                   <h1 className="prof__name">{user.nickname}</h1>
                   {/* 활동 시각과 가입월을 뺐다. 이유는 ProfileData 주석에 */}
@@ -314,6 +332,21 @@ export default function ProfileView({
                 <span>알림 설정</span>
                 <span className="mymenu__note">준비 중</span>
               </button>
+              {/* 로그아웃은 맨 아래다. 위에 두면 다른 것을 누르러 왔다가
+                  실수로 누른다. 되돌리려면 다시 로그인해야 한다 */}
+              <button
+                type="button"
+                className="mymenu__row mymenu__row--out"
+                onClick={() => setAsk('logout')}
+              >
+                <span>로그아웃</span>
+              </button>
+              {/* 탈퇴는 로그아웃보다 아래다. 되돌릴 수 없는 것이 더
+                  멀리 있어야 한다. 색은 죽여 둔다 — 빨갛게 두면 눈이
+                  먼저 가고, 여기 오는 사람 대부분은 로그아웃하러 온다 */}
+              <Link className="mymenu__row mymenu__row--quiet" href={wf('/me/leave')}>
+                <span>회원 탈퇴</span>
+              </Link>
             </nav>
           )}
 
@@ -419,6 +452,40 @@ export default function ProfileView({
 
       {ask === 'report' && (
         <ReportSheet target="user" name={user.nickname} onClose={() => setAsk(null)} />
+      )}
+
+      {/* 물어보고 나간다. 되돌리려면 다시 로그인해야 해서, 실수로 누른
+          것과 정말 나가려는 것을 가른다 */}
+      {ask === 'logout' && (
+        <Sheet
+          title="로그아웃할까요?"
+          desc="다시 쓰려면 카카오로 로그인하면 돼요."
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setAsk(null)}>
+                아니요
+              </Button>
+              <Button
+                tone="danger"
+                disabled={leaving}
+                onClick={async () => {
+                  setLeaving(true)
+                  await signOut()
+                  /*
+                   * 홈으로 보낸다. 있던 자리에 두면 방금 나간 사람이
+                   * 자기 프로필을 보고 있게 된다.
+                   *
+                   * replace 다. 뒤로가기로 이 화면에 돌아와도 이미
+                   * 로그아웃된 뒤라 볼 것이 없다.
+                   */
+                  router.replace(wf('/'))
+                }}
+              >
+                {leaving ? '나가는 중…' : '로그아웃'}
+              </Button>
+            </>
+          }
+        />
       )}
     </PageShell>
   )

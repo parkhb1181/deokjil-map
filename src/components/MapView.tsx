@@ -26,6 +26,7 @@ import {
 import Chips, { type ChipOption } from './Chips'
 import DateNav from './DateNav'
 import EventCard from './EventCard'
+import { posterSrc } from '@/lib/poster'
 
 interface Props {
   events: EventItem[]
@@ -495,6 +496,19 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
                     </button>
                   )}
 
+                  {/* 포스터를 왼쪽에 세우고 글은 오른쪽에 쌓는다.
+                      핀을 누른 사람은 「그 포스터로 본 그 행사」 를 찾는
+                      중이라, 이름만 보고는 맞게 눌렀는지 확신하지 못한다.
+                      포스터가 없는 행사도 있어서, 없으면 칸을 비우지 않고
+                      글이 폭을 다 쓴다 */}
+                  <div className="mapsheet__top">
+                    {sheetEvent.imageUrl && (
+                      <span className="mapsheet__poster">
+                        <img src={posterSrc(sheetEvent.imageUrl, 240)} alt="" loading="lazy" />
+                      </span>
+                    )}
+
+                    <div className="mapsheet__info">
                   <p className="mapsheet__head">
                     <span className={`mapsheet__kind mapsheet__kind--${sheetEvent.kind}`}>
                       {EVENT_KIND_LABELS[sheetEvent.kind]}
@@ -531,6 +545,8 @@ export default function MapView({ events, today, filter, onFilter, onOpen }: Pro
                       </div>
                     )}
                   </dl>
+                    </div>
+                  </div>
 
                   <button
                     type="button"

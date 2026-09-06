@@ -32,15 +32,46 @@ export type ReportTarget = 'user' | 'post' | 'comment'
  * 처리방침 제10조가 「근거가 추측뿐인 경우 아무 조치도 하지 않는다」 고
  * 못박아 둔 것과 같은 규칙이다.
  */
-const AGE_REASON = '나이를 속인 것 같아요'
+/**
+ * 신고 사유. **코드가 계약이고 라벨은 화면 문구다.**
+ *
+ * 서버가 `reason` 을 enum 으로 검증한다 (결정 D-6). 라벨을 그대로
+ * 보내면 문구를 한 글자만 다듬어도 서버가 400 을 낸다.
+ *
+ * 여덟이다 (2026-09-05 확정). **사칭은 뺐다** — 신고자가 무엇을 근거로
+ * 사칭을 판정하며 접수 후 관리자가 무엇을 할 수 있는지가 없었다. 1차에
+ * 신원 확인 수단이 아예 없어 조치할 수 없는 신고만 쌓인다. 주최자
+ * 사칭은 모집글 내용이라 POST 의 FALSE_INFO 로 받는다.
+ */
+export type ReportReason =
+  | 'ADVERTISEMENT'
+  | 'INAPPROPRIATE'
+  | 'ABUSE'
+  | 'NO_SHOW'
+  | 'AGE_SUSPICION'
+  | 'FALSE_INFO'
+  | 'OFF_TOPIC'
+
+const LABEL: Record<ReportReason, string> = {
+  ADVERTISEMENT: '광고 · 홍보',
+  INAPPROPRIATE: '부적절한 내용',
+  ABUSE: '욕설 · 비방',
+  NO_SHOW: '약속을 지키지 않음',
+  AGE_SUSPICION: '나이를 속인 것 같아요',
+  FALSE_INFO: '허위 정보',
+  OFF_TOPIC: '동행과 무관한 글',
+}
 
 /* 공통 사유를 앞에 두고 대상별 사유를 뒤에 붙인다. 순서가 화면마다
-   달라지면 습관으로 누르던 자리가 바뀐다 */
-const COMMON = ['광고 · 홍보', '부적절한 내용', '욕설 · 비방']
-const EXTRA: Record<ReportTarget, string[]> = {
-  user: ['약속을 지키지 않음', '사칭', AGE_REASON],
-  post: ['허위 정보', '동행과 무관한 글'],
-  comment: ['허위 정보'],
+   달라지면 습관으로 누르던 자리가 바뀐다.
+
+   이 표가 곧 서버의 조합 검증표다. USER 전용 사유를 COMMENT 로
+   보내면 400 이다 */
+const COMMON: ReportReason[] = ['ADVERTISEMENT', 'INAPPROPRIATE', 'ABUSE']
+const EXTRA: Record<ReportTarget, ReportReason[]> = {
+  user: ['NO_SHOW', 'AGE_SUSPICION'],
+  post: ['FALSE_INFO', 'OFF_TOPIC'],
+  comment: ['FALSE_INFO'],
 }
 
 const TITLE: Record<ReportTarget, string> = {
@@ -55,7 +86,7 @@ export function ReportSheet({ target, name, onClose }: {
   name?: string
   onClose: () => void
 }) {
-  const [reason, setReason] = useState('')
+  const [reason, setReason] = useState<ReportReason | ''>('')
   const [detail, setDetail] = useState('')
   const [tried, setTried] = useState(false)
 
@@ -65,7 +96,8 @@ export function ReportSheet({ target, name, onClose }: {
   /* 나이 신고만 자세히 칸이 필수다. 다른 사유는 신고된 글·댓글이
      그 자체로 증거지만, 나이는 화면에 남는 것이 없어 신고자가 무엇을
      보았는지 적지 않으면 판단할 재료가 하나도 없다 */
-  const ageCase = reason === AGE_REASON
+  /* 코드로 본다. 라벨 문구를 다듬어도 이 검증이 안 풀린다 */
+  const ageCase = reason === 'AGE_SUSPICION'
   const needDetail = ageCase && !detail.trim()
 
   const submit = () => {
@@ -88,10 +120,10 @@ export function ReportSheet({ target, name, onClose }: {
       }
     >
       <Field label="사유" error={tried && !reason ? '사유를 골라주세요' : undefined}>
-        <Select value={reason} onChange={(e) => setReason(e.target.value)}>
+        <Select value={reason} onChange={(e) => setReason(e.target.value as ReportReason)}>
           <option value="" disabled>골라주세요</option>
           {reasons.map((r) => (
-            <option key={r} value={r}>{r}</option>
+            <option key={r} value={r}>{LABEL[r]}</option>
           ))}
         </Select>
       </Field>

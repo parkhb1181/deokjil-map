@@ -22,7 +22,14 @@ export type District =
   | 'myeongdong' // 명동 · 중구
   | 'etc'       // 그 외 서울
 
-export type PlaceKind = 'CAFE' | 'POPUP_VENUE'
+/**
+ * 장소 종류.
+ *
+ * 콘서트가 필수로 올라가면서 공연장을 더했다 (EV-10, 2026-09-05).
+ * 그전에는 아레나도 POPUP_VENUE 로 적고 있었다 — 팝업 매장과 잠실
+ * 아레나가 같은 값이면 「어디로 가나」 가 안 갈린다.
+ */
+export type PlaceKind = 'CAFE' | 'POPUP_VENUE' | 'CONCERT_HALL'
 
 /** 생카는 이미 버추얼·애니 캐릭터·배우로 확장됐다. 아이돌에 묶지 않는다 */
 export type SubjectType = 'IDOL' | 'VIRTUAL' | 'CHARACTER' | 'ACTOR'
@@ -217,7 +224,15 @@ export const LAST_SEEN_LABEL: Record<LastSeen, string> = {
 export interface PostAuthor {
   id: string
   nickname: string
-  imageUrl?: string | null
+  /**
+   * 프로필 사진. 업로드한 사람만 값을 갖고 나머지는 null 이다.
+   * 서버는 기본 이미지 주소를 만들지 않는다 — 기본 아바타는 프론트
+   * 정적 리소스라야 디자인이 바뀔 때 DB 를 안 건드린다 (결정 D-2).
+   *
+   * 행사의 imageUrl 과 이름이 갈린다. 하나는 사람이고 하나는 포스터라
+   * 같은 이름을 쓰면 어느 쪽인지 매번 따져야 한다.
+   */
+  profileImageUrl?: string | null
   /**
    * 마지막 접속 구간. 동행을 구할 때 "이 사람이 요즘 오나" 가
    * 판단 근거라 넣는다 (AU-09).
@@ -457,16 +472,25 @@ export interface Viewer {
 
    고치거나 지우는 함수를 두지 않는다. 있으면 언젠가 쓴다. */
 
+/**
+ * 감사 로그에 남기는 행위.
+ *
+ * **성격을 좁혀 잡는다** — 관리자가 개인정보·비공개 내용에 접근하거나
+ * 계정에 불이익을 준 행위다. 그래야 무엇을 남기고 무엇을 안 남길지가
+ * 매번 판단거리가 되지 않는다.
+ *
+ * 「신고를 처리했다」 는 뺐다 (2026-09-05). 그 성격이 아니고, 처리
+ * 이력은 Report 의 상태 전이(PENDING · PROCESSING · RESOLVED)가 이미
+ * 담는다. 양쪽에 남기면 같은 사실이 두 곳에 적히고 한쪽만 고쳐진다.
+ */
 export type AuditKind =
   /** 제재를 주었다 */
   | 'SANCTION'
   /** 제재를 풀었다 */
   | 'RELEASE'
-  /** 신고를 처리했다 */
-  | 'REPORT'
   /** 댓글을 가렸다 */
   | 'BLIND'
-  /** 비밀 댓글 본문을 열어봤다 */
+  /** 비밀 댓글 본문을 열어봤다. 남의 연락처를 보는 일이다 */
   | 'SECRET_READ'
   /** 계정을 파기했다 */
   | 'PURGE'

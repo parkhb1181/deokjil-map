@@ -5,6 +5,7 @@ import { getAllEvents } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
+import { pickShots } from '@/lib/og-picks'
 
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -100,7 +101,9 @@ export default async function Image({ params }: { params: Promise<{ subject: str
     .map(([d, n]) => `${DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d} ${n}`)
 
   const foot = '덕모임 · duckmoim.com'
-  const picks = events.filter((e) => e.imageUrl).slice(0, SHOTS)
+  /* 어떤 사진을 고르는지는 lib/og-picks 에 있다. 규칙이 하나가 아니라
+     빌드 전 축소본을 만드는 scripts/og-shots.mjs 와 맞춰야 하는 계약이다 */
+  const picks = pickShots(events, SHOTS)
 
   /**
    * scripts/og-shots.mjs 가 빌드 전에 줄여 놓은 파일을 읽는다.

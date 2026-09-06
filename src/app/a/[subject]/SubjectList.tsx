@@ -16,6 +16,7 @@
 import { useMemo, useState } from 'react'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
+import { posterSrc } from '@/lib/poster'
 
 export function SubjectList({ events }: { events: EventItem[] }) {
   const [q, setQ] = useState('')
@@ -57,14 +58,24 @@ export function SubjectList({ events }: { events: EventItem[] }) {
       ) : (
         <div className="dlist">
           {hits.map((ev) => (
-            <div className="drow" key={ev.id}>
-              <span className="drow__label">{DISTRICT_LABELS[ev.place.district]}</span>
+            <div className="drow drow--shot" key={ev.id}>
+              {/* 이름만 늘어놓으면 스무 줄이 다 같아 보인다. 포스터가 곧
+                  그 행사의 얼굴이라 작게라도 앞에 세운다 — 상세의
+                  「근처에서 열려요」 와 같은 크기를 쓴다 */}
+              <span className="near__thumb">
+                {ev.imageUrl && <img src={posterSrc(ev.imageUrl, 160)} alt="" loading="lazy" />}
+              </span>
               <span className="drow__value">
                 <a href={`/e/${encodeURIComponent(ev.id)}`}>{ev.place.name}</a>
-                {' · '}
-                {EVENT_KIND_LABELS[ev.kind]}
-                {' · '}~{ev.endsOn}
-                {ev.perks ? ` · ${ev.perks}` : ''}
+                {/* 구·종류·마감을 둘째 줄로 내린다. 사진이 앞을 먹어
+                    한 줄에 다 넣으면 좁은 화면에서 넉 줄로 접힌다 */}
+                <span className="drow__sub">
+                  {DISTRICT_LABELS[ev.place.district]}
+                  {' · '}
+                  {EVENT_KIND_LABELS[ev.kind]}
+                  {' · '}~{ev.endsOn}
+                  {ev.perks ? ` · ${ev.perks}` : ''}
+                </span>
               </span>
             </div>
           ))}

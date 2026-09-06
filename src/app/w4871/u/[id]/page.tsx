@@ -18,15 +18,15 @@ const USERS: Record<string, ProfileData> = {
   u_host: {
     id: 'u_host',
     nickname: '덕질하는오리',
-    imageUrl: '/avatar/a1.webp',
+    profileImageUrl: '/avatar/a1.webp',
     bio: '팝업이랑 생카 자주 다녀요. 오픈런도 곧잘 합니다.',
     lastSeen: 'WITHIN_3_DAYS',
     posts: [
       {
         id: 'p1',
-        title: '에이티즈 팝업 오픈런 같이 하실 분',
+        title: '빅뱅 전시 같이 보실 분',
         status: 'OPEN',
-        meetAt: '2026-09-14T09:00',
+        meetAt: '2026-09-14T11:00',
         district: '여의도',
         /* 모집글 상세(posts.sample.json)가 쓰는 것과 같은 포스터다.
            같은 글이 화면마다 다른 사진이면 같은 글로 안 보인다 */
@@ -42,7 +42,7 @@ const USERS: Record<string, ProfileData> = {
   u_b: {
     id: 'u_b',
     nickname: '조용한덕후',
-    imageUrl: '/avatar/a3.webp',
+    profileImageUrl: '/avatar/a3.webp',
     bio: null,
     lastSeen: 'LONG_AGO',
     posts: [],

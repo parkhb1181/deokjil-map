@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button, KakaoMark } from '@/components/ui/Basics'
 import { wf } from '@/lib/wireframe'
+import { kakaoAuthorizeUrl, KAKAO_READY } from '@/lib/auth/kakao-url'
 
 export default function Login() {
   const router = useRouter()
@@ -28,16 +29,31 @@ export default function Login() {
 
   const start = (provider: string) => {
     setBusy(provider)
-    /* 인증이 붙으면 여기서 인가 코드를 받으러 나간다.
-       돌아올 때 next 를 그대로 들고 온다.
 
-       지금은 최초 로그인인 척하고 가입 정보 입력으로 넘긴다 (AU-01).
-       실제로는 서버가 그 값이 비었는지 보고 /welcome 과 next 중
-       하나로 보낸다. 이미 채운 사람에게 다시 묻지 않기 위해서다 */
-    setTimeout(() => {
-      setBusy(null)
-      router.push(wf(`/welcome?next=${encodeURIComponent(next)}`))
-    }, 700)
+    /*
+     * 카카오 키가 없으면 나갈 곳이 없다. 로컬과 팀 미리보기가 그렇다.
+     * 그때는 최초 로그인인 척하고 가입 정보 입력으로 넘긴다 — 화면
+     * 흐름은 볼 수 있어야 한다.
+     */
+    if (!KAKAO_READY) {
+      setTimeout(() => {
+        setBusy(null)
+        router.push(wf(`/welcome?next=${encodeURIComponent(next)}`))
+      }, 700)
+      return
+    }
+
+    /*
+     * 카카오 인가 페이지로 나간다. 돌아오는 곳은 /auth/kakao/callback
+     * 이고 거기서 인가코드를 서버에 넘긴다 (AU-01).
+     *
+     * router.push 가 아니라 location 이다. 바깥 도메인이라 Next 라우터가
+     * 다루지 못한다.
+     *
+     * next 를 쿼리로 들려 보내지 않는다. 카카오가 돌려주는 것은 state
+     * 뿐이라, 돌아갈 곳은 우리 쪽에 저장해두고 꺼낸다.
+     */
+    window.location.href = kakaoAuthorizeUrl(next)
   }
 
   return (

@@ -13,6 +13,20 @@ const PATH = process.argv[2] ?? 'src/data/events.json'
 const events = JSON.parse(readFileSync(PATH, 'utf8'))
 const problems = []
 
+/**
+ * 열거값. 화면 계약이 정본이고 전부 대문자 스네이크다.
+ *
+ * 한동안 크롤러가 소문자를 뱉고 화면은 대문자를 기다리는 상태였다.
+ * 라벨 표가 값을 못 찾아 undefined 가 되는데, 던지지는 않아서
+ * 목록이 조용히 비었다. 그런 것은 새벽에 돌고 아침에 발견된다.
+ */
+const ENUMS = {
+  kind: ['BIRTHDAY_CAFE', 'POPUP', 'CONCERT'],
+  subjectType: ['IDOL', 'VIRTUAL', 'CHARACTER', 'ACTOR'],
+  trust: ['OFFICIAL', 'PARTNER', 'USER', 'PARSED'],
+}
+const PLACE_KINDS = ['CAFE', 'POPUP_VENUE', 'CONCERT_HALL']
+
 /** 수집이 통째로 깨졌는지. 서울 생카·팝업이 이보다 적은 날은 없었다 */
 const FLOOR = 30
 if (events.length < FLOOR) {
@@ -41,6 +55,15 @@ for (const e of events) {
 
   if (!Number.isFinite(e.place?.lat) || !Number.isFinite(e.place?.lng)) {
     problems.push(`${at}: 좌표가 없다. 지도에 안 뜬다`)
+  }
+
+  for (const [field, allowed] of Object.entries(ENUMS)) {
+    if (!allowed.includes(e[field])) {
+      problems.push(`${at}: ${field} 가 계약 밖이다. ${e[field]}`)
+    }
+  }
+  if (e.place && !PLACE_KINDS.includes(e.place.kind)) {
+    problems.push(`${at}: place.kind 가 계약 밖이다. ${e.place.kind}`)
   }
 }
 

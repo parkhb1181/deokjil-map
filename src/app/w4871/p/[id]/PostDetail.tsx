@@ -26,6 +26,8 @@ import { WriteGate } from '@/components/ui/SanctionNotice'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
 import { whenText, dateOnly, shortTime } from '@/lib/when'
 
 
@@ -84,14 +86,19 @@ export default function PostDetail({ post, comments, hostId }: {
   hostId: string
 }) {
   const router = useRouter()
-  /* 로그인이 없어 화면을 확인할 방법이 없다. 인증이 붙으면 이 상태와
-     아래 whoami 막대를 지우고 서버 세션에서 채운다 */
+  /*
+   * 보는 사람.
+   *
+   * API 주소가 있으면 서버 세션이 정하고, 없으면 아래 whoami 막대가
+   * 정한다. 백엔드가 뜨면 막대와 이 pick 상태를 같이 지운다.
+   */
   const [pick, setPick] = useState(3)
-  const viewer: Viewer = {
+  const devViewer: Viewer = {
     role: ROLES[pick].key,
     userId: ROLES[pick].id,
     sanction: ROLES[pick].sanction ?? null,
   }
+  const { viewer } = useViewer(devViewer, hostId)
 
   const [draft, setDraft] = useState('')
   const [secret, setSecret] = useState(false)
@@ -176,7 +183,7 @@ export default function PostDetail({ post, comments, hostId }: {
 
   return (
     <PageShell
-      title="동행 구해요"
+      title="동행 모집"
       right={
         isHost ? (
           /* 끝난 글에는 남기지 않는다. 되돌릴 수 없다고 말해놓고
@@ -185,9 +192,19 @@ export default function PostDetail({ post, comments, hostId }: {
              방장 취소는 1차 MVP 에서 뺐다 (2026-09-04). 여기 「취소」 가
              같이 있었다 */
           post.status === 'OPEN' && (
-            <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
-              모집 완료
-            </Button>
+            <>
+              {/* 수정도 OPEN 에서만이다 (PO-06). 계약이 CLOSED 수정을
+                  409 로 막는데, 화면에 남겨두면 눌러보고 나서 튕긴다.
+
+                  감싸는 요소를 두지 않는다. shell__right 가 이미 flex 라
+                  버튼 둘이 그대로 나란히 선다 */}
+              <Button size="sm" tone="ghost" onClick={() => router.push(wf(`/p/${post.id}/edit`))}>
+                수정
+              </Button>
+              <Button size="sm" tone="ghost" onClick={() => setAsk({ k: 'done' })}>
+                모집 완료
+              </Button>
+            </>
           )
         ) : (
           /* 신고도 쓰는 행동이라 로그인 뒤에 한다. 댓글 신고만 막고
@@ -202,7 +219,9 @@ export default function PostDetail({ post, comments, hostId }: {
         )
       }
     >
-      {/* 개발용. 인증이 붙으면 통째로 지운다 */}
+      {/* 개발용. 서버 세션이 정하기 시작하면 이 막대는 아무것도 못
+          바꾸므로 그리지 않는다. 백엔드가 뜨면 통째로 지운다 */}
+      {!USE_API && (
       <div className="whoami">
         <b>보는 사람</b>
         {ROLES.map((r, i) => (
@@ -211,6 +230,7 @@ export default function PostDetail({ post, comments, hostId }: {
           </button>
         ))}
       </div>
+      )}
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
@@ -234,7 +254,7 @@ export default function PostDetail({ post, comments, hostId }: {
               setAsk({ k: 'person', user: post.author, isMe: post.author.id === viewer.userId })
             }
             name={post.author.nickname}
-            src={post.author.imageUrl ?? undefined}
+            src={post.author.profileImageUrl ?? undefined}
             sub={[
               post.author.lastSeen && LAST_SEEN_LABEL[post.author.lastSeen],
               dateOnly(post.createdAt),
@@ -306,7 +326,7 @@ export default function PostDetail({ post, comments, hostId }: {
             <Comment
               key={c.id}
               name={isPlaceholder(c.status) ? '' : c.author.nickname}
-              src={c.author.imageUrl ?? undefined}
+              src={c.author.profileImageUrl ?? undefined}
               time={shortTime(c.createdAt)}
               text={c.content ?? undefined}
               reply={!!c.parentId}

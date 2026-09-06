@@ -25,6 +25,8 @@
  *   기록 (AD-05) — 남긴다고 처리방침에 써놓고 볼 자리가 없었다
  */
 import { useState } from 'react'
+import { useViewer } from '@/lib/auth/useViewer'
+import { USE_API } from '@/lib/api/config'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
 import type { AuditEntry, AuditKind, SanctionKind } from '@/types'
@@ -69,13 +71,28 @@ const KIND_TEXT: Record<SanctionKind, string> = {
 const AUDIT_TEXT: Record<AuditKind, string> = {
   SANCTION: '제재',
   RELEASE: '제재 해제',
-  REPORT: '신고 처리',
   BLIND: '댓글 블라인드',
   SECRET_READ: '비밀 댓글 열람',
   PURGE: '계정 파기',
 }
 
 /* ── 목데이터 ───────────────────────────────────────────── */
+
+/**
+ * 신고 처리 상태 (AD-03, 2026-09-05 결정).
+ *
+ * boolean 이었다. 「처리 중」 이 없어서 **관리자 넷이 같은 건을 동시에
+ * 붙잡았다** — 목록에서는 둘 다 미처리로 보이니 둘 다 손을 댄다.
+ *
+ * RESOLVED 는 종착이다. 처리한 신고는 다시 처리하지 않는다.
+ */
+export type ReportStatus = 'PENDING' | 'PROCESSING' | 'RESOLVED'
+
+const STATUS_LABEL: Record<ReportStatus, string> = {
+  PENDING: '미처리',
+  PROCESSING: '처리 중',
+  RESOLVED: '처리됨',
+}
 
 type Report = {
   id: string
@@ -85,7 +102,7 @@ type Report = {
   detail: string
   reporter: string
   at: string
-  done: boolean
+  status: ReportStatus
   /** 비밀 댓글 신고. 본문을 보려면 열람 기록을 남겨야 한다 (AD-05) */
   secret?: boolean
   /** 비밀 댓글 본문. 열기 전에는 화면에 안 뿌린다 */
@@ -103,7 +120,7 @@ const REPORTS: Report[] = [
     detail: '만나기로 한 날 연락이 끊겼습니다.',
     reporter: '밤샘예매',
     at: '2026-08-31T09:12',
-    done: false,
+    status: 'PENDING',
   },
   {
     id: 'r2',
@@ -113,7 +130,7 @@ const REPORTS: Report[] = [
     detail: '본문에 쇼핑몰 링크가 있어요.',
     reporter: '남은대댓글',
     at: '2026-08-31T11:40',
-    done: false,
+    status: 'PENDING',
   },
   {
     /* 나이 신고. 신고자가 무엇을 보았는지 적게 되어 있어(ReportSheet)
@@ -126,7 +143,7 @@ const REPORTS: Report[] = [
     detail: '댓글에 "저 중1인데 엄마가 안 된대요" 라고 적혀 있어요.',
     reporter: '조용한덕후',
     at: '2026-09-01T20:31',
-    done: false,
+    status: 'PENDING',
   },
   {
     /* 비밀 댓글 신고. 본문이 처음부터 보이면 안 된다. 채팅이 없어
@@ -134,12 +151,12 @@ const REPORTS: Report[] = [
        연락처를 보는 일이다 */
     id: 'r5',
     target: '댓글',
-    subject: '비밀 댓글 (에이티즈 팝업 오픈런 같이 하실 분)',
+    subject: '비밀 댓글 (빅뱅 전시 같이 보실 분)',
     reason: '부적절한 내용',
     detail: '비밀 댓글로 불쾌한 말을 보냈어요.',
     reporter: '밤샘예매',
     at: '2026-09-01T22:10',
-    done: false,
+    status: 'PENDING',
     secret: true,
     body: '사진 보내주시면 제가 판단해서 연락드릴게요',
   },
@@ -151,7 +168,7 @@ const REPORTS: Report[] = [
     detail: '',
     reporter: '덕질하는오리',
     at: '2026-08-30T22:05',
-    done: true,
+    status: 'RESOLVED',
     result: '문제 없음',
   },
 ]
@@ -225,10 +242,12 @@ const AUDIT: AuditEntry[] = [
 
 type Tab = 'reports' | 'sanctions' | 'audit'
 
-const TABS: { key: Tab; label: string; spec: string }[] = [
-  { key: 'reports', label: '신고', spec: 'AD-02 · AD-03 · AD-07' },
-  { key: 'sanctions', label: '제재', spec: 'AD-04' },
-  { key: 'audit', label: '기록', spec: 'AD-05' },
+/* 명세 번호(AD-02 …)는 안 적는다. 우리 문서의 줄 번호라 쓰는
+   사람에게는 아무 뜻이 없고, 문서가 바뀌면 화면이 거짓말을 한다 */
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'reports', label: '신고' },
+  { key: 'sanctions', label: '제재' },
+  { key: 'audit', label: '기록' },
 ]
 
 export default function Admin() {
@@ -239,7 +258,19 @@ export default function Admin() {
      그래서 **막히는 화면이 어떻게 생겼는지만 먼저 만들어 둔다.**
      실제 판정은 서버가 한다. 화면이 판정하면 이 상태를 뒤집는 것으로
      그냥 뚫린다 */
-  const [admin, setAdmin] = useState(true)
+  /*
+   * 관리자인가 (AD-06).
+   *
+   * 로그인은 카카오 하나로 하고 역할만 얹는다 (2026-09-05 결정).
+   * 서버가 /users/me 에 role 을 실어 주고 화면은 그것만 본다.
+   *
+   * **화면이 판정하지 않는다.** 여기서 정하면 이 상태를 뒤집는 것으로
+   * 그냥 뚫린다. 백오피스 API 자체도 서버가 막아야 하고, 이 화면은
+   * 못 들어가는 사람에게 무엇을 보여줄지만 정한다.
+   */
+  const [devAdmin, setDevAdmin] = useState(true)
+  const { isAdmin } = useViewer({ role: 'guest', userId: null, sanction: null })
+  const admin = USE_API ? !!isAdmin : devAdmin
   const [tab, setTab] = useState<Tab>('reports')
 
   const [only, setOnly] = useState(true)
@@ -277,16 +308,33 @@ export default function Admin() {
       ...prev,
     ])
 
-  /** 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다 */
+  /**
+   * 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다.
+   *
+   * **감사 로그에 남기지 않는다** (2026-09-05). 처리 이력은 신고 자체가
+   * 들고 있고, 감사 로그는 개인정보·비공개 내용 접근과 계정 불이익만
+   * 담는다. 양쪽에 남기면 같은 사실이 두 곳에 적힌다.
+   */
+  /**
+   * 붙잡거나 놓는다 (PROCESSING ↔ PENDING).
+   *
+   * **감사 로그에 남기지 않는다.** 계정에 불이익을 주는 행위가 아니고,
+   * 누가 집었다 놓았다를 기록해봐야 읽을 사람이 없다.
+   */
+  const take = (r: Report, status: ReportStatus) => {
+    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, status } : x)))
+  }
+
   const close = (r: Report, result: string) => {
-    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, done: true, result } : x)))
-    log('REPORT', `${r.target} · ${r.subject}`, `${r.reason} · ${result}`)
+    setReports((prev) =>
+      prev.map((x) => (x.id === r.id ? { ...x, status: 'RESOLVED' as const, result } : x)),
+    )
   }
 
   /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
      순서대로 오래된 것이 위에 남는다 */
   const list = reports
-    .filter((r) => (only ? !r.done : true))
+    .filter((r) => (only ? r.status !== 'RESOLVED' : true))
     .sort((a, b) => (a.at < b.at ? 1 : -1))
 
   /* 제재 목록도 최근 것이 위다. 오래된 정지는 곧 저절로 풀린다 */
@@ -302,7 +350,7 @@ export default function Admin() {
           <span className="bo__logo">
             덕모임 <b>백오피스</b>
           </span>
-          <DevWho admin={admin} onPick={setAdmin} />
+          {!USE_API && <DevWho admin={devAdmin} onPick={setDevAdmin} />}
         </header>
         <main className="bo__body">
           <div className="bo__deny">
@@ -320,7 +368,7 @@ export default function Admin() {
         <span className="bo__logo">
           덕모임 <b>백오피스</b>
         </span>
-        <DevWho admin={admin} onPick={setAdmin} />
+        {!USE_API && <DevWho admin={devAdmin} onPick={setDevAdmin} />}
       </header>
 
       {/* 탭. 셋 다 운영자가 번갈아 보는 것이라 화면을 나누지 않는다.
@@ -335,7 +383,6 @@ export default function Admin() {
             onClick={() => setTab(t.key)}
           >
             {t.label}
-            <span className="bo__tspec">{t.spec}</span>
           </button>
         ))}
       </nav>
@@ -404,16 +451,37 @@ export default function Admin() {
                         <td className="bo__dim">{r.reporter}</td>
                         <td className="bo__dim bo__when">{readable(r.at)}</td>
                         <td className="bo__actcol">
-                          {r.done ? (
+                          {r.status === 'RESOLVED' ? (
                             /* 처리한 신고는 다시 처리하지 않는다 (AD-03).
                                결과를 배지 옆에 남겨야 나중에 왜 그렇게
                                됐는지 알 수 있다 */
                             <span className="bo__acts">
-                              <Badge state="off">처리됨</Badge>
+                              <Badge state="off">{STATUS_LABEL.RESOLVED}</Badge>
                               {r.result && <span className="bo__result">{r.result}</span>}
                             </span>
                           ) : (
                             <span className="bo__acts">
+                              {/* 붙잡았다는 표시. 이것이 없으면 관리자 넷이
+                                  같은 건에 동시에 손을 댄다. 되돌릴 수도
+                                  있어야 한다 — 열어보고 내 건이 아니면
+                                  놓아야 다른 사람이 집는다 */}
+                              {r.status === 'PROCESSING' ? (
+                                <button
+                                  type="button"
+                                  className="bo__hold bo__hold--on"
+                                  onClick={() => take(r, 'PENDING')}
+                                >
+                                  {STATUS_LABEL.PROCESSING}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="bo__hold"
+                                  onClick={() => take(r, 'PROCESSING')}
+                                >
+                                  맡기
+                                </button>
+                              )}
                               <Button size="sm" tone="ghost" onClick={() => close(r, '문제 없음')}>
                                 문제 없음
                               </Button>

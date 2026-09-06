@@ -169,10 +169,10 @@ function districtOf(address, tags = '') {
 function subjectTypeOf(rec) {
   const cats = rec.categories.join(' ')
   const tags = rec.tags.join(' ')
-  if (/애니|캐릭터|게임/.test(cats)) return 'character'
-  if (/버추얼|버튜버|플레이브|VTuber/i.test(`${cats} ${tags}`)) return 'virtual'
-  if (/배우|드라마|영화/.test(cats)) return 'actor'
-  return 'idol'
+  if (/애니|캐릭터|게임/.test(cats)) return 'CHARACTER'
+  if (/버추얼|버튜버|플레이브|VTuber/i.test(`${cats} ${tags}`)) return 'VIRTUAL'
+  if (/배우|드라마|영화/.test(cats)) return 'ACTOR'
+  return 'IDOL'
 }
 
 function toEvent(rec, artist) {
@@ -203,7 +203,7 @@ function toEvent(rec, artist) {
       lat: rec.latitude,
       lng: rec.longitude,
       district: districtOf(address, rec.tags.join(' ')),
-      kind: cafe ? 'cafe' : 'popup_venue',
+      kind: cafe ? 'CAFE' : 'POPUP_VENUE',
     },
     // 카드에는 대상명이 앞에 와야 한다.
     // 생카는 제목 앞쪽이 대상명이고, 팝업은 매칭된 아티스트명을 쓴다 
@@ -211,7 +211,7 @@ function toEvent(rec, artist) {
     subject: cafe?.subject ?? artist ?? rec.title.replace(/\s*팝업(\s*스토어)?\s*$/, '').trim(),
     title: rec.title,
     subjectType: subjectTypeOf(rec),
-    kind: cafe ? 'birthday_cafe' : 'popup',
+    kind: cafe ? 'BIRTHDAY_CAFE' : 'POPUP',
     startsOn: rec.openDate,
     endsOn: rec.closeDate,
     ...(rec.operationTime?.length ? { openHours: rec.operationTime.join(' / ') } : {}),
@@ -227,7 +227,7 @@ function toEvent(rec, artist) {
     ...(rec.notice ? { conditions: rec.notice } : {}),
     // 팝가가 정리한 것을 우리가 다시 정리했다. 공식 채널에서 직접 받은 것이 아니므로
     // official 로 올리지 않는다 (poc-plan 1번 정합성 교란 방어)
-    trust: 'parsed',
+    trust: 'PARSED',
     goods: [],
   }
 }
@@ -263,13 +263,13 @@ function offmateToEvent(rec) {
       lat: rec.latitude,
       lng: rec.longitude,
       district: districtOf(address),
-      kind: 'cafe',
+      kind: 'CAFE',
     },
     // 멤버명이 대상이다. 그룹명은 검색·필터에서 쓰이도록 제목에 남긴다
     subject: rec.memberName ?? rec.groupName ?? rec.name ?? '',
     title: [rec.groupName, rec.memberName, rec.name].filter(Boolean).join(' · '),
-    subjectType: 'idol',
-    kind: 'birthday_cafe',
+    subjectType: 'IDOL',
+    kind: 'BIRTHDAY_CAFE',
     startsOn: rec.startDate,
     endsOn: rec.endDate,
     ...(hours ? { openHours: hours } : {}),
@@ -278,7 +278,7 @@ function offmateToEvent(rec) {
     sourceUrl: host ?? rec.source_url,
     ...(host ? { listingUrl: rec.source_url } : {}),
     ...(rec.images?.[0] ? { imageUrl: rec.images[0] } : {}),
-    trust: rec.isHostVerified ? 'partner' : 'parsed',
+    trust: rec.isHostVerified ? 'PARTNER' : 'PARSED',
     goods: [],
   }
 }
@@ -353,7 +353,7 @@ writeFileSync(OUT, JSON.stringify(events, null, 2) + '\n', 'utf8')
 const byDistrict = {}
 for (const e of events) byDistrict[e.place.district] = (byDistrict[e.place.district] ?? 0) + 1
 
-const popupCount = events.filter((e) => e.kind === 'popup').length
+const popupCount = events.filter((e) => e.kind === 'POPUP').length
 
 console.log(
   `팝가 ${popgaRecords.length} + 오프메이트 ${offmateRecords.length} → ` +
