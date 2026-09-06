@@ -4,6 +4,7 @@ import { getAllEvents } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
+import { knownSubject, knownSubjectNames } from '@/lib/known-subjects'
 import { SubjectList } from './SubjectList'
 
 /**
@@ -18,6 +19,12 @@ import { SubjectList } from './SubjectList'
  * 해시가 맞고, 이 페이지는 밖에서 들어오는 입구다.
  * route.ts 는 'use client' 라 서버 컴포넌트에서 부를 수 없어
  * 해시 문자열을 여기서 직접 만든다.
+ *
+ * **행사가 끝나도 주소는 산다.** events.json 은 끝난 것을 지우므로 그것만
+ * 보고 주소를 만들면 마지막 생카가 끝난 날 페이지가 통째로 사라진다. 이미
+ * 뿌린 링크가 전부 404 가 된다는 뜻이다. 그래서 원장(known-subjects)에
+ * 이름을 남겨 두고, 열린 곳이 없으면 빈 화면을 보여준다. 지난 행사를
+ * 목록에 되살리는 것이 아니다 — 끝났다고 알리는 화면이다.
  *
  * 포스터를 싣지 않는다. CLAUDE.md, "일정은 저작물이 아니지만 포스터는 저작물이다."
  * 클래스는 globals.css 의 기존 어휘(sheet/dlist/drow)를 그대로 쓴다.
@@ -38,9 +45,18 @@ async function bySubject(): Promise<Map<string, EventItem[]>> {
   return m
 }
 
+/**
+ * 만들어 둘 주소.
+ *
+ * 지금 열린 대상 ∪ 원장에 남은 대상이다. 원장을 빼면 끝난 대상이 404 가
+ * 되고, `dynamicParams` 를 켜면 `/a/아무말이나` 가 전부 200 이 되어
+ * 색인 쓰레기가 쌓인다. 둘 사이의 답이 이 합집합이다.
+ */
 export async function generateStaticParams() {
+  const live = [...(await bySubject()).keys()]
+  const keys = [...new Set([...live, ...knownSubjectNames()])]
+
   // 한글 주소와 ASCII 별칭 둘 다 만든다. X 가 한글 앞에서 링크를 끊는다
-  const keys = [...(await bySubject()).keys()]
   const out = keys.map((subject) => ({ subject }))
   for (const [subject, slug] of Object.entries(SUBJECT_SLUGS)) {
     if (keys.includes(subject)) out.push({ subject: slug })
@@ -48,10 +64,17 @@ export async function generateStaticParams() {
   return out
 }
 
+/**
+ * 주소 조각 → 대상과 그 대상의 열린 행사.
+ *
+ * `events` 가 빈 배열인 것과 `null` 인 것은 다르다. 빈 배열은 「있었는데
+ * 지금은 없다」 이고 200 이다. `null` 은 「한 번도 없었다」 이고 404 다.
+ * 이 구분이 없으면 아무 문자열이나 200 이 되어 색인 쓰레기가 쌓인다.
+ */
 async function find(raw: string): Promise<{ subject: string; events: EventItem[] } | null> {
   const subject = resolveSubject(raw)
   const events = (await bySubject()).get(subject)
-  if (!events) return null
+  if (!events) return knownSubject(subject) ? { subject, events: [] } : null
   // 마감 임박 순. 목록 화면과 같은 축이라야 두 화면이 같은 것을 말한다
   return { subject, events: [...events].sort((a, b) => a.endsOn.localeCompare(b.endsOn)) }
 }
@@ -95,13 +118,17 @@ function groupOf(subject: string, events: EventItem[]): string | null {
   return null
 }
 
+/** '2026-09-06' → '9월 6일'. Date 로 왕복하지 않는다 (CLAUDE.md) */
+function dayLabel(d: string): string {
+  return `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일`
+}
+
 /** 여는 날부터 닫는 날까지 */
 function periodOf(events: EventItem[]): string {
   const days = events.map((e) => e.endsOn ?? e.startsOn)
   const from = events.map((e) => e.startsOn).sort()[0]
   const to = days.sort()[days.length - 1]
-  const label = (d: string) => `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일`
-  return from === to ? label(from) : `${label(from)}~${label(to)}`
+  return from === to ? dayLabel(from) : `${dayLabel(from)}~${dayLabel(to)}`
 }
 
 /**
@@ -119,6 +146,22 @@ const SEARCH_KIND: Record<string, string> = {
   CONCERT: '콘서트',
 }
 
+/**
+ * 열린 곳이 없을 때 쓸 말.
+ *
+ * 원장이 마지막 종료일과 유형을 들고 있어서 「생카는 9월 6일에 끝났어요」
+ * 까지 말할 수 있다. 그냥 「없어요」 보다 낫다 — 주소를 잘못 눌렀는지
+ * 행사가 끝난 것인지 구분되기 때문이다.
+ */
+function emptyCopy(subject: string) {
+  const known = knownSubject(subject)
+  const kind = known ? EVENT_KIND_LABELS[known.kind] : '생카'
+  return {
+    kind,
+    ended: known ? dayLabel(known.lastEndsOn) : null,
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -129,6 +172,25 @@ export async function generateMetadata({
   if (!hit) return {}
 
   const { subject, events } = hit
+
+  /*
+   * 열린 곳이 없으면 색인에서 뺀다.
+   *
+   * 200 이어야 이미 뿌린 X 링크가 살지만, 내용 없는 페이지가 색인되면
+   * 사이트 전체 품질이 깎인다. 링크를 살리는 것과 검색에 내놓는 것은
+   * 다른 일이다. 대상이 돌아오면 noindex 가 저절로 풀린다.
+   */
+  if (events.length === 0) {
+    const { kind, ended } = emptyCopy(subject)
+    return {
+      title: `${subject} ${kind} — 지금 열린 곳 없음`,
+      description: ended
+        ? `${subject} ${kind}는 ${ended}에 끝났어요. 오늘 서울에서 열리는 곳을 보세요.`
+        : `${subject} ${kind}는 지금 열린 곳이 없어요.`,
+      robots: { index: false, follow: true },
+      alternates: { canonical: `/a/${encodeURIComponent(subject)}` },
+    }
+  }
   const kinds = new Set(events.map((e) => e.kind))
   const kindLabel =
     kinds.size === 1 ? EVENT_KIND_LABELS[events[0].kind] : '생카·팝업'
@@ -179,6 +241,8 @@ export default async function SubjectPage({
   if (!hit) notFound()
 
   const { subject, events } = hit
+  if (events.length === 0) return <SubjectEmpty subject={subject} />
+
   const kinds = new Set(events.map((e) => e.kind))
   const kindLabel = kinds.size === 1 ? EVENT_KIND_LABELS[events[0].kind] : '생카·팝업'
 
@@ -229,6 +293,45 @@ export default async function SubjectPage({
               {' · '}
               <a href="/">전체 목록</a>
             </p>
+          </div>
+        </article>
+      </main>
+    </div>
+  )
+}
+
+/**
+ * 있었는데 지금은 없는 대상.
+ *
+ * **지난 행사를 나열하지 않는다.** 끝난 것을 다시 보여주면 사용자가
+ * 헛걸음한다 (poc-plan 4.3). 여기서 할 일은 끝났다고 알리고 오늘 열리는
+ * 곳으로 보내는 것뿐이다.
+ *
+ * 지도 링크(`#/q/이름`)도 걸지 않는다. 눌러도 결과가 없는 화면으로
+ * 보내면 같은 말을 두 번 하게 된다.
+ */
+function SubjectEmpty({ subject }: { subject: string }) {
+  const { kind, ended } = emptyCopy(subject)
+
+  return (
+    <div className="app">
+      <main className="main">
+        <article className="sheet sheet--page">
+          <div className="sheet__head">
+            <h1>{subject}</h1>
+          </div>
+
+          <div className="sheet__body">
+            <div className="subjgone">
+              <p className="subjgone__lead">
+                {subject} {kind}는 지금 열린 곳이 없어요
+              </p>
+              {ended && <p className="subjgone__when">마지막 행사가 {ended}에 끝났어요</p>}
+
+              <a className="btn btn--primary btn--block" href="/">
+                오늘 열리는 곳 보기
+              </a>
+            </div>
           </div>
         </article>
       </main>
