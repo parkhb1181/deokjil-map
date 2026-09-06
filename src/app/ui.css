@@ -3175,3 +3175,22 @@
   font-size: var(--t-small);
   color: var(--text-mute);
 }
+
+/* 있었는데 지금은 없는 대상 (/a/<이름>).
+   끝난 행사를 나열하는 자리가 아니라 끝났다고 알리는 자리라, 목록처럼
+   보이지 않게 가운데로 모으고 다음 갈 곳 하나만 크게 둔다 */
+.subjgone {
+  padding: 40px var(--gutter) 24px;
+  text-align: center;
+}
+.subjgone__lead {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: var(--text);
+}
+.subjgone__when {
+  margin-top: 6px;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
+.subjgone .btn { margin-top: 22px; }

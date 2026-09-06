@@ -10,6 +10,7 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
+import { LEDGER_PATH, mergeLedger } from './known-subjects.mjs'
 
 const args = process.argv.slice(2)
 const OUT = args.includes('--out') ? args[args.indexOf('--out') + 1] : 'src/data/events.json'
@@ -349,6 +350,24 @@ events.sort((a, b) => (a.startsOn < b.startsOn ? -1 : 1))
 
 mkdirSync(dirname(OUT), { recursive: true })
 writeFileSync(OUT, JSON.stringify(events, null, 2) + '\n', 'utf8')
+
+/**
+ * 대상 원장을 얹는다.
+ *
+ * 위 events 에는 끝난 행사가 없다. 그래서 이 파일을 안 남기면 마지막
+ * 행사가 끝난 대상의 주소가 다음 빌드에서 사라지고, 이미 뿌린 링크가
+ * 그날 404 가 된다. 왜 이렇게 하는지는 known-subjects.mjs 에 적었다.
+ *
+ * --out 으로 다른 곳에 뽑아보는 중이면 건드리지 않는다. 실험이 진짜
+ * 원장을 덮으면 되돌릴 수 없다 — 지운 이름은 다시 안 돌아온다.
+ */
+if (OUT === 'src/data/events.json') {
+  const before = existsSync(LEDGER_PATH) ? JSON.parse(readFileSync(LEDGER_PATH, 'utf8')) : {}
+  const ledger = mergeLedger(before, events)
+  writeFileSync(LEDGER_PATH, JSON.stringify(ledger, null, 2) + '\n', 'utf8')
+  const added = Object.keys(ledger).length - Object.keys(before).length
+  console.log(`대상 원장 ${Object.keys(ledger).length}명` + (added ? ` (신규 ${added})` : ''))
+}
 
 const byDistrict = {}
 for (const e of events) byDistrict[e.place.district] = (byDistrict[e.place.district] ?? 0) + 1

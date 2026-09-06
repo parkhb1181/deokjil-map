@@ -5,6 +5,7 @@ import { getAllEvents } from '@/lib/events-source'
 import type { EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { SUBJECT_SLUGS, resolveSubject } from '@/lib/subject-slug'
+import { knownSubject, knownSubjectNames } from '@/lib/known-subjects'
 import { pickShots } from '@/lib/og-picks'
 
 export const size = { width: 1200, height: 630 }
@@ -47,8 +48,15 @@ const SHOT_H = 400
  */
 const OG_CACHE = '.og-cache'
 
+/**
+ * page.tsx 의 generateStaticParams 와 같은 집합이어야 한다.
+ *
+ * 페이지만 살리고 여기를 안 맞추면 주소는 200 인데 카드 이미지가 404 라,
+ * X 에 이미 붙어 있던 미리보기가 깨진 채로 남는다. 링크를 살리려던 일이
+ * 절반만 된다.
+ */
 export async function generateStaticParams() {
-  const seen = new Set<string>()
+  const seen = new Set<string>(knownSubjectNames())
   for (const ev of await getAllEvents()) {
     const k = ev.subject.trim()
     if (k) seen.add(k)
@@ -87,9 +95,21 @@ export default async function Image({ params }: { params: Promise<{ subject: str
   const subject = resolveSubject(raw)
   const events = (await getAllEvents()).filter((e) => e.subject.trim() === subject)
 
+  /*
+   * 열린 곳이 없을 수 있다. 행사가 끝나도 주소는 살려 두기 때문이다
+   * (page.tsx 머리 주석). 그때 "생카 0곳" 이라고 쓴 카드가 나가면
+   * 링크를 살린 보람이 없으므로, 유형은 원장에서 가져오고 숫자 대신
+   * '지금은 없어요' 를 넣는다.
+   */
+  const gone = events.length === 0
+  const known = knownSubject(subject)
+
   const kinds = new Set(events.map((e) => e.kind))
-  const kindLabel =
-    kinds.size === 1 ? EVENT_KIND_LABELS[events[0]?.kind ?? 'BIRTHDAY_CAFE'] : '생카·팝업'
+  const kindLabel = gone
+    ? EVENT_KIND_LABELS[known?.kind ?? 'BIRTHDAY_CAFE']
+    : kinds.size === 1
+      ? EVENT_KIND_LABELS[events[0].kind]
+      : '생카·팝업'
 
   const byDistrict = new Map<string, number>()
   for (const ev of events) {
@@ -181,7 +201,7 @@ export default async function Image({ params }: { params: Promise<{ subject: str
               단위를 여기 붙일 수 있는 것은 이름과 떨어져 있어서다.
               이름 바로 뒤에 '곳' 이 오면 그 사람을 센 것처럼 읽힌다 */}
           <div style={{ display: 'flex', fontSize: 28, color: '#b41f5c' }}>
-            {kindLabel} {events.length}곳
+            {gone ? `${kindLabel} 지금은 없어요` : `${kindLabel} ${events.length}곳`}
           </div>
 
           <div
@@ -206,7 +226,11 @@ export default async function Image({ params }: { params: Promise<{ subject: str
             }}
           >
             <div style={{ display: 'flex', fontSize: 27, color: '#8a5a70' }}>
-              {tags.join('  ·  ')}
+              {gone
+                ? known
+                  ? `${Number(known.lastEndsOn.slice(5, 7))}월 ${Number(known.lastEndsOn.slice(8, 10))}일에 끝났어요`
+                  : ''
+                : tags.join('  ·  ')}
             </div>
             <div
               style={{
