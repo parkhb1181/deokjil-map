@@ -66,6 +66,59 @@ function districtSummary(events: EventItem[]): string {
     .join(' · ')
 }
 
+/** 지역 이름만. 제목에 넣을 것이라 개수는 뺀다 */
+function districtNames(events: EventItem[], max: number): string {
+  const c = new Map<string, number>()
+  for (const ev of events) c.set(ev.place.district, (c.get(ev.place.district) ?? 0) + 1)
+  return [...c.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, max)
+    .map(([d]) => DISTRICT_LABELS[d as keyof typeof DISTRICT_LABELS] ?? d)
+    .join('·')
+}
+
+/**
+ * 대상이 속한 그룹. 수집원이 `그룹 · 대상 · 행사명` 으로 준다.
+ *
+ * 없을 수 있다. 팝업은 이 형식이 아니고(`토리든 팝업`), 솔로는 그룹 자리가
+ * 비어 `이영지 · 백마 탄 영지님의 탄신연회` 처럼 두 토막으로 온다.
+ * RIIZE 처럼 그룹과 대상이 같은 것도 있다. 그런 경우 그냥 뺀다.
+ * "이영지(이영지)" 는 안 넣느니만 못하다.
+ */
+function groupOf(subject: string, events: EventItem[]): string | null {
+  for (const ev of events) {
+    const parts = (ev.title ?? '').split(' · ')
+    if (parts.length < 2) continue
+    const head = parts[0].trim()
+    if (head && head !== subject) return head
+  }
+  return null
+}
+
+/** 여는 날부터 닫는 날까지 */
+function periodOf(events: EventItem[]): string {
+  const days = events.map((e) => e.endsOn ?? e.startsOn)
+  const from = events.map((e) => e.startsOn).sort()[0]
+  const to = days.sort()[days.length - 1]
+  const label = (d: string) => `${Number(d.slice(5, 7))}월 ${Number(d.slice(8, 10))}일`
+  return from === to ? label(from) : `${label(from)}~${label(to)}`
+}
+
+/**
+ * 검색어에 맞춘 유형 이름.
+ *
+ * 화면에는 `생카` 로 쓰지만 **검색은 `생일카페` 로 친다.** 우리 제목이
+ * `현석 생카 12` 하나뿐이라 "현석 생일카페" 검색 1페이지에 한 건도 안
+ * 잡혔다. 그 자리는 같은 대상 페이지를 가진 오프메이트와 덕플레이스가
+ * 나눠 갖고 있고, 둘 다 제목에 연도·그룹·"생일카페"·"지도"를 넣는다
+ * (2026-09-06 실측).
+ */
+const SEARCH_KIND: Record<string, string> = {
+  BIRTHDAY_CAFE: '생일카페',
+  POPUP: '팝업',
+  CONCERT: '콘서트',
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -82,15 +135,37 @@ export async function generateMetadata({
 
   // 이름 뒤에 단위를 붙이지 않는다. 세는 대상은 카페인데 '정국 22곳' 은
   // 정국을 센 것처럼 읽힌다. 유형을 사이에 넣어 무엇을 세는지 분명히 한다
-  const title = `${subject} ${kindLabel} ${events.length}`
-  const description = `${districtSummary(events)}. 장소와 기간을 지도와 목록으로 모아 봅니다. 매일 갱신.`
+  const searchKind = kinds.size === 1 ? (SEARCH_KIND[events[0].kind] ?? kindLabel) : '생일카페·팝업'
+  const group = groupOf(subject, events)
+  const year = (events.map((e) => e.startsOn).sort()[0] ?? '').slice(0, 4)
+
+  /**
+   * 검색 제목과 공유 카드 제목을 나눈다.
+   *
+   * 검색은 팬이 치는 말을 다 담아야 걸린다 — 연도, 그룹, `생일카페`,
+   * 개수, 지역. 반면 이 문구가 그대로 X 카드에 붙으면 트윗 밑에 긴 줄이
+   * 하나 더 생겨 지저분하다. 카드는 이미 이미지에 큰 글씨로 이름과
+   * 개수가 박혀 있어서 짧아도 된다.
+   */
+  const title = [
+    year,
+    group ? `${subject}(${group})` : subject,
+    `${searchKind} ${events.length}곳`,
+    `— ${districtNames(events, 2)} ${kindLabel} 지도`,
+  ].join(' ')
+  const shareTitle = `${subject} ${searchKind} ${events.length}곳`
+
+  const kindPhrase = searchKind === kindLabel ? searchKind : `${searchKind}(${kindLabel})`
+  const description =
+    `${group ? `${group} ` : ''}${subject} ${kindPhrase} ${events.length}곳을 지도에 모았어요. ` +
+    `${districtSummary(events)}, ${periodOf(events)}. 주최자 공지 기반으로 매일 갱신합니다.`
 
   return {
     title,
     description,
     alternates: { canonical: `/a/${encodeURIComponent(subject)}` },
-    openGraph: { type: 'website', title, description, locale: 'ko_KR' },
-    twitter: { card: 'summary_large_image', title, description },
+    openGraph: { type: 'website', title: shareTitle, description, locale: 'ko_KR' },
+    twitter: { card: 'summary_large_image', title: shareTitle, description },
   }
 }
 
