@@ -32,7 +32,7 @@ import { Avatar, Badge, Blank, Button, Sheet, Tabs } from '@/components/ui/Basic
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { canWrite, isBlocked, isClosed, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, LAST_SEEN_LABEL, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 import { shortTime as whenShort } from '@/lib/when'
 
@@ -73,14 +73,19 @@ export type MyComment = {
 /**
  * 프로필에 싣는 값.
  *
- * **마지막 활동 시각과 가입월을 뺐다.** 「3일 이내 활동」 · 「2026년 6월
- * 가입」 이 그것이다. 둘 다 낯선 사람이 나를 가늠하는 데 쓰라고 둔
- * 값인데, 실제로는 그 사람이 언제 접속하는지와 얼마나 오래 있었는지를
- * 남에게 알려준다. 연령대를 공개 프로필에서 뺀 것과 같은 이유다.
- * 쓰지도 않을 것을 내보이면 잃을 것만 늘어난다.
+ * **가입월은 없다.** 「2026년 6월 가입」 은 낯선 사람이 나를 가늠하는 데
+ * 쓰라고 둔 값인데, 실제로 하는 일은 내가 얼마나 오래 있었는지를 남에게
+ * 알려주는 것이다. 연령대를 공개 프로필에서 뺀 것과 같은 이유로 뺐다.
  *
- * 타입에서도 뺀다. 화면에서만 가리고 응답에 남겨두면 개발자 도구로
- * 그냥 읽힌다. 서버가 애초에 안 보내야 한다.
+ * **최근 접속일(`lastSeen`)은 남긴다.** 한때 같은 이유로 뺐다가
+ * 되돌렸다 (09-03). 계약이 이걸 공개 프로필의 필수 항목으로 두는데
+ * (AU-09), 우리가 걱정하던 활동 패턴 추적은 계약도 같이 막고 있었다 —
+ * 원본 시각을 안 내리고 다섯 구간으로만 내린다 (도메인 7.2).
+ * 방향이 같아서 뺄 이유가 없었다.
+ *
+ * 그리는 자리는 **남의 프로필뿐이다.** 낯선 사람이 이 사람에게 말을
+ * 걸어도 답이 올지 가늠하는 값이라, 내 화면에서는 나에 대해 아무것도
+ * 알려주지 않는다.
  */
 export type ProfileData = {
   id: string
@@ -297,7 +302,13 @@ export default function ProfileView({
                 <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} />
                 <div className="prof__idmain">
                   <h1 className="prof__name">{user.nickname}</h1>
-                  {/* 활동 시각과 가입월을 뺐다. 이유는 ProfileData 주석에 */}
+                  {/* 최근 접속일만 둔다. 가입월은 안 싣는다 —
+                      이유는 ProfileData 주석에 */}
+                  {user.lastSeen && (
+                    <p className="prof__meta meta">
+                      <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
