@@ -7,7 +7,7 @@ import { ApiFailure } from './http'
  * **왜 이 파일이 따로 있나.**
  *
  * 에러 처리를 부르는 자리마다 쓰면 같은 코드에 다른 문장이 붙는다.
- * `NICKNAME_DUPLICATED` 가 가입에서는 "이미 쓰고 있는 닉네임이에요",
+ * `USER_NICKNAME_DUPLICATED` 가 가입에서는 "이미 쓰고 있는 닉네임이에요",
  * 프로필 수정에서는 "중복된 닉네임입니다" 가 되는 식이다. 사용자는
  * 같은 일을 당했는데 화면마다 다른 말을 듣는다.
  *
@@ -19,7 +19,7 @@ import { ApiFailure } from './http'
  *
  * 백엔드가 응답 봉투를 `{code, message}` 둘로 가기로 했고 (PR #16),
  * 그래도 되는 이유는 **에러 코드가 이미 칸을 특정하기 때문이다.**
- * `UNDER_MINIMUM_AGE` 는 출생연도, `POST_CAPACITY_OUT_OF_RANGE` 는
+ * `USER_UNDER_MINIMUM_AGE` 는 출생연도, `POST_CAPACITY_OUT_OF_RANGE` 는
  * 정원이다. 코드 하나에 칸 하나가 붙으니 따로 알려줄 것이 없다.
  *
  * 그래서 아래 표가 `code → 어느 칸 · 무슨 문장` 을 들고 있다.
@@ -73,15 +73,24 @@ type Rule =
  * `USER_SANCTIONED` 만 예외인데, 제재 사유는 본인에게 보여주기로
  * 정한 정보라 서버가 보낸 것을 그대로 쓴다 (AD-04 · AU-12).
  */
+/*
+ * 코드 이름은 계약이 정한다 — `{도메인}_{상황}` 대문자 스네이크다
+ * (API 컨벤션). 한동안 앞의 도메인을 빼고 `EXPIRED_ACCESS_TOKEN` 처럼
+ * 적고 있었다. 서버가 `AUTH_ACCESS_TOKEN_EXPIRED` 를 보내면 이 표가
+ * 못 찾아서, 닉네임 중복이 입력칸 밑이 아니라 위쪽 띠로 뜬다.
+ * 조용히 어긋나는 종류라 계약 표(API 설계 4장)와 글자를 맞춰 둔다.
+ */
 const RULES: Record<string, Rule> = {
   /* 인증 (AuthErrorCode) */
-  INVALID_REFRESH_TOKEN: { at: 'login', text: '다시 로그인해주세요' },
-  EXPIRED_ACCESS_TOKEN: { at: 'login', text: '다시 로그인해주세요' },
+  AUTH_REFRESH_TOKEN_INVALID: { at: 'login', text: '다시 로그인해주세요' },
+  AUTH_ACCESS_TOKEN_EXPIRED: { at: 'login', text: '다시 로그인해주세요' },
 
   /* 회원 (UserErrorCode) */
-  NICKNAME_DUPLICATED: { field: 'nickname', text: '이미 쓰고 있는 닉네임이에요' },
-  SIGNUP_INFO_REQUIRED: { at: 'signup', text: '닉네임과 출생연도를 먼저 입력해주세요' },
-  UNDER_MINIMUM_AGE: { field: 'birthYear', text: '가입할 수 있는 나이가 아니에요' },
+  USER_NICKNAME_DUPLICATED: { field: 'nickname', text: '이미 쓰고 있는 닉네임이에요' },
+  USER_SIGNUP_INFO_REQUIRED: { at: 'signup', text: '닉네임과 출생연도를 먼저 입력해주세요' },
+  /* 가입 정보를 두 번 넣으려 할 때. 출생연도가 잠겨 있다 (AU-08) */
+  USER_SIGNUP_INFO_ALREADY_SET: { at: 'reload', text: '이미 입력한 가입 정보예요' },
+  USER_UNDER_MINIMUM_AGE: { field: 'birthYear', text: '가입할 수 있는 나이가 아니에요' },
   USER_SANCTIONED: { at: 'sanction' },
   USER_NOT_FOUND: { at: 'banner', text: '없는 사용자예요' },
 
@@ -90,7 +99,7 @@ const RULES: Record<string, Rule> = {
   POST_ALREADY_CLOSED: { at: 'reload', text: '모집이 끝난 글이에요' },
   POST_NOT_HOST: { at: 'banner', text: '방장만 할 수 있어요' },
   POST_CAPACITY_OUT_OF_RANGE: { field: 'capacity', text: '2명에서 6명까지 모을 수 있어요' },
-  MEET_AT_AFTER_EVENT_END: { field: 'meetAt', text: '행사가 끝난 뒤로는 잡을 수 없어요' },
+  POST_MEET_AT_AFTER_EVENT_END: { field: 'meetAt', text: '행사가 끝난 뒤로는 잡을 수 없어요' },
 
   /* 댓글 (CommentErrorCode) */
   COMMENT_NOT_FOUND: { at: 'reload', text: '이미 지워진 댓글이에요' },
@@ -100,10 +109,18 @@ const RULES: Record<string, Rule> = {
 
   /* 신고 (ReportErrorCode) */
   REPORT_DUPLICATED: { at: 'banner', text: '이미 신고한 건이에요' },
-  INVALID_REPORT_REASON: { field: 'reason', text: '신고 사유를 골라주세요' },
+  REPORT_REASON_INVALID: { field: 'reason', text: '신고 사유를 골라주세요' },
+  /* 백오피스에서 이미 종결한 신고를 다시 처리하려 할 때 (AD-03) */
+  REPORT_ALREADY_HANDLED: { at: 'reload', text: '이미 처리된 신고예요' },
 
-  /* 공통 */
+  /* 공통 (CommonErrorCode) */
   INVALID_INPUT: { at: 'banner', text: '입력한 내용을 다시 확인해주세요' },
+  /*
+   * 아래 둘은 사용자가 고칠 것이 없는 우리 잘못이다. 무엇이 잘못됐는지
+   * 설명해봐야 할 수 있는 것이 없으므로 「다시 해보세요」 로 끝낸다.
+   */
+  ENDPOINT_NOT_FOUND: { at: 'banner', text: '잠시 문제가 생겼어요. 다시 시도해주세요' },
+  INTERNAL_ERROR: { at: 'banner', text: '서버에 문제가 생겼어요. 잠시 뒤 다시 시도해주세요' },
   NETWORK: { at: 'banner', text: '연결이 불안정해요. 잠시 뒤 다시 시도해주세요' },
   /*
    * 서버 주소가 안 채워졌다. 개발 중에만 나오고 배포에서는 안 나온다.
