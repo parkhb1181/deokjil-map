@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
    */
   env: {
     NEXT_PUBLIC_WIREFRAME: process.env.NEXT_PUBLIC_WIREFRAME ?? '0',
+    /* 같은 이유로 기본값을 박는다. 비면 events.json 을 읽는다 (lib/api/config.ts) */
+    NEXT_PUBLIC_EVENTS_FROM_API: process.env.NEXT_PUBLIC_EVENTS_FROM_API ?? '0',
   },
   /**
    * sharp 는 네이티브 바인딩이라 번들에 넣으면 깨진다.

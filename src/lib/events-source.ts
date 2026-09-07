@@ -1,7 +1,7 @@
 import rawEvents from '@/data/events.json'
 import mockConcerts from '@/data/concerts.mock.json'
 import type { EventItem } from '@/types'
-import { USE_API } from '@/lib/api/config'
+import { USE_API_EVENTS } from '@/lib/api/config'
 import { fetchAllEvents } from '@/lib/api/events'
 
 /**
@@ -13,8 +13,11 @@ import { fetchAllEvents } from '@/lib/api/events'
  * ─────────────────────────────────────────────────────────
  * **여기가 목데이터와 API 가 갈리는 자리다.**
  *
- * `NEXT_PUBLIC_API_BASE` 가 비어 있으면 번들에 든 JSON 을 읽고, 차 있으면
+ * `USE_API_EVENTS` 가 꺼져 있으면 번들에 든 JSON 을 읽고, 켜져 있으면
  * `/api/v1/events` 를 부른다. 화면 코드는 어느 쪽인지 모른다.
+ *
+ * `USE_API` 가 아니라 `USE_API_EVENTS` 인 이유는 `lib/api/config.ts` 에
+ * 있다 — 로그인을 켜는 것과 행사 소스를 바꾸는 것은 다른 결정이다.
  *
  * 상수가 아니라 **함수인 이유**가 이것이다. 상수로 두면 `import` 하는
  * 순간 값이 있어야 해서 fetch 를 끼울 자리가 없다. 예전에는 상수였고,
@@ -56,7 +59,7 @@ const MOCK_CONCERTS: EventItem[] =
 
 /** 수집한 것만. 목데이터가 절대 섞이면 안 되는 자리가 쓴다 */
 async function realEvents(): Promise<EventItem[]> {
-  return USE_API ? fetchAllEvents() : (rawEvents as EventItem[])
+  return USE_API_EVENTS ? fetchAllEvents() : (rawEvents as EventItem[])
 }
 
 /**
