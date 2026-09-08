@@ -57,11 +57,17 @@
 ### 파이프라인
 
 ```
-① 수집    crawler/run.mjs        → data/raw/crawl/<source>.json
-② 정규화  crawler/to-events.mjs  → src/data/events.json
+① 수집    crawler/run.mjs         → data/raw/crawl/<source>.json
+② 정규화  crawler/to-events.mjs   → src/data/events.json
 ③ 검증    scripts/validate-events.mjs
 ④ 커밋    github-actions[bot]
+⑤ 적재    scripts/upsert-events.mjs → 백엔드 POST /api/v1/ingest/events/bulk
 ```
+
+**⑤ 는 이 앱과 무관하다.** 화면은 ④ 가 커밋한 JSON 을 본다. 백엔드 DB 가 `V3`
+시드에 멈춰 있어서 매일 만든 것을 그쪽에도 밀어 넣는 것이고, 전환은 나중이다
+(EV-08). 그래서 ⑤ 가 실패해도 그날 배포는 정상이다 — 워크플로가
+`continue-on-error` 로 부른다.
 
 좌표는 세 소스 모두 응답에 들어 있어 지오코딩이 필요 없다. `scripts/geocode.mjs`
 (카카오 로컬 API)는 좌표가 빠진 레코드를 메우는 예비 경로로 남겨 둔다.
@@ -74,3 +80,10 @@
 `src/types.ts`의 `EventItem`이 정본이다.
 전체 구상(bridge-plan-full.md 7번) Postgres 스키마와 필드명을 일치시켜 두었으므로,
 PoC 통과 후 승격 시 매핑 없이 그대로 넘어간다.
+
+**`source` 하나는 그 타입에 없다.** 적재(⑤)만 쓰는 필드다 — 백엔드가 수집원을
+요청에 명시하라고 요구하고(`id` 접두어에서 유도하지 않는다), 값을 넣는 것은
+`crawler/to-events.mjs` 다. `EventItem` 에 넣지 않은 이유는 그 타입이 **화면
+계약**이고 `/api/v1/events` 응답에 `source` 가 없어서다. 필수로 두면 API 경로의
+매퍼(`src/lib/api/events.ts`)가 만들어낼 수 없는 필드를 요구하게 된다.
+화면에서 쓸 일이 생기면 그때 응답에 실어 함께 올린다.

@@ -125,6 +125,24 @@ RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 �
 - K-pop 판정, 카테고리(`연예인/셀럽` 등) 또는 태그로 1차 필터.
   팝가는 K-pop 여부를 구분하지 않으므로 **재현율을 우선**하고 정밀도는 사람이 올린다
 - 주소·태그로 구역(`hongdae`/`hapjeong`/`seongsu`/…) 판정
+- **수집원(`source`)을 적는다.** 화면은 안 읽고 적재만 쓴다 (아래)
+
+## 적재는 이 디렉터리 밖이다
+
+`scripts/upsert-events.mjs` 가 `events.json` 을 백엔드로 밀어 넣는다
+(`POST /api/v1/ingest/events/bulk`). 여기가 아닌 이유는 **수집이 아니라 전달**이고,
+`validate-events.mjs` 와 같은 결이라서다 — 둘 다 크롤러 산출물을 입력으로 받는다.
+
+```
+INGEST_API_BASE=... INGEST_KEY=... node scripts/upsert-events.mjs
+node scripts/upsert-events.mjs --dry     # 보낼 모양만 찍는다
+```
+
+**시크릿이 없으면 스스로 건너뛴다.** KOPIS 키가 없을 때 그 소스만 건너뛰는 것과
+같은 판단이다 — 백엔드 배포보다 이 경로가 먼저 들어가 있어서, 없는 것을 실패로
+세면 매일 빨간 실행이 쌓이고 진짜 고장이 그 빨강에 섞인다.
+
+파이프라인 전체와 왜 이 단계가 앱과 무관한지는 `src/data/README.md` 가 적었다.
 
 ## 남은 한계
 
