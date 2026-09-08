@@ -1,11 +1,20 @@
 # crawler
 
-이벤트 데이터 수집기. 앱과 분리돼 있고 로컬에서만 돌린다.
+이벤트 데이터 수집기. 앱 코드와 분리돼 있지만 **로컬 전용이 아니다** —
+`.github/workflows/refresh-data.yml` 이 매일 04:00 KST 에 돌리고
+`github-actions[bot]` 이름으로 `events.json` 을 커밋한다.
 
 ```
-node crawler/run.mjs --limit 600 --days 75   # 수집 → data/raw/crawl/popga.json
-node crawler/to-events.mjs                   # 정규화 → src/data/events.json
-node crawler/to-events.mjs --all             # K-pop 필터 없이 전부
+node crawler/run.mjs --source all --limit 700 --days 90   # 수집 → data/raw/crawl/<source>.json
+node crawler/to-events.mjs                                # 정규화 → src/data/events.json
+node crawler/to-events.mjs --all                          # K-pop 필터 없이 전부
+node crawler/to-events.mjs --out data/raw/시험.json        # 원장·배포본을 건드리지 않고 시험
+```
+
+**kopis 는 인증키가 필요하다.** 맨 node 는 `.env.local` 을 자동으로 읽지 않는다.
+
+```
+node --env-file=.env.local crawler/run.mjs --source kopis
 ```
 
 ## 원칙
@@ -33,7 +42,9 @@ node crawler/to-events.mjs --all             # K-pop 필터 없이 전부
 | --- | --- | --- |
 | popga.co.kr | `User-Agent: * / Allow: /`, 차단은 `/login`·`/enterprise*` | `/popup/*` **허용** |
 | popply.co.kr | `User-agent: * / Allow: /`, `Disallow: /api/`. ClaudeBot 명시 허용 | 페이지 허용, **API 금지** |
+| offmate.kr | `User-agent: * / Allow: /`, 차단 경로 없음 | `/place/birthday-cafe/*` **허용** |
 | dukplace.com | 봇별로 분리, 일부 크롤러 차단 | **수집 대상에서 제외** |
+| kopis.or.kr | **해당 없음** — 공식 오픈API 다 | 인증키로 접근. 대신 일일 호출 한도를 지킨다 |
 
 ## 소스
 
@@ -48,6 +59,36 @@ node crawler/to-events.mjs --all             # K-pop 필터 없이 전부
 RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 앵커로 잘라내는 방식이라
 전체 구조가 바뀌어도 필드명만 유지되면 계속 동작한다. 깨지면 `extract()` 만 고치면 된다.
 
+### offmate (`sources/offmate.mjs`)
+
+- 색인: `sitemap-2.xml` 의 `/place/birthday-cafe/detail/<id>`
+- 상세는 Next.js SSR. `__NEXT_DATA__` 에 레코드가 통째로 들어 있다
+- **좌표도 아티스트도 구조화돼 있다** (`cafeAddressLat/Lng` · `memberName`/`groupName`).
+  팝가에서 겪은 두 문제(지오코딩·K-pop 판정)가 여기선 없다
+- 호스트 인증된 건은 `trust` 가 `PARTNER` 다. 나머지는 `PARSED`
+
+### kopis (`sources/kopis.mjs`)
+
+**공식 오픈API 다.** 크롤링이 아니라 인증키로 받으므로 `robots.txt` 판정이
+해당하지 않고, `run.mjs` 가 이 소스만 게이트를 건너뛴다. 대신 **일일 호출
+한도**가 있어 수집 상한을 그 안에서 잡는다.
+
+세 번 부른다. 목록에는 좌표도 시설 식별자도 없다.
+
+| 호출 | 얻는 것 |
+| --- | --- |
+| 공연목록 `/pblprfr` | `mt20id` · 공연명 · 기간 · 지역 · 장르 |
+| 공연상세 `/pblprfr/{mt20id}` | `mt10id` · `dtguidance`(회차) · `prfcast` · 예매처 |
+| 공연시설상세 `/prfplc/{mt10id}` | **`la` · `lo` · `adres`** |
+
+- 응답이 XML 이다. 필요한 필드가 스무 개 남짓이라 의존성 없이 태그로 잘라낸다
+- **API 는 `http` 만 응답한다.** 사용자에게 보여주는 공개 상세 페이지는 `https` 다
+- 서울·대중음악은 요청 파라미터(`signgucode` · `shcate`)로 좁힌다. 응답에도
+  `area` · `genrenm` 이 있지만 전국 전 장르를 받아서 버리면 호출 한도를 태운다
+- 같은 공연장에서 여러 공연이 열려 시설 응답은 `mt10id` 로 캐시한다
+- **`prfcast` 는 믿을 게 아니다.** 대개 비어 있고, 있어도 본명이다 —
+  산들이 `이정환`, 태민이 `이태민` 으로 온다. 그래서 K-pop 판정은 제목으로 한다
+
 ### 검토했으나 쓰지 않는 것
 
 - **팝플리**, 상세 페이지에 schema.org `Event` JSON-LD 가 있어 품질이 좋지만,
@@ -57,6 +98,8 @@ RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 �
 - **카카오 검색 API**, REST 키로 동작 확인. 생일카페 관련 문서가 잡히지만
   커뮤니티 잡담이 섞여 정밀도가 낮다. 생카 보강용으로 남겨둔다
 - **X / 인스타그램**, 로그인 벽. poc-plan 5.3 대로 X API 는 쓰지 않는다
+- **인터파크**, 콘서트가 가장 많지만 `robots.txt` 가 전면 금지다. 그래서 콘서트는
+  공공 API(kopis)가 유일한 경로였다
 
 ## 수집과 가공의 분리
 
@@ -73,9 +116,18 @@ RSC 페이로드 형식은 Next 버전에 따라 바뀔 수 있다. 필드명 �
 
 ## 남은 한계
 
-**굿즈 품목 마스터가 없다.** 팝가 레코드에 굿즈 목록이 없어서 `goods` 는 빈 배열이다.
+**굿즈 품목 마스터가 없다.** 어느 소스도 굿즈 목록을 주지 않아 `goods` 는 빈 배열이다.
 P1 홍보 훅이 "팝업 굿즈 품절 현황"이므로, 굿즈 라인업은 **팝업 공식 계정 스크린샷**을
 `data/raw/popup/` 에 넣어 따로 채워야 한다.
 
-**생카가 비어 있다.** 생카는 X·인스타가 원본이라 자동 수집 경로가 없다.
-`data/raw/saengka/` 에 안내 이미지를 넣으면 파싱해서 채운다.
+**콘서트 커버리지가 화이트리스트에 묶인다.** 서울 대중음악은 90일에 200건이 넘는데
+대부분이 인디·재즈·발라드·내한이다. 장르만으로 담으면 목록의 절반 이상이 K-pop 이
+아닌 공연이 되므로 `kpop-artists.json` 으로 거른다. **빠진 것은 조용히 사라지므로**
+누락 후보를 좌석 규모 순으로 뽑아 Actions 실행 요약에 띄운다 — 아이돌 콘서트는 큰
+공연장에서 열려서 큰 것부터 훑는 것이 사람의 시간을 아낀다.
+
+**짧은 이름은 제목 선두에서만 인정한다.** 한국어에 단어 경계가 없어 부분일치를
+허용하면 `영 카이 첫 내한공연` 이 엑소 카이로 잡힌다. 콘서트 제목은 아티스트명이
+맨 앞이라 이 제한으로 잃는 것이 거의 없다.
+
+**서울만 담는다.** 지역 코드가 전부 서울 권역이고 지도·필터도 서울 전제다.

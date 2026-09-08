@@ -33,6 +33,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'img2.offmate.kr' },
       { protocol: 'https', hostname: 'cdn.popga.co.kr' },
+      // 콘서트 포스터. API 는 http://www.kopis.or.kr 로 주는데 to-events.mjs 가
+      // https://kopis.or.kr 로 바꿔 담는다 (www 를 붙인 https 는 301 이다)
+      { protocol: 'https', hostname: 'kopis.or.kr' },
     ],
     formats: ['image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 7,
