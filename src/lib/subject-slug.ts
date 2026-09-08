@@ -20,6 +20,14 @@ export const SUBJECT_SLUGS: Record<string, string> = {
   장원영: 'wonyoung', // #JANGWONYOUNG, #WONYOUNG
   준규: 'junkyu', // #JUNKYU
   안유진: 'anyujin', // 디시 안유진 마이너갤 id=anyujin
+
+  // 2026-09-12~13 주말 행사의 주최자 계정과 행사 제목에서 확인.
+  // 팬덤 태그가 아니라 주최자가 자기 카페 이름에 쓴 표기다
+  필릭스: 'felix', // @happyhanfelix, 「FELIX BDAY 0915」
+  한: 'han', // @naughtycutiehan, @YB_universe_Han
+  성찬: 'sungchan', // 「THE WAY TO SUNGCHAN」, 「Happy birthday sungchan !」
+  연준: 'yeonjun', // 「YEONJUN.EXE」, 「HAPPY YEONJUN DAY」
+  현재: 'hyunjae', // @hyunjaebanjeom, @hyunjaehouse__
 }
 
 /** 별칭 → 대상명 */
