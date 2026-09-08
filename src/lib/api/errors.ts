@@ -113,6 +113,34 @@ const RULES: Record<string, Rule> = {
   USER_UNDER_MINIMUM_AGE: { field: 'birthYear', text: '가입할 수 있는 나이가 아니에요' },
   USER_SANCTIONED: { at: 'sanction' },
   USER_NOT_FOUND: { at: 'banner', text: '없는 사용자예요' },
+  /*
+   * 프로필 이미지 (AU-08). 셋 다 띠로 보낸다.
+   *
+   * 형식·크기는 성격상 사진 칸에 붙는 것이 맞지만, **사진에는 Field 가
+   * 없다.** 아바타를 누르면 열리는 file input 하나뿐이라 field 를 지정해도
+   * 그릴 자리가 없다. 없는 칸을 짚느니 띠로 보낸다 — slotFor 가 모르는
+   * 코드를 다루는 것과 같은 판단이다.
+   *
+   * 업로드 화면이 붙으면서 사진 아래에 문장 자리를 만들면 앞의 둘을
+   * field 로 옮긴다. 그때 이름은 계약을 따라 contentType · contentLength 다.
+   *
+   * 문장에 허용값을 그대로 적는다. "형식이 올바르지 않아요" 로는 무엇을
+   * 다시 고르라는 것인지 알 수 없다.
+   */
+  USER_PROFILE_IMAGE_TYPE_NOT_ALLOWED: {
+    at: 'banner',
+    text: 'JPG · PNG · WEBP 만 올릴 수 있어요',
+  },
+  USER_PROFILE_IMAGE_TOO_LARGE: { at: 'banner', text: '사진은 5MB 까지 올릴 수 있어요' },
+  /*
+   * 확정(③)을 불렀는데 S3 에 그 객체가 없다. 서명이 만료됐거나(300초)
+   * 업로드가 중간에 끊긴 것이라 **다시 고르면 된다.** 사용자가 뭘 잘못한
+   * 것이 아니므로 그렇게 읽히지 않게 적는다
+   */
+  USER_PROFILE_IMAGE_NOT_UPLOADED: {
+    at: 'banner',
+    text: '사진이 다 올라가지 않았어요. 다시 골라주세요',
+  },
 
   /* 행사 (EventErrorCode) */
   EVENT_NOT_FOUND: { at: 'banner', text: '없는 행사예요' },

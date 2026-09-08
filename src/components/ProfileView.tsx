@@ -287,7 +287,8 @@ export default function ProfileView({
                     <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </span>
-                <input type="file" accept="image/*" hidden />
+                {/* 서버 허용값과 같게 좁힌다. 이유는 me/edit 쪽에 적었다 */}
+                <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
               </label>
 
               <div className="myid__main">

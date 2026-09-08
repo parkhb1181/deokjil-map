@@ -108,7 +108,11 @@ export default function EditProfile() {
               <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
             </svg>
           </span>
-          <input type="file" accept="image/*" hidden />
+          {/* 서버가 받는 것은 jpeg · png · webp 셋뿐이다 (AU-08). image/*
+              로 두면 그 밖의 것도 고를 수 있고, 특히 **iOS 사진은 기본이
+              HEIC** 라 자주 걸린다. 고르는 단계에서 막는 편이 올린 뒤
+              400 을 받고 되돌아오는 것보다 낫다 */}
+          <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
         </label>
         <p className="pedit__hint">사진을 넣으면 같이 가자는 말을 더 많이 듣습니다</p>
       </div>
