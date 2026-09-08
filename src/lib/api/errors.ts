@@ -85,6 +85,15 @@ const RULES: Record<string, Rule> = {
   AUTH_REFRESH_TOKEN_INVALID: { at: 'login', text: '다시 로그인해주세요' },
   AUTH_ACCESS_TOKEN_EXPIRED: { at: 'login', text: '다시 로그인해주세요' },
   /*
+   * 카카오 교환 단계 (STAR-50). 둘을 가르는 이유는 실패 자리가 달라서다.
+   * 인가코드는 일회용이라 CODE_INVALID 는 같은 코드로 다시 보내봐야
+   * 소용없고 카카오 인가부터 다시 받아야 한다. UNAVAILABLE 은 인가코드가
+   * 멀쩡한데 카카오가 느리거나 죽은 것이라 잠시 뒤 그대로 다시 하면 된다.
+   * 「다시 로그인」 으로 뭉뚱그리면 후자에서 거짓 안내가 된다.
+   */
+  AUTH_KAKAO_CODE_INVALID: { at: 'login', text: '카카오 로그인이 안 됐어요. 다시 시도해주세요' },
+  AUTH_KAKAO_UNAVAILABLE: { at: 'banner', text: '카카오 쪽이 느려요. 잠시 뒤 다시 시도해주세요' },
+  /*
    * 만료와 갈라져 있다. 만료는 재발급으로 살아나는데 이쪽은 서명이
    * 깨졌거나 로그아웃으로 무효가 된 토큰이라 다시 받아야 한다.
    * 화면이 할 일은 같아서 문장도 같다 — 갈리는 것은 재발급을 시도할지다.
