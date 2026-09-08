@@ -22,7 +22,7 @@ import { submitReport } from '@/lib/api/reports'
 import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
 
-export type ReportTarget = 'user' | 'post' | 'comment'
+export type ReportTarget = 'user' | 'post' | 'comment' | 'chat'
 
 /**
  * 나이 신고 사유.
@@ -76,16 +76,20 @@ const EXTRA: Record<ReportTarget, ReportReason[]> = {
   user: ['NO_SHOW', 'AGE_SUSPICION'],
   post: ['FALSE_INFO', 'OFF_TOPIC'],
   comment: ['FALSE_INFO'],
+  /* 채팅 (SF-08). 사유는 댓글과 같다 — 둘 다 사람이 쓴 말이고,
+     사유가 갈리면 백오피스가 같은 신고를 다른 이름으로 받는다 */
+  chat: ['FALSE_INFO'],
 }
 
 const TITLE: Record<ReportTarget, string> = {
   user: '님을 신고할까요?',
   post: '이 모집글을 신고할까요?',
   comment: '이 댓글을 신고할까요?',
+  chat: '이 대화를 신고할까요?',
 }
 
 /** 화면 어휘 → 계약 어휘. 계약은 대문자다 (API 컨벤션) */
-const WIRE_TARGET = { user: 'USER', post: 'POST', comment: 'COMMENT' } as const
+const WIRE_TARGET = { user: 'USER', post: 'POST', comment: 'COMMENT', chat: 'CHAT' } as const
 
 export function ReportSheet({ target, targetId, name, onClose }: {
   target: ReportTarget

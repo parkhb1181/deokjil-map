@@ -25,7 +25,12 @@ import { apiSend } from './http'
  * 그쪽이 프롭 이름이라 부르는 자리가 여럿이고, 계약 어휘를 화면까지
  * 밀어 넣는 대신 보내기 직전 한 곳에서 옮긴다.
  */
-export type ReportTarget = 'USER' | 'POST' | 'COMMENT'
+/*
+ * CHAT 은 2차(SF-08)다. **서버는 아직 받지 않는다** — 채팅 자체가
+ * 없어서 보낼 일이 없고, 백엔드 계약에 들어가면 그때 지운다.
+ * 여기 미리 넣어 두는 이유는 화면이 그 값을 쓰기 때문이다.
+ */
+export type ReportTarget = 'USER' | 'POST' | 'COMMENT' | 'CHAT'
 
 /**
  * 사유 목록과 대상별 조합표는 `components/ui/ReportSheet.tsx` 가 갖는다.
