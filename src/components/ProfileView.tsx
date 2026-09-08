@@ -66,8 +66,16 @@ export type MyComment = {
   body: string
   secret: boolean
   createdAt: string
-  /** 내 댓글에 답글이 달렸는지 */
-  replied: boolean
+  /**
+   * 내 댓글에 답글이 달렸는지.
+   *
+   * **서버가 안 준다.** 계약(API 설계 2-2 의 /users/me/comments)에 그런
+   * 칸이 없다. 알림이 없는 1차에서 답글을 알아채는 유일한 단서라 화면에
+   * 남겨 두지만, API 경로에서는 늘 비어 있다. 서버가 실어 주기 시작하면
+   * 그때 채운다 — 없는 것을 화면이 세어 만들 수는 없다. 그러려면 글마다
+   * 댓글을 다 받아야 한다.
+   */
+  replied?: boolean
 }
 
 /**
@@ -146,12 +154,20 @@ export default function ProfileView({
   user,
   isMe = false,
   comments = [],
+  postsReady = true,
 }: {
   user: ProfileData
   /** 내 프로필이면 제재·마이메뉴·내 댓글 탭이 붙는다 */
   isMe?: boolean
   /** 내 화면에서만 쓴다. 남에게는 애초에 보내지 않는다 */
   comments?: MyComment[]
+  /**
+   * 모집글 목록을 실제로 받아왔는가.
+   *
+   * 서버에 그 엔드포인트가 아직 없어서, 빈 배열이 「없다」 인지 「못
+   * 받았다」 인지 화면이 구분할 수 없다. 부르는 쪽이 알려준다.
+   */
+  postsReady?: boolean
 }) {
   /* 로그인이 없어 내 프로필인지 서버가 못 알려준다. 개발용으로 뒤집어
      본다. 같은 렌더러라 이 토글 하나로 두 화면을 나란히 비교할 수 있다 */
@@ -391,7 +407,21 @@ export default function ProfileView({
               }
             />
           ) : posts.length === 0 && tab === 0 ? (
-            <Blank title="아직 쓴 글이 없어요" art={false} />
+            /*
+             * **「없다」 와 「아직 못 받았다」 는 다르다.**
+             *
+             * 서버에 `/users/me/posts` 가 아직 없다 (계약 AU-10 에는 있다).
+             * 그래서 API 경로에서는 빈 배열이 오는데, 그걸 「아직 쓴 글이
+             * 없어요」 로 그리면 글을 쓴 사람에게 거짓말이 된다. 자기가 쓴
+             * 글이 사라진 줄 알고 다시 쓰게 만든다.
+             *
+             * 그 엔드포인트가 생기면 이 분기는 사라지고 위 문구만 남는다.
+             */
+            <Blank
+              title={postsReady ? '아직 쓴 글이 없어요' : '내 모집글은 곧 볼 수 있어요'}
+              desc={postsReady ? undefined : '서버에 붙는 중이에요'}
+              art={false}
+            />
           ) : (
             /* 전체 보기를 두지 않고 다 편다. 한 사람이 쓰는 모집글은
                당근의 판매물품처럼 열 개씩 쌓이지 않는다. 잘라두면

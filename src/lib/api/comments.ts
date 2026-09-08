@@ -190,3 +190,55 @@ export async function editComment(
 export async function deleteComment(commentId: string, token: string): Promise<void> {
   await apiSend<unknown>('DELETE', `/api/v1/comments/${encodeURIComponent(commentId)}`, undefined, token)
 }
+
+/* ── 내 활동 내역 ────────────────────────────────────────── */
+
+/**
+ * 내가 쓴 댓글 (AU-10 · CM-16).
+ *
+ * **비밀 댓글도 본문이 온다.** 내가 쓴 것이라 볼 권한이 있다. 지운 것은
+ * 아예 오지 않는다 — 자리표시자로 남는 것은 모집글 안에서의 얘기고,
+ * 내 내역에 「지운 댓글」 줄이 쌓일 이유는 없다.
+ *
+ * 조회 응답과 모양이 또 다르다. `author` 가 없고(전부 나다) 대신 어느
+ * 글에 썼는지가 붙는다.
+ */
+export interface MyComment {
+  id: string
+  postId: string
+  postTitle: string
+  /** 없을 수 있다. 서버가 `null` 이면 키를 뺀다 */
+  content?: string
+  secret: boolean
+  createdAt: string
+}
+
+export async function fetchMyComments(
+  token: string,
+  opts: { cursor?: string | null; size?: number } = {},
+): Promise<{ items: MyComment[]; nextCursor: string | null; hasNext: boolean }> {
+  const page = await apiGet<Page<unknown>>(
+    '/api/v1/users/me/comments',
+    { size: opts.size ?? PAGE_SIZE, cursor: opts.cursor ?? null },
+    token,
+  )
+  return {
+    items: page.items.map((raw) => {
+      if (raw === null || typeof raw !== 'object') fail('myComment', '객체가 아니다')
+      const w = raw as Wire
+      const out: MyComment = {
+        id: str(w.id, 'id'),
+        postId: str(w.postId, 'postId'),
+        postTitle: str(w.postTitle, 'postTitle'),
+        secret: bool(w.secret, 'secret'),
+        createdAt: str(w.createdAt, 'createdAt'),
+      }
+      if ('content' in w && w.content !== null && w.content !== undefined) {
+        out.content = str(w.content, 'content')
+      }
+      return out
+    }),
+    nextCursor: page.nextCursor,
+    hasNext: page.hasNext,
+  }
+}
