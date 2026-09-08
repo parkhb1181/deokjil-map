@@ -13,7 +13,7 @@
  * 신청·수락을 두지 않기로 해서 사람 구하는 일이 전부 댓글에서
  * 일어난다. 비밀 댓글이 연락처를 주고받는 유일한 통로다.
  */
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { canWrite, isClosed, isPlaceholder, LAST_SEEN_LABEL, type CompanionPost, type PostAuthor, type PostComment, type Sanction, type Viewer, type ViewerRole } from '@/types'
 import { PageShell } from '@/components/ui/PageShell'
@@ -28,7 +28,8 @@ import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
 import { useViewer } from '@/lib/auth/useViewer'
 import { USE_API } from '@/lib/api/config'
-import { deleteComment, editComment, writeComment } from '@/lib/api/comments'
+import { deleteComment, editComment, fetchComments, writeComment } from '@/lib/api/comments'
+import { getAccessToken } from '@/lib/auth/session'
 import { closePost } from '@/lib/api/posts'
 import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
@@ -137,21 +138,69 @@ export default function PostDetail({ post, comments, hostId }: {
 
   const gate = (why: LoginWhy) => setAsk({ k: 'login', why })
 
-  /* 서버가 보냈을 모습으로 만든 뒤 계층 정렬한다. API 가 붙으면
-     asServerWouldSend 만 빠지고 나머지는 그대로다 */
+  /**
+   * 내 토큰으로 다시 받은 댓글. `null` 이면 아직 안 받았다.
+   *
+   * ─────────────────────────────────────────────────────────
+   * **왜 두 번 받나.**
+   *
+   * 서버 컴포넌트에는 세션이 없다. 토큰이 `localStorage` 에 있어서
+   * 브라우저만 안다. 그래서 첫 응답은 **늘 비회원 기준**이고, 비밀 댓글
+   * 본문과 `availableActions` 가 비어서 온다.
+   *
+   * 그대로 두면 **방장이 자기 글의 비밀 댓글을 못 읽는다.** 채팅이 없어
+   * 비밀 댓글이 연락처가 오가는 유일한 통로인데(CM-05), 정작 사람을
+   * 골라야 하는 방장에게 안 보이면 제품이 성립하지 않는다. 2026-09-08
+   * 연동 시험에서 실제로 그랬다.
+   *
+   * 그래서 화면이 뜬 뒤 내 토큰으로 한 번 더 받는다. 첫 화면은 서버가
+   * 그린 것이 그대로 보이고(비회원에게는 그것이 정답이다), 로그인한
+   * 사람에게만 채워진 목록으로 바뀐다.
+   */
+  const [live, setLive] = useState<PostComment[] | null>(null)
+
+  useEffect(() => {
+    if (!USE_API) return
+    /* 로그인 안 했으면 서버가 준 것이 이미 정답이다. 한 번 더 부를 이유가 없다 */
+    if (!getAccessToken()) return
+
+    let alive = true
+    authed((t) => fetchComments(post.id, { token: t }))
+      .then((r) => alive && setLive(r.items))
+      /* 실패하면 서버가 준 목록을 그대로 둔다. 읽기는 계속 되어야 한다 */
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [post.id, viewer.userId])
+
+  const source = live ?? comments
+
   const list = useMemo(() => {
     /* 고친 본문을 먼저 갈아끼운다. **반드시 권한 필터보다 앞이어야
        한다.** 뒤에 놓으면 서버가 지운 content 를 화면이 도로 끼워넣는
        꼴이 되어, 비밀 댓글이 볼 권한 없는 사람에게 열린다.
        secret 은 건드리지 않는다. 작성 후 비밀 여부는 못 바꾼다
        (명세 CM-03·CM-09) */
-    const mine = comments.map((c) => (c.id in edited ? { ...c, content: edited[c.id] } : c))
+    const mine = source.map((c) => (c.id in edited ? { ...c, content: edited[c.id] } : c))
 
-    return threaded(asServerWouldSend(mine, viewer, hostId)).map((c) =>
+    /*
+     * **API 경로에서는 화면이 권한을 다시 판정하지 않는다.**
+     *
+     * `asServerWouldSend` 는 서버가 없을 때 목데이터를 걸러 주려고 만든
+     * 것이다 (`comment-perm.ts` 머리말이 "API 가 붙으면 이 함수는
+     * 지운다" 고 적어 두었다). 서버가 이미 본문을 빼고 보내는데 여기서
+     * 또 판정하면 규칙이 두 곳에 살고, 한쪽만 고치면 조용히 어긋난다.
+     * 무엇보다 **화면은 서버가 뺀 것을 되살릴 수 없다** — 걸러내기만
+     * 할 뿐이라 남는 것은 규칙이 겹치는 위험뿐이다.
+     */
+    const shown = USE_API ? mine : asServerWouldSend(mine, viewer, hostId)
+
+    return threaded(shown).map((c) =>
       /* 지운 댓글도 자리는 남는다. 없애면 아래 대댓글이 고아가 된다 */
       erased.includes(c.id) ? { ...c, state: 'DELETED' as const } : c,
     )
-  }, [comments, viewer.userId, hostId, erased, edited])
+  }, [source, viewer.userId, hostId, erased, edited])
 
   /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
      칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
@@ -173,8 +222,19 @@ export default function PostDetail({ post, comments, hostId }: {
    *
    * 삭제도 마찬가지다. 아래 대댓글이 있으면 자리표시자로 남고 없으면
    * 목록에서 빠지는데(CM-11), 어느 쪽인지는 서버가 안다.
+   *
+   * **내 토큰으로 받는 쪽도 같이 갱신한다.** `router.refresh()` 만 하면
+   * 서버 컴포넌트가 다시 도는데 그쪽은 세션이 없어 비회원 목록을 준다.
+   * 위 `live` 는 그대로라 방금 쓴 댓글이 안 보이거나, 더 나쁘게는 화면이
+   * 비회원 목록으로 되돌아간다.
    */
-  const reload = () => router.refresh()
+  const reload = () => {
+    router.refresh()
+    if (!USE_API || !getAccessToken()) return
+    authed((t) => fetchComments(post.id, { token: t }))
+      .then((r) => setLive(r.items))
+      .catch(() => {})
+  }
 
   const fail = (e: unknown) => setFailed(slotFor(e).text)
 
