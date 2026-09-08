@@ -1,5 +1,4 @@
 import rawEvents from '@/data/events.json'
-import mockConcerts from '@/data/concerts.mock.json'
 import type { EventItem } from '@/types'
 import { USE_API_EVENTS } from '@/lib/api/config'
 import { fetchAllEvents } from '@/lib/api/events'
@@ -11,7 +10,7 @@ import { fetchAllEvents } from '@/lib/api/events'
  * 일곱 곳이었다.
  *
  * ─────────────────────────────────────────────────────────
- * **여기가 목데이터와 API 가 갈리는 자리다.**
+ * **여기가 JSON 과 API 가 갈리는 자리다.**
  *
  * `USE_API_EVENTS` 가 꺼져 있으면 번들에 든 JSON 을 읽고, 켜져 있으면
  * `/api/v1/events` 를 부른다. 화면 코드는 어느 쪽인지 모른다.
@@ -29,54 +28,31 @@ import { fetchAllEvents } from '@/lib/api/events'
  */
 
 /**
- * 콘서트 목데이터는 **개발에서만** 섞인다.
+ * 수집한 것만 돌려준다.
  *
- * 크롤러가 콘서트를 안 긁고 KOPIS 오픈API 는 아직 안 붙었다. 목록에
- * 콘서트가 한 건도 없으면 필터를 눌러도 0건이라 와이어프레임에서 확인할
- * 수가 없다.
+ * 개발에서만 섞던 콘서트 목데이터를 지웠다. KOPIS 오픈API 가 붙어 크롤러가
+ * 실제 콘서트를 담기 시작했고, `src/data/README.md` 가 그때 이 분기와
+ * `concerts.mock.json` 을 같이 지우라고 적어 두었다.
  *
- * 그렇다고 배포에 섞으면 안 된다. CLAUDE.md 가 못박은 첫 번째 규칙이
- * "출처를 속이지 않는다" 이고, 없는 공연을 띄우면 사용자가 헛걸음한다.
- * 그러면 재방문 지표가 오염돼 제품 매력도 때문인지 데이터 품질
- * 때문인지 구분할 수 없게 된다 (poc-plan 1번).
- *
- * 조건을 IS_WIREFRAME 으로 부르지 않고 process.env 를 여기 직접 쓴다.
- * 다른 모듈에서 가져온 상수로 감싸면 번들러가 그 값을 접지 못해 JSON
- * import 가 살아남는다. 실제로 그랬다. 화면에는 안 나오는데 홈 청크에
- * 가짜 공연 데이터가 실려 방문자에게 내려갔다.
- *
- * process.env.NODE_ENV 는 빌드 때 문자열로 치환되므로 조건이 접히고
- * mockConcerts 를 아무도 안 쓰게 되어 통째로 떨어져 나간다. 판정 규칙
- * 자체는 lib/wireframe.ts 와 같아야 한다. 화면과 데이터가 따로 놀면
- * 어느 하나만 켜진 배포가 나온다.
- *
- * KOPIS 가 붙으면 concerts.mock.json 과 이 분기를 같이 지운다.
+ * 한 번의 렌더 안에서 여러 번 불러도 fetch 는 한 번만 나간다. Next 가
+ * 같은 요청을 렌더 단위로 묶는다. JSON 경로는 애초에 배열이다.
  */
-const MOCK_CONCERTS: EventItem[] =
-  process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_WIREFRAME === '1'
-    ? ((mockConcerts as { events: unknown[] }).events as EventItem[])
-    : []
-
-/** 수집한 것만. 목데이터가 절대 섞이면 안 되는 자리가 쓴다 */
 async function realEvents(): Promise<EventItem[]> {
   return USE_API_EVENTS ? fetchAllEvents() : (rawEvents as EventItem[])
 }
 
-/**
- * 화면이 그리는 전부. 개발에서는 콘서트 목데이터가 섞인다.
- *
- * 한 번의 렌더 안에서 여러 번 불러도 fetch 는 한 번만 나간다. Next 가
- * 같은 요청을 렌더 단위로 묶는다. 목데이터 경로는 애초에 배열이다.
- */
+/** 화면이 그리는 전부 */
 export async function getAllEvents(): Promise<EventItem[]> {
-  return [...(await realEvents()), ...MOCK_CONCERTS]
+  return realEvents()
 }
 
 /**
- * 사이트맵처럼 가짜가 섞이면 안 되는 자리.
+ * 사이트맵·OG 카드처럼 가짜가 섞이면 안 되는 자리.
  *
- * 개발에서 사이트맵을 열어볼 일은 없지만, 한 번 섞이기 시작하면 어디까지
- * 퍼졌는지 추적하기 어렵다. 애초에 갈래를 나눠 둔다.
+ * 목데이터가 사라져 지금은 위와 같다. 그래도 이름을 남기는 이유는 부르는
+ * 쪽이 이미 갈려 있고, **"여기에는 실데이터만 온다"는 의도가 호출부에서
+ * 읽혀야** 하기 때문이다. 다시 목데이터를 섞을 일이 생기면 이 함수가
+ * 갈라지는 자리가 된다.
  */
 export async function getRealEvents(): Promise<EventItem[]> {
   return realEvents()

@@ -4,6 +4,7 @@
     "bridge-plan-full.md 6번의 T1~T3 을 기준으로 하되, 실제 오프라인 행사가 잡히는 팀을 더했다.",
     "별칭(영문·약칭·멤버명)을 함께 두는 이유는 팝업 제목이 '스키즈', 'SVT' 처럼",
     "줄임말로 올라오는 경우가 많기 때문이다.",
+    "KOPIS(콘서트)는 제목이 영문인 경우가 많다. 한글 멤버명만 두면 안 걸린다 — 영문 표기를 함께 적는다.",
     "",
     "여기 없는 팀은 걸러진다. 누락이 보이면 이 파일에만 추가하면 되고,",
     "수집 원본은 그대로라 다시 긁지 않아도 된다."
@@ -40,7 +41,7 @@
     { "name": "뉴진스", "aliases": ["NewJeans"] },
     { "name": "키스오브라이프", "aliases": ["KISS OF LIFE", "KIOF"] },
     { "name": "아이들", "aliases": ["(G)I-DLE", "여자아이들", "전소연"] },
-    { "name": "샤이니", "aliases": ["SHINee", "태민", "키"] },
+    { "name": "샤이니", "aliases": ["SHINee", "태민", "키", "TAEMIN"] },
     { "name": "슈퍼주니어", "aliases": ["SUPER JUNIOR", "슈주"] },
     { "name": "레드벨벳", "aliases": ["Red Velvet", "조이", "슬기", "아이린"] },
     { "name": "오마이걸", "aliases": ["OH MY GIRL"] },
@@ -65,6 +66,13 @@
     { "name": "베리베리", "aliases": ["VERIVERY", "VERYVERY"] },
     { "name": "SF9", "aliases": ["에스에프나인"] },
     { "name": "원위", "aliases": ["ONEWE", "위브"] },
-    { "name": "알파드라이브원", "aliases": ["ALPHA DRIVE ONE", "ALPHADRIVEONE", "ALD1"] }
+    { "name": "알파드라이브원", "aliases": ["ALPHA DRIVE ONE", "ALPHADRIVEONE", "ALD1"] },
+    { "name": "하이라이트", "aliases": ["HIGHLIGHT", "비스트", "BEAST"] },
+    { "name": "트리플에스", "aliases": ["tripleS", "트리플S"] },
+    { "name": "QWER", "aliases": ["큐더블유이알"] },
+    { "name": "POW", "aliases": [] },
+    { "name": "박지훈", "aliases": ["PARK JI HOON"] },
+    { "name": "에이핑크", "aliases": ["Apink", "정은지", "JEONG EUNJI"] },
+    { "name": "비원에이포", "aliases": ["B1A4", "산들"] }
   ]
 }
