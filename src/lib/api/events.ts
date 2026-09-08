@@ -1,6 +1,7 @@
 import type { EventItem, Goods, Place } from '@/types'
-import { apiGet, apiGetAll, ApiFailure } from './http'
+import { apiGet, apiGetAll } from './http'
 import { PAGE_SIZE } from './config'
+import { contractError, guards, type Guards } from './wire'
 
 /**
  * 행사 카탈로그를 받아 `EventItem` 으로 옮긴다.
@@ -32,27 +33,15 @@ interface WireEvent {
   [k: string]: unknown
 }
 
+const SUBJECT = '행사'
+const HINT = '위키 02-설계-아키텍처/화면-계약.md 의 「행사」 를 보고 맞춘다.'
+
+/* 함수 선언이라야 never 가 흐름 분석에 쓰인다 (wire.ts) */
 function fail(field: string, why: string): never {
-  throw new ApiFailure(
-    'CONTRACT_MISMATCH',
-    `행사 응답이 계약과 다릅니다 — ${field}: ${why}. ` +
-      '위키 02-설계-아키텍처/화면-계약.md 의 「행사」 를 보고 맞춘다.',
-    0,
-  )
+  throw contractError(SUBJECT, HINT, field, why)
 }
 
-function str(v: unknown, field: string): string {
-  if (typeof v === 'string') return v
-  if (typeof v === 'number') return String(v)
-  return fail(field, `문자열이어야 하는데 ${typeof v} 다`)
-}
-
-function num(v: unknown, field: string): number {
-  if (typeof v === 'number') return v
-  /* DECIMAL(10,7) 이 문자열로 오는 드라이버가 있다. 좌표는 숫자여야 지도가 쓴다 */
-  if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v)
-  return fail(field, `숫자여야 하는데 ${JSON.stringify(v)} 다`)
-}
+const { str, num }: Guards = guards(SUBJECT, HINT)
 
 function toPlace(w: WireEvent): Place {
   if (w.place === null || w.place === undefined) {

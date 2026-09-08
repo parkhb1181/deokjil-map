@@ -25,7 +25,6 @@
  *   기록 (AD-05) — 남긴다고 처리방침에 써놓고 볼 자리가 없었다
  */
 import { useState } from 'react'
-import { useViewer } from '@/lib/auth/useViewer'
 import { USE_API } from '@/lib/api/config'
 import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
@@ -262,15 +261,23 @@ export default function Admin() {
    * 관리자인가 (AD-06).
    *
    * 로그인은 카카오 하나로 하고 역할만 얹는다 (2026-09-05 결정).
-   * 서버가 /users/me 에 role 을 실어 주고 화면은 그것만 본다.
    *
    * **화면이 판정하지 않는다.** 여기서 정하면 이 상태를 뒤집는 것으로
    * 그냥 뚫린다. 백오피스 API 자체도 서버가 막아야 하고, 이 화면은
    * 못 들어가는 사람에게 무엇을 보여줄지만 정한다.
+   *
+   * **판정 근거는 관리자 API 의 응답이다.** 한때 `/users/me` 의 `role` 을
+   * 봤는데 그런 칸이 서버에도 계약에도 없었다 (API 설계 2-2). admin
+   * 토큰으로 불러도 같은 몸이 와서 늘 거짓이 됐다. `/api/v1/admin/**` 을
+   * 부르고 403 이면 아닌 것으로 친다 — 판정자가 서버 하나로 남아야
+   * ADR 0003 의 「인가는 AdminAccount」 가 유지된다.
+   *
+   * 그 엔드포인트가 아직 없다. 생기면 여기서 부르고 `pending` 을 로딩
+   * 화면에 쓴다. 그때까지 API 를 켜면 막힌 화면이 뜬다 — 백오피스는
+   * 어차피 서버가 없으면 아무것도 못 한다.
    */
   const [devAdmin, setDevAdmin] = useState(true)
-  const { isAdmin } = useViewer({ role: 'guest', userId: null, sanction: null })
-  const admin = USE_API ? !!isAdmin : devAdmin
+  const admin = USE_API ? false : devAdmin
   const [tab, setTab] = useState<Tab>('reports')
 
   const [only, setOnly] = useState(true)
