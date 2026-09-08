@@ -106,6 +106,11 @@ const RULES: Record<string, Rule> = {
   COMMENT_DEPTH_EXCEEDED: { at: 'banner', text: '답글에는 답글을 달 수 없어요' },
   COMMENT_SECRET_NOT_CHANGEABLE: { at: 'banner', text: '비밀 여부는 나중에 바꿀 수 없어요' },
   COMMENT_NOT_AUTHOR: { at: 'banner', text: '내가 쓴 댓글만 고칠 수 있어요' },
+  /* 삭제는 작성자 또는 방장이 한다 (CM-10). 그래서 이름과 문장이 따로다 */
+  COMMENT_NOT_AUTHOR_OR_HOST: {
+    at: 'banner',
+    text: '내가 쓴 댓글이거나 내 모집글의 댓글만 지울 수 있어요',
+  },
 
   /* 신고 (ReportErrorCode) */
   REPORT_DUPLICATED: { at: 'banner', text: '이미 신고한 건이에요' },
