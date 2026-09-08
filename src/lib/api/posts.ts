@@ -194,13 +194,23 @@ export async function createPost(body: PostWrite, token: string): Promise<Writte
 /**
  * 수정 (PO-06). `OPEN` 에서만 통하고 `CLOSED` 면 409 다.
  *
- * **서버에 아직 없다** (2026-09-08 확인. 공개 스펙의 `/api/v1/posts/{postId}`
- * 가 `get` 뿐이다). 지금 부르면 500 이 온다. 티켓이 나오면 그대로 동작한다 —
- * 경로와 본문은 계약대로 맞춰 두었다.
+ * ─────────────────────────────────────────────────────────
+ * **`PATCH` 인데 전체를 보낸다.**
+ *
+ * 메서드 이름만 보면 바꿀 칸만 보내면 될 것 같지만, 서버는 작성과 같은
+ * 검증을 건다. 제목만 보내면 「만남시각을 입력해 주세요」 400 이 온다
+ * (2026-09-08 실측).
+ *
+ * 그래서 타입을 `Partial` 이 아니라 `PostWrite` 그대로 둔다. 부분만 받게
+ * 두면 부르는 쪽이 「바뀐 칸만 보내면 되겠지」 하고 짜게 되고, 그 실수는
+ * 컴파일에서 안 잡히고 사용자가 저장을 누르는 순간에만 드러난다.
+ *
+ * 수정 화면이 모든 칸을 이미 채워 두고 있어서(`NewPost` 의 `draft`)
+ * 전체를 보내는 데 드는 비용은 없다.
  */
 export async function updatePost(
   id: string,
-  body: Partial<PostWrite>,
+  body: PostWrite,
   token: string,
 ): Promise<WrittenPost> {
   return toWrittenPost(
@@ -214,7 +224,8 @@ export async function updatePost(
  * **상태를 PATCH 로 넘기지 않는다.** 전이 규칙이 한 경로에만 있어야
  * 배치(PO-14)와 같은 코드를 지난다 (도메인 3.1).
  *
- * 수정과 마찬가지로 **서버에 아직 없다.** 지금 부르면 404 다.
+ * 2026-09-08 에 서버에 들어왔다. 응답은 {id, status, closedReason} 인데
+ * 화면이 목록을 다시 읽으므로 쓰지 않는다.
  */
 export async function closePost(id: string, token: string): Promise<void> {
   await apiSend<unknown>('POST', `/api/v1/posts/${encodeURIComponent(id)}/close`, undefined, token)
