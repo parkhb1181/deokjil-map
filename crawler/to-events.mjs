@@ -7,6 +7,19 @@
  * 상대 서버를 다시 두드리지 않기 위해서다.
  *
  * 기본은 K-pop 관련만 남긴다. --all 을 주면 카테고리 필터를 끄고 전부 내보낸다.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **`source` 는 화면이 읽지 않는다.** 적재(scripts/upsert-events.mjs)만 쓴다.
+ *
+ * 백엔드가 이 값을 요청 바디에 명시하라고 요구한다 — `id` 접두어에서 유도하지
+ * 않는다(위키 05-기록-회고/2026-09-08 D-9). 접두어를 파싱하면 `pg_` 를 바꾸는
+ * 순간 적재가 조용히 틀린 수집원으로 들어가고, 그 사실이 어디에도 드러나지
+ * 않는다. 그래서 **어느 소스인지 아는 자리에서 그냥 적는다** — 아래 빌더 셋은
+ * 각각 한 소스만 만든다.
+ *
+ * `src/types.ts` 의 `EventItem` 에는 넣지 않았다. 그 타입은 화면 계약이고
+ * `/api/v1/events` 응답에 `source` 가 없어서, 필수로 두면 API 경로의 매퍼
+ * (`src/lib/api/events.ts`)가 만들어낼 수 없는 필드를 요구하게 된다.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
@@ -199,6 +212,7 @@ function toEvent(rec, artist) {
 
   return {
     id: `pg_${rec.source_url.split('/').pop()}`,
+    source: 'POPGA',
     place: {
       name: placeName,
       address,
@@ -258,6 +272,7 @@ function offmateToEvent(rec) {
 
   return {
     id: `om_${rec.id}`,
+    source: 'OFFMATE',
     place: {
       // 생카는 카페가 장소다. 생카 이름(rec.name)은 이벤트명이지 장소명이 아니다
       name: rec.cafeName || address || rec.name || '장소 미정',
@@ -374,6 +389,7 @@ function kopisToEvent(rec, artist) {
   const address = rec.address ?? ''
   return {
     id: `kopis_${rec.mt20id}`,
+    source: 'KOPIS',
     place: {
       name: rec.facilityName || address,
       address,
