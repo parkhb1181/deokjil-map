@@ -3208,3 +3208,10 @@
   color: var(--text-mute);
 }
 .subjgone .btn { margin-top: 22px; }
+
+/* 목록 끝의 「더 보기」. 카드와 같은 좌우 시작선을 쓰고 위아래로만 띄운다 */
+.plist__more {
+  display: flex;
+  justify-content: center;
+  padding: 8px var(--gutter) 16px;
+}

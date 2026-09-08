@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import sample from '@/data/posts-list.sample.json'
 import { USE_API } from '@/lib/api/config'
-import { fetchPosts, type PostListItem } from '@/lib/api/posts'
-import PostList, { type ListItem } from './PostList'
+import { fetchPosts } from '@/lib/api/posts'
+import PostList, { toListItem, type ListItem } from './PostList'
 
 /**
  * 모집글 목록.
@@ -31,38 +31,6 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-/**
- * 계약 모양 → 화면 모양.
- *
- * 두 이름이 갈린다. 화면은 사람 사진을 `imageUrl`, 행사 사진도
- * `imageUrl` 로 부르는데 계약은 `profileImageUrl` 과 `eventImageUrl` 로
- * 나눠 쓴다. **계약 쪽이 맞다** — 하나는 사람이고 하나는 포스터라 같은
- * 이름을 쓰면 어느 쪽인지 매번 따져야 한다 (types.ts `PostAuthor`).
- *
- * 화면 타입을 바꾸는 대신 여기서 옮긴다. `PostList` 는 260줄이고 지금
- * 고칠 이유가 이름 하나뿐이라, 배선과 이름 정리를 한 커밋에 섞지 않는다.
- */
-function toListItem(p: PostListItem): ListItem {
-  return {
-    id: p.id,
-    eventId: p.eventId,
-    eventTitle: p.eventTitle ?? null,
-    title: p.title,
-    excerpt: p.excerpt,
-    status: p.status,
-    closedReason: p.closedReason,
-    capacity: p.capacity,
-    meetAt: p.meetAt,
-    meetPoint: p.meetPoint,
-    author: {
-      id: p.author.id,
-      nickname: p.author.nickname,
-      imageUrl: p.author.profileImageUrl ?? null,
-    },
-    commentCount: p.commentCount,
-    imageUrl: p.eventImageUrl ?? null,
-  }
-}
 
 export default async function Page() {
   if (!USE_API) {
@@ -77,5 +45,5 @@ export default async function Page() {
    */
   const page = await fetchPosts({})
 
-  return <PostList posts={page.items.map(toListItem)} />
+  return <PostList posts={page.items.map(toListItem)} nextCursor={page.nextCursor} />
 }

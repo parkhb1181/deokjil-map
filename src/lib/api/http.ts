@@ -180,7 +180,7 @@ export async function apiGetAll<T>(path: string, params?: Params, maxPages = 40)
 }
 
 /**
- * 쓰기 요청. POST · PATCH · DELETE.
+ * 쓰기 요청. POST · PUT · PATCH · DELETE.
  *
  * 읽기와 갈라둔 이유가 셋이다.
  *
@@ -193,7 +193,7 @@ export async function apiGetAll<T>(path: string, params?: Params, maxPages = 40)
  * **본문이 있다.** 204 로 본문 없이 오는 것도 있어서 파싱을 나눈다.
  */
 export async function apiSend<T>(
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body?: unknown,
   token?: string | null,

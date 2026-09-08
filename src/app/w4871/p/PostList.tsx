@@ -9,9 +9,10 @@
  * 비회원도 목록을 본다 (Q-04 노출함). 로그인은 화면이 아니라
  * 행동에 붙는다. 글쓰기를 누를 때 막힌다.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useViewer } from '@/lib/auth/useViewer'
 import { USE_API } from '@/lib/api/config'
+import { fetchPosts, type PostListItem } from '@/lib/api/posts'
 import { canWrite } from '@/types'
 import Link from 'next/link'
 import type { ClosedReason, MeetPoint, PostState } from '@/types'
@@ -41,6 +42,39 @@ export type ListItem = {
 
 /* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면
    목록이 두 배가 되고 정작 갈 수 있는 글이 묻힌다 */
+/**
+ * 계약 모양 → 화면 모양.
+ *
+ * 두 이름이 갈린다. 화면은 사람 사진을 `imageUrl`, 행사 사진도
+ * `imageUrl` 로 부르는데 계약은 `profileImageUrl` 과 `eventImageUrl` 로
+ * 나눠 쓴다. **계약 쪽이 맞다** — 하나는 사람이고 하나는 포스터라 같은
+ * 이름을 쓰면 어느 쪽인지 매번 따져야 한다 (types.ts `PostAuthor`).
+ *
+ * 화면 타입을 바꾸는 대신 여기서 옮긴다. `PostList` 는 260줄이고 지금
+ * 고칠 이유가 이름 하나뿐이라, 배선과 이름 정리를 한 커밋에 섞지 않는다.
+ */
+export function toListItem(p: PostListItem): ListItem {
+  return {
+    id: p.id,
+    eventId: p.eventId,
+    eventTitle: p.eventTitle ?? null,
+    title: p.title,
+    excerpt: p.excerpt,
+    status: p.status,
+    closedReason: p.closedReason,
+    capacity: p.capacity,
+    meetAt: p.meetAt,
+    meetPoint: p.meetPoint,
+    author: {
+      id: p.author.id,
+      nickname: p.author.nickname,
+      imageUrl: p.author.profileImageUrl ?? null,
+    },
+    commentCount: p.commentCount,
+    imageUrl: p.eventImageUrl ?? null,
+  }
+}
+
 const TABS = [
   { key: 'OPEN', label: '모집중' },
   { key: 'all', label: '전체' },
@@ -50,7 +84,21 @@ const TABS = [
    API 가 붙으면 이 상태와 아래 whoami 막대를 지운다 */
 const VIEWS = ['정상', '비었음', '실패', '기다리는 중'] as const
 
-export default function PostList({ posts }: { posts: ListItem[] }) {
+export default function PostList({
+  posts,
+  nextCursor,
+}: {
+  posts: ListItem[]
+  /**
+   * 다음 장을 가리키는 커서. `null` 이면 마지막 장이다.
+   *
+   * **없으면 첫 20건이 전부가 된다.** 서버가 커서 페이지네이션이라
+   * (API 설계 3장) 한 번 부르면 한 장만 온다. 한동안 이 값을 안 받아서
+   * 21번째 글부터는 어떤 화면으로도 닿을 수 없었다. 시드가 몇 건뿐이라
+   * 눈에 안 띄었을 뿐이다.
+   */
+  nextCursor?: string | null
+}) {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('OPEN')
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
@@ -81,14 +129,57 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
    * 제목·장소·행사명을 다 본다. 사람들이 "성수" 로도 찾고 "에이티즈"
    * 로도 찾는데 어느 칸에 있는지는 모른다.
    */
+  /**
+   * 이어 받은 장들. 서버가 준 첫 장 뒤에 붙는다.
+   *
+   * 상태를 여기 두는 이유는 첫 장이 props 로 오기 때문이다. 전부를
+   * 한 상태에 담고 props 를 초기값으로 쓰면, 글을 쓰고 돌아왔을 때
+   * 서버가 준 새 목록이 무시된다 (초기값은 한 번만 읽힌다).
+   */
+  const [more, setMore] = useState<ListItem[]>([])
+  const [cursor, setCursor] = useState<string | null>(nextCursor ?? null)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  /* 서버가 새 첫 장을 주면 이어 받은 것을 버린다. 안 그러면 방금 쓴
+     글이 첫 장에 들어오면서 같은 글이 두 번 보인다 */
+  useEffect(() => {
+    setMore([])
+    setCursor(nextCursor ?? null)
+  }, [posts, nextCursor])
+
+  const loadMore = () => {
+    if (!cursor || loadingMore) return
+    setLoadingMore(true)
+    fetchPosts({ cursor })
+      .then((page) => {
+        setMore((prev) => [...prev, ...page.items.map(toListItem)])
+        setCursor(page.nextCursor)
+      })
+      /* 실패하면 커서를 그대로 둔다. 다시 누르면 같은 장을 다시 받는다 */
+      .catch(() => {})
+      .finally(() => setLoadingMore(false))
+  }
+
+  const all = useMemo(() => [...posts, ...more], [posts, more])
+
+  /**
+   * **거르기는 받아온 것 안에서만 돈다.**
+   *
+   * 목록을 나눠 받으므로 검색어가 뒷장에만 있는 글은 안 걸린다. 위
+   * 주석이 예고한 상황이 실제로 온 것이고, 제대로 고치려면 서버에
+   * `keyword` 를 넘겨야 한다 (API 설계 2-4 는 PO-13 을 브라우저 필터로
+   * 뒀지만 그것은 목록이 다 내려온다는 전제였다).
+   *
+   * 지금은 그대로 둔다. 글이 스무 건을 넘기 시작하면 그때 옮긴다.
+   */
   const list = useMemo(() => {
-    const byState = tab === 'OPEN' ? posts.filter((p) => p.status === 'OPEN') : posts
+    const byState = tab === 'OPEN' ? all.filter((p) => p.status === 'OPEN') : all
     const key = q.trim().toLowerCase()
     if (!key) return byState
     return byState.filter((p) =>
       `${p.title} ${p.meetPoint.place} ${p.eventTitle ?? ''}`.toLowerCase().includes(key),
     )
-  }, [posts, tab, q])
+  }, [all, tab, q])
 
   return (
     <PageShell title="동행 모집">
@@ -205,6 +296,25 @@ export default function PostList({ posts }: { posts: ListItem[] }) {
                 />
               </Link>
             ))}
+
+            {/*
+              스크롤로 자동으로 부르지 않고 버튼을 둔다.
+
+              자동이면 목록 끝에 있는 글쓰기 버튼과 하단 탭에 닿기 전에
+              계속 새 줄이 밀려 들어와, 아래로 가려던 사람이 못 간다.
+              당근·번개장터도 목록이 길어지면 버튼을 쓴다.
+
+              **검색 중에는 감춘다.** 지금 거르기가 받아온 것 안에서만
+              돌아서, 더 받으면 결과가 갑자기 늘어나는 것처럼 보인다.
+              무엇이 기준인지 알 수 없는 화면이 된다.
+            */}
+            {cursor && !q.trim() && (
+              <div className="plist__more">
+                <Button tone="ghost" onClick={loadMore} disabled={loadingMore}>
+                  {loadingMore ? '불러오는 중' : '더 보기'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

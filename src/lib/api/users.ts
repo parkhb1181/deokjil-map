@@ -1,5 +1,5 @@
 import type { LastSeen, Sanction } from '@/types'
-import { apiGet } from './http'
+import { apiGet, apiSend } from './http'
 import { contractError, guards, type Guards } from './wire'
 
 /**
@@ -86,4 +86,53 @@ export function toMe(raw: unknown): Me {
 /** 내 정보 한 건. 토큰이 필요하다 (AU-12) */
 export async function fetchMe(token: string): Promise<Me> {
   return toMe(await apiGet<unknown>('/api/v1/users/me', undefined, token))
+}
+
+/* ── 가입 ────────────────────────────────────────────────── */
+
+/**
+ * 닉네임을 쓸 수 있나 (AU-06).
+ *
+ * **확정이 아니다.** 확인과 저장 사이에 남이 같은 이름을 채 갈 수 있다.
+ * 최종 판정은 저장 시점의 유니크 제약이고, 걸리면 409 다 (I-01).
+ * 그래서 이 결과를 믿고 저장을 건너뛰면 안 된다 — 화면이 미리 알려주는
+ * 편의일 뿐이다.
+ */
+export async function checkNickname(nickname: string, token: string): Promise<boolean> {
+  const r = await apiGet<{ available?: unknown }>(
+    '/api/v1/users/nickname-availability',
+    { nickname },
+    /*
+     * **토큰이 필요하다.** 공개 조회처럼 보이지만 `SecurityConfig` 가
+     * `AUTH` 등급으로 묶어 두었다 (`/users/me` 와 같은 줄). 로그인 뒤
+     * 가입 정보를 채우는 화면에서만 쓰이므로 그 편이 맞다 — 익명이
+     * 회원 닉네임을 마음껏 캐물을 이유가 없다.
+     *
+     * 한동안 토큰 없이 불러 401 을 받았다. 화면에는 「다시 로그인해주세요」
+     * 가 떠서, 방금 로그인한 사람이 확인 버튼만 누르면 로그인을 다시
+     * 하라는 말을 들었다.
+     */
+    token,
+  )
+  return bool(r?.available, 'available')
+}
+
+/**
+ * 가입 정보 입력 (AU-05).
+ *
+ * **한 번만 통한다.** 이미 넣은 사람이 다시 부르면 409 다 — 출생연도가
+ * 가입 후 잠기기 때문이다 (AU-08).
+ *
+ * **연령대가 아니라 출생연도를 보낸다** (I-15). 판정은 서버가 한다.
+ * 화면 검증만으로는 API 직접 호출을 막지 못한다.
+ *
+ * 응답 본문이 없다. **끝나면 토큰을 새로 받아야 쓰기가 열린다** —
+ * 지금 들고 있는 액세스 토큰에는 `signupCompleted: false` 가 박혀 있어서,
+ * 그대로 쓰면 서버 관문이 계속 403 을 준다 (AU-07).
+ */
+export async function completeSignup(
+  body: { nickname: string; birthYear: number },
+  token: string,
+): Promise<void> {
+  await apiSend<unknown>('PUT', '/api/v1/users/me/signup-info', body, token)
 }
