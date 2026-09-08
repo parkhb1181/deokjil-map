@@ -18,53 +18,32 @@ import { apiSend } from './http'
  * 화면에 무엇이 떴든 API 는 직접 호출될 수 있기 때문이다.
  */
 
+/**
+ * 대상 종류. **계약은 대문자다** (API 컨벤션 「Enum은 대문자 스네이크」).
+ *
+ * 화면은 `ReportSheet` 가 소문자(`'user' | 'post' | 'comment'`)로 받는다.
+ * 그쪽이 프롭 이름이라 부르는 자리가 여럿이고, 계약 어휘를 화면까지
+ * 밀어 넣는 대신 보내기 직전 한 곳에서 옮긴다.
+ */
 export type ReportTarget = 'USER' | 'POST' | 'COMMENT'
 
-export type ReportReason =
-  | 'ADVERTISEMENT'
-  | 'INAPPROPRIATE'
-  | 'ABUSE'
-  | 'NO_SHOW'
-  | 'AGE_SUSPICION'
-  | 'FALSE_INFO'
-  | 'OFF_TOPIC'
-
 /**
- * 대상별 사유. **공통 셋이 앞이고 대상별이 뒤에 붙는다.**
+ * 사유 목록과 대상별 조합표는 `components/ui/ReportSheet.tsx` 가 갖는다.
  *
- * 순서가 화면 순서다. 위키 API 설계 2-6 의 조합표와 1:1 이라 그쪽이
- * 바뀌면 여기도 바뀐다.
+ * **여기로 옮기지 않는다.** 그리는 쪽과 값 집합이 한 파일에 있어야
+ * 목록에 없는 값을 화면이 만들 수 없다. 클라이언트가 목록을 갖기로 한
+ * 결정(D-6) 자체가 「신고 시트를 열 때마다 왕복하지 않는다」 는 뜻이라,
+ * 시트가 주인인 것이 맞다.
  *
- * **`AGE_SUSPICION` 을 `UNDERAGE` 로 쓰지 않는다.** 화면 문구가
- * 「만 14세 미만으로 보입니다」 가 아니라 「나이를 속인 것 같아요」 인
- * 이유 — 신고자에게 남의 나이를 판정시키지 않는다 — 가 코드명에도
- * 남아야 한다.
- *
- * **사칭 사유를 두지 않는다** (2026-09-05). 1차에 신원 확인 수단이 없어
- * 조치할 수 없는 신고만 쌓인다. 주최자 사칭은 모집글 내용이라
- * `POST` 의 `FALSE_INFO` 로 받는다.
+ * 한때 이 파일에도 같은 표를 두었다가 지웠다 — 둘이 갈리면 화면에
+ * 뜬 사유를 서버가 400 으로 막는데 어느 쪽이 틀렸는지 알 수 없다.
  */
-export const REPORT_REASONS: Record<ReportTarget, ReportReason[]> = {
-  USER: ['ADVERTISEMENT', 'INAPPROPRIATE', 'ABUSE', 'NO_SHOW', 'AGE_SUSPICION'],
-  POST: ['ADVERTISEMENT', 'INAPPROPRIATE', 'ABUSE', 'FALSE_INFO', 'OFF_TOPIC'],
-  COMMENT: ['ADVERTISEMENT', 'INAPPROPRIATE', 'ABUSE', 'FALSE_INFO'],
-}
-
-/** 화면 문구. 코드가 아니라 이 문장을 사용자에게 보인다 */
-export const REPORT_REASON_LABEL: Record<ReportReason, string> = {
-  ADVERTISEMENT: '광고 · 홍보',
-  INAPPROPRIATE: '부적절한 내용',
-  ABUSE: '욕설 · 비방',
-  NO_SHOW: '약속을 지키지 않음',
-  AGE_SUSPICION: '나이를 속인 것 같아요',
-  FALSE_INFO: '허위 정보',
-  OFF_TOPIC: '동행과 무관한 글',
-}
+export type { ReportReason } from '@/components/ui/ReportSheet'
 
 export interface ReportWrite {
   targetType: ReportTarget
   targetId: string
-  reason: ReportReason
+  reason: string
   /** 자유 서술. 없어도 된다 */
   detail?: string
 }

@@ -28,6 +28,10 @@ import { asServerWouldSend, threaded } from '@/lib/comment-perm'
 import { wf } from '@/lib/wireframe'
 import { useViewer } from '@/lib/auth/useViewer'
 import { USE_API } from '@/lib/api/config'
+import { deleteComment, editComment, writeComment } from '@/lib/api/comments'
+import { closePost } from '@/lib/api/posts'
+import { slotFor } from '@/lib/api/errors'
+import { authed } from '@/lib/auth/authed'
 import { whenText, dateOnly, shortTime } from '@/lib/when'
 
 
@@ -65,12 +69,13 @@ type Ask =
   | { k: 'login'; why: LoginWhy }
   | { k: 'done' }
   | { k: 'report' }
-  | { k: 'report-comment' }
+  /* 어느 댓글을 신고하는지 같이 든다. 시트가 열린 것과 대상이 어긋나지 않게 */
+  | { k: 'report-comment'; id: string }
   | { k: 'delete'; id: string }
   /* 아바타를 눌러 연 사람 시트. 누구인지 같이 들고 다녀야 시트가
      열린 것과 보고 있는 사람이 어긋나지 않는다 */
   | { k: 'person'; user: PostAuthor; isMe: boolean }
-  | { k: 'report-user'; name: string }
+  | { k: 'report-user'; userId: string; name: string }
 
 /* 무엇을 하려다 막혔는지에 따라 문구가 달라진다. 신고하려다 막힌
    사람에게 댓글 얘기를 하면 자기가 누른 것이 먹힌 것인지 알 수 없다 */
@@ -116,6 +121,11 @@ export default function PostDetail({ post, comments, hostId }: {
      ReportSheet 는 처음부터 셋(유저·글·댓글)을 받게 되어 있었고
      부르는 쪽이 target 을 안 넘긴 것이 원인이었다 */
   const [ask, setAsk] = useState<Ask>(null)
+  /* 서버가 막았을 때 띄울 문장. 댓글 칸 위에 둔다 */
+  const [failed, setFailed] = useState<string | null>(null)
+  const [sending, setSending] = useState(false)
+  /* 행사 포스터가 안 뜬 경우. 빈 회색 블록을 남기지 않는다 */
+  const [coverFailed, setCoverFailed] = useState(false)
   /** 취소 사유. 시트가 닫히면 비운다 */
 
   const isHost = viewer.userId === hostId
@@ -152,13 +162,45 @@ export default function PostDetail({ post, comments, hostId }: {
     boxRef.current?.focus()
   }
 
+  /**
+   * 쓰고 나면 목록을 다시 읽는다.
+   *
+   * **화면에서 지어내지 않는다.** 작성 응답에는 `author` 도
+   * `availableActions` 도 없다 — 둘 다 보는 사람에 따라 갈리는 판정이라
+   * 서버가 조회 때만 조립한다 (`lib/api/comments.ts`). 화면이 만들어
+   * 끼우면 그 순간부터 권한 규칙이 두 곳에 살고, 새로고침하면 값이
+   * 달라진다.
+   *
+   * 삭제도 마찬가지다. 아래 대댓글이 있으면 자리표시자로 남고 없으면
+   * 목록에서 빠지는데(CM-11), 어느 쪽인지는 서버가 안다.
+   */
+  const reload = () => router.refresh()
+
+  const fail = (e: unknown) => setFailed(slotFor(e).text)
+
+  /**
+   * 모집 완료 (PO-07).
+   *
+   * **`PATCH` 로 status 를 넘기지 않는다.** 전이 규칙이 한 경로에만
+   * 있어야 마감 배치(PO-14)와 같은 코드를 지난다 (도메인 3.1).
+   */
+  const done = () => {
+    setAsk(null)
+    if (!USE_API) return
+    setFailed(null)
+    authed((t) => closePost(post.id, t)).then(reload).catch(fail)
+  }
+
   const erase = (id: string) => {
-    setErased((prev) => [...prev, id])
     /* 지운 댓글에 답글을 쓰고 있었다면 그 자리도 같이 접는다 */
     setReplyTo((r) => (r?.id === id ? null : r))
     /* 고치던 중에 지웠다면 입력칸도 접는다 */
     setEditing((e) => (e?.id === id ? null : e))
     setAsk(null)
+
+    if (!USE_API) return setErased((prev) => [...prev, id])
+    setFailed(null)
+    authed((t) => deleteComment(id, t)).then(reload).catch(fail)
   }
 
   /* 고치기는 본문만 바꾼다. 비밀 여부는 작성 후 못 바꾼다 (CM-03).
@@ -167,18 +209,45 @@ export default function PostDetail({ post, comments, hostId }: {
     if (!editing) return
     const body = editing.draft.trim()
     if (!body || body.length > 500) return
-    /* 아직 API 가 없다. 붙으면 PATCH 하고 목록을 다시 읽는다 */
-    setEdited((prev) => ({ ...prev, [editing.id]: body }))
-    setEditing(null)
+
+    if (!USE_API) {
+      setEdited((prev) => ({ ...prev, [editing.id]: body }))
+      setEditing(null)
+      return
+    }
+    setFailed(null)
+    authed((t) => editComment(editing.id, body, t))
+      .then(() => {
+        setEditing(null)
+        reload()
+      })
+      .catch(fail)
   }
 
   const submit = () => {
     if (isGuest) return gate('comment')
-    /* 아직 API 가 없다. 붙으면 여기서 POST 하고 목록을 다시 읽는다.
-       parentId 는 replyTo?.id 로 나간다 */
-    setDraft('')
-    setSecret(false)
-    setReplyTo(null)
+    const body = draft.trim()
+    if (!body) return
+
+    const clear = () => {
+      setDraft('')
+      setSecret(false)
+      setReplyTo(null)
+    }
+
+    if (!USE_API) return clear()
+
+    setFailed(null)
+    setSending(true)
+    authed((t) =>
+      writeComment(post.id, { content: body, parentId: replyTo?.id ?? null, secret }, t),
+    )
+      .then(() => {
+        clear()
+        reload()
+      })
+      .catch(fail)
+      .finally(() => setSending(false))
   }
 
   return (
@@ -234,8 +303,35 @@ export default function PostDetail({ post, comments, hostId }: {
 
       {/* 당근 동네생활 글의 순서를 그대로 쓴다.
           칩 → 글쓴이 → 제목 → 본문 → 카운터 → 댓글 */}
-      {post.eventImageUrl && (
-        <img className="post__cover" src={post.eventImageUrl} alt="" />
+      {post.eventImageUrl && !coverFailed && (
+        /*
+         * 포스터는 원본 서버 주소를 그대로 들고 있다. 우리가 복제하지
+         * 않기 때문에 (CLAUDE.md 「원본을 재게시하지 않는다」) 상대 서버
+         * 사정으로 언제든 안 뜰 수 있다.
+         *
+         * **안 뜨면 자리를 비운다.** `aspect-ratio: 4/5` 에 `max-height:
+         * 60vh` 라 실패하면 화면 높이의 60% 가 빈 회색으로 남고, 사용자는
+         * 로딩이 멈춘 줄 알고 기다린다. 목록 카드·행사 상세·행사 고르기가
+         * 이미 같은 방식으로 처리한다.
+         */
+        <img
+          className="post__cover"
+          src={post.eventImageUrl}
+          alt=""
+          /*
+           * **`onError` 만으로는 못 잡는다.** 이 `img` 는 서버가 그려
+           * 보낸 HTML 에 이미 들어 있어서, 하이드레이션으로 핸들러가
+           * 붙기 전에 로딩이 끝나 있는 경우가 많다. 그때는 error 가
+           * 이미 지나가 다시 오지 않는다.
+           *
+           * 그래서 ref 로 붙는 순간 한 번 검사한다. `complete` 인데
+           * `naturalWidth` 가 0 이면 실패한 것이다.
+           */
+          ref={(el) => {
+            if (el?.complete && el.naturalWidth === 0) setCoverFailed(true)
+          }}
+          onError={() => setCoverFailed(true)}
+        />
       )}
 
       <article className="post">
@@ -407,7 +503,7 @@ export default function PostDetail({ post, comments, hostId }: {
                       <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
                     )}
                     {c.availableActions.includes('REPORT') && (
-                      <button onClick={() => setAsk({ k: 'report-comment' })}>신고</button>
+                      <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>신고</button>
                     )}
                   </>
                 )
@@ -446,6 +542,13 @@ export default function PostDetail({ post, comments, hostId }: {
           <WriteGate sanction={viewer.sanction} what="댓글" />
         ) : (
           <>
+            {/* 서버가 막았을 때. 입력칸 바로 위라 무엇이 실패했는지가
+                누른 자리와 붙어 보인다 */}
+            {failed && (
+              <p className="form__failed" role="alert">
+                {failed}
+              </p>
+            )}
             {replyTo && (
               /* 어느 댓글에 다는 중인지 입력칸 위에 남긴다. 없으면
                  답글을 눌러놓고 새 댓글을 쓴 것으로 착각한다 */
@@ -486,8 +589,12 @@ export default function PostDetail({ post, comments, hostId }: {
               <span className={`write__count${draft.length > 500 ? ' write__count--over' : ''}`}>
                 {draft.length}/500
               </span>
-              <Button size="sm" disabled={!draft.trim() || draft.length > 500} onClick={submit}>
-                올리기
+              <Button
+                size="sm"
+                disabled={sending || !draft.trim() || draft.length > 500}
+                onClick={submit}
+              >
+                {sending ? '올리는 중' : '올리기'}
               </Button>
             </div>
           </>
@@ -522,7 +629,7 @@ export default function PostDetail({ post, comments, hostId }: {
           foot={
             <>
               <Button tone="ghost" onClick={() => setAsk(null)}>아니요</Button>
-              <Button onClick={() => setAsk(null)}>완료할게요</Button>
+              <Button onClick={done}>완료할게요</Button>
             </>
           }
         />
@@ -549,21 +656,21 @@ export default function PostDetail({ post, comments, hostId }: {
           /* 시트 위에 시트를 쌓지 않는다. 사람 시트를 닫고 신고 시트를
              연다. 겹치면 뒤엣것을 닫았을 때 앞엣것이 남는다 */
           onReport={() =>
-            isGuest ? gate('report') : setAsk({ k: 'report-user', name: ask.user.nickname })
+            isGuest ? gate('report') : setAsk({ k: 'report-user', userId: ask.user.id, name: ask.user.nickname })
           }
         />
       )}
 
       {ask?.k === 'report-user' && (
-        <ReportSheet target="user" name={ask.name} onClose={() => setAsk(null)} />
+        <ReportSheet target="user" targetId={ask.userId} name={ask.name} onClose={() => setAsk(null)} />
       )}
 
       {ask?.k === 'report' && (
-        <ReportSheet target="post" onClose={() => setAsk(null)} />
+        <ReportSheet target="post" targetId={post.id} onClose={() => setAsk(null)} />
       )}
 
       {ask?.k === 'report-comment' && (
-        <ReportSheet target="comment" onClose={() => setAsk(null)} />
+        <ReportSheet target="comment" targetId={ask.id} onClose={() => setAsk(null)} />
       )}
     </PageShell>
   )

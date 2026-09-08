@@ -31,6 +31,10 @@ import { Field, TextInput, TextArea, ChoiceChips } from '@/components/ui/Field'
 import { EventPicker, type PickableEvent } from '@/components/ui/EventPicker'
 import { PlacePicker, type Pin } from '@/components/ui/PlacePicker'
 import { wf } from '@/lib/wireframe'
+import { USE_API } from '@/lib/api/config'
+import { createPost, updatePost, type PostWrite } from '@/lib/api/posts'
+import { slotFor } from '@/lib/api/errors'
+import { authed } from '@/lib/auth/authed'
 
 type Form = {
   title: string
@@ -141,6 +145,9 @@ export default function NewPost({
   const [tried, setTried] = useState(false)
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
+  /* 서버가 막았을 때. 칸을 짚는 것과 아닌 것을 갈라 둔다 (errors.ts) */
+  const [failed, setFailed] = useState<string | null>(null)
+  const [serverField, setServerField] = useState<Record<string, string>>({})
 
   /*
    * 나갈 때 물어볼 것인가.
@@ -161,7 +168,12 @@ export default function NewPost({
     : Object.values(f).some((v) => v.trim() !== '') || event !== null || pin !== null
 
   const errors = validate(f, event)
-  const show = (k: keyof Form) => (tried ? errors[k] : undefined)
+  /*
+   * 화면 검증과 서버 검증을 같은 자리에 그린다. 서버 것이 이긴다 —
+   * 방금 돌아온 답이 더 최신이고, 화면이 통과시킨 값을 서버가 막은
+   * 상황이라 화면 쪽 문구는 이미 틀린 말이다.
+   */
+  const show = (k: keyof Form) => serverField[k] ?? (tried ? errors[k] : undefined)
   const set = (k: keyof Form) => (v: string) => setF((p) => ({ ...p, [k]: v }))
 
   const submit = () => {
@@ -175,20 +187,53 @@ export default function NewPost({
       return
     }
     setSending(true)
+    setFailed(null)
+
     /*
-     * API 가 붙으면 여기서 부른다. 쓰기는 POST /posts, 수정은
-     * PATCH /posts/{id} 다. 지금은 서버가 없어 목데이터만 보고 있다.
-     *
      * **수정은 그 글로 돌아간다.** 방금 고친 것이 반영됐는지 바로
      * 봐야 한다. 목록으로 보내면 다시 찾아 들어가야 한다.
      *
      * replace 다. push 면 뒤로가기가 방금 낸 폼으로 되돌아가고,
      * 거기서 다시 누르면 같은 요청이 두 번 나간다.
      */
-    setTimeout(() => {
-      setSending(false)
-      router.replace(editing ? wf(`/p/${draft.id}`) : wf('/p'))
-    }, 600)
+    const goBack = (id: string) => router.replace(editing ? wf(`/p/${id}`) : wf('/p'))
+
+    if (!USE_API) {
+      /* 서버가 없을 때의 미리보기. 붙으면 이 분기를 지운다 */
+      setTimeout(() => {
+        setSending(false)
+        goBack(draft?.id ?? '')
+      }, 600)
+      return
+    }
+
+    /*
+     * 폼의 meetAt 은 'YYYY-MM-DDTHH:mm' 이라 오프셋이 없다. 계약은
+     * ISO-8601 + KST 오프셋이다 (API 컨벤션 「필드 표기 규칙」).
+     * 붙이지 않으면 서버가 UTC 로 읽어 아홉 시간 당겨진 약속이 된다.
+     */
+    const body: PostWrite = {
+      title: f.title.trim(),
+      eventId: event?.id ?? null,
+      meetAt: `${f.meetAt}:00+09:00`,
+      meetPoint: { place: f.place.trim(), lat: pin.lat, lng: pin.lng },
+      content: f.content.trim() || undefined,
+      capacity: f.capacity ? Number(f.capacity) : null,
+    }
+
+    authed((t) => (editing ? updatePost(draft.id, body, t) : createPost(body, t)))
+      .then((saved) => goBack(saved.id))
+      .catch((e) => {
+        setSending(false)
+        /*
+         * 칸을 짚는 오류면 그 칸에, 아니면 띠에 띄운다. 서버가 막은
+         * 것과 화면이 막은 것이 같은 자리에 보여야 사용자가 두 번
+         * 배우지 않는다 (errors.ts).
+         */
+        const slot = slotFor(e)
+        if (slot.at === 'field') setServerField({ [slot.field]: slot.text })
+        else setFailed(slot.text)
+      })
   }
 
   return (
@@ -197,6 +242,13 @@ export default function NewPost({
       onBack={() => (dirty ? setAsk(true) : history.back())}
     >
       <div className="form">
+        {/* 칸을 못 짚는 실패. 제출 버튼 옆이 아니라 폼 맨 위다 —
+            긴 폼에서 버튼 옆에 두면 스크롤 밖에 있어 안 보인다 */}
+        {failed && (
+          <p className="form__failed" role="alert">
+            {failed}
+          </p>
+        )}
         {/* 무슨 행사인지부터 정하고 제목·내용을 쓴다. 당근도 동네생활
             글쓰기에서 카테고리를 맨 위에서 고른다.
 

@@ -156,17 +156,54 @@ export interface PostWrite {
   capacity?: number | null
 }
 
-export async function createPost(body: PostWrite, token: string): Promise<CompanionPost> {
-  return toPost(await apiSend<unknown>('POST', '/api/v1/posts', body, token))
+/**
+ * 방금 쓴 글.
+ *
+ * **조회 응답과 모양이 다르다.** `author` 와 `commentCount` 가 없다 —
+ * 댓글 작성 응답이 `author` · `availableActions` 를 빼는 것과 같은
+ * 이유로, 보는 사람에 따라 갈리는 판정을 작성 경로에서 조립하지 않는다.
+ *
+ * 한때 이걸 `toPost` 로 받다가 **성공한 요청에서 예외가 났다.** 글은
+ * 저장됐는데 화면에는 실패로 떴다. 로컬 연동 시험에서 잡았다.
+ * 지금은 화면이 `id` 만 쓰므로 그것만 확실히 한다.
+ */
+export interface WrittenPost {
+  id: string
+  title: string
+  status: PostState
+  meetAt: string
+  createdAt: string
 }
 
-/** 수정 (PO-06). `OPEN` 에서만 통하고 `CLOSED` 면 409 다 */
+function toWrittenPost(raw: unknown): WrittenPost {
+  if (raw === null || typeof raw !== 'object') fail('post', '객체가 아니다')
+  const w = raw as Wire
+  return {
+    id: str(w.id, 'id'),
+    title: str(w.title, 'title'),
+    status: str(w.status, 'status') as PostState,
+    meetAt: str(w.meetAt, 'meetAt'),
+    createdAt: str(w.createdAt, 'createdAt'),
+  }
+}
+
+export async function createPost(body: PostWrite, token: string): Promise<WrittenPost> {
+  return toWrittenPost(await apiSend<unknown>('POST', '/api/v1/posts', body, token))
+}
+
+/**
+ * 수정 (PO-06). `OPEN` 에서만 통하고 `CLOSED` 면 409 다.
+ *
+ * **서버에 아직 없다** (2026-09-08 확인. 공개 스펙의 `/api/v1/posts/{postId}`
+ * 가 `get` 뿐이다). 지금 부르면 500 이 온다. 티켓이 나오면 그대로 동작한다 —
+ * 경로와 본문은 계약대로 맞춰 두었다.
+ */
 export async function updatePost(
   id: string,
   body: Partial<PostWrite>,
   token: string,
-): Promise<CompanionPost> {
-  return toPost(
+): Promise<WrittenPost> {
+  return toWrittenPost(
     await apiSend<unknown>('PATCH', `/api/v1/posts/${encodeURIComponent(id)}`, body, token),
   )
 }
@@ -176,6 +213,8 @@ export async function updatePost(
  *
  * **상태를 PATCH 로 넘기지 않는다.** 전이 규칙이 한 경로에만 있어야
  * 배치(PO-14)와 같은 코드를 지난다 (도메인 3.1).
+ *
+ * 수정과 마찬가지로 **서버에 아직 없다.** 지금 부르면 404 다.
  */
 export async function closePost(id: string, token: string): Promise<void> {
   await apiSend<unknown>('POST', `/api/v1/posts/${encodeURIComponent(id)}/close`, undefined, token)

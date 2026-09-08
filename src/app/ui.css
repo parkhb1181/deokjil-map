@@ -1013,6 +1013,20 @@
   padding: 16px var(--gutter) 40px;
 }
 
+/* 서버가 막았는데 칸을 짚을 수 없는 경우. 폼 맨 위에 띠로 둔다 —
+   제출 버튼 옆에 두면 긴 폼에서 스크롤 밖이라 안 보인다.
+   카드에서 빨강을 안 쓰는 규칙은 목록 카드 얘기고, 여기는 사용자가
+   방금 누른 것이 실패한 자리라 danger 를 쓴다 */
+.form__failed {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 /* 날짜와 시각처럼 짝인 것은 나란히 둔다. 세로로 쌓으면 관계가 안 보인다 */
 .form__row { display: flex; gap: 10px; }
 .form__row > .fld { flex: 1; min-width: 0; }

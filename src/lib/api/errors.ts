@@ -147,6 +147,13 @@ const RULES: Record<string, Rule> = {
    * 네트워크를 의심하며 시간을 쓴다.
    */
   NO_API_BASE: { at: 'banner', text: '서버가 아직 연결되지 않았어요' },
+  /*
+   * 서버가 보낸 것이 아니라 우리가 먼저 끊은 것이다 (`lib/auth/authed.ts`).
+   * 토큰이 아예 없는데 쓰기를 눌렀다. 만료(`AUTH_ACCESS_TOKEN_EXPIRED`)와
+   * 문구가 갈린다 — 한 번도 로그인 안 한 사람에게 「다시 로그인」 은
+   * 없던 로그인을 되찾으라는 말로 들린다.
+   */
+  NOT_SIGNED_IN: { at: 'login', text: '로그인이 필요해요' },
 }
 
 /**

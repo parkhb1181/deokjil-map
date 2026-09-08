@@ -120,7 +120,9 @@ export async function fetchAllEvents(): Promise<EventItem[]> {
   return items.map(toEventItem)
 }
 
-/** 상세 한 건 */
+/** 상세 한 건. 목록과 같은 자료라 같은 주기로 재검증한다 */
 export async function fetchEvent(id: string): Promise<EventItem> {
-  return toEventItem(await apiGet<unknown>(`/api/v1/events/${encodeURIComponent(id)}`))
+  return toEventItem(
+    await apiGet<unknown>(`/api/v1/events/${encodeURIComponent(id)}`, undefined, null, 'isr'),
+  )
 }
