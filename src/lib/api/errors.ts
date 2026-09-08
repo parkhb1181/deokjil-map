@@ -84,6 +84,17 @@ const RULES: Record<string, Rule> = {
   /* 인증 (AuthErrorCode) */
   AUTH_REFRESH_TOKEN_INVALID: { at: 'login', text: '다시 로그인해주세요' },
   AUTH_ACCESS_TOKEN_EXPIRED: { at: 'login', text: '다시 로그인해주세요' },
+  /*
+   * 만료와 갈라져 있다. 만료는 재발급으로 살아나는데 이쪽은 서명이
+   * 깨졌거나 로그아웃으로 무효가 된 토큰이라 다시 받아야 한다.
+   * 화면이 할 일은 같아서 문장도 같다 — 갈리는 것은 재발급을 시도할지다.
+   */
+  AUTH_ACCESS_TOKEN_INVALID: { at: 'login', text: '다시 로그인해주세요' },
+  /*
+   * 관문이 등급으로 막은 것이다 (SecurityConfig). 어느 자원인지 모르는
+   * 자리라 도메인별 403(POST_NOT_HOST 등)보다 뭉뚱그린 문장이 된다.
+   */
+  AUTH_FORBIDDEN: { at: 'banner', text: '이 작업을 할 수 있는 권한이 없어요' },
 
   /* 회원 (UserErrorCode) */
   USER_NICKNAME_DUPLICATED: { field: 'nickname', text: '이미 쓰고 있는 닉네임이에요' },
@@ -93,6 +104,9 @@ const RULES: Record<string, Rule> = {
   USER_UNDER_MINIMUM_AGE: { field: 'birthYear', text: '가입할 수 있는 나이가 아니에요' },
   USER_SANCTIONED: { at: 'sanction' },
   USER_NOT_FOUND: { at: 'banner', text: '없는 사용자예요' },
+
+  /* 행사 (EventErrorCode) */
+  EVENT_NOT_FOUND: { at: 'banner', text: '없는 행사예요' },
 
   /* 모집글 (PostErrorCode) */
   POST_NOT_FOUND: { at: 'banner', text: '없는 모집글이에요' },
