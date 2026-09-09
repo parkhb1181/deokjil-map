@@ -147,10 +147,5 @@ export default function MyProfile() {
     )
   }
 
-  /*
-   * `postsReady` 를 안 넘긴다 (기본값이 참이다). 한동안 거짓으로 두고
-   * 「곧 볼 수 있어요」 를 띄웠는데, 서버가 안 주던 시절의 이야기다. 이제
-   * 빈 목록은 진짜로 안 쓴 것이므로 「아직 쓴 글이 없어요」 가 맞다.
-   */
   return <ProfileView user={state.user} isMe comments={state.comments} />
 }
