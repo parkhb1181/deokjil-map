@@ -127,7 +127,6 @@ export default function PostDetail({ post, comments, hostId }: {
   const [sending, setSending] = useState(false)
   /* 행사 포스터가 안 뜬 경우. 빈 회색 블록을 남기지 않는다 */
   const [coverFailed, setCoverFailed] = useState(false)
-  /** 취소 사유. 시트가 닫히면 비운다 */
 
   const isHost = viewer.userId === hostId
   const isGuest = !viewer.userId
