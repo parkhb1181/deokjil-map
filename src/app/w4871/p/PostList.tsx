@@ -141,14 +141,18 @@ export default function PostList({
 
   return (
     <PageShell title="동행 모집">
-      <div className="whoami">
-        <b>화면</b>
-        {VIEWS.map((v) => (
-          <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
-            {v}
-          </button>
-        ))}
-      </div>
+      {/* 개발용이다. 서버가 상태를 정하기 시작하면 안 그린다 — 실제
+          사용자가 자기 화면에서 이 막대를 보게 된다 */}
+      {!USE_API && (
+        <div className="whoami">
+          <b>화면</b>
+          {VIEWS.map((v) => (
+            <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
+              {v}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 나이 확인 중인 사람에게 글쓰기가 어떻게 막히는지 확인한다.
           목록은 그대로 읽힌다 (처리방침 제10조).
@@ -229,6 +233,38 @@ export default function PostList({
               <Button size="sm" tone="ghost" onClick={() => setQ('')}>
                 검색어 지우기
               </Button>
+            }
+          />
+        )}
+
+        {/*
+          **진짜로 한 건도 없을 때.**
+
+          이 분기가 없었다. 목데이터에는 늘 글이 있었고 빈 화면은 위의
+          개발용 토글로만 볼 수 있어서, 서버가 0건을 주면 머리말과 탭만
+          남고 **아무 말도 없는 화면**이 됐다. 실제로 그 상태를 봤다
+          (2026-09-09, 배포된 API 의 모집글이 0건이었다).
+
+          모집중 탭에서 비었을 때는 전체를 권한다. 끝난 글이라도 있으면
+          「이 서비스에 글이 있긴 하구나」 가 보이고, 그것도 없으면 아래
+          문구가 그대로 맞다.
+        */}
+        {view === '정상' && list.length === 0 && !q.trim() && (
+          <Blank
+            title={tab === 'OPEN' ? '지금 모집중인 글이 없어요' : '아직 모집글이 없어요'}
+            desc={
+              tab === 'OPEN' ? '끝난 글까지 보거나 직접 써보세요' : '처음으로 동행을 구해보세요'
+            }
+            action={
+              tab === 'OPEN' ? (
+                <Button size="sm" tone="ghost" onClick={() => setTab('all')}>
+                  전체 보기
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => setAsk(true)}>
+                  글쓰기
+                </Button>
+              )
             }
           />
         )}
