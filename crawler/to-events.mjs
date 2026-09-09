@@ -7,6 +7,19 @@
  * 상대 서버를 다시 두드리지 않기 위해서다.
  *
  * 기본은 K-pop 관련만 남긴다. --all 을 주면 카테고리 필터를 끄고 전부 내보낸다.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **`source` 는 화면이 읽지 않는다.** 적재(scripts/upsert-events.mjs)만 쓴다.
+ *
+ * 백엔드가 이 값을 요청 바디에 명시하라고 요구한다 — `id` 접두어에서 유도하지
+ * 않는다(위키 05-기록-회고/2026-09-08 D-9). 접두어를 파싱하면 `pg_` 를 바꾸는
+ * 순간 적재가 조용히 틀린 수집원으로 들어가고, 그 사실이 어디에도 드러나지
+ * 않는다. 그래서 **어느 소스인지 아는 자리에서 그냥 적는다** — 아래 빌더 셋은
+ * 각각 한 소스만 만든다.
+ *
+ * `src/types.ts` 의 `EventItem` 에는 넣지 않았다. 그 타입은 화면 계약이고
+ * `/api/v1/events` 응답에 `source` 가 없어서, 필수로 두면 API 경로의 매퍼
+ * (`src/lib/api/events.ts`)가 만들어낼 수 없는 필드를 요구하게 된다.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
@@ -199,6 +212,7 @@ function toEvent(rec, artist) {
 
   return {
     id: `pg_${rec.source_url.split('/').pop()}`,
+    source: 'POPGA',
     place: {
       name: placeName,
       address,
@@ -258,6 +272,7 @@ function offmateToEvent(rec) {
 
   return {
     id: `om_${rec.id}`,
+    source: 'OFFMATE',
     place: {
       // 생카는 카페가 장소다. 생카 이름(rec.name)은 이벤트명이지 장소명이 아니다
       name: rec.cafeName || address || rec.name || '장소 미정',
@@ -374,6 +389,7 @@ function kopisToEvent(rec, artist) {
   const address = rec.address ?? ''
   return {
     id: `kopis_${rec.mt20id}`,
+    source: 'KOPIS',
     place: {
       name: rec.facilityName || address,
       address,
@@ -492,11 +508,58 @@ const concertMissCandidates = concertsInSeoul
   }))
   .sort((a, b) => b.seats - a.seats)
 
+/**
+ * 문자열 정리 — 세 소스를 합친 뒤 한 번만 한다.
+ *
+ * 빌더마다 하지 않는 이유는 **빠뜨리면 드러나지 않기** 때문이다. 원본이 준 값을
+ * 그대로 실어도 화면은 그려지고 검증도 통과한다. 실제로 그렇게 새고 있었다 —
+ * 2026-09-08 점검에서 `title` 앞뒤 공백 9건 · 개행 3건 · `sourceUrl` 앞 공백 1건이
+ * 나왔고, **개행 3건은 상세 제목이 두 줄로 갈려 이미 화면에 보이고 있었다.**
+ *
+ * 여기 한 곳에 두면 소스를 새로 붙일 때 자동으로 걸린다.
+ *
+ * **필드마다 다르게 다듬는다.** 개행이 뜻을 갖는 자리가 있다.
+ *
+ * - `perks` 는 `benefits` 를 줄바꿈으로 이어 만든 것이고 `conditions`(공지) ·
+ *   `openHours`(회차 안내)도 줄바꿈이 원문의 일부다 → **줄은 남기고** CRLF 만
+ *   LF 로 맞추고 줄 끝 공백을 떤다
+ * - `title` · `subject` · 장소명 · 주소는 한 줄이어야 한다 → 공백을 하나로 접는다
+ * - 주소(URL)는 **공백을 아예 없앤다.** 한 칸으로 접어도 깨진 주소인 것은 같고,
+ *   지우는 쪽이 원래 값에 가깝다
+ *
+ * 원장(`known-subjects.mjs`)이 이미 `subject` 를 `trim` 해서 키로 쓴다. 그래서
+ * 다듬지 않으면 **원장 키와 `events.json` 의 값이 갈리고** `/a/<대상>` 주소가
+ * 어긋난다. 지금 데이터에는 없지만 한 소스만 공백을 흘리면 생기는 일이다.
+ */
+const oneLine = (v) => v.replace(/\s+/g, ' ').trim()
+const noSpace = (v) => v.replace(/\s+/g, '')
+const keepLines = (v) =>
+  v
+    .replace(/\r\n?/g, '\n')
+    .replace(/[ \t]+$/gm, '')
+    .trim()
+
+const ONE_LINE_FIELDS = ['subject', 'title']
+const URL_FIELDS = ['sourceUrl', 'listingUrl', 'reservationUrl', 'imageUrl']
+const KEEP_LINE_FIELDS = ['openHours', 'perks', 'conditions']
+
+function normalizeStrings(e) {
+  for (const k of ONE_LINE_FIELDS) if (typeof e[k] === 'string') e[k] = oneLine(e[k])
+  for (const k of URL_FIELDS) if (typeof e[k] === 'string') e[k] = noSpace(e[k])
+  for (const k of KEEP_LINE_FIELDS) if (typeof e[k] === 'string') e[k] = keepLines(e[k])
+  if (e.place) {
+    if (typeof e.place.name === 'string') e.place.name = oneLine(e.place.name)
+    if (typeof e.place.address === 'string') e.place.address = oneLine(e.place.address)
+  }
+  return e
+}
+
+// 아래 isListing 이 sourceUrl 을 정규식으로 보므로 거르기 전에 다듬는다
 const all = [
   ...rows.map(({ rec, artist }) => toEvent(rec, artist)),
   ...cafeEvents,
   ...concertEvents,
-]
+].map(normalizeStrings)
 
 /**
  * 원문을 못 찾은 것은 싣지 않는다.
