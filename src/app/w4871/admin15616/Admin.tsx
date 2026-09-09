@@ -24,12 +24,30 @@
  *   제재 (AD-04) — 주는 것만 있고 푸는 자리가 없었다
  *   기록 (AD-05) — 남긴다고 처리방침에 써놓고 볼 자리가 없었다
  */
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { USE_API } from '@/lib/api/config'
-import { Button, Badge, Blank, Sheet } from '@/components/ui/Basics'
+import { Button, Badge, Blank, Sheet, Skeleton } from '@/components/ui/Basics'
 import { Field, Select, TextArea, Checkbox } from '@/components/ui/Field'
 import type { AuditEntry, AuditKind, SanctionKind } from '@/types'
 import { stamp, fullText as readable } from '@/lib/when'
+import { REASON_LABEL } from '@/components/ui/ReportSheet'
+import { ApiFailure } from '@/lib/api/http'
+import { slotFor } from '@/lib/api/errors'
+import { authed } from '@/lib/auth/authed'
+import { getAccessToken } from '@/lib/auth/session'
+import { fetchPost } from '@/lib/api/posts'
+import {
+  blindComment,
+  fetchAuditLogs,
+  fetchReports,
+  handleReport,
+  readComment,
+  sanctionUser,
+  type AdminReport,
+  type AuditRow,
+  type ReportResult,
+  type ReportTargetType,
+} from '@/lib/api/admin'
 
 /* ── 제재 수위 ─────────────────────────────────────────────
    가운데 둘이 나이 확인용이다. 처리방침 제10조를 화면으로 옮긴 것이고,
@@ -51,13 +69,22 @@ const LEVELS: { key: Level; label: string }[] = [
   { key: 'purge', label: '계정 삭제 (연령 미달)' },
 ]
 
-const LEVEL_KIND: Record<Level, SanctionKind> = {
+/* NONE 은 제재가 없다는 상태지 줄 수 있는 수위가 아니다. 그래서 빼고
+   받는다 — 안 그러면 「제재 없음을 제재한다」 가 타입으로 통과한다 */
+const LEVEL_KIND: Record<Level, Exclude<SanctionKind, 'NONE'>> = {
   warn: 'WARNED',
   hold: 'AGE_HOLD',
   '7d': 'SUSPENDED',
   forever: 'BANNED',
   purge: 'BANNED',
 }
+
+/*
+   계정 파기는 서버에 경로가 없다 — SanctionKind 가 BANNED 까지뿐이고
+   계정을 지우는 엔드포인트도 없다. 영구 정지로 대신 보내면 「지웠다」 고
+   적힌 화면과 남아 있는 계정이 어긋나므로, API 를 켠 동안은 고를 수
+   없게 둔다. 목데이터에서는 화면 흐름을 보여주려고 남긴다 */
+const LEVEL_CHOICES = USE_API ? LEVELS.filter((l) => l.key !== 'purge') : LEVELS
 
 const KIND_TEXT: Record<SanctionKind, string> = {
   NONE: '없음',
@@ -108,6 +135,71 @@ type Report = {
   body?: string
   /** 어떻게 처리했는지. 처리한 뒤에만 있다 (AD-03) */
   result?: string
+  /**
+   * 아래 둘은 API 경로에서만 채운다. 목데이터에는 없다.
+   *
+   * **`targetId` 는 회원번호가 아니다.** `targetType` 이 무엇이냐에 따라
+   * 회원·모집글·댓글 중 하나를 가리킨다. 제재는 사람에게 주는 것이라 글·
+   * 댓글 신고에서는 작성자를 따로 알아내야 한다 — 모집글은 상세를 한 번
+   * 더 읽고, 댓글은 본문을 열 때 같이 온다 (`opened`).
+   */
+  targetType?: ReportTargetType
+  targetId?: string
+}
+
+/** 서버 enum → 화면 글자 */
+const TARGET_TEXT: Record<ReportTargetType, Report['target']> = {
+  USER: '유저',
+  POST: '모집글',
+  COMMENT: '댓글',
+}
+
+/**
+ * 종결 사유.
+ *
+ * 화면에는 짧게 적고 자세한 것은 메모에 넣는다. 표의 한 칸이라 길면
+ * 줄이 밀린다.
+ */
+const RESULT_TEXT: Record<ReportResult, string> = {
+  NO_ACTION: '문제 없음',
+  COMMENT_BLINDED: '블라인드',
+  USER_SANCTIONED: '제재',
+}
+
+const AUDIT_TARGET: Record<AuditRow['targetType'], string> = {
+  USER: '회원',
+  COMMENT: '댓글',
+}
+
+function toRow(r: AdminReport): Report {
+  return {
+    id: r.id,
+    target: TARGET_TEXT[r.targetType],
+    subject: r.subject,
+    /* 사유 문구는 신고 시트가 들고 있다. 여기서 한 벌 더 만들면 신고자가
+       고른 말과 운영자가 읽는 말이 갈라진다 */
+    reason: REASON_LABEL[r.reason] ?? r.reason,
+    detail: r.detail ?? '',
+    reporter: r.reporter,
+    at: r.createdAt,
+    status: r.status,
+    secret: r.secret,
+    result: r.result ? RESULT_TEXT[r.result] : undefined,
+    targetType: r.targetType,
+    targetId: r.targetId,
+  }
+}
+
+function toAuditEntry(a: AuditRow): AuditEntry {
+  return {
+    id: a.id,
+    at: a.at,
+    actor: a.actor,
+    kind: a.kind,
+    /* 서버가 번호만 준다. 줄마다 이름을 채우려면 조회가 스무 배가 된다 */
+    target: `${AUDIT_TARGET[a.targetType]} ${a.targetId}`,
+    detail: a.detail,
+  }
 }
 
 const REPORTS: Report[] = [
@@ -272,18 +364,22 @@ export default function Admin() {
    * 부르고 403 이면 아닌 것으로 친다 — 판정자가 서버 하나로 남아야
    * ADR 0003 의 「인가는 AdminAccount」 가 유지된다.
    *
-   * 그 엔드포인트가 아직 없다. 생기면 여기서 부르고 `pending` 을 로딩
-   * 화면에 쓴다. 그때까지 API 를 켜면 막힌 화면이 뜬다 — 백오피스는
-   * 어차피 서버가 없으면 아무것도 못 한다.
+   * **신고 목록 조회가 그 판정을 겸한다.** 따로 물어보는 경로를 만들지
+   * 않는다 — 어차피 들어오자마자 부르는 것이고, 한 번 물어 통과한 뒤
+   * 실제 호출에서 다시 막히면 화면이 거짓말을 한 셈이 된다.
    */
   const [devAdmin, setDevAdmin] = useState(true)
-  const admin = USE_API ? false : devAdmin
+  const [gate, setGate] = useState<'checking' | 'yes' | 'no'>(USE_API ? 'checking' : 'yes')
+  const admin = USE_API ? gate === 'yes' : devAdmin
   const [tab, setTab] = useState<Tab>('reports')
 
   const [only, setOnly] = useState(true)
-  const [reports, setReports] = useState(REPORTS)
+  const [reports, setReports] = useState<Report[]>(USE_API ? [] : REPORTS)
   const [sanctions, setSanctions] = useState(SANCTIONS)
-  const [audit, setAudit] = useState(AUDIT)
+  const [audit, setAudit] = useState<AuditEntry[]>(USE_API ? [] : AUDIT)
+  /* 표 위에 띄우는 실패 문구. 시트 안에서 실패해도 여기로 보낸다 */
+  const [failed, setFailed] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
   /* 제재 시트 */
   const [act, setAct] = useState<Report | null>(null)
@@ -297,8 +393,17 @@ export default function Admin() {
   const [release, setRelease] = useState<SanctionRow | null>(null)
   const [releaseWhy, setReleaseWhy] = useState('')
 
-  /** 본문을 이미 연 신고. 열람은 한 번만 기록한다 */
-  const [opened, setOpened] = useState<string[]>([])
+  /**
+   * 본문을 이미 연 신고. 열람은 한 번만 기록한다.
+   *
+   * **본문을 목록이 아니라 여기에 들고 있는다.** 서버는 신고 목록에
+   * 본문을 안 싣고, 목록을 다시 받을 때마다 행이 통째로 갈리기 때문이다.
+   * 열어본 것이 새로고침 한 번에 닫히면 열람 기록만 두 줄이 된다.
+   *
+   * 작성자 번호도 같이 담는다. **제재는 사람에게 주는데 신고는 댓글을
+   * 가리키므로** 그 둘을 잇는 값이 본문을 열 때만 온다.
+   */
+  const [opened, setOpened] = useState<Record<string, { body: string; authorId?: string }>>({})
 
   /**
    * 기록을 덧붙인다. **여기 말고 audit 을 건드리는 곳을 두지 않는다.**
@@ -309,11 +414,78 @@ export default function Admin() {
    *
    * append-only 를 실제로 지키는 것은 서버다. 화면은 그렇게 보일 뿐이다.
    */
-  const log = (kind: AuditKind, target: string, detail: string) =>
+  const log = (kind: AuditKind, target: string, detail: string) => {
+    /* API 경로에서는 서버가 남긴다. 화면이 흉내내면 같은 일이 두 줄이
+       되고, 새로고침하면 흉내낸 쪽만 사라져 목록이 달라 보인다 */
+    if (USE_API) return
     setAudit((prev) => [
       { id: `a_${Date.now()}`, at: stamp(), actor: '운영자', kind, target, detail },
       ...prev,
     ])
+  }
+
+  /* ── 서버에서 받아오기 ───────────────────────────────── */
+
+  const reloadAudit = useCallback(async () => {
+    const page = await authed(fetchAuditLogs)
+    setAudit(page.items.map(toAuditEntry))
+  }, [])
+
+  /**
+   * 목록을 다시 받는다.
+   *
+   * **행동한 뒤에는 서버를 다시 읽는다.** 화면에서 상태만 바꿔 두면 옆
+   * 사람이 이미 처리한 건을 내 화면만 미처리로 들고 있게 된다. 「맡기」
+   * 를 만든 이유가 운영자 여럿이 같이 붙기 때문인데, 그 화면에서 각자
+   * 다른 목록을 보면 앞뒤가 안 맞는다.
+   */
+  const reload = useCallback(async () => {
+    const [rs, as] = await authed((t) => Promise.all([fetchReports(t), fetchAuditLogs(t)]))
+    setReports(rs.items.map(toRow))
+    setAudit(as.items.map(toAuditEntry))
+  }, [])
+
+  useEffect(() => {
+    if (!USE_API) return
+    if (!getAccessToken()) {
+      setGate('no')
+      return
+    }
+
+    let alive = true
+    reload()
+      .then(() => {
+        if (alive) setGate('yes')
+      })
+      .catch((e) => {
+        if (!alive) return
+        /*
+         * **403 이면 관리자가 아니다.** 그것만 화면을 막는다. 서버가
+         * 잠깐 죽은 것까지 「권한 없음」 으로 그리면 운영자가 자기
+         * 계정을 의심하게 된다 — 그건 못 고치는 문제로 보인다.
+         */
+        if (e instanceof ApiFailure && (e.httpStatus === 403 || e.httpStatus === 401)) {
+          setGate('no')
+          return
+        }
+        setGate('yes')
+        setFailed(slotFor(e).text)
+      })
+
+    return () => {
+      alive = false
+    }
+  }, [reload])
+
+  /** 서버에 보내고 목록을 다시 읽는다. 실패는 표 위에 띄운다 */
+  const run = (job: () => Promise<void>, refresh = true) => {
+    setBusy(true)
+    setFailed(null)
+    job()
+      .then(() => (refresh ? reload() : undefined))
+      .catch((e) => setFailed(slotFor(e).text))
+      .finally(() => setBusy(false))
+  }
 
   /**
    * 신고를 닫는다. 결과를 같이 적어야 나중에 왜 그렇게 됐는지 안다.
@@ -329,13 +501,23 @@ export default function Admin() {
    * 누가 집었다 놓았다를 기록해봐야 읽을 사람이 없다.
    */
   const take = (r: Report, status: ReportStatus) => {
-    setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, status } : x)))
+    if (!USE_API) {
+      setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, status } : x)))
+      return
+    }
+    run(() => authed((t) => handleReport(r.id, { status }, t)))
   }
 
-  const close = (r: Report, result: string) => {
-    setReports((prev) =>
-      prev.map((x) => (x.id === r.id ? { ...x, status: 'RESOLVED' as const, result } : x)),
-    )
+  const close = (r: Report, result: ReportResult, memo?: string) => {
+    if (!USE_API) {
+      setReports((prev) =>
+        prev.map((x) =>
+          x.id === r.id ? { ...x, status: 'RESOLVED' as const, result: RESULT_TEXT[result] } : x,
+        ),
+      )
+      return
+    }
+    run(() => authed((t) => handleReport(r.id, { status: 'RESOLVED', result, memo }, t)))
   }
 
   /* 최신순이다. 신고는 쌓이는 목록이라 순서를 안 정해두면 들어온
@@ -350,6 +532,25 @@ export default function Admin() {
   /* ── 403 ──────────────────────────────────────────────
      일반 계정으로 들어오면 여기서 끝난다. 목록도 숫자도 안 보여준다.
      "신고 3건" 같은 것만 보여줘도 그건 이미 정보다 */
+  if (USE_API && gate === 'checking') {
+    /* 판정을 기다리는 동안 403 을 먼저 그리지 않는다. 관리자가 자기
+       화면에 들어올 때마다 「권한 없음」 을 한 번씩 보게 된다 */
+    return (
+      <div className="bo">
+        <header className="bo__bar">
+          <span className="bo__logo">
+            덕모임 <b>백오피스</b>
+          </span>
+        </header>
+        <main className="bo__body">
+          <Skeleton h={36} />
+          <div style={{ height: 12 }} />
+          <Skeleton h={220} />
+        </main>
+      </div>
+    )
+  }
+
   if (!admin) {
     return (
       <div className="bo">
@@ -395,6 +596,14 @@ export default function Admin() {
       </nav>
 
       <main className="bo__body">
+        {/* 서버가 거절한 것. 표 위에 둔다 — 시트 안에서 실패해도 시트는
+            닫히므로, 문구가 시트에 있으면 같이 사라진다 */}
+        {failed && (
+          <p className="form__failed" role="alert">
+            {failed}
+          </p>
+        )}
+
         {/* ── 신고 ─────────────────────────────────────── */}
         {tab === 'reports' && (
           <>
@@ -441,8 +650,8 @@ export default function Admin() {
                               것이 기록에 남는 행위라 한 번 물어본다 */}
                           {r.secret && (
                             <span className="bo__peek">
-                              {opened.includes(r.id) ? (
-                                <span className="bo__peeked">{r.body}</span>
+                              {opened[r.id] ? (
+                                <span className="bo__peeked">{opened[r.id].body}</span>
                               ) : (
                                 <button type="button" onClick={() => setPeek(r)}>
                                   본문 보기
@@ -476,7 +685,15 @@ export default function Admin() {
                                 <button
                                   type="button"
                                   className="bo__hold bo__hold--on"
-                                  onClick={() => take(r, 'PENDING')}
+                                  disabled={busy}
+                                  /*
+                                   * 놓는 전이가 서버에 없다. PENDING 으로
+                                   * 되돌리는 길을 열지 않았고, 그건 종결을
+                                   * 되돌리지 않는 것과 같은 규칙이다.
+                                   * 눌러도 409 가 오므로 API 를 켠 동안은
+                                   * 잡았다는 표시로만 둔다
+                                   */
+                                  onClick={() => !USE_API && take(r, 'PENDING')}
                                 >
                                   {STATUS_LABEL.PROCESSING}
                                 </button>
@@ -484,12 +701,18 @@ export default function Admin() {
                                 <button
                                   type="button"
                                   className="bo__hold"
+                                  disabled={busy}
                                   onClick={() => take(r, 'PROCESSING')}
                                 >
                                   맡기
                                 </button>
                               )}
-                              <Button size="sm" tone="ghost" onClick={() => close(r, '문제 없음')}>
+                              <Button
+                                size="sm"
+                                tone="ghost"
+                                disabled={busy}
+                                onClick={() => close(r, 'NO_ACTION')}
+                              >
                                 문제 없음
                               </Button>
                               {/* 댓글만 가릴 수 있다 (AD-07). 모집글은
@@ -538,7 +761,22 @@ export default function Admin() {
               전에 푸는 경우이고, 푼 것도 기록에 남습니다.
             </p>
 
-            {sancList.length === 0 ? (
+            {USE_API ? (
+              /*
+               * **이 목록을 받는 경로가 없다.** 서버에 있는 것은 주는
+               * 것과 푸는 것 둘뿐이고 「지금 걸린 사람」 을 묻는 경로가
+               * 없다. 감사 로그로 되짚을 수는 있지만 그건 제재와 해제를
+               * 화면이 짝지어 현재 상태를 만드는 일이라, 한 줄만 놓쳐도
+               * 안 걸린 사람이 걸린 것으로 보인다.
+               *
+               * 푸는 것도 같이 막힌다 — sanctionId 를 목록 없이는 모른다.
+               */
+              <Blank
+                title="제재 목록은 아직 못 받아요"
+                desc="제재를 주고 푸는 길은 있는데 지금 누가 걸려 있는지 묻는 길이 서버에 없습니다. 생기면 여기가 채워집니다"
+                art={false}
+              />
+            ) : sancList.length === 0 ? (
               <Blank title="제재 중인 회원이 없어요" art={false} />
             ) : (
               <div className="bo__scroll">
@@ -640,12 +878,76 @@ export default function Admin() {
               <Button tone="ghost" onClick={() => setAct(null)}>취소</Button>
               <Button
                 tone="danger"
-                /* 파기는 확인을 받아야 눌린다. 나머지는 되돌릴 수 있어
-                   한 번에 보낸다 */
-                disabled={level === 'purge' && !sure}
+                /*
+                 * 파기는 확인을 받아야 눌린다. 나머지는 되돌릴 수 있어
+                 * 한 번에 보낸다.
+                 *
+                 * **사유가 비면 못 보낸다.** 서버가 빈 사유를 거절하고,
+                 * 화면이 「사유 미기재」 같은 것을 대신 채워 보내면 제재를
+                 * 받은 사람이 그 글자를 그대로 읽는다
+                 */
+                disabled={busy || (level === 'purge' && !sure) || (USE_API && !why.trim())}
                 onClick={() => {
                   const label = LEVELS.find((l) => l.key === level)!.label
                   const reason = why.trim() || '사유 미기재'
+
+                  if (USE_API) {
+                    /*
+                     * 댓글 신고는 본문을 열어야 작성자를 안다. 먼저
+                     * 막아준다 — 서버까지 갔다 와서 「알 수 없음」 을
+                     * 받으면 무엇을 해야 하는지가 안 보인다
+                     */
+                    if (act.targetType === 'COMMENT' && !opened[act.id]?.authorId) {
+                      setFailed('댓글 신고는 본문을 먼저 열어야 제재할 수 있어요')
+                      setAct(null)
+                      return
+                    }
+
+                    run(async () => {
+                      /*
+                       * 제재할 사람을 먼저 찾는다. 유저 신고는 그대로고,
+                       * 모집글은 상세를 한 번 더 읽는다. 댓글은 본문을
+                       * 열 때 온 값을 쓴다 — 작성자를 알자고 열람 API 를
+                       * 부르면 열어보지도 않은 본문이 장부에 오른다
+                       */
+                      const userId = await authed(async (t) => {
+                        if (act.targetType === 'USER') return act.targetId!
+                        if (act.targetType === 'POST') {
+                          return (await fetchPost(act.targetId!, t)).author.id
+                        }
+                        return opened[act.id]!.authorId!
+                      })
+
+                      /*
+                       * 기간 정지만 종료 시각을 같이 보낸다. 안 보내면
+                       * SANCTION_UNTIL_MISMATCH 로 막히고, 반대로 다른
+                       * 수위에 실어 보내도 같은 코드로 막힌다.
+                       *
+                       * 7일은 화면의 수위 이름이 정한 값이다. 서버는 날짜를
+                       * 받을 뿐 「며칠」 을 모른다
+                       */
+                      const until =
+                        level === '7d'
+                          ? stamp(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))
+                          : undefined
+
+                      await authed((t) =>
+                        sanctionUser(userId, { kind: LEVEL_KIND[level], reason, until }, t),
+                      )
+                      /* 조치와 종결이 서버에서 갈려 있다. 하나의 신고에서
+                         둘이 함께 나올 수도, 아무것도 안 나올 수도 있어서 */
+                      await authed((t) =>
+                        handleReport(
+                          act.id,
+                          { status: 'RESOLVED', result: 'USER_SANCTIONED', memo: `${label} · ${reason}` },
+                          t,
+                        ),
+                      )
+                    })
+                    setAct(null)
+                    return
+                  }
+
                   if (level === 'purge') {
                     log('PURGE', act.subject, `연령 미달 · ${reason}`)
                     /* 파기하면 제재 목록에서도 사라진다. 계정이 없어졌는데
@@ -667,7 +969,7 @@ export default function Admin() {
                       },
                     ])
                   }
-                  close(act, label)
+                  close(act, 'USER_SANCTIONED')
                   setAct(null)
                 }}
               >
@@ -678,7 +980,7 @@ export default function Admin() {
         >
           <Field label="수위">
             <Select value={level} onChange={(e) => setLevel(e.target.value as Level)}>
-              {LEVELS.map((l) => (
+              {LEVEL_CHOICES.map((l) => (
                 <option key={l.key} value={l.key}>
                   {l.label}
                 </option>
@@ -752,9 +1054,30 @@ export default function Admin() {
               <Button tone="ghost" onClick={() => setBlind(null)}>취소</Button>
               <Button
                 tone="danger"
+                disabled={busy}
                 onClick={() => {
+                  if (USE_API) {
+                    /* 가리는 것과 종결이 서버에서 갈려 있다. 가리기만 하고
+                       신고는 열어두는 경우도 있어서 한 호출로 안 묶었다 */
+                    run(async () => {
+                      await authed((t) => blindComment(blind.targetId!, t))
+                      await authed((t) =>
+                        handleReport(
+                          blind.id,
+                          {
+                            status: 'RESOLVED',
+                            result: 'COMMENT_BLINDED',
+                            memo: `${blind.reason} · ${blind.detail || '상세 없음'}`,
+                          },
+                          t,
+                        ),
+                      )
+                    })
+                    setBlind(null)
+                    return
+                  }
                   log('BLIND', blind.subject, `${blind.reason} · ${blind.detail || '상세 없음'}`)
-                  close(blind, '블라인드')
+                  close(blind, 'COMMENT_BLINDED')
                   setBlind(null)
                 }}
               >
@@ -784,8 +1107,27 @@ export default function Admin() {
               <Button tone="ghost" onClick={() => setPeek(null)}>취소</Button>
               <Button
                 tone="danger"
+                disabled={busy}
                 onClick={() => {
-                  setOpened((prev) => [...prev, peek.id])
+                  if (USE_API) {
+                    /*
+                     * **목록을 다시 읽지 않는다.** 서버는 신고 목록에
+                     * 본문을 안 실어서, 여기서 새로고침하면 방금 연 것이
+                     * 곧바로 닫힌다. 기록만 따로 다시 받는다 — 이 호출이
+                     * 감사 로그에 한 줄을 남기기 때문이다
+                     */
+                    run(async () => {
+                      const c = await authed((t) => readComment(peek.targetId!, t, peek.id))
+                      setOpened((prev) => ({
+                        ...prev,
+                        [peek.id]: { body: c.content, authorId: c.author.id },
+                      }))
+                      await reloadAudit()
+                    }, false)
+                    setPeek(null)
+                    return
+                  }
+                  setOpened((prev) => ({ ...prev, [peek.id]: { body: peek.body ?? '' } }))
                   log('SECRET_READ', peek.subject, `신고 ${peek.id} 처리를 위해 본문 열람`)
                   setPeek(null)
                 }}

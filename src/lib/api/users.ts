@@ -1,5 +1,5 @@
 import type { LastSeen, Sanction } from '@/types'
-import { apiGet, apiSend } from './http'
+import { ApiFailure, apiGet, apiSend } from './http'
 import { contractError, guards, type Guards } from './wire'
 
 /**
@@ -222,4 +222,113 @@ export interface ProfileEdit {
 
 export async function updateProfile(body: ProfileEdit, token: string): Promise<void> {
   await apiSend<unknown>('PATCH', '/api/v1/users/me/profile', body, token)
+}
+
+/* ── 프로필 사진 (AU-08) ─────────────────────────────────── */
+
+/**
+ * 사진 올릴 자리를 받는다.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **세 번 부르고 가운데는 우리 서버가 아니다.**
+ *
+ *   ① 우리 서버에 「이런 파일을 올리겠다」 → 서명된 주소를 받는다
+ *   ② 그 주소로 **S3 에 직접** 올린다. 우리 서버를 거치지 않는다
+ *   ③ 우리 서버에 「다 올렸다」 → 서버가 실물을 확인하고 반영한다
+ *
+ * 바이트가 서버를 지나지 않게 하려고 이렇게 됐다. EC2 가 한 대라
+ * 5MB 짜리가 흐르는 동안 이미지와 무관한 요청까지 느려진다.
+ *
+ * **③ 이 없으면 안 된다.** ① 은 클라이언트가 하는 「말」 이라 그것만
+ * 믿으면 5MB 상한이 장식이 된다. 서버가 ③ 에서 실물을 다시 잰다.
+ *
+ * ① 만 받고 안 올려도 서버 상태는 안 변한다. 취소를 따로 부를 필요가 없다.
+ */
+export interface ImageSlot {
+  uploadUrl: string
+  objectKey: string
+  /** 서명 수명. 300초다 */
+  expiresInSeconds: number
+}
+
+export async function requestImageUpload(
+  file: { type: string; size: number },
+  token: string,
+): Promise<ImageSlot> {
+  const r = await apiSend<Record<string, unknown>>(
+    'POST',
+    '/api/v1/users/me/profile-image',
+    { contentType: file.type, contentLength: file.size },
+    token,
+  )
+  return {
+    uploadUrl: str(r?.uploadUrl, 'uploadUrl'),
+    objectKey: str(r?.objectKey, 'objectKey'),
+    /* 숫자로 온다. 화면이 안 쓰지만 계약을 눈에 보이게 둔다 */
+    expiresInSeconds: Number(r?.expiresInSeconds ?? 0),
+  }
+}
+
+/**
+ * S3 에 직접 올린다.
+ *
+ * **`apiSend` 를 안 쓴다.** 우리 서버가 아니라서 그렇다. 두 가지가 다르다.
+ *
+ * - **`Authorization` 을 붙이지 않는다.** 서명이 이미 주소의 쿼리에
+ *   들어 있고, 헤더를 같이 보내면 S3 가 거부한다
+ * - **`Content-Type` 이 서명에 포함된다.** ① 에서 말한 값과 한 글자라도
+ *   다르면 `403 SignatureDoesNotMatch` 다
+ *
+ * 실패하면 S3 가 XML 을 돌려준다. 우리 에러 모양이 아니라 화면이 못 읽으므로
+ * 여기서 우리 실패로 바꾼다.
+ */
+export async function putToStorage(uploadUrl: string, file: File): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    })
+  } catch {
+    /*
+     * 여기서 걸리면 대개 **버킷 CORS 에 이 주소가 없다.** ①③ 은 200 인데
+     * ② 만 브라우저가 막는 모양이라, 서버 로그를 봐도 아무 일이 없다.
+     */
+    throw new ApiFailure(
+      'PROFILE_IMAGE_UPLOAD_BLOCKED',
+      '사진을 올리지 못했어요. 잠시 뒤 다시 시도해주세요',
+      0,
+    )
+  }
+  if (!res.ok) {
+    throw new ApiFailure(
+      'PROFILE_IMAGE_UPLOAD_FAILED',
+      '사진을 올리지 못했어요. 다시 골라주세요',
+      res.status,
+    )
+  }
+}
+
+/**
+ * 다 올렸다고 알린다. 서버가 실물을 확인하고 프로필에 반영한다.
+ *
+ * 응답 본문이 없다. **바뀐 주소는 `/users/me` 로 다시 읽는다** — 여기서
+ * 주소를 돌려주지 않는 것은, 확정 요청이 주소를 받으면 클라이언트가 임의
+ * URL 을 박을 수 있게 되기 때문이다 (결정 D-2).
+ */
+export async function confirmImageUpload(objectKey: string, token: string): Promise<void> {
+  await apiSend<unknown>('PUT', '/api/v1/users/me/profile-image', { objectKey }, token)
+}
+
+/**
+ * 세 단계를 한 번에.
+ *
+ * 화면이 셋을 각자 부르면 순서와 실패 처리가 화면마다 갈린다. 특히 ②가
+ * 실패했을 때 ③을 부르면 안 된다는 것을 매번 기억해야 한다.
+ */
+export async function uploadProfileImage(file: File, token: string): Promise<void> {
+  const slot = await requestImageUpload(file, token)
+  await putToStorage(slot.uploadUrl, file)
+  await confirmImageUpload(slot.objectKey, token)
 }

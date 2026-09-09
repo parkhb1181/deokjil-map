@@ -56,7 +56,13 @@ export type ReportReason =
   | 'FALSE_INFO'
   | 'OFF_TOPIC'
 
-const LABEL: Record<ReportReason, string> = {
+/**
+ * 사유 문구. **여기가 유일한 자리다.**
+ *
+ * 백오피스가 신고 목록에 같은 말을 그려야 해서 내보낸다. 표를 한 벌 더
+ * 두면 신고자가 고른 말과 운영자가 읽는 말이 갈라진다.
+ */
+export const REASON_LABEL: Record<ReportReason, string> = {
   ADVERTISEMENT: '광고 · 홍보',
   INAPPROPRIATE: '부적절한 내용',
   ABUSE: '욕설 · 비방',
@@ -174,7 +180,7 @@ export function ReportSheet({ target, targetId, name, onClose }: {
         <Select value={reason} onChange={(e) => setReason(e.target.value as ReportReason)}>
           <option value="" disabled>골라주세요</option>
           {reasons.map((r) => (
-            <option key={r} value={r}>{LABEL[r]}</option>
+            <option key={r} value={r}>{REASON_LABEL[r]}</option>
           ))}
         </Select>
       </Field>

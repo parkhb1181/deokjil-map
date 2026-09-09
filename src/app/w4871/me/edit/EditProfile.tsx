@@ -23,14 +23,20 @@
  * 값」 이 둘 다 빈 문자열이라 구분이 안 된다. 값이 확정된 뒤에 폼을
  * 세우면 그 문제가 없다.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank, Button, Sheet, Skeleton } from '@/components/ui/Basics'
 import { Field, TextInput, TextArea } from '@/components/ui/Field'
 import { USE_API } from '@/lib/api/config'
 import { slotFor } from '@/lib/api/errors'
-import { checkNickname, fetchMe, updateProfile, type ProfileEdit } from '@/lib/api/users'
+import {
+  checkNickname,
+  fetchMe,
+  updateProfile,
+  uploadProfileImage,
+  type ProfileEdit,
+} from '@/lib/api/users'
 import { authed } from '@/lib/auth/authed'
 import { getAccessToken } from '@/lib/auth/session'
 import { wf } from '@/lib/wireframe'
@@ -59,6 +65,16 @@ const MOCK: Initial = {
 
 /** 한줄소개 상한. 서버는 100자까지 받지만 프로필 카드가 그만큼 못 담는다 */
 const BIO_MAX = 60
+
+/**
+ * 사진 제한. 서버와 같은 값이어야 한다 (AU-08).
+ *
+ * **미리 재는 이유가 있다.** 서버도 막지만, 그때는 이미 사용자가 6MB 를
+ * 올리려고 기다린 뒤다. 게다가 올리는 것은 우리 서버가 아니라 S3 라
+ * 한 번 갔다 와야 안다.
+ */
+const IMAGE_MAX = 5 * 1024 * 1024
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 /** 가입 때와 같은 규칙이다. 두 화면이 다르게 굴면 한쪽에서 통과한
  *  이름이 다른 쪽에서 막힌다 */
@@ -179,6 +195,9 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
   const [failed, setFailed] = useState<string | null>(null)
+  /* 사진은 폼과 따로 논다. 고르는 즉시 올라가고 완료를 안 눌러도 반영된다 */
+  const [pic, setPic] = useState(imageUrl)
+  const [uploading, setUploading] = useState(false)
 
   /* 이름을 바꿨을 때만 중복을 다시 확인한다. 안 바꿨으면 이미 내 것이다 */
   const renamed = nick.trim() !== initial.nickname
@@ -192,6 +211,41 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
 
   const dirty = renamed || bio !== initial.bio
   const ok = !formError && !takenError && (!renamed || !!fresh?.free)
+
+  /**
+   * 사진을 고르면 바로 올린다.
+   *
+   * **완료 버튼을 기다리지 않는다.** 사진은 서버를 세 번 오가는 일이라
+   * 저장에 묶으면 완료를 누른 뒤 한참 멈춰 있게 된다. 그리고 사진만
+   * 바꾸러 온 사람이 완료를 안 누르고 나가는 일이 실제로 생긴다.
+   *
+   * 올린 뒤 주소를 `/users/me` 로 다시 읽는다. 확정 응답에 주소가 없다 —
+   * 클라이언트가 임의 URL 을 박을 수 있게 되기 때문이다 (결정 D-2).
+   */
+  const pickPhoto = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    /* 값을 비워야 같은 파일을 다시 고를 수 있다. 실패하고 그대로 다시
+       고르면 change 가 안 나서 아무 일도 안 일어난다 */
+    e.target.value = ''
+    if (!file || uploading) return
+
+    if (!IMAGE_TYPES.includes(file.type)) {
+      setFailed('JPG · PNG · WEBP 만 올릴 수 있어요')
+      return
+    }
+    if (file.size > IMAGE_MAX) {
+      setFailed('사진은 5MB 까지 올릴 수 있어요')
+      return
+    }
+
+    setUploading(true)
+    setFailed(null)
+    authed((t) => uploadProfileImage(file, t))
+      .then(() => authed(fetchMe))
+      .then((me) => setPic(me.profileImageUrl))
+      .catch((err) => setFailed(slotFor(err).text))
+      .finally(() => setUploading(false))
+  }
 
   const check = () => {
     if (formError || checking) return
@@ -275,7 +329,7 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
           폼 중간에 끼워 넣으면 비어 있어도 넘어가게 된다 */}
       <div className="pedit__pic">
         <label className="myid__pic">
-          <Avatar name={nick || initial.nickname} src={imageUrl ?? undefined} lg />
+          <Avatar name={nick || initial.nickname} src={pic ?? undefined} lg />
           <span className="myid__cam" aria-hidden>
             <svg viewBox="0 0 16 16">
               <path
@@ -293,20 +347,19 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
               HEIC** 라 자주 걸린다. 고르는 단계에서 막는 편이 올린 뒤
               400 을 받고 되돌아오는 것보다 낫다.
 
-              **업로드 경로는 아직 서버에 없다** (AU-08 의 S3 3단계가 리뷰
-              중이다). 고를 수 있게 열어두면 골라놓고 아무 일도 안 일어나는
-              화면이 되므로, API 를 붙인 동안은 잠근다 */}
+              accept 는 권유일 뿐 강제가 아니다. 그래서 고른 뒤에도 형식과
+              크기를 한 번 더 본다 (pickPhoto) */}
           <input
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            disabled={USE_API}
+            /* 목데이터 경로에는 올릴 서버가 없다 */
+            disabled={!USE_API || uploading}
+            onChange={pickPhoto}
             hidden
           />
         </label>
         <p className="pedit__hint">
-          {USE_API
-            ? '사진 바꾸기는 곧 열려요'
-            : '사진을 넣으면 같이 가자는 말을 더 많이 듣습니다'}
+          {uploading ? '사진을 올리는 중이에요' : '사진을 넣으면 같이 가자는 말을 더 많이 듣습니다'}
         </p>
       </div>
 
