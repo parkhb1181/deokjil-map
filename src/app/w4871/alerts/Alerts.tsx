@@ -41,6 +41,7 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank, Button } from '@/components/ui/Basics'
 import { listTime } from '@/lib/when'
 import { wf } from '@/lib/wireframe'
+import { USE_API } from '@/lib/api/config'
 
 /**
  * 알림 종류.
@@ -254,6 +255,33 @@ const VIEWS = ['정상', '비었음'] as const
 export default function Alerts() {
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [list, setList] = useState(MOCK)
+
+  /*
+   * **서버에 알림이 없으면 목데이터를 보여주지 않는다.**
+   *
+   * 이 화면은 2차 몫이라 아직 받아올 곳이 없다. 그런데 내 활동에서
+   * 들어오는 자리라, 실서비스에서 열면 「덕질하는오리 님이 메시지를
+   * 보냈어요」 같은 가짜 알림을 진짜로 읽게 된다. 있지도 않은 채팅
+   * 이야기라 더 나쁘다.
+   *
+   * 화면을 지우지는 않는다. 자리를 비워두면 알림이 없는 줄 알고 찾아
+   * 헤매고, 팀은 목데이터로 이 화면을 계속 봐야 한다.
+   */
+  if (USE_API) {
+    return (
+      <PageShell title="알림">
+        <Blank
+          title="알림은 준비 중이에요"
+          desc="댓글과 답글이 오면 여기로 모을 예정이에요. 지금은 내 활동에서 확인할 수 있어요"
+          action={
+            <Link className="btn btn--ghost btn--sm" href={wf('/me')}>
+              내 활동 보기
+            </Link>
+          }
+        />
+      </PageShell>
+    )
+  }
 
   /* 목데이터 시각을 그대로 쓰면 「오늘」 판정이 배포 다음날 어긋난다.
      렌더 중에 new Date() 를 부르지 않는 것이 규칙이라(CLAUDE.md) 여기서는
