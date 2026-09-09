@@ -14,7 +14,10 @@ Thumbs.db
 .idea/
 
 .next/
-out/
+# 앞의 슬래시가 있어야 루트의 export 결과만 걸린다. 없으면 이름이
+# out 인 디렉터리를 전부 무시해서 src/app/**/out 라우트가 저장소에서
+# 조용히 빠진다 (로그아웃 화면이 그렇게 사라질 뻔했다)
+/out/
 next-env.d.ts
 tsconfig.tsbuildinfo
 *.tsbuildinfo

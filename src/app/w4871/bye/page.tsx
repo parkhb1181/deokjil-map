@@ -37,7 +37,8 @@ export default function Page() {
           언제든 카카오로 새로 가입하면 돼요. 예전 기록은 안 돌아와요.
         </p>
 
-        <Link className="btn btn--primary btn--block" href={wf('/')}>
+        {/* `wf('/')` 은 `/w4871` 인데 거기에는 화면이 없다. 404 였다 */}
+        <Link className="btn btn--primary btn--block" href={wf('/home')}>
           처음으로
         </Link>
       </div>
