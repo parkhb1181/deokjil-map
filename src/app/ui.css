@@ -1013,6 +1013,20 @@
   padding: 16px var(--gutter) 40px;
 }
 
+/* 서버가 막았는데 칸을 짚을 수 없는 경우. 폼 맨 위에 띠로 둔다 —
+   제출 버튼 옆에 두면 긴 폼에서 스크롤 밖이라 안 보인다.
+   카드에서 빨강을 안 쓰는 규칙은 목록 카드 얘기고, 여기는 사용자가
+   방금 누른 것이 실패한 자리라 danger 를 쓴다 */
+.form__failed {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 /* 날짜와 시각처럼 짝인 것은 나란히 둔다. 세로로 쌓으면 관계가 안 보인다 */
 .form__row { display: flex; gap: 10px; }
 .form__row > .fld { flex: 1; min-width: 0; }
@@ -3194,3 +3208,482 @@
   color: var(--text-mute);
 }
 .subjgone .btn { margin-top: 22px; }
+
+/* 목록 끝의 「더 보기」. 카드와 같은 좌우 시작선을 쓰고 위아래로만 띄운다 */
+.plist__more {
+  display: flex;
+  justify-content: center;
+  padding: 8px var(--gutter) 16px;
+}
+
+/* ── 휴대전화 인증 (AU-13) ────────────────────────────────
+   채팅으로 가는 관문이다. 편의 기능이 아니라 안 지나면 못 쓰는
+   자리라, 왜 필요한지를 폼보다 먼저 말한다.
+   ------------------------------------------------------- */
+.vfy { padding-bottom: 40px; }
+
+.vfy__lead {
+  padding: 18px var(--gutter) 2px;
+  font-size: var(--t-body);
+  line-height: 1.72;
+  color: var(--text-dim);
+}
+.vfy__lead b { color: var(--text); font-weight: 700; }
+
+/* 근거는 맨 아래에 작게. 처음 보는 사람에게는 위 한 줄이면 되고,
+   따져 묻는 사람에게만 필요하다 */
+.vfy__why {
+  margin: 4px var(--gutter) 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text-mute);
+}
+
+/* ── 채팅방 목록 (CH-05) ──────────────────────────────────
+   아는 사람을 다시 찾는 화면이라 사진 행이 아니라 글 행이다
+   (docs/design/SCALE.md). 다만 사람이 주인공이라 아바타가 붙는다.
+   ------------------------------------------------------- */
+.clist { list-style: none; margin: 0; padding: 0 0 32px; }
+
+.clist__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px var(--gutter);
+  text-decoration: none;
+  color: inherit;
+}
+.clist li + li .clist__row { border-top: 1px solid var(--border); }
+.clist__row:active { background: var(--bg-sunk); }
+
+.clist__main { flex: 1; min-width: 0; }
+.clist__top { display: flex; align-items: baseline; gap: 6px; }
+.clist__name {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* 시각은 이름 바로 옆이다. 오른쪽 끝으로 밀면 안 읽음 배지와 자리를
+   다투고, 긴 닉네임에서 둘이 겹친다 */
+.clist__when {
+  flex: 0 0 auto;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+.clist__last {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* 어느 모집글에서 만난 사람인지. 상대를 여럿 만나면 닉네임만으로는
+   어느 약속인지 알 수 없다 */
+.clist__on {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 알림이 없는 서비스라 이 숫자가 알림이다 */
+.clist__new {
+  flex: 0 0 auto;
+  align-self: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 채팅방 (CH-02 ~ CH-10) ─────────────────────────────── */
+
+/* 어느 약속인지. 시각을 확인하려고 뒤로 나갔다 오지 않게 한다 */
+.croom__on {
+  display: block;
+  padding: 10px var(--gutter);
+  background: var(--bg-sunk);
+  text-decoration: none;
+  color: inherit;
+}
+.croom__ontitle {
+  display: block;
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.croom__onwhen {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+
+/* 저장 고지 (CH-09). 몰래 저장하는 것과 적어두는 것은 다른 일이다 */
+.chat__notice {
+  padding: 8px var(--gutter);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+.croom {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px var(--gutter) 16px;
+  min-height: 46vh;
+}
+
+/* 날짜가 바뀌는 자리. 없으면 어제 대화와 오늘 대화가 이어져 보인다 */
+.chat__day { display: flex; justify-content: center; margin: 12px 0 10px; }
+.chat__day span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--text-mute);
+}
+
+/* 첫 진입 안내 (CH-10) */
+.chat__first {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--accent-ink);
+}
+.chat__first p { flex: 1; min-width: 0; }
+.chat__first b { font-weight: 700; }
+
+/* ── 말풍선 ───────────────────────────────────────────────
+   둘뿐인 대화라 이름을 붙이지 않는다. 좌우로 갈라 두면 이름이
+   없어도 누가 말했는지 알 수 있다.
+   ------------------------------------------------------- */
+.bub {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 78%;
+  margin-right: auto;
+}
+.bub--mine { flex-direction: row-reverse; margin-right: 0; margin-left: auto; }
+/* 묶음의 마지막 줄에만 아래 여백을 준다. 안 그러면 연달아 보낸
+   세 줄이 한 줄씩 떨어져 세 사람이 말한 것처럼 보인다 */
+.bub--tail { margin-bottom: 8px; }
+
+.bub__text {
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: var(--bg-sunk);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* 내 말은 분홍이다. 분홍 배경 위 글자는 accent-ink 를 쓴다 —
+   accent 는 대비가 모자란다 (docs/design/SCALE.md) */
+.bub--mine .bub__text { background: var(--accent-soft); color: var(--accent-ink); }
+
+.bub__time {
+  flex: 0 0 auto;
+  padding-bottom: 2px;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+
+/* ── 채팅 입력 ────────────────────────────────────────────
+   댓글과 다른 자리다. 댓글은 읽는 글의 끝이지만 채팅은 읽는 내내
+   쓰는 자리라 화면 아래에 붙어 따라다녀야 한다.
+   ------------------------------------------------------- */
+.cwrite {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px var(--gutter) calc(8px + env(safe-area-inset-bottom));
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.cwrite__box {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--tap);
+  max-height: 120px;
+  padding: 11px 14px;
+  border: 1px solid var(--field-border);
+  border-radius: 20px;
+  background: var(--field-bg);
+  font: inherit;
+  /* 16px 미만이면 iOS Safari 가 입력에 들어갈 때 화면을 확대한다 */
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text);
+  resize: none;
+}
+.cwrite__box::placeholder { color: var(--text-mute); }
+.cwrite__box:focus { outline: 0; border-color: var(--focus); box-shadow: var(--focus-ring); }
+
+.cwrite__gate {
+  flex: 1;
+  padding: 10px 4px;
+  font-size: var(--t-sub);
+  line-height: 1.55;
+  color: var(--text-mute);
+  text-align: center;
+}
+
+.croom__who { display: flex; align-items: center; gap: 10px; }
+.croom__prof { font-size: var(--t-strong); font-weight: 700; color: var(--accent-ink); }
+
+/* ── 인증 게이트 (AU-14) ──────────────────────────────────
+   막는 것이 아니라 다음 걸음을 보여준다. 「권한이 없습니다」 로
+   끝내면 무엇을 해야 하는지 알 수 없다.
+   ------------------------------------------------------- */
+.vgate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 20px var(--gutter);
+  padding: 24px 20px;
+  border-radius: var(--radius);
+  background: var(--bg-sunk);
+  text-align: center;
+}
+.vgate__title { font-size: var(--t-strong); font-weight: 700; color: var(--text); }
+.vgate__desc {
+  font-size: var(--t-sub);
+  line-height: 1.65;
+  color: var(--text-mute);
+  margin-bottom: 4px;
+}
+.vgate .btn { text-decoration: none; }
+
+/* ── 차단 목록 (SF-06) ────────────────────────────────── */
+.blk__lead {
+  padding: 14px var(--gutter) 2px;
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+}
+.blk { list-style: none; margin: 0; padding: 0 0 40px; }
+.blk__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px var(--gutter);
+}
+.blk li + li.blk__row { border-top: 1px solid var(--border); }
+.blk__main { flex: 1; min-width: 0; }
+.blk__name {
+  display: block;
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.blk__when {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+/* ── 알림 (S3) ────────────────────────────────────────────
+   차단 목록과 같은 글 행이지만 앞머리가 두 가지다. 사람이 일으킨
+   것은 아바타가 서고, 마감·신고·제재는 사람이 없어 아이콘이 그
+   자리에 선다. 둘의 지름을 48px 로 맞춰 왼쪽 선이 흔들리지 않게 한다.
+   ------------------------------------------------------- */
+
+/* 푸시가 아니라는 것. 「알림」 이라고 적힌 화면이 있으면 켜 두면
+   오는 줄 알고 기다리는 사람이 생긴다 */
+.alr__lead {
+  padding: 12px var(--gutter);
+  background: var(--bg-sunk);
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.alr { list-style: none; margin: 0; padding: 0 0 8px; }
+
+.alr__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px var(--gutter);
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+}
+.alr li + li .alr__row { border-top: 1px solid var(--border); }
+.alr__row:active { background: var(--bg-sunk); }
+
+/* 갈 곳이 없는 알림은 button 이다. 링크와 같은 줄로 보여야 하므로
+   버튼 기본값을 걷어낸다. 커서는 화살표로 둔다 — 손가락으로 두면
+   누르면 어디로 갈 것처럼 읽힌다 */
+.alr__row--flat {
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: default;
+}
+
+/* 안 읽은 줄. 배경을 아주 옅게만 깐다. 진하게 깔면 읽은 줄이
+   비활성처럼 보여서, 지난 알림을 못 쓰는 것으로 읽는다 */
+.alr__row--new { background: color-mix(in srgb, var(--accent-soft) 45%, #fff); }
+.alr__row--new:active { background: var(--accent-soft); }
+
+/* ── 앞머리 ─────────────────────────────────────────────── */
+
+.alr__face { position: relative; flex: 0 0 auto; }
+
+/* 종류 뱃지. 아바타 오른쪽 아래에 걸친다. 흰 테두리가 있어야
+   아바타 사진 위에서도 원이 끊겨 보인다 */
+.alr__pipwrap {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  color: #fff;
+}
+.alr__pip { width: 11px; height: 11px; }
+
+/* 사람이 없는 알림. 색으로 성격을 가른다 — 마감은 지난 일이라
+   회색, 신고 결과는 안전이라 초록, 제재는 불이익이라 빨강 */
+.alr__icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.alr__icon--closed   { background: var(--gone-soft);   color: var(--gone); }
+.alr__icon--report   { background: var(--ok-soft);     color: var(--ok); }
+.alr__icon--sanction { background: var(--danger-soft); color: var(--danger); }
+.alr__mark { width: 22px; height: 22px; }
+
+/* ── 본문 ───────────────────────────────────────────────── */
+
+.alr__main { flex: 1; min-width: 0; }
+
+.alr__top { display: flex; align-items: baseline; gap: 6px; }
+.alr__text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+/* 묶인 개수. 문장 옆이다. 오른쪽 끝에 두면 안 읽음 점과 자리를
+   다투고 둘 다 같은 표시로 읽힌다 */
+.alr__count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 어느 글·어느 방인가. 한 줄로 자른다 — 두 줄이 되면 여섯 개짜리
+   목록이 한 화면을 넘긴다 */
+.alr__on {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alr__when {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+/* 안 읽음 점. 숫자를 쓰지 않는다 — 알림 한 줄이 「몇 개」 인지는
+   위의 묶음 수가 이미 말하고, 여기에 또 숫자를 두면 둘이 다른
+   것을 세는데 같아 보인다 */
+.alr__dot {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 서버가 지운다. 안 적어두면 지난달 것을 찾다가 문의가 들어온다 */
+.alr__foot {
+  padding: 4px var(--gutter) 32px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  text-align: center;
+}

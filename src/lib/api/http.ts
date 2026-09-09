@@ -85,8 +85,32 @@ function url(path: string, params?: Params): string {
  *
  * 토큰이 붙은 요청은 **캐시하지 않는다.** 보는 사람마다 응답이 갈리는데
  * (비밀 댓글이 그렇다) 재검증 캐시에 얹으면 남의 응답이 재사용된다.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **토큰이 없다고 캐시해도 되는 것은 아니다.**
+ *
+ * 한동안 「토큰 없으면 재검증 캐시」 였다. 행사만 부르던 시절에는 맞는
+ * 규칙이었다 — 행사는 ISR 로 굽는 것이 설계다 (EV-08).
+ *
+ * 모집글·댓글이 붙으면서 틀린 규칙이 됐다. 그쪽은 **ISR 대상이 아니다**
+ * (API 설계 2-3 「모집글·댓글은 ISR 대상이 아니다」). 서버 컴포넌트에는
+ * 세션이 없어 토큰 없이 부르는데, 그러면 자동으로 한 시간짜리 캐시가
+ * 걸렸다. 댓글을 쓰고 `router.refresh()` 를 해도 화면이 안 바뀌는
+ * 것으로 드러났다 — 서버 컴포넌트는 다시 돌지만 그 안의 `fetch` 가
+ * 캐시에서 답한다.
+ *
+ * 그래서 **부르는 쪽이 정한다.** 기본은 캐시하지 않는 쪽이다. 캐시가
+ * 이득인 자리는 행사 하나뿐이고, 틀렸을 때의 대가가 양쪽에서 다르다 —
+ * 안 하면 느려질 뿐이지만 잘못하면 낡은 화면을 보여준다.
+ *
+ * @param cache `'isr'` 이면 재검증 캐시에 얹는다. 토큰이 있으면 무시된다
  */
-export async function apiGet<T>(path: string, params?: Params, token?: string | null): Promise<T> {
+export async function apiGet<T>(
+  path: string,
+  params?: Params,
+  token?: string | null,
+  cache: 'isr' | 'fresh' = 'fresh',
+): Promise<T> {
   /* 주소 조립은 try 밖이다. 안에 두면 NO_API_BASE 가 NETWORK 로 감싸진다 */
   const target = url(path, params)
   let res: Response
@@ -97,7 +121,9 @@ export async function apiGet<T>(path: string, params?: Params, token?: string | 
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       signal: cutoff(READ_TIMEOUT),
-      ...(token ? { cache: 'no-store' as const } : { next: { revalidate: REVALIDATE_SECONDS } }),
+      ...(token || cache === 'fresh'
+        ? { cache: 'no-store' as const }
+        : { next: { revalidate: REVALIDATE_SECONDS } }),
     })
   } catch (e) {
     /* 여기 오는 것은 DNS·TLS·타임아웃이다. 서버는 아무 말도 안 했다 */
@@ -134,13 +160,17 @@ export async function apiGet<T>(path: string, params?: Params, token?: string | 
  *
  * **한계를 둔다.** 커서가 잘못 돌면 무한 루프다. 서버가 같은 커서를
  * 계속 주는 버그를 빌드가 영원히 도는 것으로 겪고 싶지 않다.
+ *
+ * **여기만 재검증 캐시를 쓴다.** 이 함수를 부르는 곳이 행사 하나뿐이고,
+ * 행사는 ISR 로 굽는 것이 설계다 (EV-08). 모집글·댓글은 이걸 쓰지 않고
+ * `apiGet` 을 기본값(`'fresh'`)으로 부른다.
  */
 export async function apiGetAll<T>(path: string, params?: Params, maxPages = 40): Promise<T[]> {
   const out: T[] = []
   let cursor: string | null = null
 
   for (let i = 0; i < maxPages; i++) {
-    const page: Page<T> = await apiGet<Page<T>>(path, { ...params, cursor })
+    const page: Page<T> = await apiGet<Page<T>>(path, { ...params, cursor }, null, 'isr')
     out.push(...page.items)
     if (!page.hasNext || !page.nextCursor || page.nextCursor === cursor) break
     cursor = page.nextCursor
@@ -150,7 +180,7 @@ export async function apiGetAll<T>(path: string, params?: Params, maxPages = 40)
 }
 
 /**
- * 쓰기 요청. POST · PATCH · DELETE.
+ * 쓰기 요청. POST · PUT · PATCH · DELETE.
  *
  * 읽기와 갈라둔 이유가 셋이다.
  *
@@ -163,7 +193,7 @@ export async function apiGetAll<T>(path: string, params?: Params, maxPages = 40)
  * **본문이 있다.** 204 로 본문 없이 오는 것도 있어서 파싱을 나눈다.
  */
 export async function apiSend<T>(
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   body?: unknown,
   token?: string | null,

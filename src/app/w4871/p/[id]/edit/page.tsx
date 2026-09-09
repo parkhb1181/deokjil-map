@@ -4,6 +4,9 @@ import type { CompanionPost, EventItem } from '@/types'
 import { isClosed } from '@/types'
 import sample from '@/data/posts.sample.json'
 import { getAllEvents } from '@/lib/events-source'
+import { USE_API } from '@/lib/api/config'
+import { fetchPost } from '@/lib/api/posts'
+import { ApiFailure } from '@/lib/api/http'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import type { PickableEvent } from '@/components/ui/EventPicker'
 import NewPost, { type PostDraft } from '../../new/NewPost'
@@ -19,8 +22,11 @@ import NewPost, { type PostDraft } from '../../new/NewPost'
  * 화면에서도 막아야 눌러보고 나서 튕기지 않는다. 서버 판정이 정본이고
  * 여기는 먼저 알려주는 역할이다.
  *
- * 로그인이 붙으면 방장 본인인지도 여기서 본다. 지금은 목데이터라
- * 보는 사람이 정해져 있지 않다.
+ * **방장 본인인지는 서버가 본다.** 이 화면은 서버 컴포넌트라 세션이
+ * 없어서 누가 여는지 모른다. 남의 글을 열어도 폼은 뜨지만 저장에서
+ * 403 (POST_NOT_HOST) 이 온다. 화면에서 미리 막으려면 브라우저가
+ * 자기 토큰으로 한 번 더 물어야 하는데, 주소를 직접 쳐야 닿는 자리라
+ * 지금은 서버 판정에 맡긴다.
  */
 export const metadata: Metadata = {
   title: '모집글 수정 · 덕모임',
@@ -39,10 +45,23 @@ const cut = (e: EventItem): PickableEvent => ({
   imageUrl: e.imageUrl ?? null,
 })
 
+export const dynamic = 'force-dynamic'
+
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const post = DATA.post
-  if (id !== post.id) notFound()
+
+  let post: CompanionPost
+  if (USE_API) {
+    try {
+      post = await fetchPost(id)
+    } catch (e) {
+      if (e instanceof ApiFailure && e.httpStatus === 404) notFound()
+      throw e
+    }
+  } else {
+    post = DATA.post
+    if (id !== post.id) notFound()
+  }
 
   /* 끝난 글은 고칠 수 없다. 주소를 직접 쳐도 마찬가지다 */
   if (isClosed(post.status)) notFound()

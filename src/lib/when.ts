@@ -116,3 +116,27 @@ export function whenShort(iso: string): string {
   const p = parts(iso)
   return `${p.month}/${p.day} (${dow(p)}) ${pad(p.hour)}:${pad(p.minute)}`
 }
+
+/**
+ * 목록에서 「언제」. 오늘이면 시각, 아니면 날짜다.
+ *
+ *   오늘   '오후 9:40'
+ *   그 외  '9/8'
+ *
+ * 채팅방 목록과 알림이 같이 쓴다. 둘 다 훑는 화면이라 「9/9 (수) 21:40」
+ * 처럼 길게 적으면 닉네임과 자리를 다투고, 오늘 온 것과 지난주에 온 것이
+ * 같은 길이로 보여 눈으로 안 갈린다.
+ *
+ * **오늘을 받아온다.** 렌더 중에 `new Date()` 를 부르면 서버 프리렌더
+ * 시각이 빌드 시각이라 배포 다음날부터 어긋난다 (CLAUDE.md). 부르는 쪽이
+ * `useEffect` 에서 확정하거나, 목데이터의 가장 최근 날짜를 넘긴다.
+ *
+ * @param today 'YYYY-MM-DD'
+ */
+export function listTime(iso: string, today: string): string {
+  const p = parts(iso)
+  if (!iso.startsWith(today)) return `${p.month}/${p.day}`
+  const ampm = p.hour < 12 ? '오전' : '오후'
+  const h12 = p.hour % 12 === 0 ? 12 : p.hour % 12
+  return `${ampm} ${h12}:${pad(p.minute)}`
+}

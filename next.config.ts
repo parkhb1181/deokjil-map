@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
    */
   env: {
     NEXT_PUBLIC_WIREFRAME: process.env.NEXT_PUBLIC_WIREFRAME ?? '0',
+    /* 같은 이유로 기본값을 박는다. 비면 events.json 을 읽는다 (lib/api/config.ts) */
+    NEXT_PUBLIC_EVENTS_FROM_API: process.env.NEXT_PUBLIC_EVENTS_FROM_API ?? '0',
   },
   /**
    * sharp 는 네이티브 바인딩이라 번들에 넣으면 깨진다.
@@ -31,6 +33,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'img2.offmate.kr' },
       { protocol: 'https', hostname: 'cdn.popga.co.kr' },
+      // 콘서트 포스터. API 는 http://www.kopis.or.kr 로 주는데 to-events.mjs 가
+      // https://kopis.or.kr 로 바꿔 담는다 (www 를 붙인 https 는 301 이다)
+      { protocol: 'https', hostname: 'kopis.or.kr' },
     ],
     formats: ['image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 7,

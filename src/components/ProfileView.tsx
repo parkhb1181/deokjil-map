@@ -32,7 +32,7 @@ import { Avatar, Badge, Blank, Button, Sheet, Tabs } from '@/components/ui/Basic
 import { ReportSheet } from '@/components/ui/ReportSheet'
 import { SanctionBanner, SanctionBlock } from '@/components/ui/SanctionNotice'
 import { swatchOf } from '@/lib/visual'
-import { canWrite, isBlocked, isClosed, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
+import { canWrite, isBlocked, isClosed, LAST_SEEN_LABEL, type ClosedReason, type LastSeen, type PostState, type Sanction } from '@/types'
 import { wf } from '@/lib/wireframe'
 import { shortTime as whenShort } from '@/lib/when'
 
@@ -66,21 +66,34 @@ export type MyComment = {
   body: string
   secret: boolean
   createdAt: string
-  /** 내 댓글에 답글이 달렸는지 */
-  replied: boolean
+  /**
+   * 내 댓글에 답글이 달렸는지.
+   *
+   * **서버가 안 준다.** 계약(API 설계 2-2 의 /users/me/comments)에 그런
+   * 칸이 없다. 알림이 없는 1차에서 답글을 알아채는 유일한 단서라 화면에
+   * 남겨 두지만, API 경로에서는 늘 비어 있다. 서버가 실어 주기 시작하면
+   * 그때 채운다 — 없는 것을 화면이 세어 만들 수는 없다. 그러려면 글마다
+   * 댓글을 다 받아야 한다.
+   */
+  replied?: boolean
 }
 
 /**
  * 프로필에 싣는 값.
  *
- * **마지막 활동 시각과 가입월을 뺐다.** 「3일 이내 활동」 · 「2026년 6월
- * 가입」 이 그것이다. 둘 다 낯선 사람이 나를 가늠하는 데 쓰라고 둔
- * 값인데, 실제로는 그 사람이 언제 접속하는지와 얼마나 오래 있었는지를
- * 남에게 알려준다. 연령대를 공개 프로필에서 뺀 것과 같은 이유다.
- * 쓰지도 않을 것을 내보이면 잃을 것만 늘어난다.
+ * **가입월은 없다.** 「2026년 6월 가입」 은 낯선 사람이 나를 가늠하는 데
+ * 쓰라고 둔 값인데, 실제로 하는 일은 내가 얼마나 오래 있었는지를 남에게
+ * 알려주는 것이다. 연령대를 공개 프로필에서 뺀 것과 같은 이유로 뺐다.
  *
- * 타입에서도 뺀다. 화면에서만 가리고 응답에 남겨두면 개발자 도구로
- * 그냥 읽힌다. 서버가 애초에 안 보내야 한다.
+ * **최근 접속일(`lastSeen`)은 남긴다.** 한때 같은 이유로 뺐다가
+ * 되돌렸다 (09-03). 계약이 이걸 공개 프로필의 필수 항목으로 두는데
+ * (AU-09), 우리가 걱정하던 활동 패턴 추적은 계약도 같이 막고 있었다 —
+ * 원본 시각을 안 내리고 다섯 구간으로만 내린다 (도메인 7.2).
+ * 방향이 같아서 뺄 이유가 없었다.
+ *
+ * 그리는 자리는 **남의 프로필뿐이다.** 낯선 사람이 이 사람에게 말을
+ * 걸어도 답이 올지 가늠하는 값이라, 내 화면에서는 나에 대해 아무것도
+ * 알려주지 않는다.
  */
 export type ProfileData = {
   id: string
@@ -141,12 +154,20 @@ export default function ProfileView({
   user,
   isMe = false,
   comments = [],
+  postsReady = true,
 }: {
   user: ProfileData
   /** 내 프로필이면 제재·마이메뉴·내 댓글 탭이 붙는다 */
   isMe?: boolean
   /** 내 화면에서만 쓴다. 남에게는 애초에 보내지 않는다 */
   comments?: MyComment[]
+  /**
+   * 모집글 목록을 실제로 받아왔는가.
+   *
+   * 서버에 그 엔드포인트가 아직 없어서, 빈 배열이 「없다」 인지 「못
+   * 받았다」 인지 화면이 구분할 수 없다. 부르는 쪽이 알려준다.
+   */
+  postsReady?: boolean
 }) {
   /* 로그인이 없어 내 프로필인지 서버가 못 알려준다. 개발용으로 뒤집어
      본다. 같은 렌더러라 이 토글 하나로 두 화면을 나란히 비교할 수 있다 */
@@ -266,7 +287,8 @@ export default function ProfileView({
                     <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </span>
-                <input type="file" accept="image/*" hidden />
+                {/* 서버 허용값과 같게 좁힌다. 이유는 me/edit 쪽에 적었다 */}
+                <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
               </label>
 
               <div className="myid__main">
@@ -297,7 +319,13 @@ export default function ProfileView({
                 <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} />
                 <div className="prof__idmain">
                   <h1 className="prof__name">{user.nickname}</h1>
-                  {/* 활동 시각과 가입월을 뺐다. 이유는 ProfileData 주석에 */}
+                  {/* 최근 접속일만 둔다. 가입월은 안 싣는다 —
+                      이유는 ProfileData 주석에 */}
+                  {user.lastSeen && (
+                    <p className="prof__meta meta">
+                      <span>{LAST_SEEN_LABEL[user.lastSeen]}</span>
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -326,12 +354,13 @@ export default function ProfileView({
                   <Caret />
                 </Link>
               )}
-              {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
-                  헤매므로 준비 중이라고 적어 둔다 */}
-              <button type="button" className="mymenu__row" disabled>
-                <span>알림 설정</span>
-                <span className="mymenu__note">준비 중</span>
-              </button>
+              {/* 1차에는 「준비 중」 이었다. 2차에서 화면이 생겼는데,
+                  들어오는 길이 아직 여기 하나뿐이다 — 하단 탭 배지가
+                  1차 화면이라 그 브랜치에 있다 */}
+              <Link className="mymenu__row" href={wf('/alerts')}>
+                <span>알림</span>
+                <Caret />
+              </Link>
               {/* 로그아웃은 맨 아래다. 위에 두면 다른 것을 누르러 왔다가
                   실수로 누른다. 되돌리려면 다시 로그인해야 한다 */}
               <button
@@ -380,7 +409,21 @@ export default function ProfileView({
               }
             />
           ) : posts.length === 0 && tab === 0 ? (
-            <Blank title="아직 쓴 글이 없어요" art={false} />
+            /*
+             * **「없다」 와 「아직 못 받았다」 는 다르다.**
+             *
+             * 서버에 `/users/me/posts` 가 아직 없다 (계약 AU-10 에는 있다).
+             * 그래서 API 경로에서는 빈 배열이 오는데, 그걸 「아직 쓴 글이
+             * 없어요」 로 그리면 글을 쓴 사람에게 거짓말이 된다. 자기가 쓴
+             * 글이 사라진 줄 알고 다시 쓰게 만든다.
+             *
+             * 그 엔드포인트가 생기면 이 분기는 사라지고 위 문구만 남는다.
+             */
+            <Blank
+              title={postsReady ? '아직 쓴 글이 없어요' : '내 모집글은 곧 볼 수 있어요'}
+              desc={postsReady ? undefined : '서버에 붙는 중이에요'}
+              art={false}
+            />
           ) : (
             /* 전체 보기를 두지 않고 다 편다. 한 사람이 쓰는 모집글은
                당근의 판매물품처럼 열 개씩 쌓이지 않는다. 잘라두면

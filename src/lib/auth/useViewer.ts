@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { Sanction, Viewer } from '@/types'
-import { apiGet, ApiFailure } from '@/lib/api/http'
+import type { Viewer } from '@/types'
+import { ApiFailure } from '@/lib/api/http'
 import { USE_API } from '@/lib/api/config'
+import { fetchMe, type Me } from '@/lib/api/users'
 import { withAuth } from './refresh'
 
 /**
@@ -24,30 +25,19 @@ import { withAuth } from './refresh'
  * 같이 지운다.
  */
 
-/** `GET /api/v1/users/me` 중 화면이 쓰는 것만 (API 설계 2-2) */
-interface Me {
-  id: string
-  /** 가입 정보를 넣었는가. 안 넣었으면 쓰기가 막힌다 (AU-07) */
-  signupCompleted: boolean
-  /** 없으면 제재가 없다는 뜻이다 */
-  sanction?: Sanction | null
-  /**
-   * 관리자인가 (AD-06).
-   *
-   * 로그인은 모두 카카오 하나로 하고 역할만 얹는다 (2026-09-05 결정).
-   * 관리자 전용 로그인 화면을 만들지 않는다 — 비밀번호를 우리가
-   * 다루면 해싱·재설정·유출 대응을 떠안는데, 그 문 안에 비밀 댓글
-   * 본문이 있다 (CM-17).
-   *
-   * **판정은 서버가 한다.** 화면이 판정하면 상태를 뒤집는 것으로
-   * 그냥 뚫린다. 여기 값은 무엇을 그릴지 정하는 데만 쓴다.
-   */
-  role?: 'USER' | 'ADMIN'
-}
+/**
+ * 응답 모양과 매퍼는 `lib/api/users.ts` 에 있다. **여기서 캐스팅으로 받지
+ * 않는다** — 서버가 `id` 를 숫자로 주는데 `Viewer.userId` 는 문자열이라,
+ * 정규화를 건너뛰면 아래 `me.id === hostId` 가 조용히 false 가 된다.
+ */
 
 export interface ViewerState {
-  /** 관리자인가. 백오피스가 본다 */
-  isAdmin?: boolean
+  /*
+   * **관리자 여부를 여기서 주지 않는다.** 한때 `isAdmin` 이 있었고
+   * `/users/me` 의 `role` 을 봤는데, 그런 칸이 서버에도 계약에도 없어서
+   * (API 설계 2-2) 늘 거짓이었다. 백오피스가 관리자 API 를 직접 불러
+   * 403 인지로 판정한다 (`admin15616/Admin.tsx`).
+   */
   viewer: Viewer
   /**
    * 아직 모른다.
@@ -80,7 +70,7 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
      * 서버는 한 번만 맞는다 (refresh.ts).
      */
     withAuth<Me | null>(
-      (token) => (token ? apiGet<Me>('/api/v1/users/me', undefined, token) : Promise.resolve(null)),
+      (token) => (token ? fetchMe(token) : Promise.resolve(null)),
       (e) => e instanceof ApiFailure && e.httpStatus === 401,
     )
       .then((me) => {
@@ -94,9 +84,8 @@ export function useViewer(fallback: Viewer, hostId?: string): ViewerState {
           viewer: {
             role: hostId && me.id === hostId ? 'host' : 'member',
             userId: me.id,
-            sanction: me.sanction ?? null,
+            sanction: me.sanction,
           },
-          isAdmin: me.role === 'ADMIN',
           loading: false,
         })
       })

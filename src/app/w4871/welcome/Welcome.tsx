@@ -24,6 +24,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Button } from '@/components/ui/Basics'
 import { Field, TextInput, Select } from '@/components/ui/Field'
+import { USE_API } from '@/lib/api/config'
+import { checkNickname, completeSignup } from '@/lib/api/users'
+import { slotFor } from '@/lib/api/errors'
+import { authed } from '@/lib/auth/authed'
+import { refreshAccessToken } from '@/lib/auth/refresh'
 
 /**
  * 가입 하한. **만 나이** 기준이다.
@@ -74,6 +79,8 @@ export default function Welcome() {
   const [nick, setNick] = useState('')
   const [birth, setBirth] = useState('')
   const [tried, setTried] = useState(false)
+  /* 서버가 막았을 때. 폼 맨 위 띠에 띄운다 */
+  const [failed, setFailed] = useState<string | null>(null)
 
   /* 올해는 useEffect 에서 확정한다. 서버 프리렌더 시점은 빌드 시각이라
      그대로 쓰면 12월에 빌드한 것이 해가 바뀐 뒤 목록과 나이 계산을
@@ -150,32 +157,81 @@ export default function Welcome() {
 
   const check = () => {
     if (formError || checking) return
+    const name = nick.trim()
     setChecking(true)
-    /* API 가 붙으면 여기서 GET 한다. 지금은 '덕모임' 만 이미 있는
-       이름으로 흉내낸다 */
-    setTimeout(() => {
-      setChecking(false)
-      setChecked({ name: nick.trim(), free: nick.trim() !== '덕모임' })
-    }, 450)
+    setFailed(null)
+
+    if (!USE_API) {
+      /* 서버가 없을 때. '덕모임' 만 이미 있는 이름으로 흉내낸다 */
+      setTimeout(() => {
+        setChecking(false)
+        setChecked({ name, free: name !== '덕모임' })
+      }, 450)
+      return
+    }
+
+    authed((t) => checkNickname(name, t))
+      .then((free) => setChecked({ name, free }))
+      .catch((e) => setFailed(slotFor(e).text))
+      .finally(() => setChecking(false))
   }
 
   const submit = () => {
     setTried(true)
     if (!ok) return
     setSending(true)
-    /* API 가 붙으면 여기서 PATCH 한다. 409 가 오면 setChecked 로
-       그 이름을 쓰인 것으로 표시한다 */
-    setTimeout(() => {
-      setSending(false)
-      /* replace 다. push 면 뒤로가기가 방금 채운 가입 화면으로
-         되돌아가고, 거기서 또 뒤로 가면 로그인이 나온다 */
-      router.replace(next)
-    }, 500)
+    setFailed(null)
+
+    /* replace 다. push 면 뒤로가기가 방금 채운 가입 화면으로
+       되돌아가고, 거기서 또 뒤로 가면 로그인이 나온다 */
+    const go = () => router.replace(next)
+
+    if (!USE_API) {
+      setTimeout(() => {
+        setSending(false)
+        go()
+      }, 500)
+      return
+    }
+
+    authed((t) => completeSignup({ nickname: nick.trim(), birthYear: Number(birth) }, t))
+      /*
+       * **가입이 끝나면 토큰을 새로 받아야 한다.**
+       *
+       * 지금 들고 있는 액세스 토큰에는 `signupCompleted: false` 가 박혀
+       * 있다. 서버 관문이 그 값으로 쓰기를 막으므로(AU-07), 재발급하지
+       * 않으면 가입을 마치고도 첫 댓글에서 403 을 맞는다. 사용자는 방금
+       * 가입했는데 「가입 정보를 먼저 입력해주세요」 를 보게 된다.
+       *
+       * 재발급이 실패해도 가입 자체는 끝났다. 그때는 그냥 보내고 다음
+       * 쓰기에서 재발급이 다시 시도된다 (`refresh.ts`).
+       */
+      .then(() => refreshAccessToken().catch(() => null))
+      .then(go)
+      .catch((e) => {
+        setSending(false)
+        const slot = slotFor(e)
+        /*
+         * 확인과 저장 사이에 남이 그 이름을 채 갔다 (I-01). 확인 결과를
+         * 지워 다시 확인하게 만든다 — 안 그러면 「확인됨」 표시가 남아
+         * 눌러도 같은 자리에서 계속 막힌다.
+         */
+        if (slot.at === 'field' && slot.field === 'nickname') {
+          setChecked({ name: nick.trim(), free: false })
+        }
+        setFailed(slot.text)
+      })
   }
 
   return (
     <PageShell title="시작하기">
       <div className="form">
+        {/* 칸을 못 짚는 실패. 폼 맨 위다 (form__failed 는 모집글 폼과 같은 자리) */}
+        {failed && (
+          <p className="form__failed" role="alert">
+            {failed}
+          </p>
+        )}
         <p className="form__lead">
           닉네임과 출생연도만 정하면 바로 쓸 수 있어요.
           <br />

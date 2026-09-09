@@ -17,8 +17,12 @@
 import { useState } from 'react'
 import { Button, Sheet } from './Basics'
 import { Field, TextArea, Select } from './Field'
+import { USE_API } from '@/lib/api/config'
+import { submitReport } from '@/lib/api/reports'
+import { slotFor } from '@/lib/api/errors'
+import { authed } from '@/lib/auth/authed'
 
-export type ReportTarget = 'user' | 'post' | 'comment'
+export type ReportTarget = 'user' | 'post' | 'comment' | 'chat'
 
 /**
  * 나이 신고 사유.
@@ -72,16 +76,30 @@ const EXTRA: Record<ReportTarget, ReportReason[]> = {
   user: ['NO_SHOW', 'AGE_SUSPICION'],
   post: ['FALSE_INFO', 'OFF_TOPIC'],
   comment: ['FALSE_INFO'],
+  /* 채팅 (SF-08). 사유는 댓글과 같다 — 둘 다 사람이 쓴 말이고,
+     사유가 갈리면 백오피스가 같은 신고를 다른 이름으로 받는다 */
+  chat: ['FALSE_INFO'],
 }
 
 const TITLE: Record<ReportTarget, string> = {
   user: '님을 신고할까요?',
   post: '이 모집글을 신고할까요?',
   comment: '이 댓글을 신고할까요?',
+  chat: '이 대화를 신고할까요?',
 }
 
-export function ReportSheet({ target, name, onClose }: {
+/** 화면 어휘 → 계약 어휘. 계약은 대문자다 (API 컨벤션) */
+const WIRE_TARGET = { user: 'USER', post: 'POST', comment: 'COMMENT', chat: 'CHAT' } as const
+
+export function ReportSheet({ target, targetId, name, onClose }: {
   target: ReportTarget
+  /**
+   * 무엇을 신고하는가. 유저면 회원번호, 글이면 글 id 다.
+   *
+   * **없으면 보내지 않는다.** 개발용 갤러리처럼 시트 모양만 보는
+   * 자리가 있어서 선택으로 둔다. 실제 화면은 반드시 넘긴다.
+   */
+  targetId?: string
   /** 사람을 신고할 때만 쓴다. 제목에 닉네임을 넣는다 */
   name?: string
   onClose: () => void
@@ -89,6 +107,8 @@ export function ReportSheet({ target, name, onClose }: {
   const [reason, setReason] = useState<ReportReason | ''>('')
   const [detail, setDetail] = useState('')
   const [tried, setTried] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [failed, setFailed] = useState<string | null>(null)
 
   const title = target === 'user' && name ? `${name} ${TITLE.user}` : TITLE[target]
   const reasons = [...COMMON, ...EXTRA[target]]
@@ -103,9 +123,32 @@ export function ReportSheet({ target, name, onClose }: {
   const submit = () => {
     setTried(true)
     if (!reason || needDetail) return
-    /* API 가 붙으면 여기서 POST 한다. 같은 대상을 두 번 신고하면
-       서버가 막는다 (SF-01) */
-    onClose()
+
+    if (!USE_API || !targetId) return onClose()
+
+    setFailed(null)
+    setSending(true)
+    authed((t) =>
+      submitReport(
+        {
+          targetType: WIRE_TARGET[target],
+          targetId,
+          reason,
+          detail: detail.trim() || undefined,
+        },
+        t,
+      ),
+    )
+      .then(onClose)
+      .catch((e) => {
+        setSending(false)
+        /*
+         * 같은 대상을 두 번 신고하면 409 다 (SF-01). 그것도 여기 문장으로
+         * 뜬다 — 「이미 신고한 건이에요」 (errors.ts). 시트를 닫지 않는
+         * 이유는 닫으면 접수된 것처럼 보이기 때문이다.
+         */
+        setFailed(slotFor(e).text)
+      })
   }
 
   return (
@@ -115,10 +158,18 @@ export function ReportSheet({ target, name, onClose }: {
       foot={
         <>
           <Button tone="ghost" onClick={onClose}>취소</Button>
-          <Button tone="danger" onClick={submit}>신고</Button>
+          <Button tone="danger" onClick={submit} disabled={sending}>
+            {sending ? '보내는 중' : '신고'}
+          </Button>
         </>
       }
     >
+      {/* 서버가 막았을 때. 시트를 닫지 않고 여기에 남긴다 */}
+      {failed && (
+        <p className="form__failed" role="alert">
+          {failed}
+        </p>
+      )}
       <Field label="사유" error={tried && !reason ? '사유를 골라주세요' : undefined}>
         <Select value={reason} onChange={(e) => setReason(e.target.value as ReportReason)}>
           <option value="" disabled>골라주세요</option>

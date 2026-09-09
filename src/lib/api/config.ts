@@ -15,8 +15,22 @@
  */
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? '').replace(/\/+$/, '')
 
-/** API 를 부를 것인가. 비어 있으면 목데이터다 */
+/** API 를 부를 것인가. 비어 있으면 목데이터다. 로그인·모집글·댓글이 이걸 본다 */
 export const USE_API = API_BASE.length > 0
+
+/**
+ * 행사 카탈로그도 API 에서 읽을 것인가.
+ *
+ * **`USE_API` 와 일부러 따로 둔다.** 로그인과 모집글은 서버가 있어야만
+ * 돌지만, 행사는 지금 크롤러가 매일 갱신하는 `events.json` 이 서버보다
+ * 새 것이다. RDS 의 행사 테이블은 9/3 시드 211건이고 크롤러가 아직
+ * 거기에 쓰지 않는다 (EV-03 미착수). 깃발 하나로 묶어 두면 로그인을
+ * 켜는 순간 홈이 낡은 목록으로 되돌아가고 그 뒤로 갱신이 멈춘다.
+ *
+ * 크롤러가 DB 에 적재하기 시작하면 `NEXT_PUBLIC_EVENTS_FROM_API=1` 로
+ * 켜고, 그게 안정되면 이 깃발과 `events.json` 경로를 같이 지운다.
+ */
+export const USE_API_EVENTS = USE_API && process.env.NEXT_PUBLIC_EVENTS_FROM_API === '1'
 
 /**
  * ISR 재검증 주기(초).

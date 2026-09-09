@@ -33,6 +33,25 @@ if (events.length < FLOOR) {
   problems.push(`이벤트가 ${events.length}건뿐이다 (최소 ${FLOOR}건 기대). 수집이 깨졌을 가능성이 높다`)
 }
 
+/**
+ * 종류별 실종은 총계로 안 잡힌다.
+ *
+ * 팝업·생카가 200건 넘게 있으면 콘서트가 0건이어도 위 FLOOR 를 통과한다.
+ * KOPIS 인증키가 만료되거나 응답 형식이 바뀌어 수집이 0건이 되는 날,
+ * 목록은 멀쩡해 보이고 콘서트 필터만 조용히 빈다.
+ *
+ * **실패시키지 않고 경고로 둔다.** 콘서트가 0건인 것은 틀린 데이터가 아니라
+ * 부족한 데이터고, 여기서 죽이면 멀쩡한 팝업·생카 갱신까지 배포되지 않는다.
+ * 새로 붙인 수집원이 이미 잘 돌던 경로를 무너뜨리게 하지 않는다.
+ */
+const kindCounts = {}
+for (const e of events) kindCounts[e.kind] = (kindCounts[e.kind] ?? 0) + 1
+
+const warnings = []
+if (!kindCounts.CONCERT) {
+  warnings.push('콘서트가 0건이다. KOPIS 수집이 깨졌는지 확인한다 (인증키·응답 형식)')
+}
+
 for (const e of events) {
   const at = `${e.id} (${e.subject})`
 
@@ -65,7 +84,37 @@ for (const e of events) {
   if (e.place && !PLACE_KINDS.includes(e.place.kind)) {
     problems.push(`${at}: place.kind 가 계약 밖이다. ${e.place.kind}`)
   }
+
+  /**
+   * 콘서트만 시작 시각을 갖는다 (EV-10).
+   *
+   * KOPIS 는 회차를 "금요일(19:30), 토요일(17:00)" 같은 안내 문자열로 주고,
+   * 크롤러가 거기서 대표 시각을 뽑는다. 형식이 바뀌면 그 파싱이 조용히 null 을
+   * 뱉는데, 화면은 시각 없는 콘서트를 그냥 그려서 아무도 모른다.
+   *
+   * 종류와 장소도 짝이어야 한다. 콘서트를 POPUP_VENUE 로 적으면 지도·필터가
+   * 팝업과 섞이고, 반대로 카페 행사를 CONCERT_HALL 로 적으면 콘서트 필터에 뜬다.
+   */
+  if (e.kind === 'CONCERT') {
+    if (!e.startsAt) {
+      problems.push(`${at}: 콘서트인데 startsAt 이 없다. 회차 파싱이 깨졌을 수 있다`)
+    } else if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(e.startsAt)) {
+      problems.push(`${at}: startsAt 이 HH:mm 이 아니다. ${e.startsAt}`)
+    }
+    if (e.place?.kind !== 'CONCERT_HALL') {
+      problems.push(`${at}: 콘서트인데 place.kind 가 ${e.place?.kind} 다`)
+    }
+  } else if (e.startsAt) {
+    problems.push(`${at}: 콘서트가 아닌데 startsAt 이 있다 (${e.kind})`)
+  }
+
+  if (e.place?.kind === 'CONCERT_HALL' && e.kind !== 'CONCERT') {
+    problems.push(`${at}: 공연장인데 kind 가 ${e.kind} 다`)
+  }
 }
+
+// 경고는 실패보다 먼저 보여준다. 실패로 죽으면 아래가 출력되지 않는다
+for (const w of warnings) console.error(`⚠️  ${w}`)
 
 if (problems.length) {
   console.error(`검증 실패, ${problems.length}건\n`)
@@ -74,4 +123,7 @@ if (problems.length) {
   process.exit(1)
 }
 
-console.log(`검증 통과, ${events.length}건`)
+const breakdown = Object.entries(kindCounts)
+  .map(([k, v]) => `${k} ${v}`)
+  .join(' · ')
+console.log(`검증 통과, ${events.length}건 (${breakdown})`)

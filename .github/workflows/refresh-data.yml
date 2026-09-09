@@ -3,7 +3,10 @@
 # 이 저장소의 앱은 src/data/events.json 을 빌드 시점에 번들로 굽는다.
 # 즉 데이터를 새로 넣으려면 커밋이 필요하다. 그 커밋을 사람 대신 여기서 만든다.
 #
-# 크롤러는 node 내장 기능만 쓰고 환경변수도 안 받으므로 시크릿이 필요 없다.
+# 크롤러는 node 내장 기능만 쓴다. 다만 KOPIS(콘서트)는 공식 오픈API 라 인증키가
+# 필요해서 KOPIS_SERVICE_KEY 시크릿을 쓴다 — 그 전까지는 시크릿이 없었다.
+# 키가 없거나 만료되면 그 소스만 건너뛰고 팝가·오프메이트는 그대로 돈다
+# (crawler/run.mjs 가 소스별로 실패를 격리한다).
 name: 데이터 갱신
 
 on:
@@ -32,7 +35,8 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    # 요청 1400건 × 700ms 간격 = 최소 16분. 네트워크 지연까지 보면 20분대다
+    # 팝가·오프메이트 1400건 + KOPIS 350건(목록 3 + 상세 250 + 공연장 100) 정도다.
+    # 700ms 간격이라 최소 20분, 네트워크 지연까지 보면 25분대다
     timeout-minutes: 45
 
     steps:
@@ -43,6 +47,9 @@ jobs:
           node-version: '22'
 
       - name: 수집
+        env:
+          # KOPIS 만 쓴다. 없으면 그 소스가 건너뛰어지고 나머지는 수집된다
+          KOPIS_SERVICE_KEY: ${{ secrets.KOPIS_SERVICE_KEY }}
         run: |
           node crawler/run.mjs \
             --source all \

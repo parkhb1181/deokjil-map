@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import ProfileView, { type MyComment, type ProfileData } from '@/components/ProfileView'
+import { USE_API } from '@/lib/api/config'
+import MyProfile from './MyProfile'
 
 /**
  * 내 활동 내역.
@@ -76,5 +78,9 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
+  /* 서버 주소가 있으면 브라우저가 세션으로 받아 온다. 서버 컴포넌트는
+     「나」 가 누구인지 모른다 (MyProfile.tsx) */
+  if (USE_API) return <MyProfile />
+
   return <ProfileView user={ME} isMe comments={MY_COMMENTS} />
 }
