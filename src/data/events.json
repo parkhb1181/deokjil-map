@@ -1,6 +1,7 @@
 [
   {
     "id": "pg_8709",
+    "source": "POPGA",
     "place": {
       "name": "두두두 서울",
       "address": "서울 중구 을지로 지하 42",
@@ -26,6 +27,7 @@
   },
   {
     "id": "pg_8757",
+    "source": "POPGA",
     "place": {
       "name": "올리브영 두타점",
       "address": "서울 중구 장충단로 275",
@@ -49,6 +51,7 @@
   },
   {
     "id": "om_15303",
+    "source": "OFFMATE",
     "place": {
       "name": "디어아크",
       "address": "서울특별시 용산구 한강대로14길 35-18",
@@ -72,6 +75,7 @@
   },
   {
     "id": "om_15302",
+    "source": "OFFMATE",
     "place": {
       "name": "디어아크",
       "address": "서울특별시 용산구 한강대로14길 35-18",
@@ -95,6 +99,7 @@
   },
   {
     "id": "pg_8638",
+    "source": "POPGA",
     "place": {
       "name": "AK PLAZA 홍대 1층",
       "address": "서울 마포구 양화로 188",
@@ -119,6 +124,7 @@
   },
   {
     "id": "pg_8849",
+    "source": "POPGA",
     "place": {
       "name": "스타벅스 앞",
       "address": "서울 서대문구 신촌로 83",
@@ -143,6 +149,7 @@
   },
   {
     "id": "om_15058",
+    "source": "OFFMATE",
     "place": {
       "name": "daldaguri",
       "address": "서울특별시 마포구 와우산로29마길 10-4 1층",
@@ -165,30 +172,8 @@
     "goods": []
   },
   {
-    "id": "om_15141",
-    "place": {
-      "name": "차품집",
-      "address": "서울특별시 용산구 한강대로10길 11-50 1, 2층 차품집",
-      "lat": 37.5245381,
-      "lng": 126.9647853,
-      "district": "yongsan",
-      "kind": "CAFE"
-    },
-    "subject": "의주",
-    "title": "앤팀 · 의주 · 마음을 담아서!",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-06",
-    "endsOn": "2026-09-08",
-    "perks": "특전 4종",
-    "sourceUrl": "https://x.com/BEJustheart",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15141",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/71b6c6a7-2c00-4f79-9b52-98dff070178e-1786758707153.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
     "id": "om_14963",
+    "source": "OFFMATE",
     "place": {
       "name": "홍대갤러리 키르큐펠",
       "address": "서울특별시 마포구 와우산로25길 26 1층, 2층 홍대갤러리 키르큐펠",
@@ -212,6 +197,7 @@
   },
   {
     "id": "om_15350",
+    "source": "OFFMATE",
     "place": {
       "name": "포토트리",
       "address": "서울특별시 마포구 신촌로2안길 35 1층 포토트리",
@@ -234,122 +220,8 @@
     "goods": []
   },
   {
-    "id": "om_15316",
-    "place": {
-      "name": "판나코타스튜디오 홍대점",
-      "address": "서울특별시 마포구 와우산로29나길 24 1층 103호",
-      "lat": 37.5543685,
-      "lng": 126.9278468,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · h2 + (y-∛h2)2 = 1",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-07",
-    "endsOn": "2026-09-08",
-    "perks": "특전 3종",
-    "sourceUrl": "https://x.com/starryoon__",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15316",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/575a85f7-6eea-4cbb-96e4-e691d54c5faa-1787961344294.png",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15269",
-    "place": {
-      "name": "카페&바 정원들",
-      "address": "서울특별시 광진구 뚝섬로26길 46 1층",
-      "lat": 37.5346771,
-      "lng": 127.0658837,
-      "district": "etc",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · THE AQUAMARINE RIPPLES",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-07",
-    "endsOn": "2026-09-08",
-    "perks": "특전 6종",
-    "sourceUrl": "https://x.com/Aquamarine_908",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15269",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/24206f2e-795a-446d-8a38-c2feb2bcdf7b-1787574119342.jpeg",
-    "trust": "PARTNER",
-    "goods": []
-  },
-  {
-    "id": "om_15263",
-    "place": {
-      "name": "아라또",
-      "address": "서울특별시 마포구 와우산로29바길 9 시성빌딩 1층 103호",
-      "lat": 37.5560029,
-      "lng": 126.9262698,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · a scoop of melting LOVE",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-07",
-    "endsOn": "2026-09-08",
-    "perks": "특전 3종",
-    "sourceUrl": "https://x.com/starryoon__",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15263",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/16e92206-c745-4718-bd58-e808d9ecbce4-1787550947622.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15262",
-    "place": {
-      "name": "테뉴에",
-      "address": "서울특별시 마포구 와우산로29바길 11-5 2층 202호",
-      "lat": 37.555758,
-      "lng": 126.9263736,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · SUCH a peacHS ",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-07",
-    "endsOn": "2026-09-08",
-    "perks": "특전 4종",
-    "sourceUrl": "https://x.com/starryoon__",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15262",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/aa05574d-8439-4404-abb7-6254697592c3-1787550864371.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15261",
-    "place": {
-      "name": "쿠키코코 COOKIECOCO",
-      "address": "서울특별시 마포구 와우산로29다길 11 1층 우측 102호",
-      "lat": 37.5550279,
-      "lng": 126.9277735,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · Cinematic Wave",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-07",
-    "endsOn": "2026-09-08",
-    "perks": "특전 6종",
-    "sourceUrl": "https://x.com/cinematicwave_",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15261",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/fe9d856e-8cd4-4637-9e63-f7a047e924b3-1787550772695.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
     "id": "om_15436",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 꼬모",
       "address": "서울특별시 마포구 와우산로21길 31-12 1층",
@@ -359,7 +231,7 @@
       "kind": "CAFE"
     },
     "subject": "준규",
-    "title": "트레저 · 준규 ·  Junkyu's Healing Space",
+    "title": "트레저 · 준규 · Junkyu's Healing Space",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-08",
@@ -372,30 +244,8 @@
     "goods": []
   },
   {
-    "id": "om_15373",
-    "place": {
-      "name": "포토콤마",
-      "address": "서울 광진구 능동로 30",
-      "lat": 37.53403533745961,
-      "lng": 127.06817989072422,
-      "district": "konkuk",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · 낭만치사량주의 .ᐟ.ᐟ",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 1종",
-    "sourceUrl": "https://x.com/l0ve_kkong",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15373",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/28461b57-a80e-4e91-a3f0-04202966ff8b-1788361073849.jpeg",
-    "trust": "PARTNER",
-    "goods": []
-  },
-  {
     "id": "om_15366",
+    "source": "OFFMATE",
     "place": {
       "name": "카페니타",
       "address": "서울특별시 마포구 와우산로29라길 20 1층",
@@ -405,7 +255,7 @@
       "kind": "CAFE"
     },
     "subject": "준규",
-    "title": "트레저 · 준규 · My Cat Is an\r\n‎ Archive of Dreams",
+    "title": "트레저 · 준규 · My Cat Is an ‎ Archive of Dreams",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-08",
@@ -419,6 +269,7 @@
   },
   {
     "id": "om_15323",
+    "source": "OFFMATE",
     "place": {
       "name": "카페보니",
       "address": "서울 마포구 독막로4길 7",
@@ -428,7 +279,7 @@
       "kind": "CAFE"
     },
     "subject": "준규",
-    "title": "트레저 · 준규 · 2026 Happy JUNKYU Day ",
+    "title": "트레저 · 준규 · 2026 Happy JUNKYU Day",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-08",
@@ -442,6 +293,7 @@
   },
   {
     "id": "om_15299",
+    "source": "OFFMATE",
     "place": {
       "name": "옐로우벌스데이",
       "address": "서울특별시 마포구 독막로4길 11",
@@ -465,6 +317,7 @@
   },
   {
     "id": "om_15286",
+    "source": "OFFMATE",
     "place": {
       "name": "블루로그",
       "address": "서울특별시 마포구 와우산로29마길 12 2층",
@@ -488,6 +341,7 @@
   },
   {
     "id": "om_15268",
+    "source": "OFFMATE",
     "place": {
       "name": "한날한빛",
       "address": "서울특별시 마포구 와우산로23길 35-8 2층",
@@ -510,122 +364,8 @@
     "goods": []
   },
   {
-    "id": "om_15266",
-    "place": {
-      "name": "악센트 와우",
-      "address": "서울특별시 마포구 와우산로29라길 22 지1층",
-      "lat": 37.5549328,
-      "lng": 126.9267345,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · 908SCENT",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 3종",
-    "sourceUrl": "https://x.com/myaggysz",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15266",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/c699bd1f-4444-4e4a-8c70-0c2af4b37dff-1787551436790.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15265",
-    "place": {
-      "name": "메종드그릭 논현본점",
-      "address": "서울특별시 강남구 논현로117길 7",
-      "lat": 37.5096587,
-      "lng": 127.031894,
-      "district": "gangnam",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · SUKILOVERSCLUB",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 4종",
-    "sourceUrl": "https://x.com/hsk_kichi",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15265",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/34cd4efc-09f4-4f36-95fc-d2649b810a2e-1787551164475.jpeg",
-    "trust": "PARTNER",
-    "goods": []
-  },
-  {
-    "id": "om_15264",
-    "place": {
-      "name": "스캐터북스",
-      "address": "서울특별시 마포구 월드컵로11길 44 102호",
-      "lat": 37.5543179,
-      "lng": 126.908658,
-      "district": "hapjeong",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · 오늘의 너를 지나 더 빛나는 다음 페이지로",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 3종",
-    "sourceUrl": "https://x.com/chapter_page98",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15264",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/ec18abd9-1e85-4879-b9a2-ab10834e4f5f-1787551044330.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15260",
-    "place": {
-      "name": "카페치어럽",
-      "address": "서울특별시 마포구 잔다리로 30-32 1층",
-      "lat": 37.5519504,
-      "lng": 126.9201011,
-      "district": "hapjeong",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · 나의 여름바다인 현석이에게",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 4종",
-    "sourceUrl": "https://x.com/HINXA_",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15260",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/c0bda337-c1bb-4aae-b595-d42f29a171cb-1787550627677.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
-    "id": "om_15259",
-    "place": {
-      "name": "유어데이",
-      "address": "서울특별시 마포구 와우산로13길 49-11 1층",
-      "lat": 37.5482445,
-      "lng": 126.9213312,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "현석",
-    "title": "CIX · 현석 · 훈끼생정",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 5종",
-    "sourceUrl": "https://x.com/i2nglovers",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15259",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/f3b33385-1134-4af1-bf69-de48bc94bc68-1787550513744.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
     "id": "om_15234",
+    "source": "OFFMATE",
     "place": {
       "name": "카페티노",
       "address": "서울특별시 마포구 신촌로2안길 35 1층 카페티노",
@@ -649,6 +389,7 @@
   },
   {
     "id": "om_15207",
+    "source": "OFFMATE",
     "place": {
       "name": "알토커피바 합정",
       "address": "서울특별시 마포구 희우정로1길 6-6 지층 102호",
@@ -672,6 +413,7 @@
   },
   {
     "id": "om_15206",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 아히",
       "address": "서울특별시 마포구 잔다리로 30-26 101호",
@@ -694,30 +436,8 @@
     "goods": []
   },
   {
-    "id": "om_15187",
-    "place": {
-      "name": "하트클립",
-      "address": "서울특별시 마포구 와우산로 161 2층 203호",
-      "lat": 37.5554056,
-      "lng": 126.9303515,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "이정",
-    "title": "휘브 · 이정 · EVERLASTING LOVE",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-08",
-    "endsOn": "2026-09-08",
-    "perks": "특전 7종",
-    "sourceUrl": "https://x.com/leejzoa",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15187",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/c20206c8-d364-4d23-909f-9cf84654fb99-1787107240413.jpeg",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
     "id": "om_15384",
+    "source": "OFFMATE",
     "place": {
       "name": "디멘션갤러리",
       "address": "서울특별시 용산구 한강대로14길 35-32 1층",
@@ -741,6 +461,7 @@
   },
   {
     "id": "om_15189",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 아이디",
       "address": "서울특별시 마포구 와우산로29라길 22 지하1층 B호",
@@ -764,6 +485,7 @@
   },
   {
     "id": "om_15411",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠비 갤러리카페",
       "address": "서울특별시 마포구 와우산로29길 37 3층 301호",
@@ -787,6 +509,7 @@
   },
   {
     "id": "om_15399",
+    "source": "OFFMATE",
     "place": {
       "name": "브라운시티 갤러리점",
       "address": "서울특별시 마포구 와우산로29나길 13-3 1층",
@@ -810,6 +533,7 @@
   },
   {
     "id": "om_15376",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 와우",
       "address": "서울특별시 마포구 와우산로29라길 22 지1층",
@@ -833,6 +557,7 @@
   },
   {
     "id": "om_15306",
+    "source": "OFFMATE",
     "place": {
       "name": "올데이 베이킹 홍대점",
       "address": "서울특별시 마포구 와우산로 128-1 3층",
@@ -856,6 +581,7 @@
   },
   {
     "id": "om_15116",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -879,6 +605,7 @@
   },
   {
     "id": "om_15446",
+    "source": "OFFMATE",
     "place": {
       "name": "원베러커피 올림픽북문점",
       "address": "서울특별시 강동구 성안로 7 1층 101호",
@@ -902,6 +629,7 @@
   },
   {
     "id": "om_15424",
+    "source": "OFFMATE",
     "place": {
       "name": "해피벌스데이",
       "address": "서울특별시 마포구 동교로34길 8 2층",
@@ -925,6 +653,7 @@
   },
   {
     "id": "om_15410",
+    "source": "OFFMATE",
     "place": {
       "name": "해피벌스데이",
       "address": "서울특별시 마포구 동교로34길 8 2층",
@@ -948,6 +677,7 @@
   },
   {
     "id": "om_15394",
+    "source": "OFFMATE",
     "place": {
       "name": "요고 프로즌요거트 홍대점",
       "address": "서울특별시 마포구 와우산로29길 32 1층",
@@ -971,6 +701,7 @@
   },
   {
     "id": "om_15387",
+    "source": "OFFMATE",
     "place": {
       "name": "호또코히",
       "address": "서울특별시 마포구 독막로9길 33 반지층 카페 호또코히",
@@ -994,6 +725,7 @@
   },
   {
     "id": "om_15386",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 아이디오 cafe IDO",
       "address": "서울특별시 마포구 와우산로29길 4-6 3",
@@ -1017,6 +749,7 @@
   },
   {
     "id": "om_15385",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 몽글",
       "address": "서울특별시 마포구 와우산로29라길 21 2층",
@@ -1040,6 +773,7 @@
   },
   {
     "id": "om_15377",
+    "source": "OFFMATE",
     "place": {
       "name": "카페치어럽",
       "address": "서울특별시 마포구 잔다리로 30-32 1층",
@@ -1063,6 +797,7 @@
   },
   {
     "id": "om_15375",
+    "source": "OFFMATE",
     "place": {
       "name": "하트클립",
       "address": "서울특별시 마포구 와우산로 161 2층 203호",
@@ -1086,6 +821,7 @@
   },
   {
     "id": "om_15374",
+    "source": "OFFMATE",
     "place": {
       "name": "온유어사이드",
       "address": "서울특별시 마포구 와우산로29라길 19 우측계단 2층 온유어사이드",
@@ -1109,6 +845,7 @@
   },
   {
     "id": "om_15372",
+    "source": "OFFMATE",
     "place": {
       "name": "체리시",
       "address": "서울특별시 마포구 와우산로29다길 14 지층 우측호",
@@ -1132,6 +869,7 @@
   },
   {
     "id": "om_15371",
+    "source": "OFFMATE",
     "place": {
       "name": "아카이브 제트",
       "address": "서울특별시 마포구 양화로6길 92 2층",
@@ -1155,6 +893,7 @@
   },
   {
     "id": "om_15356",
+    "source": "OFFMATE",
     "place": {
       "name": "아라또",
       "address": "서울특별시 마포구 와우산로29바길 9 시성빌딩 1층 103호",
@@ -1178,6 +917,7 @@
   },
   {
     "id": "om_15355",
+    "source": "OFFMATE",
     "place": {
       "name": "다이버시티",
       "address": "서울특별시 마포구 홍익로2길 43 3층 8호",
@@ -1201,6 +941,7 @@
   },
   {
     "id": "om_15354",
+    "source": "OFFMATE",
     "place": {
       "name": "스페이스 458",
       "address": "서울특별시 마포구 동교로17길 37 1층, 2층",
@@ -1224,6 +965,7 @@
   },
   {
     "id": "om_15351",
+    "source": "OFFMATE",
     "place": {
       "name": "차품집",
       "address": "서울특별시 용산구 한강대로10길 11-50 1, 2층 차품집",
@@ -1247,6 +989,7 @@
   },
   {
     "id": "om_15338",
+    "source": "OFFMATE",
     "place": {
       "name": "카페멜랑",
       "address": "서울특별시 마포구 와우산로29라길 11 지층 101호",
@@ -1270,6 +1013,7 @@
   },
   {
     "id": "om_15290",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 레코드",
       "address": "서울특별시 마포구 와우산로29길 4-13 3층",
@@ -1293,6 +1037,7 @@
   },
   {
     "id": "om_15289",
+    "source": "OFFMATE",
     "place": {
       "name": "포츈맨션",
       "address": "서울특별시 마포구 어울마당로 155 2층 201호",
@@ -1316,6 +1061,7 @@
   },
   {
     "id": "om_15233",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 꼬모",
       "address": "서울특별시 마포구 와우산로21길 31-12 1층",
@@ -1339,6 +1085,7 @@
   },
   {
     "id": "om_15220",
+    "source": "OFFMATE",
     "place": {
       "name": "미닝 더 갤러리",
       "address": "서울특별시 마포구 와우산로29라길 16 2층",
@@ -1362,6 +1109,7 @@
   },
   {
     "id": "om_15219",
+    "source": "OFFMATE",
     "place": {
       "name": "카페티노",
       "address": "서울특별시 마포구 신촌로2안길 35 1층 카페티노",
@@ -1385,6 +1133,7 @@
   },
   {
     "id": "om_15163",
+    "source": "OFFMATE",
     "place": {
       "name": "스윗도프",
       "address": "서울특별시 마포구 와우산로15길 33 2층 201호",
@@ -1408,6 +1157,7 @@
   },
   {
     "id": "om_15145",
+    "source": "OFFMATE",
     "place": {
       "name": "메르시쿠키",
       "address": "서울특별시 용산구 한강대로10길 11-44",
@@ -1430,30 +1180,8 @@
     "goods": []
   },
   {
-    "id": "om_15091",
-    "place": {
-      "name": "테뉴에",
-      "address": "서울특별시 마포구 와우산로29바길 11-5 2층 202호",
-      "lat": 37.555758,
-      "lng": 126.9263736,
-      "district": "hongdae",
-      "kind": "CAFE"
-    },
-    "subject": "이정현",
-    "title": "이븐 · 이정현 · SCENT OF A DAZZLING DAY",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-11",
-    "endsOn": "2026-09-11",
-    "perks": "특전 3종",
-    "sourceUrl": "https://x.com/scent_for_JH",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15091",
-    "imageUrl": "https://img2.offmate.kr/birthday-cafe/636c8ec0-c117-43fc-b079-8cc659bb0cdb-1786429826150.png",
-    "trust": "PARSED",
-    "goods": []
-  },
-  {
     "id": "om_14087",
+    "source": "OFFMATE",
     "place": {
       "name": "마린커피 빅히트사옥점",
       "address": "서울특별시 용산구 한강대로10길 11-48 1층 마린커피",
@@ -1477,6 +1205,7 @@
   },
   {
     "id": "om_15447",
+    "source": "OFFMATE",
     "place": {
       "name": "키드문 더 룸",
       "address": "서울 용산구 한강대로 54-1",
@@ -1500,6 +1229,7 @@
   },
   {
     "id": "om_15433",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 메리",
       "address": "서울특별시 마포구 동교로23길 32-22 1층",
@@ -1523,6 +1253,7 @@
   },
   {
     "id": "om_15420",
+    "source": "OFFMATE",
     "place": {
       "name": "카페키로",
       "address": "서울특별시 마포구 독막로7길 49 2층",
@@ -1546,6 +1277,7 @@
   },
   {
     "id": "om_15419",
+    "source": "OFFMATE",
     "place": {
       "name": "EOD",
       "address": "서울특별시 마포구 와우산로 51-9 2층",
@@ -1569,6 +1301,7 @@
   },
   {
     "id": "om_15395",
+    "source": "OFFMATE",
     "place": {
       "name": "성수다락",
       "address": "서울특별시 성동구 뚝섬로9길 20 2층",
@@ -1592,6 +1325,7 @@
   },
   {
     "id": "om_15367",
+    "source": "OFFMATE",
     "place": {
       "name": "하이타운서울",
       "address": "서울특별시 마포구 와우산로29다길 10 지1층 101호",
@@ -1615,6 +1349,7 @@
   },
   {
     "id": "om_15365",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 아히",
       "address": "서울특별시 마포구 잔다리로 30-26 101호",
@@ -1638,6 +1373,7 @@
   },
   {
     "id": "om_15362",
+    "source": "OFFMATE",
     "place": {
       "name": "앤스카페",
       "address": "서울특별시 서초구 방배선행길 12 1층",
@@ -1661,6 +1397,7 @@
   },
   {
     "id": "om_15361",
+    "source": "OFFMATE",
     "place": {
       "name": "신드롬",
       "address": "서울특별시 마포구 와우산로29길 19 2층",
@@ -1684,6 +1421,7 @@
   },
   {
     "id": "om_15349",
+    "source": "OFFMATE",
     "place": {
       "name": "키드문 본점",
       "address": "서울특별시 용산구 한강대로10길 11-68 1층",
@@ -1707,6 +1445,7 @@
   },
   {
     "id": "om_15340",
+    "source": "OFFMATE",
     "place": {
       "name": "델룰루",
       "address": "서울특별시 용산구 한강대로10길 11-42 1, 2층",
@@ -1730,6 +1469,7 @@
   },
   {
     "id": "om_15336",
+    "source": "OFFMATE",
     "place": {
       "name": "카페헤이",
       "address": "서울특별시 마포구 와우산로29마길 10 1층",
@@ -1753,6 +1493,7 @@
   },
   {
     "id": "om_15335",
+    "source": "OFFMATE",
     "place": {
       "name": "카페헤이",
       "address": "서울특별시 마포구 와우산로29마길 10 1층",
@@ -1776,6 +1517,7 @@
   },
   {
     "id": "om_15331",
+    "source": "OFFMATE",
     "place": {
       "name": "오아시스랩",
       "address": "서울특별시 마포구 잔다리로3안길 12 1층",
@@ -1799,6 +1541,7 @@
   },
   {
     "id": "om_15327",
+    "source": "OFFMATE",
     "place": {
       "name": "카페라래",
       "address": "서울특별시 마포구 와우산로29마길 7 1층 102호",
@@ -1822,6 +1565,7 @@
   },
   {
     "id": "om_15324",
+    "source": "OFFMATE",
     "place": {
       "name": "커비스컵케이크",
       "address": "서울특별시 마포구 동교로38길 29 3층",
@@ -1845,6 +1589,7 @@
   },
   {
     "id": "om_15318",
+    "source": "OFFMATE",
     "place": {
       "name": "카페식스",
       "address": "서울특별시 마포구 와우산로29라길 19 2층 카페식스",
@@ -1868,6 +1613,7 @@
   },
   {
     "id": "om_15313",
+    "source": "OFFMATE",
     "place": {
       "name": "갤러리카페 바이아스",
       "address": "서울특별시 마포구 와우산로35길 53 2층",
@@ -1877,7 +1623,7 @@
       "kind": "CAFE"
     },
     "subject": "연준",
-    "title": "투모로우바이투게더 · 연준 · FREQUENCY ",
+    "title": "투모로우바이투게더 · 연준 · FREQUENCY",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-12",
@@ -1891,6 +1637,7 @@
   },
   {
     "id": "om_15304",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 이유",
       "address": "서울특별시 마포구 와우산로29마길 7-8",
@@ -1914,6 +1661,7 @@
   },
   {
     "id": "om_15253",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠잉스테이션",
       "address": "서울특별시 마포구 와우산로29마길 16 2층",
@@ -1923,7 +1671,7 @@
       "kind": "CAFE"
     },
     "subject": "필릭스",
-    "title": "스트레이키즈 · 필릭스 · Should I say I love you ",
+    "title": "스트레이키즈 · 필릭스 · Should I say I love you",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-12",
@@ -1937,6 +1685,7 @@
   },
   {
     "id": "om_15235",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 클로버",
       "address": "서울특별시 마포구 양화로8길 38 서교동빌딩 2층",
@@ -1960,6 +1709,7 @@
   },
   {
     "id": "om_15222",
+    "source": "OFFMATE",
     "place": {
       "name": "페이버릿피스",
       "address": "서울특별시 마포구 성미산로26길 8 1층",
@@ -1983,6 +1733,7 @@
   },
   {
     "id": "om_15204",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 지금",
       "address": "서울특별시 마포구 와우산로29길 32 2층",
@@ -2006,6 +1757,7 @@
   },
   {
     "id": "om_15203",
+    "source": "OFFMATE",
     "place": {
       "name": "카페니타",
       "address": "서울특별시 마포구 와우산로29라길 20 1층",
@@ -2029,6 +1781,7 @@
   },
   {
     "id": "om_15198",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 와우",
       "address": "서울특별시 마포구 와우산로29라길 22 지1층",
@@ -2052,6 +1805,7 @@
   },
   {
     "id": "om_15197",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 와우",
       "address": "서울특별시 마포구 와우산로29라길 22 지1층",
@@ -2075,6 +1829,7 @@
   },
   {
     "id": "om_15191",
+    "source": "OFFMATE",
     "place": {
       "name": "펠리칸카페",
       "address": "서울특별시 마포구 독막로14길 27",
@@ -2098,6 +1853,7 @@
   },
   {
     "id": "om_15190",
+    "source": "OFFMATE",
     "place": {
       "name": "펠리칸카페",
       "address": "서울특별시 마포구 독막로14길 27",
@@ -2121,6 +1877,7 @@
   },
   {
     "id": "om_15186",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 이상현상",
       "address": "서울특별시 마포구 와우산로35길 9-7 B1F",
@@ -2144,6 +1901,7 @@
   },
   {
     "id": "om_15136",
+    "source": "OFFMATE",
     "place": {
       "name": "다밍",
       "address": "서울특별시 마포구 어울마당로5길 42-5 2층",
@@ -2167,6 +1925,7 @@
   },
   {
     "id": "om_15135",
+    "source": "OFFMATE",
     "place": {
       "name": "오디너리 아카이브",
       "address": "서울특별시 마포구 신촌로4길 5-18 1F",
@@ -2190,6 +1949,7 @@
   },
   {
     "id": "om_15134",
+    "source": "OFFMATE",
     "place": {
       "name": "메세나아트",
       "address": "서울특별시 송파구 백제고분로9길 54 지하1층",
@@ -2213,6 +1973,7 @@
   },
   {
     "id": "om_15132",
+    "source": "OFFMATE",
     "place": {
       "name": "감탄커피",
       "address": "서울특별시 강남구 테헤란로 522 지하1층 감탄커피",
@@ -2236,6 +1997,7 @@
   },
   {
     "id": "om_15121",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 오소",
       "address": "서울특별시 마포구 홍익로2길 19 2층",
@@ -2259,6 +2021,7 @@
   },
   {
     "id": "om_15114",
+    "source": "OFFMATE",
     "place": {
       "name": "몰리스피크닉",
       "address": "서울특별시 마포구 와우산로29바길 10 2층 201호",
@@ -2282,6 +2045,7 @@
   },
   {
     "id": "om_15112",
+    "source": "OFFMATE",
     "place": {
       "name": "몰리스피크닉",
       "address": "서울특별시 마포구 와우산로29바길 10 2층 201호",
@@ -2305,6 +2069,7 @@
   },
   {
     "id": "om_15095",
+    "source": "OFFMATE",
     "place": {
       "name": "럭키플레이버",
       "address": "서울특별시 마포구 와우산로29길 24 2층",
@@ -2328,6 +2093,7 @@
   },
   {
     "id": "om_15092",
+    "source": "OFFMATE",
     "place": {
       "name": "카페메루",
       "address": "서울특별시 마포구 와우산로29라길 11 2층",
@@ -2351,6 +2117,7 @@
   },
   {
     "id": "om_15033",
+    "source": "OFFMATE",
     "place": {
       "name": "스튜디오앱트 STUDIOAPT",
       "address": "서울특별시 마포구 동교로30길 19 2층(2.5층) 오른쪽 카페",
@@ -2374,6 +2141,7 @@
   },
   {
     "id": "om_15032",
+    "source": "OFFMATE",
     "place": {
       "name": "스튜디오앱트 STUDIOAPT",
       "address": "서울특별시 마포구 동교로30길 19 2층(2.5층) 오른쪽 카페",
@@ -2397,6 +2165,7 @@
   },
   {
     "id": "om_15006",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠키코코 COOKIECOCO",
       "address": "서울특별시 마포구 와우산로29다길 11 1층 우측 102호",
@@ -2420,6 +2189,7 @@
   },
   {
     "id": "om_15005",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠키코코 COOKIECOCO",
       "address": "서울특별시 마포구 와우산로29다길 11 1층 우측 102호",
@@ -2443,6 +2213,7 @@
   },
   {
     "id": "om_14792",
+    "source": "OFFMATE",
     "place": {
       "name": "콜테",
       "address": "서울특별시 마포구 와우산로 161 2층 201호",
@@ -2465,7 +2236,86 @@
     "goods": []
   },
   {
+    "id": "kopis_PF298846",
+    "source": "KOPIS",
+    "place": {
+      "name": "잠실종합운동장",
+      "address": "서울특별시 송파구 올림픽로 25 (잠실동)",
+      "lat": 37.5140929,
+      "lng": 127.07495340000003,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "PARK JI HOON",
+    "title": "PARK JI HOON ASIA FANCON, RE: FLECT [서울 (앵콜) ]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-12",
+    "endsOn": "2026-09-13",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298846",
+    "reservationUrl": "http://www.ticketlink.co.kr/product/64980",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298846_260819_133339.jpg",
+    "conditions": "R석 145,000원, S석 110,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF298366",
+    "source": "KOPIS",
+    "place": {
+      "name": "고려대학교 화정체육관",
+      "address": "서울특별시 성북구 안암로 145 (안암동5가)",
+      "lat": 37.59294,
+      "lng": 127.024903,
+      "district": "etc",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "QWER",
+    "title": "QWER 2nd TOUR ROCKATION: ROCKET LAUNCH!!",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-12",
+    "endsOn": "2026-09-13",
+    "startsAt": "17:00",
+    "openHours": "토요일(17:00), 일요일(16:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298366",
+    "reservationUrl": "https://ticket.melon.com/performance/index.htm?prodId=213572",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298366_260813_102309.jpg",
+    "conditions": "전석 154,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF298058",
+    "source": "KOPIS",
+    "place": {
+      "name": "티켓링크 1975 씨어터(구.능동 어린이회관)",
+      "address": "서울특별시 광진구 광나루로 441 (능동)",
+      "lat": 37.5465004,
+      "lng": 127.07880590000002,
+      "district": "etc",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "JEONG EUNJI",
+    "title": "JEONG EUNJI SOLO CONCERT: SUMMER, I",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-12",
+    "endsOn": "2026-09-13",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(16:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298058",
+    "reservationUrl": "http://www.ticketlink.co.kr/product/64721",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298058_260810_124608.jpg",
+    "conditions": "전석 154,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15434",
+    "source": "OFFMATE",
     "place": {
       "name": "멜랑쥬",
       "address": "서울특별시 마포구 와우산로27길 14 102호",
@@ -2489,6 +2339,7 @@
   },
   {
     "id": "om_15307",
+    "source": "OFFMATE",
     "place": {
       "name": "카페치어럽",
       "address": "서울특별시 마포구 잔다리로 30-32 1층",
@@ -2512,6 +2363,7 @@
   },
   {
     "id": "om_15443",
+    "source": "OFFMATE",
     "place": {
       "name": "요고 프로즌요거트 홍대점",
       "address": "서울특별시 마포구 와우산로29길 32 1층",
@@ -2535,6 +2387,7 @@
   },
   {
     "id": "om_15415",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 몽글",
       "address": "서울특별시 마포구 와우산로29라길 21 2층",
@@ -2558,6 +2411,7 @@
   },
   {
     "id": "om_15326",
+    "source": "OFFMATE",
     "place": {
       "name": "CAFE07",
       "address": "서울특별시 마포구 신촌로2안길 40 지하1층",
@@ -2581,6 +2435,7 @@
   },
   {
     "id": "om_15308",
+    "source": "OFFMATE",
     "place": {
       "name": "체리시",
       "address": "서울특별시 마포구 와우산로29다길 14 지층 우측호",
@@ -2604,6 +2459,7 @@
   },
   {
     "id": "om_15305",
+    "source": "OFFMATE",
     "place": {
       "name": "유어데이",
       "address": "서울특별시 마포구 와우산로13길 49-11 1층",
@@ -2627,6 +2483,7 @@
   },
   {
     "id": "om_15274",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 아이디",
       "address": "서울특별시 마포구 와우산로29라길 22 지하1층 B호",
@@ -2650,6 +2507,7 @@
   },
   {
     "id": "om_15088",
+    "source": "OFFMATE",
     "place": {
       "name": "원베러커피 올림픽북문점",
       "address": "서울특별시 강동구 성안로 7 1층 101호",
@@ -2673,6 +2531,7 @@
   },
   {
     "id": "om_15358",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 레이어&베이커리",
       "address": "서울특별시 강남구 삼성로75길 40 세종빌딩 1~2층",
@@ -2696,6 +2555,7 @@
   },
   {
     "id": "om_15224",
+    "source": "OFFMATE",
     "place": {
       "name": "꼬모 서울",
       "address": "서울특별시 강남구 봉은사로74길 19 1층",
@@ -2705,7 +2565,7 @@
       "kind": "CAFE"
     },
     "subject": "이채민",
-    "title": "이채민 · CHAEMIN ARCHIVE ",
+    "title": "이채민 · CHAEMIN ARCHIVE",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-15",
@@ -2719,6 +2579,7 @@
   },
   {
     "id": "om_15352",
+    "source": "OFFMATE",
     "place": {
       "name": "JYP",
       "address": "서울특별시 강동구 강동대로 205 JYP Center",
@@ -2742,6 +2603,7 @@
   },
   {
     "id": "om_15390",
+    "source": "OFFMATE",
     "place": {
       "name": "신드롬",
       "address": "서울특별시 마포구 와우산로29길 19 2층",
@@ -2765,6 +2627,7 @@
   },
   {
     "id": "om_15341",
+    "source": "OFFMATE",
     "place": {
       "name": "하이디라오 홍대점",
       "address": "서울특별시 마포구 양화로 176 동교동 와이즈파크 5층",
@@ -2788,6 +2651,7 @@
   },
   {
     "id": "om_15254",
+    "source": "OFFMATE",
     "place": {
       "name": "달다구리",
       "address": "서울 마포구 와우산로29마길 10-4",
@@ -2811,6 +2675,7 @@
   },
   {
     "id": "om_15237",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -2833,7 +2698,32 @@
     "goods": []
   },
   {
+    "id": "om_15455",
+    "source": "OFFMATE",
+    "place": {
+      "name": "카페멜랑",
+      "address": "서울특별시 마포구 와우산로29라길 11 지층 101호",
+      "lat": 37.5551902,
+      "lng": 126.9271981,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "승민",
+    "title": "스트레이키즈 · 승민 · 승댕이 탐구일지",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-22",
+    "perks": "특전 6종",
+    "sourceUrl": "https://x.com/minniepuppy_o",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15455",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/e05a0784-5639-47ef-b9b7-a9add37564f3-1788941743193.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15450",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠잉스테이션",
       "address": "서울특별시 마포구 와우산로29마길 16 2층",
@@ -2856,6 +2746,7 @@
   },
   {
     "id": "om_15353",
+    "source": "OFFMATE",
     "place": {
       "name": "아카이브 제트",
       "address": "서울특별시 마포구 양화로6길 92 2층",
@@ -2865,7 +2756,7 @@
       "kind": "CAFE"
     },
     "subject": "정상현",
-    "title": "알파드라이브원 · 정상현 · 상상이현실이되는 상현이날 ",
+    "title": "알파드라이브원 · 정상현 · 상상이현실이되는 상현이날",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-18",
@@ -2879,6 +2770,7 @@
   },
   {
     "id": "om_15252",
+    "source": "OFFMATE",
     "place": {
       "name": "카페치어럽",
       "address": "서울특별시 마포구 잔다리로 30-32 1층",
@@ -2888,7 +2780,7 @@
       "kind": "CAFE"
     },
     "subject": "김률",
-    "title": "롱샷 · 김률 · BABY POTATO RYUL ",
+    "title": "롱샷 · 김률 · BABY POTATO RYUL",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-18",
@@ -2902,6 +2794,7 @@
   },
   {
     "id": "om_15248",
+    "source": "OFFMATE",
     "place": {
       "name": "카페식스",
       "address": "서울특별시 마포구 와우산로29라길 19 2층 카페식스",
@@ -2925,6 +2818,7 @@
   },
   {
     "id": "om_15246",
+    "source": "OFFMATE",
     "place": {
       "name": "땅키",
       "address": "서울특별시 마포구 와우산로29라길 8 인촌빌딩 2층 201호",
@@ -2948,6 +2842,7 @@
   },
   {
     "id": "om_15239",
+    "source": "OFFMATE",
     "place": {
       "name": "블루로그",
       "address": "서울특별시 마포구 와우산로29마길 12 2층",
@@ -2970,7 +2865,60 @@
     "goods": []
   },
   {
+    "id": "kopis_PF298239",
+    "source": "KOPIS",
+    "place": {
+      "name": "잠실종합운동장",
+      "address": "서울특별시 송파구 올림픽로 25 (잠실동)",
+      "lat": 37.5140929,
+      "lng": 127.07495340000003,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "TAEMIN",
+    "title": "TAEMIN WORLD TOUR: LiMiNaL [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-20",
+    "startsAt": "20:00",
+    "openHours": "금요일(20:00), 토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298239",
+    "reservationUrl": "https://ticket.yes24.com/Perf/59646",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298239_260811_140228.jpg",
+    "conditions": "VIP석 198,000원, R석 154,000원, S석 132,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF296563",
+    "source": "KOPIS",
+    "place": {
+      "name": "올림픽공원",
+      "address": "서울특별시 송파구 올림픽로 424 올림픽공원 (방이동)",
+      "lat": 37.52112,
+      "lng": 127.12836360000006,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "NCT 127",
+    "title": "NCT 127 5TH TOUR, NEO CITY: THE REDLINE [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-20",
+    "startsAt": "19:00",
+    "openHours": "금요일(19:00), 토요일(17:00), 일요일(16:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF296563",
+    "reservationUrl": "https://ticket.melon.com/performance/index.htm?prodId=213585",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF296563_260722_101226.png",
+    "conditions": "VIP(STANDING)석 198,000원, VIP(SEATED)석 198,000원, 일반(STANDING)석 165,000원, 일반(SEATED)석 165,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15448",
+    "source": "OFFMATE",
     "place": {
       "name": "하이타운서울",
       "address": "서울특별시 마포구 와우산로29다길 10 지1층 101호",
@@ -2994,6 +2942,7 @@
   },
   {
     "id": "om_15393",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 레이어&베이커리",
       "address": "서울특별시 강남구 삼성로75길 40 세종빌딩 1~2층",
@@ -3017,6 +2966,7 @@
   },
   {
     "id": "om_15389",
+    "source": "OFFMATE",
     "place": {
       "name": "카페라래",
       "address": "서울특별시 마포구 와우산로29마길 7 1층 102호",
@@ -3040,6 +2990,7 @@
   },
   {
     "id": "om_15364",
+    "source": "OFFMATE",
     "place": {
       "name": "펀치드렁크러브",
       "address": "서울특별시 마포구 와우산로15길 38 3층",
@@ -3062,6 +3013,7 @@
   },
   {
     "id": "om_15330",
+    "source": "OFFMATE",
     "place": {
       "name": "디얼디어플로",
       "address": "서울특별시 마포구 성미산로15길 20 1층",
@@ -3085,6 +3037,7 @@
   },
   {
     "id": "om_15196",
+    "source": "OFFMATE",
     "place": {
       "name": "공이도시",
       "address": "서울특별시 마포구 와우산로27길 35 2층 201호",
@@ -3094,7 +3047,7 @@
       "kind": "CAFE"
     },
     "subject": "정상현",
-    "title": "알파드라이브원 · 정상현 · 상현대장의 생일파티 ",
+    "title": "알파드라이브원 · 정상현 · 상현대장의 생일파티",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-19",
@@ -3107,7 +3060,60 @@
     "goods": []
   },
   {
+    "id": "kopis_PF299402",
+    "source": "KOPIS",
+    "place": {
+      "name": "KBS스포츠월드(아레나)",
+      "address": "서울특별시 강서구 공항대로 376 (화곡동) kbs스포츠월드",
+      "lat": 37.5567802,
+      "lng": 126.84760940000001,
+      "district": "etc",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "ONEWE",
+    "title": "ONEWE 6th Live Concert: O! NEW E!volution Ⅵ",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-19",
+    "endsOn": "2026-09-20",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF299402",
+    "reservationUrl": "https://ticket.melon.com/performance/index.htm?prodId=213796",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF299402_260826_122025.jpg",
+    "conditions": "스탠딩 143,000원, R석 143,000원, S석 121,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF296718",
+    "source": "KOPIS",
+    "place": {
+      "name": "올림픽공원",
+      "address": "서울특별시 송파구 올림픽로 424 올림픽공원 (방이동)",
+      "lat": 37.52112,
+      "lng": 127.12836360000006,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "izna",
+    "title": "izna Concert Tour: WHO DAT GIRL? [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-09-19",
+    "endsOn": "2026-09-20",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF296718",
+    "reservationUrl": "http://ticket.interpark.com/Ticket/Goods/GoodsInfo.asp?GoodsCode=26010264",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF296718_260723_112546.gif",
+    "conditions": "VIP석 198,000원, 일반석  154,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15414",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -3131,6 +3137,7 @@
   },
   {
     "id": "om_15334",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 와우",
       "address": "서울특별시 마포구 와우산로29라길 22 지1층",
@@ -3154,6 +3161,7 @@
   },
   {
     "id": "om_15298",
+    "source": "OFFMATE",
     "place": {
       "name": "카페333",
       "address": "서울특별시 마포구 와우산로29라길 12",
@@ -3177,6 +3185,7 @@
   },
   {
     "id": "om_15162",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠키코코 COOKIECOCO",
       "address": "서울특별시 마포구 와우산로29다길 11 1층 우측 102호",
@@ -3200,6 +3209,7 @@
   },
   {
     "id": "om_15435",
+    "source": "OFFMATE",
     "place": {
       "name": "악센트 와우",
       "address": "서울특별시 마포구 와우산로29라길 22 지1층",
@@ -3223,6 +3233,7 @@
   },
   {
     "id": "om_15378",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -3246,6 +3257,7 @@
   },
   {
     "id": "om_15284",
+    "source": "OFFMATE",
     "place": {
       "name": "포츈맨션",
       "address": "서울특별시 마포구 어울마당로 155 2층 201호",
@@ -3268,7 +3280,32 @@
     "goods": []
   },
   {
+    "id": "om_15453",
+    "source": "OFFMATE",
+    "place": {
+      "name": "악센트 와우",
+      "address": "서울특별시 마포구 와우산로29라길 22 지1층",
+      "lat": 37.5549328,
+      "lng": 126.9267345,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "박정우",
+    "title": "트레저 · 박정우 · 초코에 콕! 정우에 콕! 초코 정우픽",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-26",
+    "endsOn": "2026-09-28",
+    "perks": "특전 10종",
+    "sourceUrl": "https://x.com/narap6789",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15453",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/5810f2c5-8fd3-4fc3-b10e-8333ad753e24-1788919516276.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15426",
+    "source": "OFFMATE",
     "place": {
       "name": "카페라래",
       "address": "서울특별시 마포구 와우산로29마길 7 1층 102호",
@@ -3292,6 +3329,7 @@
   },
   {
     "id": "om_15333",
+    "source": "OFFMATE",
     "place": {
       "name": "체리시",
       "address": "서울특별시 마포구 와우산로29다길 14 지층 우측호",
@@ -3314,7 +3352,32 @@
     "goods": []
   },
   {
+    "id": "om_15332",
+    "source": "OFFMATE",
+    "place": {
+      "name": "블루로그",
+      "address": "서울특별시 마포구 와우산로29마길 12 2층",
+      "lat": 37.5555909,
+      "lng": 126.9265084,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "서경배",
+    "title": "클로즈 유어 아이즈 · 서경배 · 백그라운드 나인틴",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-26",
+    "endsOn": "2026-09-29",
+    "perks": "특전 5종",
+    "sourceUrl": "https://x.com/comeinlikeawave",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15332",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/8d4d0594-223f-4e41-a2a4-c3570b877633-1788159659105.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15291",
+    "source": "OFFMATE",
     "place": {
       "name": "강남향수공방 닷노트",
       "address": "서울특별시 강남구 봉은사로4길 36 지층",
@@ -3338,6 +3401,7 @@
   },
   {
     "id": "om_15236",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -3361,6 +3425,7 @@
   },
   {
     "id": "om_15213",
+    "source": "OFFMATE",
     "place": {
       "name": "로얄마카롱",
       "address": "서울특별시 강남구 테헤란로25길 26 3층 로얄마카롱",
@@ -3384,6 +3449,7 @@
   },
   {
     "id": "om_15212",
+    "source": "OFFMATE",
     "place": {
       "name": "하이디라오 COEX점",
       "address": "서울특별시 강남구 테헤란로87길 58 지하 2층",
@@ -3407,6 +3473,7 @@
   },
   {
     "id": "om_15211",
+    "source": "OFFMATE",
     "place": {
       "name": "카페치어럽",
       "address": "서울특별시 마포구 잔다리로 30-32 1층",
@@ -3430,6 +3497,7 @@
   },
   {
     "id": "om_15388",
+    "source": "OFFMATE",
     "place": {
       "name": "별빛카페달빛차",
       "address": "서울특별시 마포구 성미산로 128",
@@ -3453,6 +3521,7 @@
   },
   {
     "id": "om_15292",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -3475,7 +3544,32 @@
     "goods": []
   },
   {
+    "id": "om_15452",
+    "source": "OFFMATE",
+    "place": {
+      "name": "카페심플",
+      "address": "서울특별시 영등포구 영등포로86길 14",
+      "lat": 37.5118611,
+      "lng": 126.9229886,
+      "district": "yeouido",
+      "kind": "CAFE"
+    },
+    "subject": "승한",
+    "title": "승한 · 너, 내 메이트가 돼라!",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-01",
+    "endsOn": "2026-10-02",
+    "perks": "특전 4종",
+    "sourceUrl": "https://x.com/makki100203",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15452",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/77e6e88e-9e57-4425-9c74-074faabc30d7-1788915468040.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15442",
+    "source": "OFFMATE",
     "place": {
       "name": "카페07",
       "address": "서울 마포구 신촌로2안길 40",
@@ -3499,6 +3593,7 @@
   },
   {
     "id": "om_15440",
+    "source": "OFFMATE",
     "place": {
       "name": "마린커피 빅히트사옥점",
       "address": "서울특별시 용산구 한강대로10길 11-48 1층 마린커피",
@@ -3522,6 +3617,7 @@
   },
   {
     "id": "om_15438",
+    "source": "OFFMATE",
     "place": {
       "name": "봄마켓",
       "address": "서울 용산구 한강대로10길 11-46",
@@ -3545,6 +3641,7 @@
   },
   {
     "id": "om_15451",
+    "source": "OFFMATE",
     "place": {
       "name": "디어마이디어",
       "address": "서울특별시 마포구 어울마당로 136-24 1층",
@@ -3568,6 +3665,7 @@
   },
   {
     "id": "om_15449",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠키코코 COOKIECOCO",
       "address": "서울특별시 마포구 와우산로29다길 11 1층 우측 102호",
@@ -3591,6 +3689,7 @@
   },
   {
     "id": "om_15439",
+    "source": "OFFMATE",
     "place": {
       "name": "메르시쿠키",
       "address": "서울특별시 용산구 한강대로10길 11-44",
@@ -3614,6 +3713,7 @@
   },
   {
     "id": "om_15400",
+    "source": "OFFMATE",
     "place": {
       "name": "미닝 더 갤러리",
       "address": "서울특별시 마포구 와우산로29라길 16 2층",
@@ -3637,6 +3737,7 @@
   },
   {
     "id": "om_15396",
+    "source": "OFFMATE",
     "place": {
       "name": "쿠잉스테이션",
       "address": "서울특별시 마포구 와우산로29마길 16 2층",
@@ -3660,6 +3761,7 @@
   },
   {
     "id": "om_15444",
+    "source": "OFFMATE",
     "place": {
       "name": "아카이브 제트",
       "address": "서울특별시 마포구 양화로6길 92 2층",
@@ -3683,6 +3785,7 @@
   },
   {
     "id": "om_15427",
+    "source": "OFFMATE",
     "place": {
       "name": "아이니드케이크 홍대점",
       "address": "서울특별시 마포구 신촌로2안길 44 1층",
@@ -3706,6 +3809,7 @@
   },
   {
     "id": "om_15418",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 클로버",
       "address": "서울특별시 마포구 양화로8길 38 서교동빌딩 2층",
@@ -3729,6 +3833,7 @@
   },
   {
     "id": "om_15416",
+    "source": "OFFMATE",
     "place": {
       "name": "체리시",
       "address": "서울특별시 마포구 와우산로29다길 14 지층 우측호",
@@ -3752,6 +3857,7 @@
   },
   {
     "id": "om_15408",
+    "source": "OFFMATE",
     "place": {
       "name": "몰리스피크닉",
       "address": "서울특별시 마포구 와우산로29바길 10 2층 201호",
@@ -3775,6 +3881,7 @@
   },
   {
     "id": "om_15407",
+    "source": "OFFMATE",
     "place": {
       "name": "문스트럭 러브",
       "address": "서울특별시 마포구 어울마당로 136-24 지1층 1호",
@@ -3798,6 +3905,7 @@
   },
   {
     "id": "om_15398",
+    "source": "OFFMATE",
     "place": {
       "name": "블루로그",
       "address": "서울특별시 마포구 와우산로29마길 12 2층",
@@ -3821,6 +3929,7 @@
   },
   {
     "id": "om_15397",
+    "source": "OFFMATE",
     "place": {
       "name": "공이도시",
       "address": "서울특별시 마포구 와우산로27길 35 2층 201호",
@@ -3844,6 +3953,7 @@
   },
   {
     "id": "om_15348",
+    "source": "OFFMATE",
     "place": {
       "name": "테뉴에",
       "address": "서울특별시 마포구 와우산로29바길 11-5 2층 202호",
@@ -3867,6 +3977,7 @@
   },
   {
     "id": "om_15343",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 레코드",
       "address": "서울특별시 마포구 와우산로29길 4-13 3층",
@@ -3890,6 +4001,7 @@
   },
   {
     "id": "om_15329",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 오소",
       "address": "서울특별시 마포구 홍익로2길 19 2층",
@@ -3913,6 +4025,7 @@
   },
   {
     "id": "om_15256",
+    "source": "OFFMATE",
     "place": {
       "name": "홍대갤러리 키르큐펠",
       "address": "서울특별시 마포구 와우산로25길 26 1층, 2층 홍대갤러리 키르큐펠",
@@ -3936,6 +4049,7 @@
   },
   {
     "id": "om_14890",
+    "source": "OFFMATE",
     "place": {
       "name": "오디너리 아카이브",
       "address": "서울특별시 마포구 신촌로4길 5-18 1F",
@@ -3958,7 +4072,60 @@
     "goods": []
   },
   {
+    "id": "kopis_PF300164",
+    "source": "KOPIS",
+    "place": {
+      "name": "블루스퀘어",
+      "address": "서울특별시 용산구 이태원로 294 (한남동)",
+      "lat": 37.5408717,
+      "lng": 127.00244010000006,
+      "district": "yongsan",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "산들",
+    "title": "산들 단독 콘서트: 바람결",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-03",
+    "endsOn": "2026-10-04",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF300164",
+    "reservationUrl": "http://ticket.interpark.com/Ticket/Goods/GoodsInfo.asp?GoodsCode=26012383",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF300164_260904_134550.gif",
+    "conditions": "전석 154,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF298230",
+    "source": "KOPIS",
+    "place": {
+      "name": "올림픽공원",
+      "address": "서울특별시 송파구 올림픽로 424 올림픽공원 (방이동)",
+      "lat": 37.52112,
+      "lng": 127.12836360000006,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "&TEAM",
+    "title": "&TEAM CONCERT TOUR: BLAZE THE WAY [서울 (앵콜) ]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-03",
+    "endsOn": "2026-10-04",
+    "startsAt": "18:00",
+    "openHours": "토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298230",
+    "reservationUrl": "http://ticket.interpark.com/Ticket/Goods/GoodsInfo.asp?GoodsCode=26011092",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298230_260811_133611.gif",
+    "conditions": "M&G석 253,000원, SOUND CHECK석 220,000원, 일반석 165,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15437",
+    "source": "OFFMATE",
     "place": {
       "name": "카페333",
       "address": "서울특별시 마포구 와우산로29라길 12",
@@ -3981,7 +4148,32 @@
     "goods": []
   },
   {
+    "id": "om_15402",
+    "source": "OFFMATE",
+    "place": {
+      "name": "톤앤매너",
+      "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
+      "lat": 37.554302,
+      "lng": 126.9287165,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "모카",
+    "title": "아일릿 · 모카 · 잇츠 민트걸 모카!",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-05",
+    "endsOn": "2026-10-08",
+    "perks": "특전 12종",
+    "sourceUrl": "https://x.com/ILLITDAY",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15402",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/9e238669-81b3-47c3-b10f-70e43354ce62-1788555085029.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15425",
+    "source": "OFFMATE",
     "place": {
       "name": "디어마이디어",
       "address": "서울특별시 마포구 어울마당로 136-24 1층",
@@ -4005,6 +4197,7 @@
   },
   {
     "id": "om_15404",
+    "source": "OFFMATE",
     "place": {
       "name": "톤앤매너",
       "address": "서울특별시 마포구 와우산로29가길 13 2층 톤앤매너",
@@ -4028,6 +4221,7 @@
   },
   {
     "id": "om_15383",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 메리",
       "address": "서울특별시 마포구 동교로23길 32-22 1층",
@@ -4051,6 +4245,7 @@
   },
   {
     "id": "om_15382",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 메리",
       "address": "서울특별시 마포구 동교로23길 32-22 1층",
@@ -4073,7 +4268,84 @@
     "goods": []
   },
   {
+    "id": "kopis_PF300440",
+    "source": "KOPIS",
+    "place": {
+      "name": "블루스퀘어",
+      "address": "서울특별시 용산구 이태원로 294 (한남동)",
+      "lat": 37.5408717,
+      "lng": 127.00244010000006,
+      "district": "yongsan",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "PENTAGON",
+    "title": "PENTAGON 10th Anniversary Tour: 101010 [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-09",
+    "endsOn": "2026-10-10",
+    "startsAt": "19:00",
+    "openHours": "금요일(19:00), 토요일(18:30)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF300440",
+    "reservationUrl": "http://ticket.interpark.com/Ticket/Goods/GoodsInfo.asp?GoodsCode=26011526",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF300440_260909_105143.gif",
+    "conditions": "VIP석 187,000원, 일반석  143,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF300140",
+    "source": "KOPIS",
+    "place": {
+      "name": "예스24 원더로크홀",
+      "address": "서울특별시 서대문구 신촌로 129 (창천동)",
+      "lat": 37.5565639,
+      "lng": 126.9403281,
+      "district": "etc",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "POW",
+    "title": "POW CONCERT: COLOR ON [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-09",
+    "endsOn": "2026-10-10",
+    "startsAt": "18:00",
+    "openHours": "금요일(18:00), 토요일(16:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF300140",
+    "reservationUrl": "https://ticket.yes24.com/Perf/59759",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF300140_260904_125537.jpg",
+    "conditions": "VIP석 132,000원, R석 99,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15454",
+    "source": "OFFMATE",
+    "place": {
+      "name": "리드미",
+      "address": "서울특별시 마포구 월드컵북로6길 83 . 1층 리드미카페",
+      "lat": 37.5601683,
+      "lng": 126.9224747,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "리브",
+    "title": "리센느 · 리브 · 은빛으로 물든 경은의 하루",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-10",
+    "endsOn": "2026-10-11",
+    "perks": "특전 4종",
+    "sourceUrl": "https://x.com/what_i_liv_for",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15454",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/296d8b06-0502-4328-939a-dcb5d5aa5e1a-1788927390179.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15428",
+    "source": "OFFMATE",
     "place": {
       "name": "봄마켓",
       "address": "서울 용산구 한강대로10길 11-46",
@@ -4096,6 +4368,7 @@
   },
   {
     "id": "om_15406",
+    "source": "OFFMATE",
     "place": {
       "name": "카페헤이",
       "address": "서울특별시 마포구 와우산로29마길 10 1층",
@@ -4119,6 +4392,7 @@
   },
   {
     "id": "om_15405",
+    "source": "OFFMATE",
     "place": {
       "name": "디어마이플라워",
       "address": "서울특별시 강남구 테헤란로55길 28",
@@ -4142,6 +4416,7 @@
   },
   {
     "id": "om_15381",
+    "source": "OFFMATE",
     "place": {
       "name": "아이니드케이크 홍대점",
       "address": "서울특별시 마포구 신촌로2안길 44 1층",
@@ -4165,6 +4440,7 @@
   },
   {
     "id": "om_15369",
+    "source": "OFFMATE",
     "place": {
       "name": "펀치드렁크러브",
       "address": "서울특별시 마포구 와우산로15길 38 3층",
@@ -4174,7 +4450,7 @@
       "kind": "CAFE"
     },
     "subject": "리브",
-    "title": "리센느 · 리브 · 青春の名前へ\r\n: 청춘의 이름에게",
+    "title": "리센느 · 리브 · 青春の名前へ : 청춘의 이름에게",
     "subjectType": "IDOL",
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-10-10",
@@ -4187,7 +4463,60 @@
     "goods": []
   },
   {
+    "id": "kopis_PF298950",
+    "source": "KOPIS",
+    "place": {
+      "name": "장충체육관",
+      "address": "서울특별시 중구 동호로 241 (장충동2가)",
+      "lat": 37.5581719,
+      "lng": 127.0067176,
+      "district": "myeongdong",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "tripleS",
+    "title": "tripleS World Tour: ANDLESS [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-10",
+    "endsOn": "2026-10-11",
+    "startsAt": "18:00",
+    "openHours": "토요일 ~ 일요일(18:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF298950",
+    "reservationUrl": "http://www.ticketlink.co.kr/product/64906",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF298950_260820_132246.jpg",
+    "conditions": "SSS석 165,000원, S석 30,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "kopis_PF300389",
+    "source": "KOPIS",
+    "place": {
+      "name": "장충체육관",
+      "address": "서울특별시 중구 동호로 241 (장충동2가)",
+      "lat": 37.5581719,
+      "lng": 127.0067176,
+      "district": "myeongdong",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "HIGHLIGHT",
+    "title": "HIGHLIGHT FAN CON: 18년차 아이돌인 내가 이세계에선 데뷔조 연습생?! [서울]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-10-16",
+    "endsOn": "2026-10-18",
+    "startsAt": "19:30",
+    "openHours": "금요일(19:30), 토요일(17:00), 일요일(16:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF300389",
+    "reservationUrl": "https://ticket.yes24.com/Perf/59891",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF300389_260908_125817.jpg",
+    "conditions": "전석 132,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15417",
+    "source": "OFFMATE",
     "place": {
       "name": "키드문 본점",
       "address": "서울특별시 용산구 한강대로10길 11-68 1층",
@@ -4211,6 +4540,7 @@
   },
   {
     "id": "om_15061",
+    "source": "OFFMATE",
     "place": {
       "name": "CAFE07",
       "address": "서울특별시 마포구 신촌로2안길 40 지하1층",
@@ -4234,6 +4564,7 @@
   },
   {
     "id": "om_15059",
+    "source": "OFFMATE",
     "place": {
       "name": "CAFE07",
       "address": "서울특별시 마포구 신촌로2안길 40 지하1층",
@@ -4257,6 +4588,7 @@
   },
   {
     "id": "om_15403",
+    "source": "OFFMATE",
     "place": {
       "name": "디어마이디어",
       "address": "서울특별시 마포구 어울마당로 136-24 1층",
@@ -4280,6 +4612,7 @@
   },
   {
     "id": "om_15342",
+    "source": "OFFMATE",
     "place": {
       "name": "공이도시",
       "address": "서울 마포구 와우산로27길 35",
@@ -4303,6 +4636,7 @@
   },
   {
     "id": "om_15245",
+    "source": "OFFMATE",
     "place": {
       "name": "프루티플라워",
       "address": "서울특별시 마포구 와우산로29길 19 1층",
@@ -4326,6 +4660,7 @@
   },
   {
     "id": "om_15413",
+    "source": "OFFMATE",
     "place": {
       "name": "스윗도프",
       "address": "서울특별시 마포구 와우산로15길 33 2층 201호",
@@ -4348,7 +4683,34 @@
     "goods": []
   },
   {
+    "id": "kopis_PF299607",
+    "source": "KOPIS",
+    "place": {
+      "name": "올림픽공원",
+      "address": "서울특별시 송파구 올림픽로 424 올림픽공원 (방이동)",
+      "lat": 37.52112,
+      "lng": 127.12836360000006,
+      "district": "jamsil",
+      "kind": "CONCERT_HALL"
+    },
+    "subject": "EXO",
+    "title": "EXO PLANET #6, EXhOrizon [dot]",
+    "subjectType": "IDOL",
+    "kind": "CONCERT",
+    "startsOn": "2026-11-06",
+    "endsOn": "2026-11-08",
+    "startsAt": "19:00",
+    "openHours": "금요일(19:00), 토요일(18:00), 일요일(17:00)",
+    "sourceUrl": "https://kopis.or.kr/por/db/pblprfr/pblprfrView.do?mt20Id=PF299607",
+    "reservationUrl": "https://ticket.melon.com/performance/index.htm?prodId=213773",
+    "imageUrl": "https://kopis.or.kr/upload/pfmPoster/PF_PF299607_260828_130100.jpg",
+    "conditions": "VIP(STANDING)석 198,000원, VIP(SEATED)석 198,000원, 일반(STANDING)석 165,000원, 일반(SEATED)석 165,000원",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15421",
+    "source": "OFFMATE",
     "place": {
       "name": "스윗도프",
       "address": "서울특별시 마포구 와우산로15길 33 2층 201호",
@@ -4372,6 +4734,7 @@
   },
   {
     "id": "om_15273",
+    "source": "OFFMATE",
     "place": {
       "name": "카페 아히",
       "address": "서울특별시 마포구 잔다리로 30-26 101호",
