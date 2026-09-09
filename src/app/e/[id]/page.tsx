@@ -272,7 +272,12 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
             </div>
 
             <div className="evt__map">
-              <PlaceMap lat={ev.place.lat} lng={ev.place.lng} label={ev.place.name} />
+              <PlaceMap
+                lat={ev.place.lat}
+                lng={ev.place.lng}
+                label={ev.place.name}
+                kind={EVENT_KIND_LABELS[ev.kind]}
+              />
             </div>
 
             {/* 특전·조건·굿즈를 칩으로. 줄글이면 끝까지 읽어야 무엇을

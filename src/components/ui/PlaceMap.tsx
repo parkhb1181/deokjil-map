@@ -20,10 +20,18 @@ import { KAKAO_JS_KEY, loadKakaoMaps, type KakaoCustomOverlay } from '@/lib/kaka
 /** 건물과 주변 골목이 같이 읽히는 정도 */
 const LEVEL = 4
 
-export function PlaceMap({ lat, lng, label }: {
+export function PlaceMap({ lat, lng, label, kind }: {
   lat?: number | null
   lng?: number | null
   label: string
+  /**
+   * 핀 앞칸에 적을 말. 안 주면 '만남' 이다.
+   *
+   * 모집글에서는 만나기로 한 자리라 '만남' 이 맞는데, 행사 상세에서는
+   * 그 행사가 열리는 자리다. 같은 행사를 목록에서 열면 '콘서트' 라고
+   * 적혀 있어서 두 화면이 달라 보였다.
+   */
+  kind?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
@@ -69,7 +77,7 @@ export function PlaceMap({ lat, lng, label }: {
         const el = document.createElement('div')
         el.className = 'pin pin--birthday_cafe pin--static'
         el.innerHTML =
-          '<span class="pin__kind">만남</span>' +
+          `<span class="pin__kind">${kind ?? '만남'}</span>` +
           '<span class="pin__name"></span>' +
           '<span class="pin__tail"></span>'
         // 장소명은 사용자가 쓴 값이라 textContent 로 넣는다
