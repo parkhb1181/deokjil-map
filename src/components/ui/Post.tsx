@@ -139,7 +139,17 @@ export type CommentProps = {
   host?: boolean
   /** 프로필 사진. 없으면 닉네임 첫 글자에 색을 깐다 */
   src?: string
+  /** 대화를 잇는 것. 본문 아래 버튼 줄에 선다 (답글 · 초대) */
   acts?: ReactNode
+  /**
+   * 치우는 것. 시각 옆 메타 줄에 흘려둔다 (수정 · 삭제 · 신고).
+   *
+   * 본문 아래 같은 줄에 두면 「초대」 옆이 「삭제」 가 되어 손이
+   * 잘못 간다. 자리를 아예 나누면 성격이 다른 것이 섞이지 않는다 —
+   * 네이버 카페가 신고를 시각 옆에 두고 답글만 아래에 세우는 것과
+   * 같은 이유다.
+   */
+  quietActs?: ReactNode
   /**
    * 고치는 중이면 본문 자리에 이걸 그린다.
    *
@@ -164,6 +174,7 @@ export function Comment({
   host,
   src,
   acts,
+  quietActs,
   edit,
   edited,
   onAuthor,
@@ -217,6 +228,9 @@ export function Comment({
           )}
           <span className="cmt__time">{time}</span>
           {edited && <span className="cmt__edited">수정됨</span>}
+          {/* 고치는 중에는 감춘다. 저장 안 한 채 다른 데로 새면
+              고치던 내용이 조용히 사라진다 */}
+          {quietActs && !edit && <span className="cmt__quiet">{quietActs}</span>}
         </div>
         {/* 고치는 중에는 본문 대신 입력칸이 그 자리에 온다 */}
         {edit ? (

@@ -595,26 +595,28 @@ export default function PostDetail({ post, comments, hostId }: {
                         </button>
                       )}
                     </span>
-
-                    <span className="cmt__actg cmt__actg--quiet">
-                      {c.availableActions.includes('EDIT') && (
-                        <button onClick={() => setEditing({ id: c.id, draft: c.content ?? '' })}>
-                          수정
-                        </button>
-                      )}
-                      {c.availableActions.includes('DELETE') && (
-                        /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이 한 번 묻는다 */
-                        <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
-                      )}
-                      {c.availableActions.includes('REPORT') && (
-                        <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>
-                          신고
-                        </button>
-                      )}
-                    </span>
                   </>
                 )
-              }            />
+              }
+              quietActs={
+                <>
+                  {c.availableActions.includes('EDIT') && (
+                  <button onClick={() => setEditing({ id: c.id, draft: c.content ?? '' })}>
+                  수정
+                  </button>
+                  )}
+                  {c.availableActions.includes('DELETE') && (
+                  /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이 한 번 묻는다 */
+                  <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                  )}
+                  {c.availableActions.includes('REPORT') && (
+                  <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>
+                  신고
+                  </button>
+                  )}
+                </>
+              }
+            />
           ))
         )}
       </section>
