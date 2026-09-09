@@ -21,9 +21,11 @@ import { Blank, Button, Skeleton } from '@/components/ui/Basics'
 import { PageShell } from '@/components/ui/PageShell'
 import { fetchMe } from '@/lib/api/users'
 import { fetchMyComments } from '@/lib/api/comments'
+import { fetchMyPosts } from '@/lib/api/posts'
 import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
 import { getAccessToken } from '@/lib/auth/session'
+import { toProfilePost } from '@/lib/profile-post'
 import { wf } from '@/lib/wireframe'
 
 type State =
@@ -44,28 +46,36 @@ export default function MyProfile() {
 
     let alive = true
     /*
-     * 둘을 같이 받는다. 순서대로 기다리면 화면이 두 번 바뀌고, 그 사이에
-     * 프로필만 있고 댓글은 비어 있는 상태가 잠깐 보인다 — 댓글이 없는
-     * 사람과 구분이 안 된다.
+     * 셋을 같이 받는다. 순서대로 기다리면 화면이 세 번 바뀌고, 그 사이에
+     * 프로필만 있고 글·댓글은 비어 있는 상태가 잠깐 보인다 — 아무것도 안
+     * 쓴 사람과 구분이 안 된다.
      */
-    authed((t) => Promise.all([fetchMe(t), fetchMyComments(t)]))
-      .then(([me, cm]) => {
+    authed((t) => Promise.all([fetchMe(t), fetchMyComments(t), fetchMyPosts(t)]))
+      .then(([me, cm, ps]) => {
         if (!alive) return
+
+        /*
+         * **가입을 안 끝낸 계정을 여기 세워두지 않는다.** 카카오 로그인만
+         * 하고 닉네임을 아직 안 정한 사람인데, 그 상태로는 이름이 비어
+         * 있고 쓰기도 전부 막혀 있다 (AU-07). 빈 프로필을 보여주고 왜
+         * 아무것도 안 되는지는 말 안 하느니 가입 화면으로 보낸다.
+         */
+        if (!me.signupCompleted) {
+          router.replace(wf('/welcome'))
+          return
+        }
+
         setState({
           k: 'ok',
           user: {
             id: me.id,
-            nickname: me.nickname,
+            /* 위에서 걸렀으므로 여기서는 늘 있다. 타입만 좁힌다 */
+            nickname: me.nickname ?? '',
             profileImageUrl: me.profileImageUrl,
             bio: me.bio,
-            lastSeen: me.lastSeen,
-            /*
-             * **내 모집글은 아직 서버가 안 준다.** `/users/me/posts` 가
-             * 계약에는 있는데(AU-10) 구현이 없다. 빈 배열을 넘기면 화면은
-             * 「아직 쓴 글이 없어요」 를 띄우는데, 쓴 사람에게는 그것이
-             * 거짓말이다. 그 탭이 생기면 여기만 채운다.
-             */
-            posts: [],
+            /* 접속이 관측된 적 없으면 null 이다. 화면은 그 줄을 안 그린다 */
+            lastSeen: me.lastSeen ?? undefined,
+            posts: ps.items.map(toProfilePost),
           },
           comments: cm.items.map((c) => ({
             id: c.id,
@@ -87,7 +97,7 @@ export default function MyProfile() {
     return () => {
       alive = false
     }
-  }, [])
+  }, [router])
 
   if (state.k === 'loading') {
     return (
@@ -137,5 +147,10 @@ export default function MyProfile() {
     )
   }
 
-  return <ProfileView user={state.user} isMe comments={state.comments} postsReady={false} />
+  /*
+   * `postsReady` 를 안 넘긴다 (기본값이 참이다). 한동안 거짓으로 두고
+   * 「곧 볼 수 있어요」 를 띄웠는데, 서버가 안 주던 시절의 이야기다. 이제
+   * 빈 목록은 진짜로 안 쓴 것이므로 「아직 쓴 글이 없어요」 가 맞다.
+   */
+  return <ProfileView user={state.user} isMe comments={state.comments} />
 }

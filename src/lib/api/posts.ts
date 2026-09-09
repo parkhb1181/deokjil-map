@@ -123,17 +123,14 @@ export async function fetchPosts(opts: {
   cursor?: string | null
   status?: 'OPEN'
   size?: number
-}): Promise<{ items: PostListItem[]; nextCursor: string | null; hasNext: boolean }> {
-  const page = await apiGet<Page<unknown>>('/api/v1/posts', {
-    size: opts.size ?? PAGE_SIZE,
-    cursor: opts.cursor ?? null,
-    status: opts.status ?? null,
-  })
-  return {
-    items: page.items.map(toPostListItem),
-    nextCursor: page.nextCursor,
-    hasNext: page.hasNext,
-  }
+}): Promise<PostsPage> {
+  return toPage(
+    await apiGet<Page<unknown>>('/api/v1/posts', {
+      size: opts.size ?? PAGE_SIZE,
+      cursor: opts.cursor ?? null,
+      status: opts.status ?? null,
+    }),
+  )
 }
 
 /** 상세 한 건. **비인증 요청에도 본문이 온다** (PO-11) */
@@ -229,4 +226,71 @@ export async function updatePost(
  */
 export async function closePost(id: string, token: string): Promise<void> {
   await apiSend<unknown>('POST', `/api/v1/posts/${encodeURIComponent(id)}/close`, undefined, token)
+}
+
+/* ── 사람이 쓴 글 ────────────────────────────────────────── */
+
+/**
+ * 내 활동 · 공개 프로필의 모집글 탭 (AU-09 · AU-10).
+ *
+ * ─────────────────────────────────────────────────────────
+ * **목록과 같은 봉투에 같은 항목이 온다.**
+ *
+ * `items` · `nextCursor` · `hasNext` 셋이고 한 줄의 모양이 `/posts` 의
+ * 카드와 같다. 그래서 매퍼를 새로 만들지 않고 `toPostListItem` 을 그대로
+ * 쓴다 — 서버가 일부러 그렇게 맞춰 줬다(「프론트가 모집글 카드 파서를
+ * 하나만 쓴다」). 여기서 한 벌 더 만들면 그 배려가 사라진다.
+ *
+ * **`status` 필터가 없다.** 목록(PO-08)에는 「모집중만」 이 있지만 프로필
+ * 탭에는 없다. 마감된 글도 내역에 남아야 한다.
+ *
+ * 둘의 차이는 **누구를 묻느냐** 하나뿐이다. 내 것은 토큰에서 꺼내고 남의
+ * 것은 주소에서 꺼낸다. 회원번호를 요청에 실어 보내는 경로를 서버가 아예
+ * 안 만들었다 — 남의 내역을 내 것처럼 부를 자리를 없앤 것이다.
+ */
+interface PostsPage {
+  items: PostListItem[]
+  nextCursor: string | null
+  hasNext: boolean
+}
+
+function toPage(page: Page<unknown>): PostsPage {
+  return {
+    items: page.items.map(toPostListItem),
+    nextCursor: page.nextCursor,
+    hasNext: page.hasNext,
+  }
+}
+
+/** 내가 쓴 글. 작성 최신순이고 마감된 것도 온다 (AU-10) */
+export async function fetchMyPosts(
+  token: string,
+  opts: { cursor?: string | null; size?: number } = {},
+): Promise<PostsPage> {
+  return toPage(
+    await apiGet<Page<unknown>>(
+      '/api/v1/users/me/posts',
+      { size: opts.size ?? PAGE_SIZE, cursor: opts.cursor ?? null },
+      token,
+    ),
+  )
+}
+
+/**
+ * 그 사람이 쓴 글 (AU-09).
+ *
+ * **없는 회원번호로 물어도 200 에 빈 페이지다.** 404 가 아니다 — 없는
+ * 회원과 글이 없는 회원의 응답을 서버가 일부러 같게 뒀다. 화면은 프로필
+ * 단건(`fetchPublicProfile`)의 404 로 「없는 사람」 을 판단한다.
+ */
+export async function fetchUserPosts(
+  userId: string,
+  opts: { cursor?: string | null; size?: number } = {},
+): Promise<PostsPage> {
+  return toPage(
+    await apiGet<Page<unknown>>(`/api/v1/users/${encodeURIComponent(userId)}/posts`, {
+      size: opts.size ?? PAGE_SIZE,
+      cursor: opts.cursor ?? null,
+    }),
+  )
 }
