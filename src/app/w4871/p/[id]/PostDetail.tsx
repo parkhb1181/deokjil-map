@@ -589,7 +589,10 @@ export default function PostDetail({ post, comments, hostId }: {
                         이유다 (alerts/Alerts.tsx). 채팅 API 가 붙으면
                         이 조건을 지운다
                       */}
-                      {!USE_API && (
+                      {/* 자기 자신은 부를 수 없다. EDIT 이 온다는 것이 곧 내
+                          댓글이라는 뜻이다 — 서버가 CHAT 을 내려주면 그쪽으로
+                          판정이 넘어간다 */}
+                      {!USE_API && !c.availableActions.includes('EDIT') && (
                         <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
                           {isHost ? '초대' : '채팅하기'}
                         </button>

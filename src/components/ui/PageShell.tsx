@@ -12,18 +12,27 @@
 import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
-export function PageShell({ title, right, children, onBack }: {
+export function PageShell({ title, right, children, onBack, fill }: {
   /** 헤더 가운데 줄. 스크롤과 상관없이 계속 보인다 */
   title?: string
   right?: ReactNode
   children: ReactNode
   /** 안 주면 브라우저 뒤로가기 */
   onBack?: () => void
+  /**
+   * 화면 높이에 가둔다. 채팅처럼 **안쪽 한 칸만 스크롤되어야** 하는
+   * 화면이 쓴다.
+   *
+   * 기본은 문서가 통째로 늘어나는 구조라, 채팅에서는 말이 쌓일수록
+   * 입력칸이 아래로 밀려난다. `sticky` 로는 안 잡힌다 — 스크롤
+   * 컨테이너가 문서 자체이기 때문이다.
+   */
+  fill?: boolean
 }) {
   const router = useRouter()
 
   return (
-    <div className="shell">
+    <div className={`shell${fill ? ' shell--fill' : ''}`}>
       <header className="shell__bar">
         <button
           type="button"

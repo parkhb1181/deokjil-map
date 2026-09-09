@@ -101,6 +101,7 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
 
   return (
     <PageShell
+      fill
       /* 단체는 사람 이름을 못 쓴다. 글 제목이 곧 방 이름이다 —
          방이 글 하나에 하나라서 그것이 가장 짧게 구분된다 */
       title={group ? room.postTitle : room.partner.nickname}

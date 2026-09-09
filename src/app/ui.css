@@ -3388,6 +3388,31 @@
   min-height: 46vh;
 }
 
+/* 화면 높이에 가둔 껍데기. 채팅이 쓴다.
+
+   기본 shell 은 min-height 라 내용만큼 늘어나고, 그러면 문서 전체가
+   스크롤 컨테이너가 된다. 그 안에서 입력칸을 sticky 로 붙여도 말이
+   쌓일수록 아래로 밀려난다. 높이를 못박아 안쪽 한 칸만 스크롤시킨다 */
+.shell--fill { height: 100dvh; min-height: 0; overflow: hidden; }
+.shell--fill .shell__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* 스크롤되는 것은 말풍선 칸 하나뿐이다 */
+.shell--fill .croom {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* 손을 떼도 관성 스크롤이 이어지게 한다. iOS 에서 없으면 뚝 선다 */
+  -webkit-overflow-scrolling: touch;
+  /* 아래에서 쌓이는 목록이라 스크롤 위치를 끝에 붙여 둔다.
+     새 말이 와도 읽던 자리가 안 튄다 */
+  overscroll-behavior: contain;
+}
+
 /* 날짜가 바뀌는 자리. 없으면 어제 대화와 오늘 대화가 이어져 보인다 */
 .chat__day { display: flex; justify-content: center; margin: 12px 0 10px; }
 .chat__day span {
@@ -3468,10 +3493,14 @@
    댓글과 다른 자리다. 댓글은 읽는 글의 끝이지만 채팅은 읽는 내내
    쓰는 자리라 화면 아래에 붙어 따라다녀야 한다.
    ------------------------------------------------------- */
+/* 입력칸.
+
+   sticky 를 뗐다. shell--fill 안에서는 스크롤되는 칸이 위(.croom)
+   하나뿐이라, 이 줄은 그냥 마지막 칸으로 두면 늘 화면 맨 아래에
+   남는다. sticky 로 두면 컨테이너가 스크롤되지 않아 아무 일도 안 하고,
+   대신 z-index 만 남아 시트 위로 뜨는 사고가 난다 */
 .cwrite {
-  position: sticky;
-  bottom: 0;
-  z-index: 20;
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-end;
   gap: 8px;
