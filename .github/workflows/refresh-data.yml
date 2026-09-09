@@ -102,7 +102,27 @@ jobs:
 
           crawler/run.mjs + to-events.mjs 자동 실행 결과.
           .github/workflows/refresh-data.yml 이 매일 04:00 KST 에 돈다."
-          git push
+
+          # develop 에 그 사이 다른 push 가 들어오면 거절된다 (2026-09-09 실측 — 릴리스
+          # 당일 develop 이 활발해서 20분 도는 크롤링 중 세 번 연속 걸렸다). 뒤 스텝
+          # (백엔드 적재)은 로컬 파일만 읽어 이 push 성공 여부와 무관하지만, 그날 커밋
+          # 자체를 잃지 않으려면 리베이스로 재시도한다.
+          #
+          # -X ours 로 충돌을 우리 쪽으로 정리한다 — events.json 은 매번 새로 만드는
+          # 스냅샷이라(위 주석 참고) 남의 변경과 손으로 섞으면 어느 크롤러 실행도
+          # 만들지 않을 파일이 된다. known-subjects.json 은 원장이라 원래는 합쳐야
+          # 맞지만, 우리가 밀어붙이는 값도 방금 정규화를 거친 최신 원장이라 재시도
+          # 실패보다는 낫다.
+          for i in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "push 거절됨 (${i}/5) — rebase 후 재시도"
+            git fetch origin develop
+            git rebase origin/develop -X ours || { git rebase --abort; break; }
+          done
+          echo "::error::재시도로도 push 가 안 됐다. 다음 실행(내일 04:00 또는 수동 재실행)이 다시 시도한다"
+          exit 1
 
       - name: 백엔드 적재
         # 커밋 스텝 뒤에 둔다. 실제 서비스를 떠받치는 것은 여전히 events.json 이라
@@ -115,6 +135,12 @@ jobs:
         #
         # 주소·키가 없으면 스크립트가 스스로 건너뛰고 실행 요약에 남긴다.
         # 백엔드 배포와 시크릿 등록이 이 커밋보다 늦다
+        #
+        # if: always() 가 필요하다 — 이 스텝은 로컬에 이미 있는 events.json 만 읽어서
+        # 앞선 「변경분 커밋」의 push 성공 여부와 무관한데, 기본값(전 스텝 성공해야 실행)
+        # 그대로 두면 push 가 리베이스 재시도까지 다 실패했을 때 적재까지 같이 건너뛴다
+        # (2026-09-09 실측 — 세 번째 실행에서 이 순서 때문에 적재가 세 번 다 안 돌았다)
+        if: always()
         continue-on-error: true
         env:
           INGEST_API_BASE: ${{ secrets.INGEST_API_BASE }}
