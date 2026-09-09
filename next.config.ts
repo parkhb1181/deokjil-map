@@ -15,8 +15,22 @@ const nextConfig: NextConfig = {
    */
   env: {
     NEXT_PUBLIC_WIREFRAME: process.env.NEXT_PUBLIC_WIREFRAME ?? '0',
-    /* 같은 이유로 기본값을 박는다. 비면 events.json 을 읽는다 (lib/api/config.ts) */
-    NEXT_PUBLIC_EVENTS_FROM_API: process.env.NEXT_PUBLIC_EVENTS_FROM_API ?? '0',
+    /*
+     * 같은 이유로 기본값을 박는다 (lib/api/config.ts).
+     *
+     * **기본이 '1' 로 바뀌었다.** 서버 적재가 모자라 '0' 이었는데
+     * (2026-09-09 실측 104건 대 번들 197건), 백엔드가 채워서 195건이
+     * 됐다. 콘서트 14건도 다 들어와 있고, 번들 200건과의 차이는 어제
+     * 끝난 10건과 API 에만 있는 5건이라 실질 손실이 없다.
+     *
+     * 주소는 그대로다. 응답이 externalId(om_15091·kopis_PF298366)를
+     * 같이 주고 매퍼가 그것을 id 로 쓴다 (api/events.ts). 상세 API 도
+     * 그 값으로만 열린다 — 숫자 PK 로는 EVENT_NOT_FOUND 다.
+     *
+     * 끄려면 Vercel 에 이 이름으로 '0' 을 넣는다. 지우는 것으로는 안
+     * 꺼진다 — 여기 기본값이 받아버린다.
+     */
+    NEXT_PUBLIC_EVENTS_FROM_API: process.env.NEXT_PUBLIC_EVENTS_FROM_API ?? '1',
   },
   /**
    * sharp 는 네이티브 바인딩이라 번들에 넣으면 깨진다.
