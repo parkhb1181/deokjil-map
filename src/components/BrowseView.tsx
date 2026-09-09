@@ -20,6 +20,7 @@ import {
 import DateCalendar from './DateCalendar'
 import EventCard from './EventCard'
 import TopSubjects from './TopSubjects'
+import UpcomingConcerts from './UpcomingConcerts'
 import { FilterBar } from './FilterBar'
 
 interface Props {
@@ -130,6 +131,21 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
   return (
     <>
       <TopSubjects events={events} today={today} />
+
+      {/* 아무 축도 안 걸었을 때만 낸다. 좁히기 시작한 사람의 화면에
+          조건 밖의 콘서트가 남아 있으면 필터가 안 먹은 것으로 읽힌다
+          (UpcomingConcerts.tsx) */}
+      {filter.kind === 'all' &&
+        filter.district === 'all' &&
+        !filter.range &&
+        !filter.query.trim() && (
+          <UpcomingConcerts
+            events={events}
+            today={today}
+            onOpen={onOpen}
+            onSeeAll={() => onFilter('kind', 'CONCERT')}
+          />
+        )}
 
       {/* 칩을 전부 늘어놓던 줄을 접었다. 유형 넷과 지역 열하나가 한
           줄에 있으면 옆으로 흐르고, 지금 무엇이 걸려 있는지 보려면

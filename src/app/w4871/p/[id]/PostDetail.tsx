@@ -552,23 +552,23 @@ export default function PostDetail({ post, comments, hostId }: {
                    게이트는 아래 입력칸 자리가 따로 세운다 */
                 c.availableActions.length === 0 ? undefined : (
                   <>
-                    {c.availableActions.includes('REPLY') && (
-                      <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
-                    )}
-                    {c.availableActions.includes('EDIT') && (
-                      <button onClick={() => setEditing({ id: c.id, draft: c.content ?? '' })}>
-                        수정
-                      </button>
-                    )}
-                    {c.availableActions.includes('DELETE') && (
-                      /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이 한 번 묻는다 */
-                      <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
-                    )}
-                    {c.availableActions.includes('REPORT') && (
-                      <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>신고</button>
-                    )}
                     {/*
-                      방으로 들어오는 입구 (CH-01).
+                      두 묶음으로 나눈다.
+
+                      **앞은 대화를 잇는 것, 뒤는 치우는 것이다.** 넷이 한 줄로
+                      붙어 있으면 「삭제」 와 「초대」 가 나란히 서서, 부르려다
+                      지우는 실수가 난다. 성격이 다른 것을 같은 간격으로 두면
+                      눈이 구분하지 못한다.
+
+                      내 댓글의 「수정」 은 뒤 묶음에 둔다. 내 글을 손보는
+                      일이라 남에게 거는 답글·초대와 성격이 다르다.
+                    */}
+                    <span className="cmt__actg">
+                      {c.availableActions.includes('REPLY') && (
+                        <button onClick={() => openReply(c.id, c.author.nickname)}>답글</button>
+                      )}
+                      {/*
+                        방으로 들어오는 입구 (CH-01).
 
                       **댓글 자리에 둔다.** 신청·수락을 만들지 않기로 해서
                       댓글이 그 자리를 하고 있고, 방은 그 댓글을 단 사람하고만
@@ -581,9 +581,27 @@ export default function PostDetail({ post, comments, hostId }: {
                       서버가 판정을 내려주기 전까지는 방장인지만 보고 문구를
                       가른다. 붙을 때 availableActions 의 CHAT 으로 옮긴다.
                     */}
-                    <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
-                      {isHost ? '초대' : '채팅하기'}
-                    </button>
+                      <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
+                        {isHost ? '초대' : '채팅하기'}
+                      </button>
+                    </span>
+
+                    <span className="cmt__actg cmt__actg--quiet">
+                      {c.availableActions.includes('EDIT') && (
+                        <button onClick={() => setEditing({ id: c.id, draft: c.content ?? '' })}>
+                          수정
+                        </button>
+                      )}
+                      {c.availableActions.includes('DELETE') && (
+                        /* 지우는 것은 되돌릴 수 없다. 모집 완료와 같이 한 번 묻는다 */
+                        <button onClick={() => setAsk({ k: 'delete', id: c.id })}>삭제</button>
+                      )}
+                      {c.availableActions.includes('REPORT') && (
+                        <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>
+                          신고
+                        </button>
+                      )}
+                    </span>
                   </>
                 )
               }            />

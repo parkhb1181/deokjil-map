@@ -1991,3 +1991,92 @@ a.bottomnav__item { text-decoration: none; }
   /* 긴 한 줄이라 좁은 화면에서 넘친다. 도메인 앞에서 끊기게 둔다 */
   word-break: keep-all;
 }
+
+/* ── 곧 열리는 콘서트 ──────────────────────────────────────
+   순위 블록과 필터 줄 사이. 콘서트는 마감이 아니라 시작이 기준이라
+   마감 임박 순 목록에서 아래로 밀린다. 이유는 UpcomingConcerts.tsx.
+
+   순위 블록이 어두운 사진 덩어리라 여기까지 무겁게 두면 첫 화면이
+   두 번 눌린다. 글자만으로 얕게 깐다.
+   ------------------------------------------------------- */
+.upnext { margin-bottom: 14px; }
+
+.upnext__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--gutter);
+  margin-bottom: 8px;
+}
+.upnext__title {
+  font-size: var(--t-strong);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+/* 종류 필터를 콘서트로 옮기는 버튼. 배지와 같은 옷을 입혀 「누르는
+   것」 으로 읽히게 한다. 핑크 배경 위 글자는 --accent-ink 다 */
+.upnext__all {
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: var(--t-small);
+  font-weight: 700;
+  cursor: pointer;
+}
+.upnext__all:hover { background: #ffd4e4; }
+
+.upnext__row {
+  display: flex;
+  gap: 8px;
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  /* 가로로 흘리는 줄이라 막대가 뜨면 카드 아래가 잘린다. 필터 줄
+     (.fbar__row) 과 같은 처리다 */
+  scrollbar-width: none;
+}
+.upnext__row::-webkit-scrollbar { display: none; }
+
+.upnext__card {
+  flex: 0 0 auto;
+  width: 168px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunk);
+  text-align: left;
+  cursor: pointer;
+}
+.upnext__card:hover { border-color: var(--border-mid); }
+
+/* 안쪽 글자가 카드를 밀어내지 못하게 한다. .rank__grid 와 같은 이유다 */
+.upnext__card > * { max-width: 100%; }
+
+.upnext__when {
+  font-size: var(--t-small);
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+.upnext__name {
+  font-size: var(--t-strong);
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.upnext__place {
+  font-size: var(--t-small);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.upnext__district { color: var(--text-mute); margin-right: 4px; }
+.upnext__date { font-size: var(--t-small); color: var(--text-mute); }
