@@ -1,4 +1,5 @@
 import { issueState, stashNext } from './session'
+import { USE_API } from '@/lib/api/config'
 
 /**
  * 카카오 인가 페이지로 나가는 주소를 만든다.
@@ -41,8 +42,26 @@ export function callbackUri(): string {
   return typeof window === 'undefined' ? CALLBACK_PATH : window.location.origin + CALLBACK_PATH
 }
 
-/** 키가 없으면 로그인 버튼을 눌러도 나갈 곳이 없다. 화면이 먼저 안다 */
-export const KAKAO_READY = REST_KEY.length > 0
+/**
+ * 카카오로 나가도 되는가.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **키만으로는 부족하다. 서버 주소도 있어야 한다.**
+ *
+ * 카카오에 다녀오면 인가코드를 우리 서버에 넘겨야 토큰이 나온다
+ * (AU-01). `NEXT_PUBLIC_API_BASE` 가 비어 있으면 그 요청이 우리 사이트
+ * 자신으로 가서 404 다. 그러면 **카카오 로그인까지는 멀쩡히 되고
+ * 돌아온 자리에서 실패한다** — 사용자는 로그인이 된 줄 알고 있다가
+ * 글쓰기에서 다시 로그인하라는 말을 듣는다.
+ *
+ * 2026-09-09 에 실제로 그 상태가 됐다. 프로덕션에 REST 키만 넣고 API
+ * 주소는 안 넣었더니 둘이 어긋났다. **둘 중 하나만 있는 상태는 쓸모가
+ * 없으므로 여기서 같이 묶는다.**
+ *
+ * 키가 없거나 서버가 없으면 로그인 버튼이 가입 화면으로 넘긴다.
+ * 목데이터로 화면 흐름을 보는 경로다.
+ */
+export const KAKAO_READY = USE_API && REST_KEY.length > 0
 
 /**
  * 인가 주소.
