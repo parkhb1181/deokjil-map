@@ -18,7 +18,7 @@
  * 숫자를 같이 적는다. 눌러 놓고 빈 화면을 만나지 않게 하려는 것이고,
  * 그 숫자는 자기를 뺀 나머지 조건을 반영한다.
  */
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 export type Choice = { value: string; label: string; count?: number }
 
@@ -50,6 +50,25 @@ export function FilterBar({ axes, query, onQuery }: {
 }) {
   const [open, setOpen] = useState<string | null>(null)
   const sheet = axes.find((a) => a.key === open) ?? null
+
+  /*
+   * 시트가 열려 있는 동안 뒤 목록을 못 밀게 잠근다.
+   *
+   * 안 잠갔더니 시트 위에서 손가락을 끌면 뒤 목록이 같이 밀렸다.
+   * 그러면 휴대폰 주소창이 접혔다 펴지면서 화면 높이가 바뀌고, 화면에
+   * 고정된 시트가 그때마다 어긋나 아래가 잘렸다 (2026-09-10 신고).
+   * 뒤가 안 움직이면 주소창도 안 움직인다.
+   *
+   * 행사 상세가 같은 처리를 한다 (EventDetail.tsx).
+   */
+  useEffect(() => {
+    if (!sheet) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [sheet])
 
   return (
     <div className="fbar">

@@ -2950,6 +2950,10 @@
 .fsheet {
   position: fixed;
   inset: 0;
+  /* **주소창이 보일 때의 높이로 잡는다.** vh 는 주소창이 숨은 상태의
+     큰 높이라, 주소창이 떠 있으면 시트 아래가 화면 밖으로 내려가
+     마지막 항목이 잘린다. 콘서트 항목이 그래서 안 보였다 */
+  height: 100dvh;
   z-index: 60;
   display: flex;
   align-items: flex-end;
@@ -2959,7 +2963,7 @@
 .fsheet__panel {
   width: 100%;
   max-width: 480px;
-  max-height: 72vh;
+  max-height: 72dvh;
   display: flex;
   flex-direction: column;
   border-radius: 18px 18px 0 0;
