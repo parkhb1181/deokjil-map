@@ -1180,30 +1180,6 @@
     "goods": []
   },
   {
-    "id": "om_14087",
-    "source": "OFFMATE",
-    "place": {
-      "name": "마린커피 빅히트사옥점",
-      "address": "서울특별시 용산구 한강대로10길 11-48 1층 마린커피",
-      "lat": 37.5244912,
-      "lng": 126.9647786,
-      "district": "yongsan",
-      "kind": "CAFE"
-    },
-    "subject": "연준",
-    "title": "투모로우바이투게더 · 연준 · FASHIONISTA",
-    "subjectType": "IDOL",
-    "kind": "BIRTHDAY_CAFE",
-    "startsOn": "2026-09-11",
-    "endsOn": "2026-09-13",
-    "perks": "특전 8종",
-    "sourceUrl": "https://x.com/forever_yawnzzn",
-    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/14087",
-    "imageUrl": "https://img2.offmate.kr/artist-profiles%2Fprod%2F40beeb7d-2c1d-4cc8-b1f8-e4ededd6436c-1779451839164.jpeg",
-    "trust": "PARTNER",
-    "goods": []
-  },
-  {
     "id": "om_15447",
     "source": "OFFMATE",
     "place": {
@@ -2602,6 +2578,30 @@
     "goods": []
   },
   {
+    "id": "om_15456",
+    "source": "OFFMATE",
+    "place": {
+      "name": "젤라떼리아 피오니",
+      "address": "서울 강동구 성안로 7",
+      "lat": 37.5245403779421,
+      "lng": 127.128901006633,
+      "district": "etc",
+      "kind": "CAFE"
+    },
+    "subject": "유키",
+    "title": "넥스지 · 유키 · YUKINOTOKI",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-17",
+    "endsOn": "2026-09-20",
+    "perks": "특전 4종",
+    "sourceUrl": "https://x.com/myAppleboy920",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15456",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/dd6b6494-fc2b-44bd-a3f8-ad197f22036a-1788951957545.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15390",
     "source": "OFFMATE",
     "place": {
@@ -2694,6 +2694,54 @@
     "sourceUrl": "https://x.com/sunday_jelly",
     "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15237",
     "imageUrl": "https://img2.offmate.kr/birthday-cafe/00b49fd2-2c0b-44fa-be18-e516b25a7b45-1787443778734.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15458",
+    "source": "OFFMATE",
+    "place": {
+      "name": "카페 꼬모",
+      "address": "서울특별시 마포구 와우산로21길 31-12 1층",
+      "lat": 37.5519165,
+      "lng": 126.9218968,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "김률",
+    "title": "롱샷 · 김률 · RYULMON",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-19",
+    "perks": "특전 8종",
+    "sourceUrl": "https://x.com/NinngY1",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15458",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/0b5b1545-909d-4e63-b223-a08d87df2923-1788956463422.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15457",
+    "source": "OFFMATE",
+    "place": {
+      "name": "스튜디오앱트 STUDIOAPT",
+      "address": "서울특별시 마포구 동교로30길 19 2층(2.5층) 오른쪽 카페",
+      "lat": 37.5600043,
+      "lng": 126.9251705,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "정상현",
+    "title": "알파드라이브원 · 정상현 · 열아홉, 여름을 지나며",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-19",
+    "perks": "특전 9종",
+    "sourceUrl": "https://x.com/shhbd0919",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15457",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/911ca35b-186d-4af8-b2fb-688bcbf94e2f-1788954985045.jpeg",
     "trust": "PARSED",
     "goods": []
   },
