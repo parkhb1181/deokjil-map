@@ -68,21 +68,44 @@ export default function ChatList() {
 
       {view === '정상' && (
         <ul className="clist">
-          {rooms.map((r) => (
+          {rooms.map((r) => {
+            const group = r.kind === 'GROUP'
+            /* 단체는 사람 이름을 못 쓴다. 방이 글 하나에 하나라
+               글 제목이 곧 방 이름이다 */
+            const name = group ? r.postTitle : r.partner.nickname
+            const others = (r.members ?? [r.partner]).filter((m) => m.id !== raw.me)
+
+            return (
             <li key={r.id}>
               <Link className="clist__row" href={wf(`/chat/${r.id}`)}>
-                <Avatar name={r.partner.nickname} src={r.partner.imageUrl ?? undefined} lg />
+                {/* 단체는 얼굴 하나로 대표할 수 없다. 방장 사진에
+                    인원수를 얹어 「여럿」 인 것부터 읽히게 한다 */}
+                <span className="clist__face">
+                  <Avatar
+                    name={group ? (r.host?.nickname ?? name) : r.partner.nickname}
+                    src={(group ? r.host?.imageUrl : r.partner.imageUrl) ?? undefined}
+                    lg
+                  />
+                  {group && <span className="clist__n">{others.length + 1}</span>}
+                </span>
 
                 <span className="clist__main">
                   <span className="clist__top">
-                    <b className="clist__name">{r.partner.nickname}</b>
+                    <b className="clist__name">{name}</b>
                     <span className="clist__when">{listTime(r.lastAt, today)}</span>
                   </span>
 
                   <span className="clist__last">
                     {r.status === 'BLOCKED'
                       ? '차단한 상대예요'
-                      : (r.messages.at(-1)?.text ?? '')}
+                      : group
+                        ? /* 단체는 마지막 말이 누구 것인지까지 있어야
+                             읽고 들어갈지 정할 수 있다 */
+                          `${
+                            others.find((m) => m.id === r.messages.at(-1)?.from)?.nickname ??
+                            '나'
+                          }: ${r.messages.at(-1)?.text ?? ''}`
+                        : (r.messages.at(-1)?.text ?? '')}
                   </span>
 
                   {/* 어느 모집글에서 만난 사람인지. 상대를 여럿 만나면
@@ -93,7 +116,8 @@ export default function ChatList() {
                 {r.unread > 0 && <span className="clist__new">{r.unread}</span>}
               </Link>
             </li>
-          ))}
+            )
+          })}
         </ul>
       )}
     </PageShell>

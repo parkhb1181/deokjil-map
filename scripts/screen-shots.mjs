@@ -77,6 +77,7 @@ const SHOTS = [
   ['verify', '/w4871/verify'],
   ['chat', '/w4871/chat'],
   ['chat-room', '/w4871/chat/r1'],
+  ['chat-group', '/w4871/chat/r0'],
   ['blocked', '/w4871/me/blocked'],
   ['alerts', '/w4871/alerts'],
 ]

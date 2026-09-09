@@ -2,6 +2,69 @@
   "me": "u_me",
   "rooms": [
     {
+      "id": "r0",
+      "kind": "GROUP",
+      "postId": "p1",
+      "postTitle": "빅뱅 20주년 전시 같이 보실 분",
+      "meetAt": "2026-09-14T11:00",
+      "host": {
+        "id": "u_host",
+        "nickname": "남은대댓글",
+        "imageUrl": null
+      },
+      "members": [
+        {
+          "id": "u_host",
+          "nickname": "남은대댓글",
+          "imageUrl": null
+        },
+        {
+          "id": "u2",
+          "nickname": "조용한덕후",
+          "imageUrl": null
+        },
+        {
+          "id": "u3",
+          "nickname": "밤샘예매",
+          "imageUrl": null
+        }
+      ],
+      "partner": {
+        "id": "u_host",
+        "nickname": "남은대댓글",
+        "imageUrl": null
+      },
+      "status": "ACTIVE",
+      "unread": 2,
+      "lastAt": "2026-09-11T21:12",
+      "messages": [
+        {
+          "id": "g1",
+          "from": "u_host",
+          "text": "세 분 다 오셨네요. 14일 11시에 두두두 서울 앞에서 봬요",
+          "at": "2026-09-11T20:40"
+        },
+        {
+          "id": "g2",
+          "from": "u2",
+          "text": "넵 저는 10시 50분쯤 도착할 것 같아요",
+          "at": "2026-09-11T20:52"
+        },
+        {
+          "id": "g3",
+          "from": "u_me",
+          "text": "저도 그때쯤 갈게요. 굿즈 줄은 따로 서야 하나요?",
+          "at": "2026-09-11T21:03"
+        },
+        {
+          "id": "g4",
+          "from": "u3",
+          "text": "한 명만 서도 된다고 하더라고요",
+          "at": "2026-09-11T21:12"
+        }
+      ]
+    },
+    {
       "id": "r1",
       "postId": "p1",
       "postTitle": "에이티즈 팝업 오픈런 같이 하실 분",
@@ -39,6 +102,14 @@
           "text": "혹시 늦으시면 여기로 말씀 주세요!",
           "at": "2026-09-09T21:40"
         }
+      ],
+      "kind": "DIRECT",
+      "members": [
+        {
+          "id": "u_host",
+          "nickname": "덕질하는오리",
+          "imageUrl": "/avatar/a1.webp"
+        }
       ]
     },
     {
@@ -67,6 +138,14 @@
           "text": "반가워요! 목요일 2시에 성수역 3번 출구에서 봬요.",
           "at": "2026-09-08T18:22"
         }
+      ],
+      "kind": "DIRECT",
+      "members": [
+        {
+          "id": "u_quiet",
+          "nickname": "조용한덕후",
+          "imageUrl": null
+        }
       ]
     },
     {
@@ -88,6 +167,14 @@
           "from": "u_night",
           "text": "내일 봬요~",
           "at": "2026-08-27T23:10"
+        }
+      ],
+      "kind": "DIRECT",
+      "members": [
+        {
+          "id": "u_night",
+          "nickname": "밤샘예매",
+          "imageUrl": "/avatar/a3.webp"
         }
       ]
     }

@@ -3395,14 +3395,24 @@
    둘뿐인 대화라 이름을 붙이지 않는다. 좌우로 갈라 두면 이름이
    없어도 누가 말했는지 알 수 있다.
    ------------------------------------------------------- */
+/* 이름 + 말풍선을 세로로 묶는 바깥 칸. 이름이 없을 때도 같은 구조라
+   1:1 과 단체에서 정렬 규칙이 갈리지 않는다 */
+.bubwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 78%;
+  margin-right: auto;
+}
+.bubwrap--mine { align-items: flex-end; margin-right: 0; margin-left: auto; }
+
 .bub {
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  max-width: 78%;
-  margin-right: auto;
+  max-width: 100%;
 }
-.bub--mine { flex-direction: row-reverse; margin-right: 0; margin-left: auto; }
+.bub--mine { flex-direction: row-reverse; }
 /* 묶음의 마지막 줄에만 아래 여백을 준다. 안 그러면 연달아 보낸
    세 줄이 한 줄씩 떨어져 세 사람이 말한 것처럼 보인다 */
 .bub--tail { margin-bottom: 8px; }
@@ -3685,5 +3695,67 @@
   font-size: var(--t-small);
   font-weight: 400;
   color: var(--text-mute);
+  text-align: center;
+}
+
+/* 단체방 말풍선의 보낸 사람.
+   1:1 에는 안 나온다 — 좌우로 갈리는 것만으로 충분하고, 이름을 붙이면
+   두 사람뿐인 대화가 회의록처럼 읽힌다 */
+.bub__who {
+  margin: 0 0 3px 4px;
+  font-size: var(--t-small);
+  color: var(--text-mute);
+  white-space: nowrap;
+}
+
+/* 단체방 더보기 — 사람 목록.
+   신고·차단이 「누구를」 부터 시작해야 해서 이름 옆에 바로 붙인다.
+   시트를 두 겹으로 만들면 고르고 → 다시 고르는 걸음이 하나 더 는다 */
+.croom__people { list-style: none; margin: 0; padding: 0; }
+.croom__person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.croom__person:last-child { border-bottom: 0; }
+.croom__pname {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--t-strong);
+  font-weight: 600;
+}
+.croom__host {
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--text-mute);
+}
+.croom__pacts { flex: 0 0 auto; display: flex; gap: 4px; }
+
+/* 채팅 목록의 단체방 표시.
+   얼굴 하나로 여럿을 대표할 수 없어 인원수를 얹는다. 아바타를 겹쳐
+   쌓는 방식도 있지만 목록 행이 좁아 셋만 돼도 뭉개진다 */
+.clist__face { position: relative; flex: 0 0 auto; }
+.clist__n {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: 2px solid var(--surface);
+  background: var(--text-mute);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 14px;
   text-align: center;
 }

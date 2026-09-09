@@ -41,10 +41,21 @@ export function dayLabel(iso: string) {
   return `${m}월 ${d}일 (${dow})`
 }
 
-export function ChatBubble({ text, mine, time, tail }: {
+export function ChatBubble({ text, mine, time, tail, who }: {
   text: string
   mine: boolean
   time: string
+  /**
+   * 보낸 사람 이름. **단체방에서 남의 말풍선에만** 준다.
+   *
+   * 1:1 이면 좌우로 갈리는 것만으로 누가 말했는지 알 수 있어서 이름이
+   * 군더더기다. 셋 이상이면 왼쪽에 선 사람이 여럿이라 그것만으로는
+   * 안 갈린다.
+   *
+   * 묶음의 **첫 줄에만** 붙인다. 연달아 보낸 세 줄에 이름이 세 번
+   * 나오면 대화가 아니라 명단으로 읽힌다.
+   */
+  who?: string
   /**
    * 같은 사람이 연달아 보낸 것 중 **마지막**인가.
    *
@@ -55,9 +66,19 @@ export function ChatBubble({ text, mine, time, tail }: {
   tail: boolean
 }) {
   return (
-    <div className={`bub${mine ? ' bub--mine' : ''}${tail ? ' bub--tail' : ''}`}>
-      <p className="bub__text">{text}</p>
-      {tail && <span className="bub__time">{time}</span>}
+    /*
+     * 이름이 있으면 한 겹 더 감싼다.
+     *
+     * `.bub` 이 가로 flex 다 — 말풍선과 시각을 좌우로 세우는 자리라.
+     * 이름을 그 안에 그냥 두면 셋째 칸이 되어 왼쪽에 세로로 눕는다.
+     * 이름은 말풍선 **위**에 있어야 하므로 세로 묶음을 하나 만든다.
+     */
+    <div className={`bubwrap${mine ? ' bubwrap--mine' : ''}${tail ? ' bub--tail' : ''}`}>
+      {who && <span className="bub__who">{who}</span>}
+      <div className={`bub${mine ? ' bub--mine' : ''}`}>
+        <p className="bub__text">{text}</p>
+        {tail && <span className="bub__time">{time}</span>}
+      </div>
     </div>
   )
 }
