@@ -1,15 +1,35 @@
 {
+  "&TEAM": {
+    "lastEndsOn": "2026-10-04",
+    "kind": "CONCERT"
+  },
   "BIGBANG": {
     "lastEndsOn": "2026-09-27",
     "kind": "POPUP"
+  },
+  "EXO": {
+    "lastEndsOn": "2026-11-08",
+    "kind": "CONCERT"
+  },
+  "HIGHLIGHT": {
+    "lastEndsOn": "2026-10-18",
+    "kind": "CONCERT"
   },
   "ILLIT": {
     "lastEndsOn": "2026-09-06",
     "kind": "POPUP"
   },
+  "JEONG EUNJI": {
+    "lastEndsOn": "2026-09-13",
+    "kind": "CONCERT"
+  },
   "KEY": {
     "lastEndsOn": "2026-09-27",
     "kind": "BIRTHDAY_CAFE"
+  },
+  "NCT 127": {
+    "lastEndsOn": "2026-09-20",
+    "kind": "CONCERT"
   },
   "NCT WISH": {
     "lastEndsOn": "2026-09-05",
@@ -19,9 +39,25 @@
     "lastEndsOn": "2026-09-10",
     "kind": "POPUP"
   },
+  "ONEWE": {
+    "lastEndsOn": "2026-09-20",
+    "kind": "CONCERT"
+  },
+  "PARK JI HOON": {
+    "lastEndsOn": "2026-09-13",
+    "kind": "CONCERT"
+  },
+  "POW": {
+    "lastEndsOn": "2026-10-10",
+    "kind": "CONCERT"
+  },
   "Plave": {
     "lastEndsOn": "2026-10-04",
     "kind": "BIRTHDAY_CAFE"
+  },
+  "QWER": {
+    "lastEndsOn": "2026-09-13",
+    "kind": "CONCERT"
   },
   "RIIZE": {
     "lastEndsOn": "2026-09-06",
@@ -30,6 +66,18 @@
   "RM": {
     "lastEndsOn": "2026-09-12",
     "kind": "BIRTHDAY_CAFE"
+  },
+  "TAEMIN": {
+    "lastEndsOn": "2026-09-20",
+    "kind": "CONCERT"
+  },
+  "izna": {
+    "lastEndsOn": "2026-09-20",
+    "kind": "CONCERT"
+  },
+  "tripleS": {
+    "lastEndsOn": "2026-10-11",
+    "kind": "CONCERT"
   },
   "가을": {
     "lastEndsOn": "2026-09-26",
@@ -87,6 +135,10 @@
     "lastEndsOn": "2026-09-20",
     "kind": "BIRTHDAY_CAFE"
   },
+  "박정우": {
+    "lastEndsOn": "2026-09-28",
+    "kind": "BIRTHDAY_CAFE"
+  },
   "방찬": {
     "lastEndsOn": "2026-10-04",
     "kind": "BIRTHDAY_CAFE"
@@ -102,6 +154,10 @@
   "사쿠야": {
     "lastEndsOn": "2026-11-22",
     "kind": "BIRTHDAY_CAFE"
+  },
+  "산들": {
+    "lastEndsOn": "2026-10-04",
+    "kind": "CONCERT"
   },
   "서경배": {
     "lastEndsOn": "2026-09-29",
@@ -133,6 +189,10 @@
   },
   "승민": {
     "lastEndsOn": "2026-09-22",
+    "kind": "BIRTHDAY_CAFE"
+  },
+  "승한": {
+    "lastEndsOn": "2026-10-02",
     "kind": "BIRTHDAY_CAFE"
   },
   "신유": {
