@@ -5,6 +5,7 @@ import { goodsOf, type EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS, daysLeft, periodLabel } from '@/lib/filters'
 import { initialFor, swatchFor } from '@/lib/visual'
 import DetailMap from './DetailMap'
+import SourceCredit from './SourceCredit'
 import { posterSrc } from '@/lib/poster'
 
 interface Props {
@@ -160,6 +161,9 @@ export default function EventDetail({ event, today, onClose, onOpenSource }: Pro
         <p className="sheet__disclaimer">
           주최자 공지를 정리한 정보입니다. 변경될 수 있으니 방문 전 원문을 확인해주세요.
         </p>
+
+        {/* 제공처 표기. 콘서트에만 붙는다 — 이유는 SourceCredit 에 있다 */}
+        <SourceCredit kind={event.kind} />
       </div>
     </div>
   )
