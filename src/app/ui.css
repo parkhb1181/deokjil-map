@@ -3460,7 +3460,10 @@
   min-width: 0;
   min-height: var(--tap);
   max-height: 120px;
-  padding: 11px 14px;
+  /* 세로 여백을 9px 로 잡는다. 11px 이면 글자 한 줄(16px × 1.45)과
+     테두리를 더해 47px 이 되어 min-height 를 넘고, 옆의 전송 버튼(44px)
+     보다 3px 높아진다. 나란히 선 것은 크기를 맞춘다 (SCALE.md) */
+  padding: 9px 14px;
   border: 1px solid var(--field-border);
   border-radius: 20px;
   background: var(--field-bg);
@@ -3759,3 +3762,8 @@
   line-height: 14px;
   text-align: center;
 }
+
+/* 전송 버튼.
+   size 를 안 주므로 높이는 기본 --tap 이고 입력칸과 같다. 글자가
+   두 자라 그냥 두면 좁아서, 손가락이 닿는 폭을 따로 준다 */
+.cwrite__send { flex: 0 0 auto; min-width: 64px; }

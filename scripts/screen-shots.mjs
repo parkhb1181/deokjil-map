@@ -74,6 +74,7 @@ const SHOTS = [
   ['gallery', '/w4871/dev/gallery'],
   ['notfound', '/없는주소'],
   /* 2차 (SPEC-S3). /onboarding2 가 이 다섯을 가리킨다 */
+  ['post-chat', '/w4871/p/p1'],
   ['verify', '/w4871/verify'],
   ['chat', '/w4871/chat'],
   ['chat-room', '/w4871/chat/r1'],

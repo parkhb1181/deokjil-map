@@ -73,6 +73,9 @@ type Ask =
   /* 어느 댓글을 신고하는지 같이 든다. 시트가 열린 것과 대상이 어긋나지 않게 */
   | { k: 'report-comment'; id: string }
   | { k: 'delete'; id: string }
+  /* 채팅을 열기 전에 한 번 묻는다. 방이 생기면 상대에게 알림이 가고,
+     잘못 누른 것을 되돌릴 자리가 없다 */
+  | { k: 'chat'; id: string }
   /* 아바타를 눌러 연 사람 시트. 누구인지 같이 들고 다녀야 시트가
      열린 것과 보고 있는 사람이 어긋나지 않는다 */
   | { k: 'person'; user: PostAuthor; isMe: boolean }
@@ -564,6 +567,23 @@ export default function PostDetail({ post, comments, hostId }: {
                     {c.availableActions.includes('REPORT') && (
                       <button onClick={() => setAsk({ k: 'report-comment', id: c.id })}>신고</button>
                     )}
+                    {/*
+                      방으로 들어오는 입구 (CH-01).
+
+                      **댓글 자리에 둔다.** 신청·수락을 만들지 않기로 해서
+                      댓글이 그 자리를 하고 있고, 방은 그 댓글을 단 사람하고만
+                      열린다. 글 위쪽에 하나만 두면 누구와 여는 것인지가 없다.
+
+                      방장에게는 「초대」 다 — 여럿을 부르면 글 하나에 방
+                      하나가 되고 모집글 정원이 곧 방 인원이 된다. 댓글 단
+                      사람에게는 「채팅하기」 이고 방장과 1:1 로 열린다.
+
+                      서버가 판정을 내려주기 전까지는 방장인지만 보고 문구를
+                      가른다. 붙을 때 availableActions 의 CHAT 으로 옮긴다.
+                    */}
+                    <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
+                      {isHost ? '초대' : '채팅하기'}
+                    </button>
                   </>
                 )
               }            />
@@ -702,6 +722,43 @@ export default function PostDetail({ post, comments, hostId }: {
             <>
               <Button tone="ghost" onClick={() => setAsk(null)}>취소</Button>
               <Button tone="danger" onClick={() => erase(ask.id)}>지우기</Button>
+            </>
+          }
+        />
+      )}
+
+      {/*
+        채팅 열기 확인.
+
+        누르면 방이 생기고 상대에게 알림이 간다. 되돌리는 자리가 없어서
+        한 번 묻는다 — 삭제와 같은 이유다.
+
+        와이어프레임이라 실제로는 방을 만들지 않고 목데이터 방으로
+        보낸다. 방장이면 단체방(r0), 아니면 1:1(r1) 이다.
+      */}
+      {ask?.k === 'chat' && (
+        <Sheet
+          title={isHost ? '이 분을 채팅에 부를까요?' : '방장과 채팅할까요?'}
+          desc={
+            isHost
+              ? '이 글의 채팅방으로 초대합니다. 방은 글 하나에 하나라, 이미 부른 분들과 같은 방에서 이야기하게 됩니다.'
+              : '방장과 둘이서 이야기하는 방이 열립니다. 연락처를 댓글에 적지 않아도 돼요.'
+          }
+          foot={
+            <>
+              <Button tone="ghost" onClick={() => setAsk(null)}>
+                취소
+              </Button>
+              <Button
+                onClick={() => {
+                  /* API 자리. POST /api/v1/chat/rooms { postId, targetUserId }
+                     같은 상대·같은 글이면 기존 방을 준다 (CH-01) */
+                  setAsk(null)
+                  router.push(wf(isHost ? '/chat/r0' : '/chat/r1'))
+                }}
+              >
+                {isHost ? '초대' : '채팅 열기'}
+              </Button>
             </>
           }
         />

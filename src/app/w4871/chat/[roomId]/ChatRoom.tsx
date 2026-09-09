@@ -180,12 +180,14 @@ export default function ChatRoom({ roomId }: { roomId: string }) {
                 }
               }}
             />
+            {/* 크기를 지정하지 않는다. 기본 버튼이 입력칸과 같은
+               --tap 높이라 나란히 섰을 때 밑선이 맞는다 */}
             <Button
-              size="sm"
+              className="cwrite__send"
               disabled={!draft.trim() || draft.length > MAX}
               onClick={send}
             >
-              보내기
+              전송
             </Button>
           </>
         )}
