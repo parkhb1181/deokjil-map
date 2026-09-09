@@ -581,9 +581,19 @@ export default function PostDetail({ post, comments, hostId }: {
                       서버가 판정을 내려주기 전까지는 방장인지만 보고 문구를
                       가른다. 붙을 때 availableActions 의 CHAT 으로 옮긴다.
                     */}
-                      <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
-                        {isHost ? '초대' : '채팅하기'}
-                      </button>
+                      {/*
+                        **서버가 붙은 곳에서는 아직 안 그린다.** 눌러도
+                        가는 곳이 목데이터 방(/chat/r0·r1)이라, 실제로
+                        쓰는 사람에게는 없는 사람과의 없는 대화가 열린다.
+                        1차에 알림 화면을 준비 중 안내로 막아둔 것과 같은
+                        이유다 (alerts/Alerts.tsx). 채팅 API 가 붙으면
+                        이 조건을 지운다
+                      */}
+                      {!USE_API && (
+                        <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
+                          {isHost ? '초대' : '채팅하기'}
+                        </button>
+                      )}
                     </span>
 
                     <span className="cmt__actg cmt__actg--quiet">
