@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { EventItem } from '@/types'
 import { KAKAO_JS_KEY, loadKakaoMaps, type KakaoCustomOverlay } from '@/lib/kakao'
+import { EVENT_KIND_LABELS } from '@/lib/filters'
 
 interface Props {
   event: EventItem
@@ -68,7 +69,9 @@ export default function DetailMap({ event }: Props) {
         const el = document.createElement('div')
         el.className = `pin pin--${event.kind} pin--static`
         el.innerHTML =
-          `<span class="pin__kind">${event.kind === 'BIRTHDAY_CAFE' ? '생카' : '팝업'}</span>` +
+          /* 유형 이름은 한 곳에서만 정한다. 여기서 삼항으로 갈랐더니 콘서트가
+             팝업으로 떴다 (2026-09-10 신고) */
+          `<span class="pin__kind">${EVENT_KIND_LABELS[event.kind]}</span>` +
           `<span class="pin__name"></span>` +
           `<span class="pin__tail"></span>`
         // 장소명은 사용자 데이터라 textContent 로 넣는다

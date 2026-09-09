@@ -24,6 +24,17 @@ interface Rank {
 const MAX = 10
 
 /**
+ * 순위에 셀 것.
+ *
+ * **생카만 센다.** 제목이 「생일 카페 순위」 라 팝업·콘서트까지 세면
+ * 옆의 건수가 제목과 다른 것을 가리킨다. 콘서트는 바로 아래 자기 줄이
+ * 따로 있고(UpcomingConcerts.tsx), 팝업은 넷뿐이라 마감 임박 순
+ * 목록에서 위쪽에 그대로 나온다.
+ */
+const isLive = (today: string) => (e: EventItem) =>
+  e.kind === 'BIRTHDAY_CAFE' && e.endsOn >= today
+
+/**
  * 대상 순위.
  *
  * 목록의 1차 축이다. 지역은 191건 중 134건이 홍대라 눌러도 거의 안 걸러지는 반면,
@@ -36,7 +47,7 @@ const MAX = 10
  */
 export default function TopSubjects({ events, today }: Props) {
   const ranks = useMemo<Rank[]>(() => {
-    const live = events.filter((e) => e.endsOn >= today)
+    const live = events.filter(isLive(today))
     const bucket = new Map<string, EventItem[]>()
     for (const ev of live) {
       const key = ev.subject.trim()
@@ -76,7 +87,7 @@ export default function TopSubjects({ events, today }: Props) {
   // 한 명뿐이면 순위가 아니다. 줄 세울 게 있을 때만 내보낸다
   if (ranks.length < 3) return null
 
-  const total = events.filter((e) => e.endsOn >= today).length
+  const total = events.filter(isLive(today)).length
   const [top, ...rest] = ranks
 
   const go = (r: Rank, i: number) => {
@@ -87,7 +98,7 @@ export default function TopSubjects({ events, today }: Props) {
   return (
     <section className="rank">
       <div className="rank__head">
-        <h2 className="rank__title">지금 제일 많이 열려요</h2>
+        <h2 className="rank__title">생일 카페 순위</h2>
         <p className="rank__note">진행 중 {total}곳</p>
       </div>
 

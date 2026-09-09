@@ -2041,11 +2041,10 @@ a.bottomnav__item { text-decoration: none; }
 
 .upnext__card {
   flex: 0 0 auto;
-  width: 168px;
+  width: 212px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 3px;
+  align-items: center;
+  gap: 10px;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -2055,8 +2054,33 @@ a.bottomnav__item { text-decoration: none; }
 }
 .upnext__card:hover { border-color: var(--border-mid); }
 
-/* 안쪽 글자가 카드를 밀어내지 못하게 한다. .rank__grid 와 같은 이유다 */
-.upnext__card > * { max-width: 100%; }
+/*
+ * 포스터.
+ *
+ * 세로 4:5 로 세운다. 가로로 눕히면 위아래가 잘려서 아티스트명과
+ * 날짜가 날아간다 — 순위 블록에 적어둔 실측과 같다.
+ *
+ * 안 뜨는 주소면 회색 자리만 남는다. 카드는 글자만으로 읽힌다.
+ */
+.upnext__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 56px;
+  height: 70px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--border);
+}
+.upnext__thumb img { object-fit: cover; }
+
+/* 글자칸. min-width 0 이라야 긴 장소명이 카드를 밀지 않고 말줄임이 걸린다 */
+.upnext__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.upnext__body > * { max-width: 100%; }
 
 .upnext__when {
   font-size: var(--t-small);
