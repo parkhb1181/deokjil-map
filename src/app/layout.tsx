@@ -4,6 +4,7 @@ import '../../public/font/pretendard.css'
 import './globals.css'
 import './ui.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
+import ServiceWorker from '@/components/ServiceWorker'
 import { siteUrl } from '@/lib/site'
 
 /**
@@ -54,6 +55,25 @@ export const metadata: Metadata = {
     google: 'jg_M-Yy2R7r62UJFFUvHj6jrkmjG9qdLFTd9-ZEzm28',
     other: { 'naver-site-verification': 'f58ab40d48225f8d4f01fd0328d8ed9f656a9c1f' },
   },
+  /**
+   * 홈 화면에 추가했을 때 iOS 가 읽는 값.
+   *
+   * **매니페스트의 `display: standalone` 만으로는 구형 iOS 가 주소창을
+   * 안 지운다.** 요즘 사파리는 매니페스트를 읽지만, 이 메타를 같이 두는
+   * 것이 아직 표준 관행이고 한 줄이라 손해가 없다.
+   *
+   * `statusBarStyle` 을 기본으로 둔다. 상단 바를 투명하게 만드는 값도
+   * 있는데 그러면 시계와 배터리가 우리 헤더 위에 겹친다 — 그걸 피하려면
+   * 안전영역만큼 위를 비워야 하고, 그건 화면 설계가 따라와야 하는 일이다.
+   *
+   * 아이폰은 **사파리에서만** 홈 화면에 추가할 수 있다. 크롬으로 열면
+   * 그 메뉴가 없다.
+   */
+  appleWebApp: {
+    capable: true,
+    title: '덕모임',
+    statusBarStyle: 'default',
+  },
 }
 
 export const viewport: Viewport = {
@@ -70,6 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={jua.variable}>
         {children}
         <AnalyticsScripts />
+        <ServiceWorker />
       </body>
     </html>
   )
