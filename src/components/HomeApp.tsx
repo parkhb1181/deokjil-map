@@ -10,6 +10,7 @@ import {
 } from '@/lib/filters'
 import { track, trackVisit } from '@/lib/analytics'
 import { wf } from '@/lib/wireframe'
+import { isSignedIn } from '@/lib/auth/session'
 import Logo from '@/components/Logo'
 import { KakaoMark } from '@/components/ui/Basics'
 import BottomNav, { type Tab } from '@/components/BottomNav'
@@ -59,6 +60,13 @@ export default function HomeApp({
   // 오늘 날짜는 클라이언트에서만 확정한다.
   // 서버 프리렌더 시점(빌드 시각)을 쓰면 배포 다음날부터 하이드레이션이 어긋난다.
   const [today, setToday] = useState<string | null>(null)
+  /**
+   * 로그인했는가. `null` 이면 아직 모른다 (서버 렌더 시점).
+   *
+   * 세 갈래를 그대로 들고 있는 이유는, 모를 때와 아닐 때를 같게 두면
+   * 로그인한 사람이 첫 프레임에 「로그인」 을 한 번 보고 지나가기 때문이다.
+   */
+  const [signedIn, setSignedIn] = useState<boolean | null>(null)
   const [tab, setTab] = useState<Tab>('browse')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
   // 담은 이벤트 id. 담은 순서를 유지한다
@@ -74,6 +82,9 @@ export default function HomeApp({
     setToday(t)
     // 기본 날짜는 오늘이다. 오늘이 확정되는 시점이 마운트 이후라 여기서 채운다
     setFilter((f) => ({ ...f, date: t }))
+    /* 로그인 여부도 여기서 확정한다. 오늘 날짜와 같은 이유로 서버에서는
+       읽을 수 없는 값이다 */
+    setSignedIn(isSignedIn())
     // 담아둔 목록 복원. localStorage 라 서버에서는 읽을 수 없다
     setSaved(loadBookmarks())
     // 방문·재방문 계상. 지표 0·5 의 원천이다
@@ -173,12 +184,30 @@ export default function HomeApp({
                 필요해지는데, 지금은 그 순간이 와야만 게이트가 뜬다.
                 미리 보이면 둘러보는 중에도 계정을 만들 수 있다.
 
-                아직 와이어프레임 로그인이라 실서비스에서는 안 그린다.
-                진짜 로그인이 붙으면 이 조건을 지운다 (AU-01) */}
-            {wireframe && (
-              <a className="header__login" href={wf('/login')}>
-                <KakaoMark />
-                로그인
+                **로그인한 사람에게는 다른 것을 그린다.** 한동안 깃발만
+                보고 늘 「로그인」 을 그렸는데, 진짜 로그인이 붙자 로그인을
+                끝낸 사람이 홈에 돌아와서 같은 버튼을 다시 봤다. 눌러도
+                이미 로그인이라 아무 일이 안 일어나서, 로그인이 안 된
+                줄로 읽힌다 (2026-09-09 신고).
+
+                **`localStorage` 만 본다.** 여기서 `/users/me` 를 부르면
+                가장 많이 열리는 화면에 요청이 하나 붙는데, 이 자리가
+                알아야 하는 것은 「누구인가」 가 아니라 「로그인했는가」
+                뿐이다. 토큰이 만료됐어도 내 활동으로 들어가면 거기서
+                재발급하거나 로그인 안내가 뜬다.
+
+                **첫 렌더에서는 안 그린다.** 서버에는 `localStorage` 가
+                없어서, 바로 읽으면 서버가 그린 것과 브라우저가 그린 것이
+                달라 하이드레이션이 어긋난다 (CLAUDE.md 의 날짜 규칙과
+                같은 이유다) */}
+            {wireframe && signedIn !== null && (
+              <a className="header__login" href={wf(signedIn ? '/me' : '/login')}>
+                {signedIn ? '내 활동' : (
+                  <>
+                    <KakaoMark />
+                    로그인
+                  </>
+                )}
               </a>
             )}
           </div>
