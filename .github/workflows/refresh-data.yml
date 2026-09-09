@@ -103,3 +103,20 @@ jobs:
           crawler/run.mjs + to-events.mjs 자동 실행 결과.
           .github/workflows/refresh-data.yml 이 매일 04:00 KST 에 돈다."
           git push
+
+      - name: 백엔드 적재
+        # 커밋 스텝 뒤에 둔다. 실제 서비스를 떠받치는 것은 여전히 events.json 이라
+        # (전환은 EV-08) 적재가 실패해도 그날 배포는 되어야 한다.
+        # continue-on-error 도 그래서다 — D 에서 이관이 끝나면 걷어낸다
+        #
+        # 커밋이 생략된 날에도 돌려야 한다. 데이터가 안 바뀌었어도 적재가
+        # last_crawled_at 을 갱신하는데, 그걸 건너뛰면 72시간 뒤 멀쩡한 행사가
+        # "원본에서 사라진 것"으로 판정돼 목록에서 빠진다 (D-7)
+        #
+        # 주소·키가 없으면 스크립트가 스스로 건너뛰고 실행 요약에 남긴다.
+        # 백엔드 배포와 시크릿 등록이 이 커밋보다 늦다
+        continue-on-error: true
+        env:
+          INGEST_API_BASE: ${{ secrets.INGEST_API_BASE }}
+          INGEST_KEY: ${{ secrets.INGEST_KEY }}
+        run: node scripts/upsert-events.mjs

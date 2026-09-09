@@ -52,8 +52,55 @@ if (!kindCounts.CONCERT) {
   warnings.push('콘서트가 0건이다. KOPIS 수집이 깨졌는지 확인한다 (인증키·응답 형식)')
 }
 
+/**
+ * 다듬어진 문자열인가.
+ *
+ * `crawler/to-events.mjs` 의 `normalizeStrings` 가 보장하는 것을 여기서 다시 본다.
+ * **건수 대조로는 영원히 안 잡히는 종류**라 이 자리가 아니면 잡을 데가 없다 — 앞뒤
+ * 공백이나 개행이 섞여도 건수는 그대로고 화면도 그려진다. 2026-09-08 점검에서
+ * `title` 앞뒤 공백 9건 · 개행 3건 · `sourceUrl` 앞 공백 1건이 그렇게 새어 있었고,
+ * **개행 3건은 상세 제목이 두 줄로 갈려 이미 화면에 보이고 있었다.**
+ *
+ * **경고가 아니라 실패다.** 정규화가 위에서 이미 돌았으므로 여기 걸리는 것은
+ * 데이터가 지저분한 것이 아니라 **정규화가 깨진 것**이다. 적재(EV-03)가 붙어
+ * 그대로 DB 로 들어가므로, 낡은 데이터가 남는 편이 낫다.
+ *
+ * `perks` · `conditions` · `openHours` 는 줄바꿈이 원문의 일부라 **줄 안쪽은 보지
+ * 않는다.** 앞뒤 공백과 CR 만 본다.
+ */
+const ONE_LINE = ['subject', 'title']
+const URLS = ['sourceUrl', 'listingUrl', 'reservationUrl', 'imageUrl']
+const MULTI_LINE = ['openHours', 'perks', 'conditions']
+
+function checkStrings(e, at) {
+  const seen = (k, v) => {
+    if (v !== v.trim()) problems.push(`${at}: ${k} 앞뒤에 공백이 있다. ${JSON.stringify(v)}`)
+    if (v.includes('\r')) problems.push(`${at}: ${k} 에 CR 이 있다. ${JSON.stringify(v)}`)
+  }
+
+  for (const k of [...ONE_LINE, 'place.name', 'place.address']) {
+    const v = k.startsWith('place.') ? e.place?.[k.slice(6)] : e[k]
+    if (typeof v !== 'string') continue
+    seen(k, v)
+    if (/\n/.test(v)) problems.push(`${at}: ${k} 에 개행이 있다. ${JSON.stringify(v)}`)
+    if (/ {2,}/.test(v)) problems.push(`${at}: ${k} 에 연속 공백이 있다. ${JSON.stringify(v)}`)
+  }
+
+  for (const k of URLS) {
+    if (typeof e[k] !== 'string') continue
+    seen(k, e[k])
+    if (/\s/.test(e[k])) problems.push(`${at}: ${k} 에 공백이 있다. ${JSON.stringify(e[k])}`)
+  }
+
+  for (const k of MULTI_LINE) {
+    if (typeof e[k] === 'string') seen(k, e[k])
+  }
+}
+
 for (const e of events) {
   const at = `${e.id} (${e.subject})`
+
+  checkStrings(e, at)
 
   // 출처를 속이지 않는다. CLAUDE.md 1번 규칙.
   // sourceUrl 은 주최자 원문이어야 한다. 리스팅이 여기 오면 화면의

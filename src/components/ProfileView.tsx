@@ -121,6 +121,50 @@ function Caret() {
   )
 }
 
+/**
+ * 목록 썸네일.
+ *
+ * **사진이 없는 것과 사진이 깨진 것을 같게 그린다.** 둘 다 제목에서 뽑은
+ * 색이다 (`lib/visual.ts`). 어느 행사인지를 글자보다 먼저 알려주는 자리라
+ * 회색 네모를 두면 「아직 안 불러와진 것」 으로 읽혀서 사용자가 기다린다.
+ *
+ * 깨진 쪽을 따로 처리해야 한다는 것은 서버를 붙이고 알았다. 목데이터에는
+ * 안 깨지는 주소만 있었는데, 실제 응답에는 원본 서버의 주소가 그대로
+ * 실린다 — 그쪽이 지우거나 핫링크를 막으면 여기가 빈 칸이 된다.
+ *
+ * **`onError` 만으로는 못 잡는다.** 공개 프로필은 서버가 그려 보내므로
+ * 하이드레이션으로 핸들러가 붙기 전에 로딩이 끝나 있을 수 있고, 그때는
+ * error 가 이미 지나가 다시 오지 않는다. `ref` 로 붙는 순간 한 번 본다.
+ * 모집글 상세의 커버와 같은 처리다.
+ */
+function Thumb({ src, sw }: { src?: string | null; sw: { from: string; to: string } }) {
+  const [failed, setFailed] = useState(false)
+
+  if (!src || failed) {
+    return (
+      <span
+        className="mine__thumb"
+        style={{ background: `linear-gradient(150deg, ${sw.from}, ${sw.to})` }}
+        aria-hidden
+      />
+    )
+  }
+
+  return (
+    <img
+      className="mine__thumb"
+      src={src}
+      alt=""
+      /* 아직 안 불러온 lazy 이미지는 complete 가 거짓이라 여기 안 걸린다 */
+      loading="lazy"
+      ref={(el) => {
+        if (el?.complete && el.naturalWidth === 0) setFailed(true)
+      }}
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 /* 로그인이 없어 서버에서 제재 상태를 못 받는다. 붙으면 지운다 */
 const SANCTIONS: Record<string, Sanction | null> = {
   없음: null,
@@ -154,20 +198,17 @@ export default function ProfileView({
   user,
   isMe = false,
   comments = [],
-  postsReady = true,
 }: {
   user: ProfileData
   /** 내 프로필이면 제재·마이메뉴·내 댓글 탭이 붙는다 */
   isMe?: boolean
   /** 내 화면에서만 쓴다. 남에게는 애초에 보내지 않는다 */
   comments?: MyComment[]
-  /**
-   * 모집글 목록을 실제로 받아왔는가.
-   *
-   * 서버에 그 엔드포인트가 아직 없어서, 빈 배열이 「없다」 인지 「못
-   * 받았다」 인지 화면이 구분할 수 없다. 부르는 쪽이 알려준다.
+  /*
+   * `postsReady` 가 여기 있었다. 서버에 `/users/me/posts` 가 없던 동안
+   * 빈 배열이 「없다」 인지 「아직 못 받았다」 인지 부르는 쪽이 알려주던
+   * 값이다. 엔드포인트가 들어와서 그 구분이 필요 없어졌다.
    */
-  postsReady?: boolean
 }) {
   /* 로그인이 없어 내 프로필인지 서버가 못 알려준다. 개발용으로 뒤집어
      본다. 같은 렌더러라 이 토글 하나로 두 화면을 나란히 비교할 수 있다 */
@@ -184,7 +225,15 @@ export default function ProfileView({
   const [leaving, setLeaving] = useState(false)
   const router = useRouter()
   const [tab, setTab] = useState(0)
-  const [empty, setEmpty] = useState(false)
+  /*
+   * 「화면 정상 / 비었음」 토글이 여기 있었다. **아무것도 안 하고 있었다** —
+   * 상태를 목록에 연결하는 쪽이 어느 시점에 없어져서, 눌리기만 하고
+   * 목록은 그대로였다. 게다가 옆의 두 토글과 달리 `!USE_API` 가 안 걸려
+   * 있어서 서버를 붙이자 실제 사용자 화면에 그대로 나왔다.
+   *
+   * 빈 화면을 확인할 자리는 필요하지만, 그건 목데이터 경로가 이미 한다
+   * (`me/page.tsx` 가 빈 배열을 넘겨 보면 된다).
+   */
   const [sanc, setSanc] = useState<keyof typeof SANCTIONS>('없음')
   /* 제재도 서버가 정한다. 남의 프로필에는 애초에 안 내려온다 */
   const sanction = USE_API ? (mine ? viewer.sanction : null) : mine ? SANCTIONS[sanc] : null
@@ -239,12 +288,6 @@ export default function ProfileView({
 
       {mine && (
         <>
-          <div className="whoami">
-            <b>화면</b>
-            <button aria-pressed={!empty} onClick={() => setEmpty(false)}>정상</button>
-            <button aria-pressed={empty} onClick={() => setEmpty(true)}>비었음</button>
-          </div>
-
           {/* 제재를 받은 사람에게 무엇이 보이는지 확인한다 */}
           {!USE_API && (
             <div className="whoami">
@@ -390,14 +433,36 @@ export default function ProfileView({
             </h2>
           )}
 
-          {mine && empty ? (
+          {(tab === 0 ? posts.length === 0 : comments.length === 0) ? (
+            /*
+             * **빈 화면이 둘로 갈라져 있었다.**
+             *
+             * 개발용 토글이 켠 빈 화면과 진짜로 비었을 때의 빈 화면이
+             * 따로 있었고, 다음 걸음(「모집글 쓰기」)은 앞쪽에만 붙어
+             * 있었다. 정작 진짜 빈 화면을 보는 사람은 아무 데도 못 갔다.
+             *
+             * 갈라 둔 이유는 `/users/me/posts` 가 서버에 없어서였다.
+             * 그때는 빈 배열이 「없다」 가 아니라 「아직 못 받았다」 라
+             * 「아직 쓴 글이 없어요」 가 글 쓴 사람에게 거짓말이 됐다.
+             * 그 엔드포인트가 들어왔으므로 이제 빈 것은 진짜로 빈 것이다.
+             *
+             * 남의 프로필에서는 권하지 않는다. 그 사람이 글을 쓰는 것은
+             * 보는 사람이 할 수 있는 일이 아니다.
+             */
             <Blank
               title={tab === 0 ? '아직 쓴 모집글이 없어요' : '아직 남긴 댓글이 없어요'}
-              desc={tab === 0 ? '같이 갈 사람을 구해보세요' : '마음에 드는 글에 말을 걸어보세요'}
+              desc={
+                !mine
+                  ? undefined
+                  : tab === 0
+                    ? '같이 갈 사람을 구해보세요'
+                    : '마음에 드는 글에 말을 걸어보세요'
+              }
+              art={mine}
               action={
                 /* 빈 화면에서는 이 버튼이 전부다. 눌러도 아무 일이 없으면
                    비었다는 사실만 두 번 말하는 셈이다 */
-                tab === 0 ? (
+                !mine ? undefined : tab === 0 ? (
                   <Link className="btn btn--primary btn--sm" href={wf('/p/new')}>
                     모집글 쓰기
                   </Link>
@@ -407,22 +472,6 @@ export default function ProfileView({
                   </Link>
                 )
               }
-            />
-          ) : posts.length === 0 && tab === 0 ? (
-            /*
-             * **「없다」 와 「아직 못 받았다」 는 다르다.**
-             *
-             * 서버에 `/users/me/posts` 가 아직 없다 (계약 AU-10 에는 있다).
-             * 그래서 API 경로에서는 빈 배열이 오는데, 그걸 「아직 쓴 글이
-             * 없어요」 로 그리면 글을 쓴 사람에게 거짓말이 된다. 자기가 쓴
-             * 글이 사라진 줄 알고 다시 쓰게 만든다.
-             *
-             * 그 엔드포인트가 생기면 이 분기는 사라지고 위 문구만 남는다.
-             */
-            <Blank
-              title={postsReady ? '아직 쓴 글이 없어요' : '내 모집글은 곧 볼 수 있어요'}
-              desc={postsReady ? undefined : '서버에 붙는 중이에요'}
-              art={false}
             />
           ) : (
             /* 전체 보기를 두지 않고 다 편다. 한 사람이 쓰는 모집글은
@@ -435,18 +484,7 @@ export default function ProfileView({
                   return (
                     <li key={p.id}>
                       <Link href={wf(`/p/${p.id}`)} className="mine__row mine__row--thumb">
-                        {/* 어느 행사인지 글자보다 먼저 알려준다. 사진이 없는
-                            글에 회색 네모를 두면 안 불러와진 것처럼 보여서
-                            제목에서 뽑은 색을 깐다 (lib/visual.ts) */}
-                        {p.imageUrl ? (
-                          <img className="mine__thumb" src={p.imageUrl} alt="" loading="lazy" />
-                        ) : (
-                          <span
-                            className="mine__thumb"
-                            style={{ background: `linear-gradient(150deg, ${sw.from}, ${sw.to})` }}
-                            aria-hidden
-                          />
-                        )}
+                        <Thumb src={p.imageUrl} sw={sw} />
 
                         <div className="mine__main">
                           <p className="mine__title">

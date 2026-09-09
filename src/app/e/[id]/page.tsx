@@ -4,6 +4,7 @@ import { getAllEvents } from '@/lib/events-source'
 import { goodsOf, type EventItem } from '@/types'
 import { DISTRICT_LABELS, EVENT_KIND_LABELS } from '@/lib/filters'
 import { IS_WIREFRAME } from '@/lib/wireframe'
+import SourceCredit from '@/components/SourceCredit'
 import { PlaceActions } from '@/components/ui/PlaceActions'
 import { PlaceMap } from '@/components/ui/PlaceMap'
 import { SaveHeart } from '@/components/ui/SaveHeart'
@@ -382,6 +383,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
             )}
 
             <p className="sheet__disclaimer">주최자 공지 기반 · 방문 전 원문 확인 권장</p>
+
+            {/* 제공처 표기. 여기가 검색으로 들어오는 화면이라 모달보다
+                이쪽이 먼저다 — 표기 의무는 「우리 서비스에 보인다」 이지
+                「눌러 들어간 사람에게만 보인다」 가 아니다 */}
+            <SourceCredit kind={ev.kind} />
 
             <p className="sheet__original">
               <a href={ev.sourceUrl} target="_blank" rel="noopener noreferrer nofollow">

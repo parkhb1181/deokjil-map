@@ -141,6 +141,26 @@ const RULES: Record<string, Rule> = {
     at: 'banner',
     text: '사진이 다 올라가지 않았어요. 다시 골라주세요',
   },
+  /*
+   * **아래 둘은 서버가 낸 코드가 아니라 우리가 만든 것이다.**
+   *
+   * 사진 올리기의 두 번째 단계는 우리 서버가 아니라 S3 를 직접 부른다.
+   * 거기서 실패하면 XML 이 오거나 아예 응답이 없어서 우리 에러 모양이
+   * 아니고, 그대로 두면 화면이 「잠시 문제가 생겼어요」 로 뭉갠다.
+   * `users.ts` 가 우리 실패로 바꿔 던지고 여기서 문구를 준다.
+   *
+   * BLOCKED 쪽이 특히 중요하다. **버킷 CORS 에 지금 주소가 없을 때**가
+   * 그것인데, ①③ 은 200 이라 서버 로그에는 아무 일도 안 남는다. 프리뷰
+   * 배포에서 이것부터 의심해야 한다.
+   */
+  PROFILE_IMAGE_UPLOAD_BLOCKED: {
+    at: 'banner',
+    text: '사진을 올리지 못했어요. 잠시 뒤 다시 시도해주세요',
+  },
+  PROFILE_IMAGE_UPLOAD_FAILED: {
+    at: 'banner',
+    text: '사진을 올리지 못했어요. 다시 골라주세요',
+  },
 
   /* 행사 (EventErrorCode) */
   EVENT_NOT_FOUND: { at: 'banner', text: '없는 행사예요' },
@@ -168,6 +188,32 @@ const RULES: Record<string, Rule> = {
   REPORT_REASON_INVALID: { field: 'reason', text: '신고 사유를 골라주세요' },
   /* 백오피스에서 이미 종결한 신고를 다시 처리하려 할 때 (AD-03) */
   REPORT_ALREADY_HANDLED: { at: 'reload', text: '이미 처리된 신고예요' },
+  REPORT_NOT_FOUND: { at: 'reload', text: '없는 신고예요' },
+  /*
+   * 허용하지 않는 전이다 — 「처리 중」 을 「미처리」 로 되돌리는 것이
+   * 여기 걸린다. 종결이 종착이라 되돌리는 길을 안 열었다.
+   */
+  REPORT_TRANSITION_NOT_ALLOWED: { at: 'reload', text: '지금 상태에서는 할 수 없는 처리예요' },
+
+  /*
+   * 제재 (SanctionErrorCode).
+   *
+   * **운영자만 본다.** 그래서 문장이 다른 것들과 결이 다르다 — 사용자에게는
+   * 무슨 일인지 부드럽게 말하지만, 운영자에게는 무엇이 막혔는지 그대로
+   * 말하는 편이 다음 행동이 빠르다.
+   *
+   * 여기 없으면 전부 「잠시 문제가 생겼어요」 로 뭉개진다. 제재를 두 번
+   * 주려다 그 문구를 받고 계속 다시 누르는 것을 실제로 봤다.
+   */
+  SANCTION_ALREADY_ACTIVE: { at: 'banner', text: '이미 제재 중인 회원이에요' },
+  SANCTION_ALREADY_RELEASED: { at: 'reload', text: '이미 풀린 제재예요' },
+  SANCTION_NOT_FOUND: { at: 'reload', text: '없는 제재예요' },
+  SANCTION_REASON_REQUIRED: { field: 'reason', text: '사유를 적어주세요' },
+  /* 기간 정지인데 종료 시각이 없거나, 아닌데 있을 때 */
+  SANCTION_UNTIL_MISMATCH: { at: 'banner', text: '기간 정지는 종료 시각이 있어야 해요' },
+
+  /* 지워졌거나 가려진 댓글이다. 고치거나 답글을 달 수 없다 */
+  COMMENT_NOT_ACTIVE: { at: 'reload', text: '이미 지워졌거나 가려진 댓글이에요' },
 
   /* 공통 (CommonErrorCode) */
   INVALID_INPUT: { at: 'banner', text: '입력한 내용을 다시 확인해주세요' },

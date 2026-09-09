@@ -61,9 +61,12 @@ const STATE_LABEL: Record<PostState, string> = {
 /**
  * 닫힌 까닭까지 반영한 배지 글자.
  *
- * 방장이 닫은 것, 시간이 지나 닫힌 것, 방장이 취소한 것은 다른
- * 일이라 다르게 적는다. 상태는 CLOSED 하나지만 사람에게는 세 가지
- * 사실이다. 그래서 사유가 배지 글자를 정한다.
+ * 방장이 닫은 것과 시간이 지나 닫힌 것은 다른 일이라 다르게 적는다.
+ * 상태는 CLOSED 하나지만 사람에게는 두 가지 사실이다. 그래서 사유가
+ * 배지 글자를 정한다.
+ *
+ * 한때 방장 취소까지 셋이었다. 1차에서 빼면서 둘이 됐다 (types.ts
+ * `ClosedReason`).
  */
 export function stateLabel(state: PostState, reason?: ClosedReason | null): string {
   if (state !== 'CLOSED') return STATE_LABEL[state]

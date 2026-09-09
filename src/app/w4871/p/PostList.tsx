@@ -22,58 +22,16 @@ import { PostCard } from '@/components/ui/Post'
 import { Sheet } from '@/components/ui/Basics'
 import { wf } from '@/lib/wireframe'
 import { whenShort } from '@/lib/when'
+import { toListItem, type ListItem } from '@/lib/list-item'
 
-export type ListItem = {
-  id: string
-  eventId: string | null
-  eventTitle: string | null
-  title: string
-  excerpt: string
-  status: PostState
-  closedReason?: ClosedReason | null
-  capacity: number | null
-  meetAt: string
-  meetPoint: MeetPoint
-  author: { id: string; nickname: string; imageUrl?: string | null }
-  commentCount: number
-  /** 붙은 이벤트의 대표 사진. 이벤트에 안 붙은 글은 없다 */
-  imageUrl?: string | null
-}
+/* ListItem 과 toListItem 은 lib/list-item.ts 에 있다. 서버 컴포넌트인
+   page.tsx 가 toListItem 을 부르는데 이 파일이 'use client' 라 여기 두면
+   Next 가 막는다 — 이유는 그 파일에 적어 뒀다 */
+export type { ListItem }
 
 /* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면
    목록이 두 배가 되고 정작 갈 수 있는 글이 묻힌다 */
-/**
- * 계약 모양 → 화면 모양.
- *
- * 두 이름이 갈린다. 화면은 사람 사진을 `imageUrl`, 행사 사진도
- * `imageUrl` 로 부르는데 계약은 `profileImageUrl` 과 `eventImageUrl` 로
- * 나눠 쓴다. **계약 쪽이 맞다** — 하나는 사람이고 하나는 포스터라 같은
- * 이름을 쓰면 어느 쪽인지 매번 따져야 한다 (types.ts `PostAuthor`).
- *
- * 화면 타입을 바꾸는 대신 여기서 옮긴다. `PostList` 는 260줄이고 지금
- * 고칠 이유가 이름 하나뿐이라, 배선과 이름 정리를 한 커밋에 섞지 않는다.
- */
-export function toListItem(p: PostListItem): ListItem {
-  return {
-    id: p.id,
-    eventId: p.eventId,
-    eventTitle: p.eventTitle ?? null,
-    title: p.title,
-    excerpt: p.excerpt,
-    status: p.status,
-    closedReason: p.closedReason,
-    capacity: p.capacity,
-    meetAt: p.meetAt,
-    meetPoint: p.meetPoint,
-    author: {
-      id: p.author.id,
-      nickname: p.author.nickname,
-      imageUrl: p.author.profileImageUrl ?? null,
-    },
-    commentCount: p.commentCount,
-    imageUrl: p.eventImageUrl ?? null,
-  }
-}
+
 
 const TABS = [
   { key: 'OPEN', label: '모집중' },
@@ -183,14 +141,18 @@ export default function PostList({
 
   return (
     <PageShell title="동행 모집">
-      <div className="whoami">
-        <b>화면</b>
-        {VIEWS.map((v) => (
-          <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
-            {v}
-          </button>
-        ))}
-      </div>
+      {/* 개발용이다. 서버가 상태를 정하기 시작하면 안 그린다 — 실제
+          사용자가 자기 화면에서 이 막대를 보게 된다 */}
+      {!USE_API && (
+        <div className="whoami">
+          <b>화면</b>
+          {VIEWS.map((v) => (
+            <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
+              {v}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* 나이 확인 중인 사람에게 글쓰기가 어떻게 막히는지 확인한다.
           목록은 그대로 읽힌다 (처리방침 제10조).
@@ -271,6 +233,38 @@ export default function PostList({
               <Button size="sm" tone="ghost" onClick={() => setQ('')}>
                 검색어 지우기
               </Button>
+            }
+          />
+        )}
+
+        {/*
+          **진짜로 한 건도 없을 때.**
+
+          이 분기가 없었다. 목데이터에는 늘 글이 있었고 빈 화면은 위의
+          개발용 토글로만 볼 수 있어서, 서버가 0건을 주면 머리말과 탭만
+          남고 **아무 말도 없는 화면**이 됐다. 실제로 그 상태를 봤다
+          (2026-09-09, 배포된 API 의 모집글이 0건이었다).
+
+          모집중 탭에서 비었을 때는 전체를 권한다. 끝난 글이라도 있으면
+          「이 서비스에 글이 있긴 하구나」 가 보이고, 그것도 없으면 아래
+          문구가 그대로 맞다.
+        */}
+        {view === '정상' && list.length === 0 && !q.trim() && (
+          <Blank
+            title={tab === 'OPEN' ? '지금 모집중인 글이 없어요' : '아직 모집글이 없어요'}
+            desc={
+              tab === 'OPEN' ? '끝난 글까지 보거나 직접 써보세요' : '처음으로 동행을 구해보세요'
+            }
+            action={
+              tab === 'OPEN' ? (
+                <Button size="sm" tone="ghost" onClick={() => setTab('all')}>
+                  전체 보기
+                </Button>
+              ) : (
+                <Button size="sm" onClick={() => setAsk(true)}>
+                  글쓰기
+                </Button>
+              )
             }
           />
         )}

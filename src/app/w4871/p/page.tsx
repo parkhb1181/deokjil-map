@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import sample from '@/data/posts-list.sample.json'
 import { USE_API } from '@/lib/api/config'
 import { fetchPosts } from '@/lib/api/posts'
-import PostList, { toListItem, type ListItem } from './PostList'
+import PostList from './PostList'
+import { toListItem, type ListItem } from '@/lib/list-item'
 
 /**
  * 모집글 목록.
