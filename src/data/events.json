@@ -2965,6 +2965,30 @@
     "goods": []
   },
   {
+    "id": "om_15459",
+    "source": "OFFMATE",
+    "place": {
+      "name": "갤러리카페 바이아스",
+      "address": "서울특별시 마포구 와우산로35길 53 2층",
+      "lat": 37.556476,
+      "lng": 126.927937,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "승민",
+    "title": "스트레이키즈 · 승민 · 나의 모든 계절에, 너",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-19",
+    "endsOn": "2026-09-22",
+    "perks": "특전 8종",
+    "sourceUrl": "https://x.com/L00_SeungMin922",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15459",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/d328f7f4-3080-4eba-b9b8-edc2b3d32df2-1788957112698.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15448",
     "source": "OFFMATE",
     "place": {
