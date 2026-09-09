@@ -3532,3 +3532,158 @@
   font-weight: 400;
   color: var(--text-mute);
 }
+
+/* ── 알림 (S3) ────────────────────────────────────────────
+   차단 목록과 같은 글 행이지만 앞머리가 두 가지다. 사람이 일으킨
+   것은 아바타가 서고, 마감·신고·제재는 사람이 없어 아이콘이 그
+   자리에 선다. 둘의 지름을 48px 로 맞춰 왼쪽 선이 흔들리지 않게 한다.
+   ------------------------------------------------------- */
+
+/* 푸시가 아니라는 것. 「알림」 이라고 적힌 화면이 있으면 켜 두면
+   오는 줄 알고 기다리는 사람이 생긴다 */
+.alr__lead {
+  padding: 12px var(--gutter);
+  background: var(--bg-sunk);
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.alr { list-style: none; margin: 0; padding: 0 0 8px; }
+
+.alr__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px var(--gutter);
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+}
+.alr li + li .alr__row { border-top: 1px solid var(--border); }
+.alr__row:active { background: var(--bg-sunk); }
+
+/* 갈 곳이 없는 알림은 button 이다. 링크와 같은 줄로 보여야 하므로
+   버튼 기본값을 걷어낸다. 커서는 화살표로 둔다 — 손가락으로 두면
+   누르면 어디로 갈 것처럼 읽힌다 */
+.alr__row--flat {
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: default;
+}
+
+/* 안 읽은 줄. 배경을 아주 옅게만 깐다. 진하게 깔면 읽은 줄이
+   비활성처럼 보여서, 지난 알림을 못 쓰는 것으로 읽는다 */
+.alr__row--new { background: color-mix(in srgb, var(--accent-soft) 45%, #fff); }
+.alr__row--new:active { background: var(--accent-soft); }
+
+/* ── 앞머리 ─────────────────────────────────────────────── */
+
+.alr__face { position: relative; flex: 0 0 auto; }
+
+/* 종류 뱃지. 아바타 오른쪽 아래에 걸친다. 흰 테두리가 있어야
+   아바타 사진 위에서도 원이 끊겨 보인다 */
+.alr__pipwrap {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+  color: #fff;
+}
+.alr__pip { width: 11px; height: 11px; }
+
+/* 사람이 없는 알림. 색으로 성격을 가른다 — 마감은 지난 일이라
+   회색, 신고 결과는 안전이라 초록, 제재는 불이익이라 빨강 */
+.alr__icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.alr__icon--closed   { background: var(--gone-soft);   color: var(--gone); }
+.alr__icon--report   { background: var(--ok-soft);     color: var(--ok); }
+.alr__icon--sanction { background: var(--danger-soft); color: var(--danger); }
+.alr__mark { width: 22px; height: 22px; }
+
+/* ── 본문 ───────────────────────────────────────────────── */
+
+.alr__main { flex: 1; min-width: 0; }
+
+.alr__top { display: flex; align-items: baseline; gap: 6px; }
+.alr__text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+/* 묶인 개수. 문장 옆이다. 오른쪽 끝에 두면 안 읽음 점과 자리를
+   다투고 둘 다 같은 표시로 읽힌다 */
+.alr__count {
+  flex: 0 0 auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 어느 글·어느 방인가. 한 줄로 자른다 — 두 줄이 되면 여섯 개짜리
+   목록이 한 화면을 넘긴다 */
+.alr__on {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alr__when {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+}
+
+/* 안 읽음 점. 숫자를 쓰지 않는다 — 알림 한 줄이 「몇 개」 인지는
+   위의 묶음 수가 이미 말하고, 여기에 또 숫자를 두면 둘이 다른
+   것을 세는데 같아 보인다 */
+.alr__dot {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* 서버가 지운다. 안 적어두면 지난달 것을 찾다가 문의가 들어온다 */
+.alr__foot {
+  padding: 4px var(--gutter) 32px;
+  font-size: var(--t-small);
+  font-weight: 400;
+  color: var(--text-mute);
+  text-align: center;
+}

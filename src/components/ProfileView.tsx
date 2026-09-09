@@ -354,12 +354,13 @@ export default function ProfileView({
                   <Caret />
                 </Link>
               )}
-              {/* 알림이 1차에 없다. 자리를 비워두면 없는 줄 모르고 찾아
-                  헤매므로 준비 중이라고 적어 둔다 */}
-              <button type="button" className="mymenu__row" disabled>
-                <span>알림 설정</span>
-                <span className="mymenu__note">준비 중</span>
-              </button>
+              {/* 1차에는 「준비 중」 이었다. 2차에서 화면이 생겼는데,
+                  들어오는 길이 아직 여기 하나뿐이다 — 하단 탭 배지가
+                  1차 화면이라 그 브랜치에 있다 */}
+              <Link className="mymenu__row" href={wf('/alerts')}>
+                <span>알림</span>
+                <Caret />
+              </Link>
               {/* 로그아웃은 맨 아래다. 위에 두면 다른 것을 누르러 왔다가
                   실수로 누른다. 되돌리려면 다시 로그인해야 한다 */}
               <button

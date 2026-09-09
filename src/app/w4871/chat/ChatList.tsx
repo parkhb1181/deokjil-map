@@ -19,16 +19,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank } from '@/components/ui/Basics'
-import { VerifyGate, clock } from '@/components/ui/Chat'
+import { VerifyGate } from '@/components/ui/Chat'
 import { wf } from '@/lib/wireframe'
+import { listTime } from '@/lib/when'
 import raw from '@/data/chat.sample.json'
-
-/** 오늘이면 시각, 아니면 날짜. 목록은 훑는 화면이라 짧을수록 좋다 */
-function whenShort(iso: string, today: string) {
-  if (iso.startsWith(today)) return clock(iso)
-  const [, m, d] = iso.split('T')[0].split('-')
-  return `${Number(m)}/${Number(d)}`
-}
 
 /* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
    인증이 붙으면 이 막대를 지운다 */
@@ -82,7 +76,7 @@ export default function ChatList() {
                 <span className="clist__main">
                   <span className="clist__top">
                     <b className="clist__name">{r.partner.nickname}</b>
-                    <span className="clist__when">{whenShort(r.lastAt, today)}</span>
+                    <span className="clist__when">{listTime(r.lastAt, today)}</span>
                   </span>
 
                   <span className="clist__last">
