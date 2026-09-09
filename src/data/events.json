@@ -1180,6 +1180,30 @@
     "goods": []
   },
   {
+    "id": "om_15091",
+    "source": "OFFMATE",
+    "place": {
+      "name": "테뉴에",
+      "address": "서울특별시 마포구 와우산로29바길 11-5 2층 202호",
+      "lat": 37.555758,
+      "lng": 126.9263736,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "이정현",
+    "title": "이븐 · 이정현 · SCENT OF A DAZZLING DAY",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-11",
+    "endsOn": "2026-09-11",
+    "perks": "특전 3종",
+    "sourceUrl": "https://x.com/scent_for_JH",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15091",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/636c8ec0-c117-43fc-b079-8cc659bb0cdb-1786429826150.png",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15447",
     "source": "OFFMATE",
     "place": {
@@ -2012,7 +2036,7 @@
     "kind": "BIRTHDAY_CAFE",
     "startsOn": "2026-09-12",
     "endsOn": "2026-09-15",
-    "perks": "특전 6종",
+    "perks": "특전 7종",
     "sourceUrl": "https://x.com/Lingskz",
     "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15114",
     "imageUrl": "https://img2.offmate.kr/birthday-cafe/bf0e3b0c-2418-462a-a8e4-59c548a113b1-1786549615549.jpeg",
@@ -2694,6 +2718,30 @@
     "sourceUrl": "https://x.com/sunday_jelly",
     "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15237",
     "imageUrl": "https://img2.offmate.kr/birthday-cafe/00b49fd2-2c0b-44fa-be18-e516b25a7b45-1787443778734.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15460",
+    "source": "OFFMATE",
+    "place": {
+      "name": "카페몽글",
+      "address": "서울특별시 구로구 공원로6나길 29-17 1층 카페몽글",
+      "lat": 37.5048557,
+      "lng": 126.8908624,
+      "district": "etc",
+      "kind": "CAFE"
+    },
+    "subject": "정상현",
+    "title": "알파드라이브원 · 정상현 · 상현이 사랑 충전완료",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-09-18",
+    "endsOn": "2026-09-20",
+    "perks": "특전 7종",
+    "sourceUrl": "https://x.com/Happy__everday",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15460",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/471736b2-def7-4f1d-87b1-0b38414fccd7-1788958697731.jpeg",
     "trust": "PARSED",
     "goods": []
   },
@@ -3616,6 +3664,30 @@
     "goods": []
   },
   {
+    "id": "om_15463",
+    "source": "OFFMATE",
+    "place": {
+      "name": "포츈맨션",
+      "address": "서울특별시 마포구 어울마당로 155 2층 201호",
+      "lat": 37.5568774,
+      "lng": 126.9269971,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "하니",
+    "title": "뉴진스 · 하니 · 팜플레이리스트𖦤˖*",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-01",
+    "endsOn": "2026-10-09",
+    "perks": "특전 6종",
+    "sourceUrl": "https://x.com/phamplaylist",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15463",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/eba7810f-6ee5-495b-a0f0-c125ae06d77a-1788963009742.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15452",
     "source": "OFFMATE",
     "place": {
@@ -3828,6 +3900,30 @@
     "sourceUrl": "https://x.com/page951004",
     "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15396",
     "imageUrl": "https://img2.offmate.kr/birthday-cafe/8a54a5f7-0221-4f3a-9ecb-7e4ec9cac911-1788522439295.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15464",
+    "source": "OFFMATE",
+    "place": {
+      "name": "파리바게뜨 올림픽북문점",
+      "address": "서울특별시 강동구 성안로 9",
+      "lat": 37.5248007,
+      "lng": 127.1290924,
+      "district": "etc",
+      "kind": "CAFE"
+    },
+    "subject": "케이주",
+    "title": "킥플립 · 케이주 · 이주랜드",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-03",
+    "endsOn": "2026-10-04",
+    "perks": "특전 9종",
+    "sourceUrl": "https://x.com/Jinjin_061004",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15464",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/4c2fd93c-0942-488b-9645-36c9df1d505e-1788966848859.jpeg",
     "trust": "PARSED",
     "goods": []
   },
@@ -4196,6 +4292,30 @@
     "goods": []
   },
   {
+    "id": "om_15461",
+    "source": "OFFMATE",
+    "place": {
+      "name": "카페티노",
+      "address": "서울특별시 마포구 신촌로2안길 35 1층 카페티노",
+      "lat": 37.5570058,
+      "lng": 126.9290561,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "하니",
+    "title": "뉴진스 · 하니 · PHAM-UP STORE",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-04",
+    "endsOn": "2026-10-06",
+    "perks": "특전 7종",
+    "sourceUrl": "https://x.com/phamhanni1006",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15461",
+    "imageUrl": "https://img2.offmate.kr/artist-profiles/prod/4d62438b-0b50-49c9-b4d4-51e651be33e6-1788962290358.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
     "id": "om_15437",
     "source": "OFFMATE",
     "place": {
@@ -4216,6 +4336,30 @@
     "sourceUrl": "https://x.com/only_u_hanni",
     "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15437",
     "imageUrl": "https://img2.offmate.kr/birthday-cafe/7d9f0405-4508-4e25-ba30-1abf3620e7ce-1788769293063.jpeg",
+    "trust": "PARSED",
+    "goods": []
+  },
+  {
+    "id": "om_15462",
+    "source": "OFFMATE",
+    "place": {
+      "name": "디어마이디어",
+      "address": "서울특별시 마포구 어울마당로 136-24 1층",
+      "lat": 37.5556241,
+      "lng": 126.9256637,
+      "district": "hongdae",
+      "kind": "CAFE"
+    },
+    "subject": "하니",
+    "title": "뉴진스 · 하니 · MISSION: Find Little Otter",
+    "subjectType": "IDOL",
+    "kind": "BIRTHDAY_CAFE",
+    "startsOn": "2026-10-05",
+    "endsOn": "2026-10-06",
+    "perks": "특전 5종",
+    "sourceUrl": "https://x.com/HanniKka_1006",
+    "listingUrl": "https://www.offmate.kr/place/birthday-cafe/detail/15462",
+    "imageUrl": "https://img2.offmate.kr/birthday-cafe/ea445470-639e-4239-ab4a-ff590153bd8b-1788962752973.jpeg",
     "trust": "PARSED",
     "goods": []
   },
