@@ -161,6 +161,18 @@ const RULES: Record<string, Rule> = {
     at: 'banner',
     text: '사진을 올리지 못했어요. 다시 골라주세요',
   },
+  /**
+   * 브라우저가 그 사진을 못 읽었다. 올리기 전에 512px jpeg 로 줄이는
+   * 단계에서 난다 (`image-shrink.ts`).
+   *
+   * 안드로이드 크롬이 HEIC 을 디코딩 못 하는 조합이 대표적이다. 무엇을
+   * 어떻게 하라고까지 말한다 — 「사진을 못 읽었어요」 만 쓰면 같은 사진을
+   * 다시 고르게 된다.
+   */
+  PROFILE_IMAGE_UNREADABLE: {
+    at: 'banner',
+    text: '이 사진은 읽을 수 없어요. JPG 나 PNG 로 저장해서 올려주세요',
+  },
 
   /* 행사 (EventErrorCode) */
   EVENT_NOT_FOUND: { at: 'banner', text: '없는 행사예요' },

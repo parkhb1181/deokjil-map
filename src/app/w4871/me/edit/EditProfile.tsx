@@ -30,6 +30,7 @@ import { Avatar, Blank, Button, Sheet, Skeleton } from '@/components/ui/Basics'
 import { Field, TextInput, TextArea } from '@/components/ui/Field'
 import { USE_API } from '@/lib/api/config'
 import { slotFor } from '@/lib/api/errors'
+import { ApiFailure } from '@/lib/api/http'
 import {
   checkNickname,
   fetchMe,
@@ -38,6 +39,7 @@ import {
   type ProfileEdit,
 } from '@/lib/api/users'
 import { authed } from '@/lib/auth/authed'
+import { shrinkImage } from '@/lib/image-shrink'
 import { getAccessToken } from '@/lib/auth/session'
 import { wf } from '@/lib/wireframe'
 
@@ -66,15 +68,14 @@ const MOCK: Initial = {
 /** 한줄소개 상한. 서버는 100자까지 받지만 프로필 카드가 그만큼 못 담는다 */
 const BIO_MAX = 60
 
-/**
- * 사진 제한. 서버와 같은 값이어야 한다 (AU-08).
+/*
+ * 사진 형식·크기를 여기서 재지 않는다.
  *
- * **미리 재는 이유가 있다.** 서버도 막지만, 그때는 이미 사용자가 6MB 를
- * 올리려고 기다린 뒤다. 게다가 올리는 것은 우리 서버가 아니라 S3 라
- * 한 번 갔다 와야 안다.
+ * 예전에는 서버 제한(jpeg · png · webp, 5MB — AU-08)을 그대로 두고
+ * 어기면 안내를 띄웠다. 그런데 폰에서 고른 사진은 그 둘을 거의 항상
+ * 어겨서(아이폰 HEIC · 한 장 4~8MB) 안내만 뜨고 아무도 못 올렸다.
+ * 지금은 올리기 전에 512px jpeg 로 줄여 보낸다 (image-shrink.ts).
  */
-const IMAGE_MAX = 5 * 1024 * 1024
-const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 /** 가입 때와 같은 규칙이다. 두 화면이 다르게 굴면 한쪽에서 통과한
  *  이름이 다른 쪽에서 막힌다 */
@@ -229,18 +230,31 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
     e.target.value = ''
     if (!file || uploading) return
 
-    if (!IMAGE_TYPES.includes(file.type)) {
-      setFailed('JPG · PNG · WEBP 만 올릴 수 있어요')
-      return
-    }
-    if (file.size > IMAGE_MAX) {
-      setFailed('사진은 5MB 까지 올릴 수 있어요')
-      return
-    }
-
     setUploading(true)
     setFailed(null)
-    authed((t) => uploadProfileImage(file, t))
+
+    /*
+     * **고른 사진을 그대로 안 보낸다.** 512px jpeg 로 줄여서 보낸다
+     * (image-shrink.ts).
+     *
+     * 서버가 받는 것은 jpeg · png · webp 셋이고 5MB 까지인데, 요즘 폰
+     * 사진은 둘을 동시에 어긴다 — 아이폰 기본이 HEIC 이고 안드로이드도
+     * 한 장이 4~8MB 다. 형식과 크기를 여기서 우리가 정하면 그 두 안내가
+     * 아예 안 뜬다.
+     *
+     * 못 읽는 사진일 때만 예전 안내를 띄운다. 안드로이드 크롬이 HEIC 을
+     * 디코딩 못 하는 경우가 있는데, 그때 원본을 그냥 올리면 서버가 막아서
+     * 같은 자리에서 더 어려운 말이 나온다.
+     */
+    shrinkImage(file)
+      .catch(() => {
+        throw new ApiFailure(
+          'PROFILE_IMAGE_UNREADABLE',
+          '이 사진은 읽을 수 없어요. JPG · PNG 로 저장해서 다시 올려주세요',
+          0,
+        )
+      })
+      .then((small) => authed((t) => uploadProfileImage(small, t)))
       .then(() => authed(fetchMe))
       .then((me) => setPic(me.profileImageUrl))
       .catch((err) => setFailed(slotFor(err).text))
@@ -342,16 +356,18 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
               <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
             </svg>
           </span>
-          {/* 서버가 받는 것은 jpeg · png · webp 셋뿐이다 (AU-08). image/*
-              로 두면 그 밖의 것도 고를 수 있고, 특히 **iOS 사진은 기본이
-              HEIC** 라 자주 걸린다. 고르는 단계에서 막는 편이 올린 뒤
-              400 을 받고 되돌아오는 것보다 낫다.
+          {/* **`image/*` 로 연다.**
 
-              accept 는 권유일 뿐 강제가 아니다. 그래서 고른 뒤에도 형식과
-              크기를 한 번 더 본다 (pickPhoto) */}
+              전에는 서버가 받는 셋(jpeg · png · webp)만 열어 두었다.
+              그런데 사진첩에서 고르는 것은 대부분 그 셋이 아니다 — iOS 는
+              기본이 HEIC 이라 사진 대부분이 회색으로 잠겨 보이고, 고를 수
+              있는 것만 고르면 이번엔 크기에서 막혔다.
+
+              지금은 고른 것을 512px jpeg 로 줄여 보내므로(pickPhoto) 형식과
+              크기를 우리가 정한다. 못 읽는 사진일 때만 안내가 뜬다 */}
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/*"
             /* 목데이터 경로에는 올릴 서버가 없다 */
             disabled={!USE_API || uploading}
             onChange={pickPhoto}
