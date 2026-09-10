@@ -19,14 +19,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank } from '@/components/ui/Basics'
-import { VerifyGate } from '@/components/ui/Chat'
 import { wf } from '@/lib/wireframe'
 import { listTime, whenShort } from '@/lib/when'
 import raw from '@/data/chat.sample.json'
 
 /* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
-   인증이 붙으면 이 막대를 지운다 */
-const VIEWS = ['정상', '비었음', '미인증'] as const
+   서버가 붙으면 이 막대를 지운다 */
+const VIEWS = ['정상', '비었음'] as const
 
 export default function ChatList() {
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
@@ -50,8 +49,6 @@ export default function ChatList() {
           </button>
         ))}
       </div>
-
-      {view === '미인증' && <VerifyGate next={wf('/chat')} />}
 
       {view === '비었음' && (
         <Blank
