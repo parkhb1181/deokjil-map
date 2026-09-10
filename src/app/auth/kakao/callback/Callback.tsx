@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Basics'
 import { loginWithKakao } from '@/lib/api/auth'
 import { callbackUri } from '@/lib/auth/kakao-url'
 import { saveTokens, takeNext, takeState } from '@/lib/auth/session'
+import { markAfterAuth } from '@/lib/auth/after-auth'
 import { slotFor } from '@/lib/api/errors'
 import { wf } from '@/lib/wireframe'
 
@@ -77,7 +78,12 @@ export default function Callback() {
          *
          * replace 다. 뒤로가기가 인가코드가 붙은 이 주소로 돌아오면
          * 이미 쓴 코드로 다시 요청한다.
+         *
+         * 그래도 **카카오 화면은 기록에 남는다.** 남의 도메인이라 우리가
+         * 지울 수 없다. 돌아간 화면에서 뒤로가기를 한 번은 기록 대신
+         * 제자리로 보내야 해서 표시를 남긴다 (after-auth.ts).
          */
+        markAfterAuth()
         router.replace(
           r.signupCompleted ? next : wf(`/welcome?next=${encodeURIComponent(next)}`),
         )

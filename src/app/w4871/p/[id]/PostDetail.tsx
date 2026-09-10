@@ -30,6 +30,7 @@ import { useViewer } from '@/lib/auth/useViewer'
 import { USE_API } from '@/lib/api/config'
 import { deleteComment, editComment, fetchComments, writeComment } from '@/lib/api/comments'
 import { getAccessToken } from '@/lib/auth/session'
+import { takeAfterAuth } from '@/lib/auth/after-auth'
 import { closePost } from '@/lib/api/posts'
 import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
@@ -315,6 +316,15 @@ export default function PostDetail({ post, comments, hostId }: {
   return (
     <PageShell
       title="동행 모집"
+      /*
+       * 평소에는 기록대로 뒤로 간다. **로그인하고 막 돌아온 한 번만**
+       * 목록으로 보낸다 — 그때 기록의 바로 뒤가 카카오 화면이라
+       * 뒤로가기가 로그인 화면을 다시 띄운다 (after-auth.ts).
+       *
+       * 목록으로 보내는 것이 맞는 이유는, 로그인은 대부분 이 글에
+       * 댓글을 쓰려다 시작하고 그 사람이 돌아가려는 곳이 동행 목록이라서다.
+       */
+      onBack={() => (takeAfterAuth() ? router.replace(wf('/p')) : router.back())}
       right={
         isHost ? (
           /* 끝난 글에는 남기지 않는다. 되돌릴 수 없다고 말해놓고
