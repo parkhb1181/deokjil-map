@@ -27,6 +27,10 @@
     "lastEndsOn": "2026-09-27",
     "kind": "BIRTHDAY_CAFE"
   },
+  "Kep1er": {
+    "lastEndsOn": "2026-09-17",
+    "kind": "POPUP"
+  },
   "NCT 127": {
     "lastEndsOn": "2026-09-20",
     "kind": "CONCERT"
@@ -267,12 +271,20 @@
     "lastEndsOn": "2026-09-20",
     "kind": "BIRTHDAY_CAFE"
   },
+  "전소연": {
+    "lastEndsOn": "2026-09-20",
+    "kind": "POPUP"
+  },
   "정국": {
     "lastEndsOn": "2026-09-12",
     "kind": "BIRTHDAY_CAFE"
   },
   "정상현": {
     "lastEndsOn": "2026-09-20",
+    "kind": "BIRTHDAY_CAFE"
+  },
+  "정일훈": {
+    "lastEndsOn": "2026-10-05",
     "kind": "BIRTHDAY_CAFE"
   },
   "정한": {
