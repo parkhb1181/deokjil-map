@@ -35,9 +35,23 @@ const BY_SLUG: Record<string, string> = Object.fromEntries(
   Object.entries(SUBJECT_SLUGS).map(([subject, slug]) => [slug, subject]),
 )
 
-/** 주소 조각을 대상명으로 되돌린다. 한글 주소와 ASCII 별칭 둘 다 받는다 */
+/**
+ * 주소 조각을 대상명으로 되돌린다. 한글 주소와 ASCII 별칭 둘 다 받는다.
+ *
+ * `raw` 가 완결되지 않은 퍼센트 인코딩(`%E0%A4%A` 같은)이면
+ * `decodeURIComponent` 가 `URIError` 를 던진다. `/a/[subject]` 가
+ * `dynamicParams` 를 켠 뒤로(2026-09-10) 이런 값도 그대로 여기까지
+ * 들어온다 — 잡지 않으면 404 대신 500 이 뜬다. 디코딩에 실패하면 원문을
+ * 그대로 돌려준다. 별칭 표(`BY_SLUG`)에도 실제 대상명에도 매칭될 리 없는
+ * 문자열이라, 호출부의 `find()` 가 알아서 `null` → `notFound()` 로 보낸다.
+ */
 export function resolveSubject(raw: string): string {
-  const decoded = decodeURIComponent(raw)
+  let decoded: string
+  try {
+    decoded = decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
   return BY_SLUG[decoded.toLowerCase()] ?? decoded
 }
 

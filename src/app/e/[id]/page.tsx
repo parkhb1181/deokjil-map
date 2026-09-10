@@ -32,9 +32,22 @@ import { posterSrc } from '@/lib/poster'
  * 새 CSS 를 만들면 상세 화면이 두 벌이 되고 톤이 갈린다.
  */
 
-// 데이터에 없는 id 는 404 로 떨어뜨린다. 동적 렌더를 허용하면 존재하지 않는
-// 주소가 200 을 돌려주고 색인에 쓰레기가 쌓인다
-export const dynamicParams = false
+/**
+ * `dynamicParams` 를 켜 둔다 (기본값, 명시적으로 false 를 두지 않는다).
+ *
+ * **껐던 이유가 새로 생긴 문제의 원인이었다** (2026-09-10, 온디맨드 재검증
+ * PR 리뷰). `false` 면 빌드 시점에 `generateStaticParams()` 가 만든 목록
+ * 밖의 id 는 무조건 404 다 — 크롤러가 그 사이 새로 적재한 행사는
+ * `revalidatePath` 로 재검증해도 페이지 자체가 없어 404 가 뜬다.
+ * `revalidatePath` 는 **이미 만든 페이지를 다시 그릴 뿐** 목록을 늘리지
+ * 못한다. 그래서 배포 없이 크롤러만 도는 사이에 들어온 행사는 홈·사이트맵
+ * 에는 뜨는데 눌러보면 404였다.
+ *
+ * 켜 두면 목록 밖 id 도 **요청 시점에 새로 렌더해 캐시**한다 (ISR
+ * fallback). 쓰레기 주소 차단은 `find()` 가 `undefined` 를 돌려주고
+ * `notFound()` 를 부르는 것으로 그대로 유지된다 — 방어선이
+ * "빌드 목록에 있는가" 에서 "실제 데이터에 있는가" 로 옮겨 갈 뿐이다.
+ */
 
 export async function generateStaticParams() {
   return (await getAllEvents()).map((e) => ({ id: e.id }))
@@ -103,7 +116,20 @@ function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: numb
 }
 
 async function find(id: string): Promise<EventItem | undefined> {
-  return (await getAllEvents()).find((e) => e.id === decodeURIComponent(id))
+  /**
+   * `dynamicParams` 를 켜면서 이 함수가 목록 밖 문자열도 그대로 받는다.
+   * `%E0%A4%A` 처럼 완결되지 않은 퍼센트 인코딩이 오면 `decodeURIComponent`
+   * 가 `URIError` 를 던져, 잡지 않으면 404 대신 500 이 뜬다 —
+   * `dynamicParams = false` 였을 때는 그 목록에 없는 문자열이라 애초에
+   * 여기까지 오지 않아 드러나지 않던 경로다.
+   */
+  let decoded: string
+  try {
+    decoded = decodeURIComponent(id)
+  } catch {
+    return undefined
+  }
+  return (await getAllEvents()).find((e) => e.id === decoded)
 }
 
 export async function generateMetadata({
