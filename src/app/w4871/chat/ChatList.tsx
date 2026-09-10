@@ -21,7 +21,7 @@ import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank } from '@/components/ui/Basics'
 import { VerifyGate } from '@/components/ui/Chat'
 import { wf } from '@/lib/wireframe'
-import { listTime } from '@/lib/when'
+import { listTime, whenShort } from '@/lib/when'
 import raw from '@/data/chat.sample.json'
 
 /* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
@@ -36,8 +36,8 @@ export default function ChatList() {
      가장 최근 날짜를 오늘로 본다 — 서버가 붙으면 todayKey() 로 바꾼다 */
   const today = raw.rooms.reduce((a, r) => (r.lastAt > a ? r.lastAt : a), '').split('T')[0]
 
-  /* 차단한 방도 목록에 남는다. 지우면 지난 대화가 사라지고, 그건
-     신고가 들어왔을 때 판단할 재료를 없애는 일이다 */
+  /* 누군가를 차단한 방도 목록에 남는다. 차단은 그 사람의 말만 가리는
+     것이지 방을 닫는 것이 아니다 — 한 명 때문에 약속을 잃게 하지 않는다 */
   const rooms = raw.rooms
 
   return (
@@ -56,7 +56,7 @@ export default function ChatList() {
       {view === '비었음' && (
         <Blank
           title="아직 나눈 대화가 없어요"
-          desc="모집글 댓글에서 채팅을 걸 수 있어요"
+          desc="모집글에 댓글을 남기면 방장이 채팅방으로 부릅니다"
           /* Button 은 button 이라 이동에 못 쓴다. 404 와 같이 클래스만 빌린다 */
           action={
             <Link className="btn btn--primary btn--sm" href={wf('/p')}>
@@ -69,48 +69,40 @@ export default function ChatList() {
       {view === '정상' && (
         <ul className="clist">
           {rooms.map((r) => {
-            const group = r.kind === 'GROUP'
-            /* 단체는 사람 이름을 못 쓴다. 방이 글 하나에 하나라
-               글 제목이 곧 방 이름이다 */
-            const name = group ? r.postTitle : r.partner.nickname
-            const others = (r.members ?? [r.partner]).filter((m) => m.id !== raw.me)
+            /* 사람 이름을 못 쓴다. 방이 글 하나에 하나라 글 제목이 곧
+               방 이름이다 */
+            const others = r.members.filter((m) => m.id !== raw.me)
+            /* 차단한 사람의 말은 미리보기에도 안 나온다. 방 안에서 가려
+               놓고 목록에서만 보이면 가린 것이 아니다 */
+            const blocked: string[] = r.blocked
+            const last = r.messages.filter((m) => !blocked.includes(m.from)).at(-1)
 
             return (
             <li key={r.id}>
               <Link className="clist__row" href={wf(`/chat/${r.id}`)}>
-                {/* 단체는 얼굴 하나로 대표할 수 없다. 방장 사진에
+                {/* 얼굴 하나로 대표할 수 없는 방이다. 방장 사진에
                     인원수를 얹어 「여럿」 인 것부터 읽히게 한다 */}
                 <span className="clist__face">
-                  <Avatar
-                    name={group ? (r.host?.nickname ?? name) : r.partner.nickname}
-                    src={(group ? r.host?.imageUrl : r.partner.imageUrl) ?? undefined}
-                    lg
-                  />
-                  {group && <span className="clist__n">{others.length + 1}</span>}
+                  <Avatar name={r.host.nickname} src={r.host.imageUrl ?? undefined} lg />
+                  <span className="clist__n">{others.length + 1}</span>
                 </span>
 
                 <span className="clist__main">
                   <span className="clist__top">
-                    <b className="clist__name">{name}</b>
+                    <b className="clist__name">{r.postTitle}</b>
                     <span className="clist__when">{listTime(r.lastAt, today)}</span>
                   </span>
 
+                  {/* 마지막 말이 누구 것인지까지 있어야 읽고 들어갈지
+                      정할 수 있다 */}
                   <span className="clist__last">
-                    {r.status === 'BLOCKED'
-                      ? '차단한 상대예요'
-                      : group
-                        ? /* 단체는 마지막 말이 누구 것인지까지 있어야
-                             읽고 들어갈지 정할 수 있다 */
-                          `${
-                            others.find((m) => m.id === r.messages.at(-1)?.from)?.nickname ??
-                            '나'
-                          }: ${r.messages.at(-1)?.text ?? ''}`
-                        : (r.messages.at(-1)?.text ?? '')}
+                    {last &&
+                      `${others.find((m) => m.id === last.from)?.nickname ?? '나'}: ${last.text}`}
                   </span>
 
-                  {/* 어느 모집글에서 만난 사람인지. 상대를 여럿 만나면
-                      닉네임만으로는 어느 약속인지 알 수 없다 */}
-                  <span className="clist__on">{r.postTitle}</span>
+                  {/* 언제 만나는 약속인지. 방 이름이 글 제목이라 여기에
+                      제목을 또 적으면 같은 줄이 두 번 나온다 */}
+                  <span className="clist__on">{whenShort(r.meetAt)} 약속</span>
                 </span>
 
                 {r.unread > 0 && <span className="clist__new">{r.unread}</span>}

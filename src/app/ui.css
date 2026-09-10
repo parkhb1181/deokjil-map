@@ -3178,6 +3178,14 @@
 .sblock__since { margin-top: 6px; font-size: var(--t-sub); color: var(--text-mute); }
 
 .sblock__note { margin-top: 20px; font-size: var(--t-sub); line-height: 1.6; color: var(--text-mute); }
+/* 나갔다 다시 들어오는 길이 막혀 있다는 것. 해제 안내보다 한 단계
+   작게 둔다 — 지금 알아야 할 것은 언제 풀리는지가 먼저다 */
+.sblock__again {
+  margin-top: 10px;
+  font-size: var(--t-small);
+  line-height: 1.7;
+  color: var(--text-mute);
+}
 /* 이의 제기 경로. 없으면 사용자가 할 수 있는 것이 하나도 없다 */
 .sblock__appeal {
   margin-top: 22px;
@@ -3534,13 +3542,15 @@
 .cwrite__box::placeholder { color: var(--text-mute); }
 .cwrite__box:focus { outline: 0; border-color: var(--focus); box-shadow: var(--focus-ring); }
 
-.cwrite__gate {
-  flex: 1;
-  padding: 10px 4px;
-  font-size: var(--t-sub);
+/* 차단한 사람의 말이 가려져 있다는 안내. 방 맨 위에 한 줄로 둔다 */
+.croom__hid {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--bg-sunk);
+  font-size: var(--t-small);
   line-height: 1.55;
   color: var(--text-mute);
-  text-align: center;
 }
 
 .croom__who { display: flex; align-items: center; gap: 10px; }
@@ -3797,7 +3807,14 @@
   font-weight: 600;
   color: var(--text-mute);
 }
-.croom__pacts { flex: 0 0 auto; display: flex; gap: 4px; }
+.croom__pacts { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; }
+/* 이미 차단한 사람. 버튼 자리에 상태만 적는다 */
+.croom__off {
+  padding: 0 6px;
+  font-size: var(--t-small);
+  font-weight: 600;
+  color: var(--text-mute);
+}
 
 /* 채팅 목록의 단체방 표시.
    얼굴 하나로 여럿을 대표할 수 없어 인원수를 얹는다. 아바타를 겹쳐

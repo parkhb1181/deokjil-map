@@ -3,37 +3,16 @@
   "rooms": [
     {
       "id": "r0",
-      "kind": "GROUP",
       "postId": "p1",
       "postTitle": "빅뱅 20주년 전시 같이 보실 분",
       "meetAt": "2026-09-14T11:00",
-      "host": {
-        "id": "u_host",
-        "nickname": "남은대댓글",
-        "imageUrl": null
-      },
+      "host": { "id": "u_host", "nickname": "남은대댓글", "imageUrl": null },
       "members": [
-        {
-          "id": "u_host",
-          "nickname": "남은대댓글",
-          "imageUrl": null
-        },
-        {
-          "id": "u2",
-          "nickname": "조용한덕후",
-          "imageUrl": null
-        },
-        {
-          "id": "u3",
-          "nickname": "밤샘예매",
-          "imageUrl": null
-        }
+        { "id": "u_host", "nickname": "남은대댓글", "imageUrl": null },
+        { "id": "u2", "nickname": "조용한덕후", "imageUrl": null },
+        { "id": "u3", "nickname": "밤샘예매", "imageUrl": null }
       ],
-      "partner": {
-        "id": "u_host",
-        "nickname": "남은대댓글",
-        "imageUrl": null
-      },
+      "blocked": [],
       "status": "ACTIVE",
       "unread": 2,
       "lastAt": "2026-09-11T21:12",
@@ -69,19 +48,20 @@
       "postId": "p1",
       "postTitle": "에이티즈 팝업 오픈런 같이 하실 분",
       "meetAt": "2026-09-14T09:00",
-      "partner": {
-        "id": "u_host",
-        "nickname": "덕질하는오리",
-        "imageUrl": "/avatar/a1.webp"
-      },
+      "host": { "id": "u_duck", "nickname": "덕질하는오리", "imageUrl": "/avatar/a1.webp" },
+      "members": [
+        { "id": "u_duck", "nickname": "덕질하는오리", "imageUrl": "/avatar/a1.webp" },
+        { "id": "u5", "nickname": "포카교환", "imageUrl": null }
+      ],
+      "blocked": [],
       "status": "ACTIVE",
       "unread": 2,
       "lastAt": "2026-09-09T21:40",
       "messages": [
         {
           "id": "m1",
-          "from": "u_host",
-          "text": "안녕하세요! 댓글 보고 왔어요. 오픈런 같이 하실 거죠?",
+          "from": "u_duck",
+          "text": "두 분 다 반가워요! 댓글 보고 불렀어요. 오픈런 같이 하시죠",
           "at": "2026-09-09T21:02"
         },
         {
@@ -92,23 +72,21 @@
         },
         {
           "id": "m3",
-          "from": "u_host",
+          "from": "u5",
+          "text": "저는 첫차 타고 가면 8시쯤 도착해요",
+          "at": "2026-09-09T21:20"
+        },
+        {
+          "id": "m4",
+          "from": "u_duck",
           "text": "8시 반에 더현대 서울 지하 1층 입구 앞에서 뵐까요? 오픈이 9시라 그 정도면 앞쪽에 설 수 있을 것 같아요.",
           "at": "2026-09-09T21:38"
         },
         {
-          "id": "m4",
-          "from": "u_host",
+          "id": "m5",
+          "from": "u_duck",
           "text": "혹시 늦으시면 여기로 말씀 주세요!",
           "at": "2026-09-09T21:40"
-        }
-      ],
-      "kind": "DIRECT",
-      "members": [
-        {
-          "id": "u_host",
-          "nickname": "덕질하는오리",
-          "imageUrl": "/avatar/a1.webp"
         }
       ]
     },
@@ -117,34 +95,24 @@
       "postId": "p2",
       "postTitle": "성수 토리든 팝업 평일 낮에 가실 분",
       "meetAt": "2026-09-03T14:00",
-      "partner": {
-        "id": "u_quiet",
-        "nickname": "조용한덕후",
-        "imageUrl": null
-      },
+      "host": { "id": "u_quiet", "nickname": "조용한덕후", "imageUrl": null },
+      "members": [{ "id": "u_quiet", "nickname": "조용한덕후", "imageUrl": null }],
+      "blocked": [],
       "status": "ACTIVE",
       "unread": 0,
       "lastAt": "2026-09-08T18:22",
       "messages": [
         {
-          "id": "m5",
+          "id": "m6",
           "from": "u_me",
           "text": "안녕하세요, 평일 낮에 같이 가고 싶어서 댓글 남겼어요.",
           "at": "2026-09-08T18:20"
         },
         {
-          "id": "m6",
+          "id": "m7",
           "from": "u_quiet",
           "text": "반가워요! 목요일 2시에 성수역 3번 출구에서 봬요.",
           "at": "2026-09-08T18:22"
-        }
-      ],
-      "kind": "DIRECT",
-      "members": [
-        {
-          "id": "u_quiet",
-          "nickname": "조용한덕후",
-          "imageUrl": null
         }
       ]
     },
@@ -153,28 +121,27 @@
       "postId": "p4",
       "postTitle": "원위 팝업 첫날 같이 가요",
       "meetAt": "2026-08-28T10:30",
-      "partner": {
-        "id": "u_night",
-        "nickname": "밤샘예매",
-        "imageUrl": "/avatar/a3.webp"
-      },
-      "status": "BLOCKED",
+      "host": { "id": "u_night", "nickname": "밤샘예매", "imageUrl": "/avatar/a3.webp" },
+      "members": [
+        { "id": "u_night", "nickname": "밤샘예매", "imageUrl": "/avatar/a3.webp" },
+        { "id": "u6", "nickname": "새벽줄서기", "imageUrl": null }
+      ],
+      "blocked": ["u_night"],
+      "status": "ACTIVE",
       "unread": 0,
-      "lastAt": "2026-08-27T23:10",
+      "lastAt": "2026-08-27T23:12",
       "messages": [
         {
-          "id": "m7",
+          "id": "m8",
           "from": "u_night",
           "text": "내일 봬요~",
           "at": "2026-08-27T23:10"
-        }
-      ],
-      "kind": "DIRECT",
-      "members": [
+        },
         {
-          "id": "u_night",
-          "nickname": "밤샘예매",
-          "imageUrl": "/avatar/a3.webp"
+          "id": "m9",
+          "from": "u6",
+          "text": "저는 9시까지 갈게요",
+          "at": "2026-08-27T23:12"
         }
       ]
     }

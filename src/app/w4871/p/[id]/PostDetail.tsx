@@ -570,16 +570,18 @@ export default function PostDetail({ post, comments, hostId }: {
                       {/*
                         방으로 들어오는 입구 (CH-01).
 
-                      **댓글 자리에 둔다.** 신청·수락을 만들지 않기로 해서
-                      댓글이 그 자리를 하고 있고, 방은 그 댓글을 단 사람하고만
-                      열린다. 글 위쪽에 하나만 두면 누구와 여는 것인지가 없다.
+                      **댓글 자리에, 방장에게만 둔다.** 신청·수락을 만들지
+                      않기로 해서 댓글이 그 자리를 하고 있고, 방장이 댓글 단
+                      사람 중에서 골라 부른다. 글 위쪽에 하나만 두면 누구를
+                      부르는 것인지가 없다.
 
-                      방장에게는 「초대」 다 — 여럿을 부르면 글 하나에 방
-                      하나가 되고 모집글 정원이 곧 방 인원이 된다. 댓글 단
-                      사람에게는 「채팅하기」 이고 방장과 1:1 로 열린다.
+                      방은 글 하나에 하나다. 여럿을 불러도 같은 방으로
+                      들어오고 모집 정원이 곧 방 인원이 된다. 1:1 방을 따로
+                      두지 않기로 해서, 댓글 단 사람끼리 서로 거는 자리는
+                      없다 — 부르는 것은 방장만 한다.
 
-                      서버가 판정을 내려주기 전까지는 방장인지만 보고 문구를
-                      가른다. 붙을 때 availableActions 의 CHAT 으로 옮긴다.
+                      서버가 판정을 내려주기 전까지는 방장인지만 본다. 붙을
+                      때 availableActions 의 CHAT 으로 옮긴다.
                     */}
                       {/*
                         **서버가 붙은 곳에서는 아직 안 그린다.** 눌러도
@@ -592,10 +594,8 @@ export default function PostDetail({ post, comments, hostId }: {
                       {/* 자기 자신은 부를 수 없다. EDIT 이 온다는 것이 곧 내
                           댓글이라는 뜻이다 — 서버가 CHAT 을 내려주면 그쪽으로
                           판정이 넘어간다 */}
-                      {!USE_API && !c.availableActions.includes('EDIT') && (
-                        <button onClick={() => setAsk({ k: 'chat', id: c.id })}>
-                          {isHost ? '초대' : '채팅하기'}
-                        </button>
+                      {!USE_API && isHost && !c.availableActions.includes('EDIT') && (
+                        <button onClick={() => setAsk({ k: 'chat', id: c.id })}>초대</button>
                       )}
                     </span>
                   </>
@@ -761,22 +761,17 @@ export default function PostDetail({ post, comments, hostId }: {
       )}
 
       {/*
-        채팅 열기 확인.
+        초대 확인.
 
-        누르면 방이 생기고 상대에게 알림이 간다. 되돌리는 자리가 없어서
-        한 번 묻는다 — 삭제와 같은 이유다.
+        누르면 방에 사람이 들어오고 상대에게 알림이 간다. 내보내는 자리를
+        따로 만들지 않아서 한 번 묻는다 — 삭제와 같은 이유다.
 
-        와이어프레임이라 실제로는 방을 만들지 않고 목데이터 방으로
-        보낸다. 방장이면 단체방(r0), 아니면 1:1(r1) 이다.
+        와이어프레임이라 실제로는 부르지 않고 목데이터 방(r0)으로 보낸다.
       */}
       {ask?.k === 'chat' && (
         <Sheet
-          title={isHost ? '이 분을 채팅에 부를까요?' : '방장과 채팅할까요?'}
-          desc={
-            isHost
-              ? '이 글의 채팅방으로 초대합니다. 방은 글 하나에 하나라, 이미 부른 분들과 같은 방에서 이야기하게 됩니다.'
-              : '방장과 둘이서 이야기하는 방이 열립니다. 연락처를 댓글에 적지 않아도 돼요.'
-          }
+          title="이 분을 채팅에 부를까요?"
+          desc="이 글의 채팅방으로 초대합니다. 방은 글 하나에 하나라, 이미 부른 분들과 같은 방에서 이야기하게 됩니다."
           foot={
             <>
               <Button tone="ghost" onClick={() => setAsk(null)}>
@@ -784,13 +779,14 @@ export default function PostDetail({ post, comments, hostId }: {
               </Button>
               <Button
                 onClick={() => {
-                  /* API 자리. POST /api/v1/chat/rooms { postId, targetUserId }
-                     같은 상대·같은 글이면 기존 방을 준다 (CH-01) */
+                  /* API 자리. POST /api/v1/chat/rooms/{postId}/members
+                     { targetUserId }. 방은 글마다 하나라 두 번 불러도
+                     같은 방이다 (CH-01) */
                   setAsk(null)
-                  router.push(wf(isHost ? '/chat/r0' : '/chat/r1'))
+                  router.push(wf('/chat/r0'))
                 }}
               >
-                {isHost ? '초대' : '채팅 열기'}
+                초대
               </Button>
             </>
           }
