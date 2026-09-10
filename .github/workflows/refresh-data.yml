@@ -146,3 +146,17 @@ jobs:
           INGEST_API_BASE: ${{ secrets.INGEST_API_BASE }}
           INGEST_KEY: ${{ secrets.INGEST_KEY }}
         run: node scripts/upsert-events.mjs
+
+      - name: 화면 재검증
+        # 적재 스텝 뒤에 둔다 (D-10 · D-12). 백엔드 적재가 실패했어도 always() 로
+        # 돈다 — 이 스크립트 자신이 REVALIDATE_KEY 없으면 건너뛰는 판단을 또
+        # 하므로 이중으로 막을 필요가 없고, 앞 스텝들이 continue-on-error /
+        # if: always() 로 얽혀 있어 조건을 좁히면 놓치는 경로가 생기기 쉽다.
+        #
+        # continue-on-error — 재검증 실패는 최악의 경우 ISR 안전망
+        # (NEXT_PUBLIC_REVALIDATE, 기본 1시간)이 대신 잡아준다
+        if: always()
+        continue-on-error: true
+        env:
+          REVALIDATE_KEY: ${{ secrets.REVALIDATE_KEY }}
+        run: node scripts/revalidate.mjs
