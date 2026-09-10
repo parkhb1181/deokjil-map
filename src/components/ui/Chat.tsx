@@ -125,7 +125,8 @@ export function VerifyGate({ next, children }: { next: string; children?: ReactN
 export function ChatNotice() {
   return (
     <p className="chat__notice">
-      대화는 신고 처리를 위해 저장됩니다. 문제가 있으면 오른쪽 위에서 신고해주세요.
+      대화는 신고 처리를 위해 저장되고 모집이 끝난 뒤 90일이 지나면 지워집니다. 문제가 있으면
+      오른쪽 위에서 신고해주세요.
     </p>
   )
 }
