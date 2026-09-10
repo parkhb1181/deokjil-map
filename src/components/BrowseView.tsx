@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { EventItem, EventKind } from '@/types'
 import {
   DISTRICT_LABELS,
@@ -33,6 +33,14 @@ interface Props {
 
 /** 지역 칩은 상위 몇 개까지만 낸다 */
 const DISTRICT_CHIPS = 11
+
+/**
+ * 목록을 한 번에 그리는 개수.
+ *
+ * 30 은 375px 화면에서 열 번쯤 밀어야 바닥에 닿는 양이다. 더 줄이면
+ * 스크롤 중에 붙이는 일이 잦아지고, 더 늘리면 첫 렌더가 다시 무거워진다.
+ */
+const STEP = 30
 
 /** 기간 달력에서 고를 수 있는 마지막 날. 지도의 날짜 이동 한계와 같은 값이다 */
 const MAX_AHEAD_DAYS = 60
@@ -123,10 +131,64 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
   const [sort, setSort] = useState<SortKey>('deadline')
   const [sortOpen, setSortOpen] = useState(false)
 
+  /**
+   * 지금 그릴 개수.
+   *
+   * ─────────────────────────────────────────────────────────
+   * **200장을 한 번에 그리던 것을 끊는다.**
+   *
+   * 목록 길이가 그대로 화면의 무게였다. 실측(2026-09-10)으로 홈이
+   * 요소 3,210개에 `img` 214개였고, 필터로 14건만 남기면 351개로
+   * 떨어졌다. 첫 접속이 특히 나빴다 — 하이드레이션 전에 SEO 목록을
+   * 한 번 그리고, 날짜가 정해지면 카드 200장으로 통째로 갈아치워서
+   * 큰 트리를 두 번 만든다. 버튼을 눌러도 손이 아니라 그 다음
+   * 렌더에서 멈춘다.
+   *
+   * **검색 색인은 이 값과 무관하다.** 크롤러가 보는 것은 서버가 그린
+   * `SeoIndex` 의 링크 목록이고(HomeApp), 그쪽은 손대지 않았다.
+   */
+  const [shown, setShown] = useState(STEP)
+  /** 더 불러올 자리. 이게 화면에 들어오면 한 번 더 붙인다 */
+  const moreRef = useRef<HTMLDivElement>(null)
+
   const visible = useMemo(
     () => sortByKey(filterEvents(events, { ...filter, date: 'all' }, today), sort, today),
     [events, filter, today, sort],
   )
+
+  /* 조건이 바뀌면 처음부터 센다. 안 되돌리면 콘서트 14건을 보다가
+     전체로 돌아왔을 때 이미 200장이 열려 있어 끊은 의미가 없다 */
+  useEffect(() => {
+    setShown(STEP)
+  }, [filter.district, filter.kind, filter.query, filter.range, sort])
+
+  /*
+   * 바닥이 보이면 한 묶음 더 붙인다.
+   *
+   * 「더 보기」 버튼을 두지 않는다. 이 화면은 훑는 화면이고, 훑다가
+   * 버튼을 만나면 거기서 한 번 멈춰야 한다. 스크롤 이벤트 대신
+   * IntersectionObserver 를 쓴다 — 스크롤마다 계산하면 그 자체가
+   * 지금 고치려는 렉이 된다.
+   *
+   * `rootMargin` 으로 화면에 닿기 전에 미리 붙인다. 바닥에 닿고 나서
+   * 그리기 시작하면 빈 자리를 한 번 보게 된다.
+   */
+  const hasMore = shown < visible.length
+  useEffect(() => {
+    if (!hasMore) return
+    const el = moreRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) setShown((n) => n + STEP)
+      },
+      { rootMargin: '600px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [hasMore, shown])
+
+  const rows = useMemo(() => visible.slice(0, shown), [visible, shown])
 
   return (
     <>
@@ -265,9 +327,12 @@ export default function BrowseView({ events, today, filter, onFilter, onOpen }: 
         </p>
       ) : (
         <div className="rows">
-          {visible.map((ev) => (
+          {rows.map((ev) => (
             <EventCard key={ev.id} event={ev} today={today} variant="row" onOpen={onOpen} />
           ))}
+          {/* 바닥 표시. 여기가 보이면 다음 묶음이 붙는다. 남은 것이
+              없으면 자리도 안 만든다 */}
+          {hasMore && <div ref={moreRef} className="rows__more" aria-hidden />}
         </div>
       )}
     </>
