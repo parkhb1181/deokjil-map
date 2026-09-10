@@ -41,6 +41,9 @@ const OUT_QUALITY = 0.85
  */
 const DECODE_MAX = 40 * 1024 * 1024
 
+/** 읽기를 포기하는 시각. 폰에서 12MP 한 장이 몇 초 걸린다 */
+const DECODE_TIMEOUT = 15_000
+
 async function decode(file: File): Promise<ImageBitmap | HTMLImageElement> {
   /* createImageBitmap 이 빠르고 메모리도 덜 쓴다. 사파리 구버전에는
      없어서 img 로 떨어진다 */
@@ -59,6 +62,13 @@ async function decode(file: File): Promise<ImageBitmap | HTMLImageElement> {
       const img = new Image()
       img.onload = () => resolve(img)
       img.onerror = () => reject(new Error('decode failed'))
+      /*
+       * **끝나는 시각을 정해 둔다.** onload 도 onerror 도 안 부르고
+       * 가만히 있는 조합이 있다. 그러면 이 약속이 영원히 안 끝나고,
+       * 화면은 「사진을 올리는 중이에요」 에 걸린 채 다음 선택도
+       * 무시한다 — 쓰는 사람에게는 아무 일도 안 일어나는 것이다.
+       */
+      setTimeout(() => reject(new Error('decode timeout')), DECODE_TIMEOUT)
       img.src = url
     })
   } finally {

@@ -289,6 +289,16 @@ export async function putToStorage(uploadUrl: string, file: File): Promise<void>
       method: 'PUT',
       headers: { 'Content-Type': file.type },
       body: file,
+      /*
+       * **끊는 시각이 있어야 한다.** 우리 서버가 아니라 S3 로 직접
+       * 보내는 요청이라 `apiSend` 의 타임아웃(http.ts)이 안 걸린다.
+       *
+       * 없으면 지하철에서 한 번 멈춘 요청이 영원히 안 끝나고, 화면은
+       * 「사진을 올리는 중이에요」 에 걸린 채로 남는다. 더 나쁜 것은
+       * 그 뒤다 — 올리는 중이면 다음 선택을 무시하도록 되어 있어서,
+       * 사진을 다시 골라도 아무 일이 안 일어난다 (2026-09-10 신고).
+       */
+      signal: AbortSignal.timeout(30_000),
     })
   } catch {
     /*
