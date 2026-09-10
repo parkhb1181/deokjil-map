@@ -30,7 +30,20 @@ import { SubjectList } from './SubjectList'
  * 클래스는 globals.css 의 기존 어휘(sheet/dlist/drow)를 그대로 쓴다.
  */
 
-export const dynamicParams = false
+/**
+ * `dynamicParams` 를 켜 둔다 (기본값). 원래 `false` 였던 이유는 아래
+ * `generateStaticParams()` 주석에 있었다 — "켜면 `/a/아무말이나` 가 전부
+ * 200 이 되어 색인 쓰레기가 쌓인다."
+ *
+ * **그 문장이 지금 `find()` 구현과 맞지 않는다** (2026-09-10, 온디맨드
+ * 재검증 PR 리뷰). `find()` 는 `bySubject()` 에도 `knownSubject()` 에도
+ * 없는 이름이면 `null` 을 돌려주고 `notFound()` 가 뜬다 — 이 판정은
+ * `dynamicParams` 값과 무관하게 이미 걸려 있다. `false` 가 막던 것은
+ * "쓰레기 200" 이 아니라 **"목록 밖 이름의 렌더 자체"** 였고, 그 대가로
+ * `/e/[id]` 와 같은 문제가 생겼다 — 크롤러가 오늘 처음 올린 대상은
+ * `generateStaticParams()` 목록에 없어 `revalidatePath` 로도 못 살아나고
+ * 404 였다.
+ */
 
 /** 대상명 → 그 대상의 이벤트. 대소문자·앞뒤 공백만 정리해서 묶는다 */
 async function bySubject(): Promise<Map<string, EventItem[]>> {
@@ -46,11 +59,15 @@ async function bySubject(): Promise<Map<string, EventItem[]>> {
 }
 
 /**
- * 만들어 둘 주소.
+ * 빌드 시점에 미리 만들어 둘 주소.
  *
- * 지금 열린 대상 ∪ 원장에 남은 대상이다. 원장을 빼면 끝난 대상이 404 가
- * 되고, `dynamicParams` 를 켜면 `/a/아무말이나` 가 전부 200 이 되어
- * 색인 쓰레기가 쌓인다. 둘 사이의 답이 이 합집합이다.
+ * 지금 열린 대상 ∪ 원장에 남은 대상이다. 원장을 빼면 끝난 대상이 마지막
+ * 행사 종료일에 빌드 목록에서 빠져 이미 뿌린 링크가 그날 404 가 된다.
+ * `dynamicParams` 를 켰으므로(위 설명) 이 목록은 더 이상 "여기 없으면
+ * 무조건 404" 가 아니라 "여기 없어도 요청 시점에 새로 만든다" 다 — 그래도
+ * 목록을 계속 만드는 이유는 **빌드 시점에 최대한 미리 구워 둬야 첫 방문자가
+ * 렌더 지연 없이 정적 페이지를 받기 때문**이다. 목록 밖 이름은 `find()` 가
+ * `null` 을 돌려주면 여전히 404 다.
  */
 export async function generateStaticParams() {
   const live = [...(await bySubject()).keys()]
