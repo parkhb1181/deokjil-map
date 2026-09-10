@@ -2353,6 +2353,55 @@
 .header__login svg { width: 15px; height: 15px; }
 .header__login:active { background: #f2d900; }
 
+/* 로그인한 사람의 자리.
+   카카오 노랑을 쓰지 않는다 — 그 색은 「누르면 카카오로 간다」 는 뜻이고,
+   여기는 이미 로그인을 끝낸 사람이 자기 화면으로 들어가는 문이다.
+   사진과 이름이 들어와서 알약보다 조금 커지므로 배경을 옅게 깐다 */
+.header__me {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 12px 0 5px;
+  border-radius: 999px;
+  background: var(--bg-sunk);
+  color: var(--text);
+  font-size: var(--t-sub);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  max-width: 48vw;
+}
+.header__me:active { background: var(--border); }
+
+/* 사진칸. 사진이 없으면 첫 글자가 그대로 들어간다 */
+.header__mephoto {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.header__mephoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* 긴 닉네임이 로고를 밀어내지 않게 자른다. 열 글자까지 받는 칸이라
+   대부분은 안 잘린다 */
+.header__mename {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .header__go {
   flex: 0 0 auto;
   display: inline-flex;

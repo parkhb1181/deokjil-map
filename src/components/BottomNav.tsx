@@ -57,6 +57,29 @@ const COMPANION = {
   ),
 }
 
+/**
+ * 프로필 입구.
+ *
+ * 동행과 같은 이유로 링크다. 다른 화면으로 나가므로 활성 표시가 붙지 않는다.
+ *
+ * **맨 끝이다.** 앞의 넷은 행사를 보는 자리이고 이것은 나를 보는
+ * 자리라, 사이에 끼우면 앞뒤가 무슨 묶음인지 흐려진다. 하단 탭에서
+ * 오른쪽 끝이 계정 자리인 것은 이 카테고리 밖에서도 표준이다.
+ *
+ * 로그인 여부로 가리지 않는다. 비회원이 눌러도 그 화면이 로그인 안내를
+ * 띄우고, 여기서 감추면 로그인하러 갈 입구가 홈 헤더 하나뿐이 된다.
+ */
+const PROFILE = {
+  href: '/me',
+  label: '프로필',
+  icon: (
+    <>
+      <circle cx="12" cy="8" r="3.4" />
+      <path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6" />
+    </>
+  ),
+}
+
 interface Props {
   active: Tab
   /** 담은 개수. 0 이면 배지를 달지 않는다. 빈 배지는 노이즈다 */
@@ -122,6 +145,24 @@ export default function BottomNav({ active, savedCount, onChange, companion = fa
           </button>
         </Fragment>
       ))}
+
+      {companion && (
+        <a className="bottomnav__item" href={wf(PROFILE.href)}>
+          <svg
+            className="bottomnav__icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.9}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden
+          >
+            {PROFILE.icon}
+          </svg>
+          {PROFILE.label}
+        </a>
+      )}
     </nav>
   )
 }

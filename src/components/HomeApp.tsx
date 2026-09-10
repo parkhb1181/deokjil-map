@@ -11,6 +11,10 @@ import {
 import { track, trackVisit } from '@/lib/analytics'
 import { wf } from '@/lib/wireframe'
 import { isSignedIn } from '@/lib/auth/session'
+import { authed } from '@/lib/auth/authed'
+import { loadMe, saveMe, type MeBrief } from '@/lib/auth/me-cache'
+import { fetchMe } from '@/lib/api/users'
+import { USE_API } from '@/lib/api/config'
 import Logo from '@/components/Logo'
 import { KakaoMark } from '@/components/ui/Basics'
 import BottomNav, { type Tab } from '@/components/BottomNav'
@@ -67,6 +71,13 @@ export default function HomeApp({
    * 로그인한 사람이 첫 프레임에 「로그인」 을 한 번 보고 지나가기 때문이다.
    */
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
+  /**
+   * 헤더에 그릴 내 이름·사진. `null` 이면 아직 없다.
+   *
+   * 마지막으로 받은 값을 먼저 그리고 서버 값으로 덮는다. 이유는
+   * `me-cache.ts` 에 적어 두었다.
+   */
+  const [me, setMe] = useState<MeBrief | null>(null)
   const [tab, setTab] = useState<Tab>('browse')
   const [filter, setFilter] = useState<FilterState>(() => defaultFilter('1970-01-01'))
   // 담은 이벤트 id. 담은 순서를 유지한다
@@ -84,7 +95,29 @@ export default function HomeApp({
     setFilter((f) => ({ ...f, date: t }))
     /* 로그인 여부도 여기서 확정한다. 오늘 날짜와 같은 이유로 서버에서는
        읽을 수 없는 값이다 */
-    setSignedIn(isSignedIn())
+    const signed = isSignedIn()
+    setSignedIn(signed)
+    /*
+     * 이름과 사진은 서버에만 있다. 적어둔 것을 먼저 그리고 한 번
+     * 물어서 덮는다.
+     *
+     * **와이어프레임 주소에서만 부른다.** 실서비스 홈에는 이 자리가
+     * 아예 안 그려지므로, 가장 많이 열리는 화면에 요청을 하나 더
+     * 붙일 이유가 없다.
+     */
+    if (signed && wireframe && USE_API) {
+      setMe(loadMe())
+      authed((token) => fetchMe(token))
+        .then((m) => {
+          const brief: MeBrief = { nickname: m.nickname ?? '', image: m.profileImageUrl }
+          if (!brief.nickname) return
+          saveMe(brief)
+          setMe(brief)
+        })
+        /* 실패하면 적어둔 값이 그대로 남는다. 헤더 하나 때문에 화면에
+           오류를 띄우지 않는다 */
+        .catch(() => undefined)
+    }
     // 담아둔 목록 복원. localStorage 라 서버에서는 읽을 수 없다
     setSaved(loadBookmarks())
     // 방문·재방문 계상. 지표 0·5 의 원천이다
@@ -201,8 +234,36 @@ export default function HomeApp({
                 달라 하이드레이션이 어긋난다 (CLAUDE.md 의 날짜 규칙과
                 같은 이유다) */}
             {wireframe && signedIn !== null && (
-              <a className="header__login" href={wf(signedIn ? '/me' : '/login')}>
-                {signedIn ? '내 활동' : (
+              <a
+                className={signedIn ? 'header__me' : 'header__login'}
+                href={wf(signedIn ? '/me' : '/login')}
+              >
+                {signedIn ? (
+                  <>
+                    {/* 사진이 없거나 주소가 죽었으면 색 블록에 첫 글자를
+                        그린다. 프로필 화면(ProfileView)과 같은 처리다 */}
+                    <span className="header__mephoto">
+                      {me?.image ? (
+                        <img
+                          src={me.image}
+                          alt=""
+                          width={26}
+                          height={26}
+                          ref={(el) => {
+                            if (el && el.complete && el.naturalWidth === 0) el.remove()
+                          }}
+                        />
+                      ) : (
+                        (me?.nickname ?? '').slice(0, 1)
+                      )}
+                    </span>
+                    {/* 이름을 아직 못 받았으면 예전 문구로 둔다. 빈
+                        자리보다 낫고, 눌러서 가는 곳도 같다 */}
+                    <span className="header__mename">
+                      {me ? `${me.nickname} 님` : '내 활동'}
+                    </span>
+                  </>
+                ) : (
                   <>
                     <KakaoMark />
                     로그인

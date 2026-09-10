@@ -25,6 +25,8 @@
  * 하이드레이션이 어긋난다.
  */
 
+import { clearMe } from './me-cache'
+
 const ACCESS = 'duckmoim.access'
 const REFRESH = 'duckmoim.refresh'
 /** 로그인 뒤 돌아갈 곳. 카카오에 다녀오는 동안 들고 있을 데가 없다 */
@@ -86,6 +88,9 @@ export function clearTokens(): void {
   write(ACCESS, null)
   write(REFRESH, null)
   write(STATE, null)
+  /* 헤더에 쓰던 이름·사진도 같이 지운다. 안 지우면 다음 사람이 이
+     기기에서 남의 이름을 잠깐 본다 (me-cache.ts) */
+  clearMe()
 }
 
 export function isSignedIn(): boolean {
