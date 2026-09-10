@@ -365,13 +365,23 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
 
               지금은 고른 것을 512px jpeg 로 줄여 보내므로(pickPhoto) 형식과
               크기를 우리가 정한다. 못 읽는 사진일 때만 안내가 뜬다 */}
+          {/* **`hidden` 으로 숨기지 않는다.**
+
+              `hidden` 은 `display: none` 이고, 그 상태의 파일 입력은
+              감싼 label 을 눌러도 사진첩이 안 열리는 브라우저가 있다
+              (모바일 사파리에서 알려진 문제). 아무 일도 안 일어나므로
+              쓰는 사람에게는 기능이 없는 것과 같다.
+
+              대신 **투명하게 만들어 사진 위를 덮는다.** 누르는 것이
+              label 이 아니라 입력 자신이라 중간에 아무것도 끼지 않는다 */}
           <input
+            className="myid__file"
             type="file"
             accept="image/*"
             /* 목데이터 경로에는 올릴 서버가 없다 */
             disabled={!USE_API || uploading}
             onChange={pickPhoto}
-            hidden
+            aria-label="프로필 사진 바꾸기"
           />
         </label>
         <p className="pedit__hint">
