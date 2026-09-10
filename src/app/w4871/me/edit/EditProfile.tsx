@@ -342,7 +342,14 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
       {/* 사진이 맨 위 가운데다. 프로필에서 남이 먼저 보는 것이 사진이라
           폼 중간에 끼워 넣으면 비어 있어도 넘어가게 된다 */}
       <div className="pedit__pic">
-        <label className="myid__pic">
+        {/* **label 이 아니라 div 다.**
+
+            투명한 파일 입력을 사진 위에 덮어 두었는데, 그것을 label 로
+            감싸면 한 번의 누름이 두 번 열린다 — 입력이 스스로 열고,
+            그 클릭이 label 까지 올라가 label 이 입력을 한 번 더 연다.
+            브라우저에 따라 두 번째가 첫 번째를 덮어써서 고른 파일이
+            버려진다. 누르는 자리를 입력 하나로 둔다 */}
+        <div className="myid__pic">
           <Avatar name={nick || initial.nickname} src={pic ?? undefined} lg />
           <span className="myid__cam" aria-hidden>
             <svg viewBox="0 0 16 16">
@@ -383,7 +390,7 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
             onChange={pickPhoto}
             aria-label="프로필 사진 바꾸기"
           />
-        </label>
+        </div>
         <p className="pedit__hint">
           {uploading ? '사진을 올리는 중이에요' : '사진을 넣으면 같이 가자는 말을 더 많이 듣습니다'}
         </p>

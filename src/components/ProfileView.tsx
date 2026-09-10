@@ -313,10 +313,14 @@ export default function ProfileView({
                프로필이 아니라 남의 목록 한 줄로 보인다. 당근도 프로필
                화면에서 사진을 가운데 크게 둔다.
 
-               사진을 누르면 바로 고를 수 있다. 수정 화면에 들어가야만
-               바꿀 수 있으면 아바타가 기본값인 채로 남는 사람이 많아진다 */
+               **사진을 누르면 수정 화면으로 간다.** 여기에 파일 고르기를
+               직접 달아 두었었는데 `onChange` 가 없어서, 누르면 사진첩은
+               열리고 고른 뒤에는 아무 일도 안 일어났다 (2026-09-10 신고).
+               올리는 절차가 세 단계라(발급·전송·확정) 두 화면이 각자
+               들고 있으면 한쪽만 고쳐지는 날이 온다. 올리는 자리는
+               수정 화면 하나로 둔다 */
             <header className="myid">
-              <label className="myid__pic">
+              <Link className="myid__pic" href={wf('/me/edit')} aria-label="프로필 사진 바꾸기">
                 <Avatar name={user.nickname} src={user.profileImageUrl ?? undefined} lg />
                 <span className="myid__cam" aria-hidden>
                   <svg viewBox="0 0 16 16">
@@ -330,9 +334,7 @@ export default function ProfileView({
                     <circle cx="8" cy="8.4" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.4" />
                   </svg>
                 </span>
-                {/* 서버 허용값과 같게 좁힌다. 이유는 me/edit 쪽에 적었다 */}
-                <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
-              </label>
+              </Link>
 
               <div className="myid__main">
                 <p className="myid__name">{user.nickname}</p>
