@@ -6,7 +6,7 @@ import { ApiFailure } from '@/lib/api/http'
 import { fetchPublicProfile } from '@/lib/api/users'
 import { fetchUserPosts } from '@/lib/api/posts'
 import { toProfilePost } from '@/lib/profile-post'
-import { FIXTURE_ON, fixtureProfile, isFixtureId } from '@/lib/fixture-posts'
+import { FIXTURE_ON, fixtureProfile, isFixtureId, isHiddenPostId } from '@/lib/fixture-posts'
 
 /**
  * 공개 프로필 (AU-09).
@@ -108,7 +108,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       bio: me.bio,
       /* 접속이 관측된 적 없으면 null 이다. 화면은 그 줄을 안 그린다 */
       lastSeen: me.lastSeen ?? undefined,
-      posts: posts.items.map(toProfilePost),
+      /* 목록·상세에서 숨긴 글은 공개 프로필에서도 뺀다 */
+      posts: posts.items.filter((p) => !isHiddenPostId(p.id)).map(toProfilePost),
     }
   } catch (e) {
     /* 탈퇴했거나 가입을 안 끝낸 회원이다. 둘을 구분해 알리지 않는다 */

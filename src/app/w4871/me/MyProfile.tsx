@@ -26,6 +26,7 @@ import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
 import { getAccessToken } from '@/lib/auth/session'
 import { toProfilePost } from '@/lib/profile-post'
+import { isHiddenPostId } from '@/lib/fixture-posts'
 import { wf } from '@/lib/wireframe'
 
 type State =
@@ -75,7 +76,8 @@ export default function MyProfile() {
             bio: me.bio,
             /* 접속이 관측된 적 없으면 null 이다. 화면은 그 줄을 안 그린다 */
             lastSeen: me.lastSeen ?? undefined,
-            posts: ps.items.map(toProfilePost),
+            /* 목록·상세에서 숨긴 글은 내 내역에서도 뺀다. 한 곳만 빼면 거기서 링크가 남는다 */
+            posts: ps.items.filter((p) => !isHiddenPostId(p.id)).map(toProfilePost),
           },
           comments: cm.items.map((c) => ({
             id: c.id,
