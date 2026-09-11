@@ -4,7 +4,7 @@
     {
       "id": "fx_u1",
       "nickname": "도토",
-      "profileImageUrl": "/avatar/a1.webp",
+      "profileImageUrl": "/avatar/b7.webp",
       "bio": null,
       "lastSeen": "WITHIN_3_DAYS"
     },
@@ -18,7 +18,7 @@
     {
       "id": "fx_u3",
       "nickname": "2130",
-      "profileImageUrl": "/avatar/a2.webp",
+      "profileImageUrl": "/avatar/b2.webp",
       "bio": null,
       "lastSeen": "WITHIN_3_DAYS"
     },
@@ -32,7 +32,7 @@
     {
       "id": "fx_u5",
       "nickname": "하루",
-      "profileImageUrl": "/avatar/a3.webp",
+      "profileImageUrl": "/avatar/b3.webp",
       "bio": "생카 다니는 중",
       "lastSeen": "WITHIN_3_DAYS"
     },
@@ -46,7 +46,7 @@
     {
       "id": "fx_u7",
       "nickname": "뽀",
-      "profileImageUrl": "/avatar/a4.webp",
+      "profileImageUrl": "/avatar/b4.webp",
       "bio": null,
       "lastSeen": "WITHIN_3_DAYS"
     },
@@ -60,14 +60,14 @@
     {
       "id": "fx_u9",
       "nickname": "0904",
-      "profileImageUrl": "/avatar/a5.webp",
+      "profileImageUrl": "/avatar/b1.webp",
       "bio": null,
       "lastSeen": "WITHIN_3_DAYS"
     },
     {
       "id": "fx_u10",
       "nickname": "나비",
-      "profileImageUrl": null,
+      "profileImageUrl": "/avatar/b6.webp",
       "bio": null,
       "lastSeen": "WITHIN_WEEK"
     },
@@ -81,7 +81,7 @@
     {
       "id": "fx_u12",
       "nickname": "루이",
-      "profileImageUrl": null,
+      "profileImageUrl": "/avatar/b5.webp",
       "bio": "🍑",
       "lastSeen": "WITHIN_WEEK"
     }
@@ -138,7 +138,7 @@
         {
           "id": "fx_c5",
           "parentId": null,
-          "author": "fx_u9",
+          "author": "fx_u2",
           "secret": false,
           "createdAt": "2026-09-05T20:12:00+09:00",
           "content": "저도 갈게요 특전 교환도 가능합니다 ㅎㅎ"
@@ -252,7 +252,7 @@
         {
           "id": "fx_c15",
           "parentId": null,
-          "author": "fx_u7",
+          "author": "fx_u5",
           "secret": false,
           "createdAt": "2026-09-08T10:15:00+09:00",
           "content": "특전 교환 좋네요 컵홀더 중복된 게 있어서요"
@@ -260,7 +260,7 @@
         {
           "id": "fx_c16",
           "parentId": "fx_c15",
-          "author": "fx_u7",
+          "author": "fx_u5",
           "secret": true,
           "createdAt": "2026-09-08T10:16:00+09:00"
         }
@@ -286,7 +286,7 @@
         {
           "id": "fx_c17",
           "parentId": null,
-          "author": "fx_u12",
+          "author": "fx_u6",
           "secret": false,
           "createdAt": "2026-09-09T12:44:00+09:00",
           "content": "저도 조용한 편이라 좋습니다 7시에 맞춰 가겠습니다"
@@ -344,7 +344,7 @@
         {
           "id": "fx_c22",
           "parentId": null,
-          "author": "fx_u9",
+          "author": "fx_u1",
           "secret": false,
           "createdAt": "2026-09-07T11:02:00+09:00",
           "content": "3시 좋아요 저도 홍대 코스만 볼 생각이었어요"
@@ -416,7 +416,7 @@
         {
           "id": "fx_c29",
           "parentId": null,
-          "author": "fx_u7",
+          "author": "fx_u3",
           "secret": false,
           "createdAt": "2026-09-10T08:14:00+09:00",
           "content": "홍대 5곳은 안 가시나요?"
