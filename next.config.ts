@@ -82,7 +82,17 @@ const nextConfig: NextConfig = {
    * 여기서 /intro 를 그 파일로 연결한다.
    */
   async rewrites() {
-    return [{ source: '/intro', destination: '/intro/index.html' }]
+    return [
+      { source: '/intro', destination: '/intro/index.html' },
+      /*
+       * 동행 모집의 바깥 주소. 라우트는 와이어프레임 시절의 /w4871/p 에
+       * 그대로 있는데, 그 주소를 X 에 뿌리면 테스트 주소처럼 읽힌다.
+       * 짧은 주소로 받아 안쪽으로 넘긴다. 라우트를 옮기지 않는 이유는
+       * 이미 배포된 링크와 내부 이동(wf())이 전부 /w4871 을 보기 때문이다.
+       */
+      { source: '/p', destination: '/w4871/p' },
+      { source: '/p/:path*', destination: '/w4871/p/:path*' },
+    ]
   },
 }
 
