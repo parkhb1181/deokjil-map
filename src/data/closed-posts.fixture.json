@@ -1,0 +1,105 @@
+{
+  "_": "완료된 동행 모집글 고정 데이터. 왜 있는지는 src/lib/fixture-posts.ts 머리말에. 사용자 id 는 fx_u*, 글 id 는 fx_p*, 댓글 id 는 fx_c* 로 서버 id 와 절대 겹치지 않는다. 비밀 댓글은 content 를 아예 두지 않는다 — 방장이 될 수 있는 사람이 없어 누구에게도 본문이 없다.",
+
+  "users": [
+    { "id": "fx_u1",  "nickname": "도토",   "profileImageUrl": "/avatar/a1.webp", "bio": null,             "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u2",  "nickname": "밍구",   "profileImageUrl": null,               "bio": "🐤",             "lastSeen": "WITHIN_WEEK" },
+    { "id": "fx_u3",  "nickname": "2130",   "profileImageUrl": "/avatar/a2.webp", "bio": null,             "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u4",  "nickname": "쑤",    "profileImageUrl": null,               "bio": null,             "lastSeen": "WITHIN_WEEK" },
+    { "id": "fx_u5",  "nickname": "하루",   "profileImageUrl": "/avatar/a3.webp", "bio": "생카 다니는 중", "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u6",  "nickname": "yeonu",  "profileImageUrl": null,               "bio": null,             "lastSeen": "WITHIN_WEEK" },
+    { "id": "fx_u7",  "nickname": "뽀",    "profileImageUrl": "/avatar/a4.webp", "bio": null,             "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u8",  "nickname": "감자",   "profileImageUrl": null,               "bio": "홍대 근처 삼",   "lastSeen": "WITHIN_WEEK" },
+    { "id": "fx_u9",  "nickname": "0904",   "profileImageUrl": "/avatar/a5.webp", "bio": null,             "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u10", "nickname": "나비",   "profileImageUrl": null,               "bio": null,             "lastSeen": "WITHIN_WEEK" },
+    { "id": "fx_u11", "nickname": "쨈",    "profileImageUrl": null,               "bio": null,             "lastSeen": "WITHIN_3_DAYS" },
+    { "id": "fx_u12", "nickname": "루이",   "profileImageUrl": null,               "bio": "🍑",             "lastSeen": "WITHIN_WEEK" }
+  ],
+
+  "posts": [
+    {
+      "id": "fx_p1", "host": "fx_u1", "district": "홍대",
+      "title": "성호 생카 홍대 22곳 같이 도실 분",
+      "content": "성호 생카가 서울에 27곳인데 홍대에만 22곳이에요😭 혼자 다 돌 자신이 없어서 같이 가실 분 구해요. 오픈런은 안 하고 점심 먹고 천천히 돌 예정입니다!",
+      "capacity": 3, "meetAt": "2026-09-06T13:00:00+09:00", "createdAt": "2026-09-04T21:14:00+09:00",
+      "meetPoint": { "place": "톤앤매너 앞", "lat": 37.554302, "lng": 126.9287165 },
+      "comments": [
+        { "id": "fx_c1", "parentId": null,    "author": "fx_u7",  "secret": false, "createdAt": "2026-09-05T08:32:00+09:00", "content": "저요저요!! 홍대 사는데 오후 내내 비어있어요" },
+        { "id": "fx_c2", "parentId": "fx_c1", "author": "fx_u1",  "secret": true,  "createdAt": "2026-09-05T09:05:00+09:00" },
+        { "id": "fx_c3", "parentId": null,    "author": "fx_u11", "secret": false, "createdAt": "2026-09-05T13:47:00+09:00", "content": "혹시 용산 쪽은 안 가시나요? 4곳 있던데" },
+        { "id": "fx_c4", "parentId": "fx_c3", "author": "fx_u1",  "secret": false, "createdAt": "2026-09-05T14:20:00+09:00", "content": "용산은 다음 날 따로 가려구요 이번엔 홍대만요!" },
+        { "id": "fx_c5", "parentId": null,    "author": "fx_u9",  "secret": false, "createdAt": "2026-09-05T20:12:00+09:00", "content": "저도 갈게요 특전 교환도 가능합니다 ㅎㅎ" },
+        { "id": "fx_c6", "parentId": "fx_c5", "author": "fx_u1",  "secret": true,  "createdAt": "2026-09-05T20:40:00+09:00" }
+      ]
+    },
+    {
+      "id": "fx_p2", "host": "fx_u2", "district": "홍대",
+      "title": "의주 생카 홍대 5곳만 도실 분 계실까요,,",
+      "content": "의주 생카 9곳 중에 홍대에 5곳이고 합정 2곳 용산 2곳이라 흩어져 있어서요.. 저는 홍대 다섯 곳만 볼 생각인데 혹시 동선 겹치는 분 계실까 해서 올려봐요 생카가 처음이라 좀 긴장되네요",
+      "capacity": 2, "meetAt": "2026-09-06T15:00:00+09:00", "createdAt": "2026-09-05T19:48:00+09:00",
+      "meetPoint": { "place": "홍대갤러리 키르큐펠 앞", "lat": 37.5544453, "lng": 126.926069 },
+      "comments": [
+        { "id": "fx_c7", "parentId": null,    "author": "fx_u8",  "secret": false, "createdAt": "2026-09-05T23:15:00+09:00", "content": "저도 처음이에요,, 같이 가면 덜 어색할 것 같아서요 3시 괜찮아요" },
+        { "id": "fx_c8", "parentId": "fx_c7", "author": "fx_u2",  "secret": true,  "createdAt": "2026-09-06T07:52:00+09:00" },
+        { "id": "fx_c9", "parentId": null,    "author": "fx_u10", "secret": false, "createdAt": "2026-09-06T09:30:00+09:00", "content": "홍대 5곳은 다 걸어서 15분 안이라 금방 도실 거예요" }
+      ]
+    },
+    {
+      "id": "fx_p3", "host": "fx_u3", "district": "합정",
+      "title": "준규 생카 홍대 합정 나눠서 도실 분",
+      "content": "준규 생카 9곳이 홍대 5곳 합정 4곳으로 딱 반반이에요. 넷이서 둘씩 나눠 돌고 나중에 특전 바꾸면 어떨까요? 평일 저녁이라 줄은 거의 없을 것 같아요",
+      "capacity": 4, "meetAt": "2026-09-09T18:30:00+09:00", "createdAt": "2026-09-07T12:05:00+09:00",
+      "meetPoint": { "place": "카페 꼬모 앞", "lat": 37.5519165, "lng": 126.9218968 },
+      "comments": [
+        { "id": "fx_c10", "parentId": null,     "author": "fx_u10", "secret": false, "createdAt": "2026-09-07T12:58:00+09:00", "content": "합정 팀 할게요 퇴근이 6시라 딱이에요" },
+        { "id": "fx_c11", "parentId": "fx_c10", "author": "fx_u3",  "secret": true,  "createdAt": "2026-09-07T13:20:00+09:00" },
+        { "id": "fx_c12", "parentId": null,     "author": "fx_u12", "secret": false, "createdAt": "2026-09-07T18:41:00+09:00", "content": "저 홍대팀이요 7시쯤 합류해도 될까요?" },
+        { "id": "fx_c13", "parentId": "fx_c12", "author": "fx_u3",  "secret": false, "createdAt": "2026-09-07T19:02:00+09:00", "content": "네 늦게 오셔도 돼요 9시까지 하는 데가 많아요" },
+        { "id": "fx_c14", "parentId": "fx_c12", "author": "fx_u3",  "secret": true,  "createdAt": "2026-09-07T19:03:00+09:00" },
+        { "id": "fx_c15", "parentId": null,     "author": "fx_u7",  "secret": false, "createdAt": "2026-09-08T10:15:00+09:00", "content": "특전 교환 좋네요 컵홀더 중복된 게 있어서요" },
+        { "id": "fx_c16", "parentId": "fx_c15", "author": "fx_u7",  "secret": true,  "createdAt": "2026-09-08T10:16:00+09:00" }
+      ]
+    },
+    {
+      "id": "fx_p4", "host": "fx_u4", "district": "홍대",
+      "title": "이정현 생카 홍대 6곳 저녁에 도실 분",
+      "content": "홍대 6곳 합정 3곳 중에 홍대만 돕니다. 퇴근하고 7시에 시작해서 두세 곳 볼 생각입니다. 조용히 다니실 분이면 좋겠습니다.",
+      "capacity": 2, "meetAt": "2026-09-10T19:00:00+09:00", "createdAt": "2026-09-09T08:30:00+09:00",
+      "meetPoint": { "place": "악센트 와우 앞", "lat": 37.5549328, "lng": 126.9267345 },
+      "comments": [
+        { "id": "fx_c17", "parentId": null,     "author": "fx_u12", "secret": false, "createdAt": "2026-09-09T12:44:00+09:00", "content": "저도 조용한 편이라 좋습니다 7시에 맞춰 가겠습니다" },
+        { "id": "fx_c18", "parentId": "fx_c17", "author": "fx_u4",  "secret": true,  "createdAt": "2026-09-09T13:10:00+09:00" },
+        { "id": "fx_c19", "parentId": null,     "author": "fx_u9",  "secret": false, "createdAt": "2026-09-10T09:05:00+09:00", "content": "악센트 와우 오늘 특전 4종이라고 하네요 참고하세요" }
+      ]
+    },
+    {
+      "id": "fx_p5", "host": "fx_u5", "district": "홍대",
+      "title": "현석 생카 다섯 동네라 홍대만 같이 도실 분",
+      "content": "현석 생카가 12곳인데 홍대 7, 합정 2, 건대 1, 강남 1, 그 외 1로 다섯 동네에 흩어져 있어요. 하루에 다 도는 건 무리라 홍대 7곳만 묶어서 돌려고 해요. 포토트리부터 시작해서 걸어서 다 갈 수 있는 거리예요.",
+      "capacity": 3, "meetAt": "2026-09-08T15:00:00+09:00", "createdAt": "2026-09-06T22:10:00+09:00",
+      "meetPoint": { "place": "포토트리 앞", "lat": 37.5570448, "lng": 126.9290556 },
+      "comments": [
+        { "id": "fx_c20", "parentId": null,     "author": "fx_u11", "secret": false, "createdAt": "2026-09-07T00:31:00+09:00", "content": "건대 쪽 1곳은 따로 가시는 건가요? 저 건대 근처라 그쪽만 같이 갈 수도 있어서요" },
+        { "id": "fx_c21", "parentId": "fx_c20", "author": "fx_u5",  "secret": false, "createdAt": "2026-09-07T08:15:00+09:00", "content": "건대는 다음 날 혼자 가려구요 홍대만 같이 가요!" },
+        { "id": "fx_c22", "parentId": null,     "author": "fx_u9",  "secret": false, "createdAt": "2026-09-07T11:02:00+09:00", "content": "3시 좋아요 저도 홍대 코스만 볼 생각이었어요" },
+        { "id": "fx_c23", "parentId": "fx_c22", "author": "fx_u5",  "secret": true,  "createdAt": "2026-09-07T11:30:00+09:00" },
+        { "id": "fx_c24", "parentId": null,     "author": "fx_u8",  "secret": false, "createdAt": "2026-09-07T16:48:00+09:00", "content": "포토트리 프레임 이벤트 한다던데 그것도 하실 건가요?" },
+        { "id": "fx_c25", "parentId": "fx_c24", "author": "fx_u5",  "secret": false, "createdAt": "2026-09-07T17:05:00+09:00", "content": "네 거기서 만나서 그것부터 할게요" },
+        { "id": "fx_c26", "parentId": "fx_c24", "author": "fx_u5",  "secret": true,  "createdAt": "2026-09-07T17:06:00+09:00" }
+      ]
+    },
+    {
+      "id": "fx_p6", "host": "fx_u6", "district": "용산",
+      "title": "연준 생카 용산 7곳 같이 가실 분",
+      "content": "연준 생카 12곳 중 용산에 7곳이 모여 있어요. 하이브 사옥 뒤쪽이라 다 붙어 있어서 한 시간이면 돌아요. 디멘션갤러리 앞에서 만나요.",
+      "capacity": 2, "meetAt": "2026-09-10T18:00:00+09:00", "createdAt": "2026-09-09T20:22:00+09:00",
+      "meetPoint": { "place": "디멘션갤러리 앞", "lat": 37.5245821, "lng": 126.9666249 },
+      "comments": [
+        { "id": "fx_c27", "parentId": null,     "author": "fx_u12", "secret": false, "createdAt": "2026-09-09T21:03:00+09:00", "content": "6시 가능해요! 퇴근하고 바로 갈게요" },
+        { "id": "fx_c28", "parentId": "fx_c27", "author": "fx_u6",  "secret": true,  "createdAt": "2026-09-09T21:30:00+09:00" },
+        { "id": "fx_c29", "parentId": null,     "author": "fx_u7",  "secret": false, "createdAt": "2026-09-10T08:14:00+09:00", "content": "홍대 5곳은 안 가시나요?" },
+        { "id": "fx_c30", "parentId": "fx_c29", "author": "fx_u6",  "secret": false, "createdAt": "2026-09-10T08:40:00+09:00", "content": "홍대는 주말에 따로요 이번엔 용산만요" }
+      ]
+    }
+  ]
+}

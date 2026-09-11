@@ -6,6 +6,7 @@ import { ApiFailure } from '@/lib/api/http'
 import { fetchPublicProfile } from '@/lib/api/users'
 import { fetchUserPosts } from '@/lib/api/posts'
 import { toProfilePost } from '@/lib/profile-post'
+import { FIXTURE_ON, fixtureProfile, isFixtureId } from '@/lib/fixture-posts'
 
 /**
  * 공개 프로필 (AU-09).
@@ -88,6 +89,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     const user = USERS[id]
     if (!user) notFound()
     return <ProfileView user={user} />
+  }
+
+  /* 고정 완료글의 방장. 서버에 없는 사람이라 접두어로 먼저 가른다 (lib/fixture-posts) */
+  if (isFixtureId(id)) {
+    const hit = FIXTURE_ON ? fixtureProfile(id) : null
+    if (!hit) notFound()
+    return <ProfileView user={hit} />
   }
 
   let user: ProfileData

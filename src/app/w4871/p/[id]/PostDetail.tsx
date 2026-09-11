@@ -90,10 +90,16 @@ const LOGIN_DESC: Record<LoginWhy, string> = {
   report: '신고하려면 로그인해주세요. 신고 사실은 상대에게 알리지 않아요.',
 }
 
-export default function PostDetail({ post, comments, hostId }: {
+export default function PostDetail({ post, comments, hostId, noReport = false }: {
   post: CompanionPost
   comments: PostComment[]
   hostId: string
+  /**
+   * 신고 버튼을 아예 안 그린다. 서버에 없는 고정 완료글(lib/fixture-posts)
+   * 에서만 켠다 — 없는 글을 신고하면 404 가 오고, 그걸 본 사람은
+   * 서비스가 고장났다고 읽는다. 진짜 글에서는 절대 켜지 않는다.
+   */
+  noReport?: boolean
 }) {
   const router = useRouter()
   /*
@@ -347,7 +353,7 @@ export default function PostDetail({ post, comments, hostId }: {
               </Button>
             </>
           )
-        ) : (
+        ) : noReport ? null : (
           /* 신고도 쓰는 행동이라 로그인 뒤에 한다. 댓글 신고만 막고
              여기를 열어두면 같은 행동이 자리에 따라 다르게 동작한다 */
           <Button
@@ -463,7 +469,7 @@ export default function PostDetail({ post, comments, hostId }: {
           {/* 글 자체를 신고하는 자리. 헤더에도 있지만 거기는 방장일 때
              「모집 완료」 로 바뀌어 사라지고, 무엇을 신고하는지도
              갈리지 않는다. 본문 바로 아래라야 「이 글」 임이 분명하다 */}
-          {!isHost && (
+          {!isHost && !noReport && (
             <button
               type="button"
               className="post__report"

@@ -4,6 +4,7 @@ import { USE_API } from '@/lib/api/config'
 import { fetchPosts } from '@/lib/api/posts'
 import PostList from './PostList'
 import { toListItem, type ListItem } from '@/lib/list-item'
+import { FIXTURE_ON, fixtureListItems } from '@/lib/fixture-posts'
 
 /**
  * 모집글 목록.
@@ -46,5 +47,13 @@ export default async function Page() {
    */
   const page = await fetchPosts({})
 
-  return <PostList posts={page.items.map(toListItem)} nextCursor={page.nextCursor} />
+  /*
+   * 완료글 고정 데이터는 첫 장 앞에만 붙는다. 전부 지난 글이라 서버
+   * 정렬(만남시각 오름차순)에서도 앞자리다. 커서는 서버 글 기준이라
+   * 이어지는 장에 다시 나오지 않는다. 왜 있는지는 lib/fixture-posts 에
+   */
+  const items = page.items.map(toListItem)
+  const posts = FIXTURE_ON ? [...fixtureListItems(), ...items] : items
+
+  return <PostList posts={posts} nextCursor={page.nextCursor} />
 }

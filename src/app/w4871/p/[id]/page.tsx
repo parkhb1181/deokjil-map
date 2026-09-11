@@ -8,6 +8,7 @@ import { fetchPost } from '@/lib/api/posts'
 import { fetchComments } from '@/lib/api/comments'
 import { ApiFailure } from '@/lib/api/http'
 import PostDetail from './PostDetail'
+import { FIXTURE_ON, fixturePost, isFixtureId } from '@/lib/fixture-posts'
 
 /**
  * 모집글 상세.
@@ -79,6 +80,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (!USE_API) {
     if (id !== DATA.post.id) notFound()
     return <PostDetail post={POST} comments={COMMENTS} hostId={DATA.hostId} />
+  }
+
+  /*
+   * 고정 완료글은 서버에 없다. 접두어로 먼저 갈라 서버에 묻지 않는다 —
+   * 물으면 404 가 오고, 그건 「없는 글」 로 보여 주소를 의심하게 한다.
+   * 방장이 될 수 있는 사람이 없어 hostId 는 아무와도 안 맞고, 그래서
+   * 비밀 댓글 본문이 누구에게도 없다. 신고는 없는 글이라 막는다
+   */
+  if (isFixtureId(id)) {
+    const hit = FIXTURE_ON ? fixturePost(id) : null
+    if (!hit) notFound()
+    return <PostDetail post={hit.post} comments={hit.comments} hostId={hit.post.author.id} noReport />
   }
 
   let post: CompanionPost
