@@ -108,7 +108,8 @@ function author(id: string): PostAuthor {
 
 /* 목록 미리보기. 서버는 본문 앞을 잘라 주는데, 여기서는 같은 규칙으로 잘라 둔다 */
 function excerpt(content: string): string {
-  return content.length > 100 ? content.slice(0, 100) + '…' : content
+  const flat = content.replace(/\s*\n+\s*/g, ' ')
+  return flat.length > 100 ? flat.slice(0, 100) + '…' : flat
 }
 
 function toPost(p: RawPost): CompanionPost {
