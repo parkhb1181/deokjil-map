@@ -43,6 +43,25 @@ export function isFixtureId(id: string): boolean {
   return id.startsWith('fx_')
 }
 
+/**
+ * 목록과 상세에서 숨길 서버 글.
+ *
+ * 모집글에는 삭제가 없다 (ADR-0002). 잘못 쓴 글은 마감하는 것이
+ * 정해진 길인데, 마감해도 「전체」 목록에는 남는다. 아래는 프로덕션에서
+ * 시험하느라 쓴 글이라 남아 있으면 안 되는 것들이다.
+ *
+ * 첫 장에서 한 건이 빠지면 그 장이 한 줄 짧아진다. 커서는 서버 글
+ * 기준이라 다음 장이 밀리거나 겹치지는 않는다. 건수가 늘면 이 방식은
+ * 안 맞다 — 그때는 ADR-0002 의 「뒤집는 조건」 대로 삭제를 논의한다.
+ */
+const HIDDEN_POST_IDS = new Set<string>([
+  '4', // [확인용] 서울광장 테스트 글 — 2026-09 배포 확인용
+])
+
+export function isHiddenPostId(id: string): boolean {
+  return HIDDEN_POST_IDS.has(id)
+}
+
 type RawUser = {
   id: string
   nickname: string
@@ -62,6 +81,13 @@ type RawPost = {
   id: string
   host: string
   district: string
+  /**
+   * 그 글이 가리키던 실제 행사의 제목과 포스터. 포스터는 수집원 CDN 의
+   * 원본 주소 그대로다 — 복제해 두지 않는다 (CLAUDE.md). eventId 는
+   * 일부러 없다. 행사가 이미 내려가서 `/e/…` 로 링크하면 404 다.
+   */
+  eventTitle: string
+  eventImageUrl: string
   title: string
   content: string
   capacity: number
@@ -89,8 +115,8 @@ function toPost(p: RawPost): CompanionPost {
   return {
     id: p.id,
     eventId: null,
-    eventTitle: null,
-    eventImageUrl: null,
+    eventTitle: p.eventTitle,
+    eventImageUrl: p.eventImageUrl,
     title: p.title,
     content: p.content,
     status: 'CLOSED',
@@ -128,7 +154,7 @@ export function fixtureListItems(): ListItem[] {
     .map((p) => ({
       id: p.id,
       eventId: null,
-      eventTitle: null,
+      eventTitle: p.eventTitle ?? null,
       title: p.title,
       excerpt: excerpt(p.content),
       status: p.status,
@@ -138,7 +164,7 @@ export function fixtureListItems(): ListItem[] {
       meetPoint: p.meetPoint,
       author: { id: p.author.id, nickname: p.author.nickname, imageUrl: p.author.profileImageUrl },
       commentCount: p.commentCount,
-      imageUrl: null,
+      imageUrl: p.eventImageUrl ?? null,
     }))
 }
 
@@ -168,7 +194,7 @@ export function fixtureProfile(id: string): ProfileData | null {
         closedReason: 'MANUAL' as const,
         meetAt: p.meetAt,
         district: p.district,
-        imageUrl: null,
+        imageUrl: p.eventImageUrl,
         commentCount: p.comments.length,
       })),
   }

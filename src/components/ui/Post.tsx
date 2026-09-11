@@ -10,6 +10,17 @@ import { Avatar, Badge, type PostState } from './Basics'
 import type { ClosedReason, CommentState } from '@/types'
 import { isClosed, isPlaceholder } from '@/types'
 import { swatchOf } from '@/lib/visual'
+import { posterSrc } from '@/lib/poster'
+
+/**
+ * 목록 썸네일에 부를 폭.
+ *
+ * 칸이 130px 이고 3배 화면까지 봐도 390 이다. 행사 카드와 지도는
+ * `posterSrc` 를 쓰는데 여기만 원본 주소를 그대로 넣고 있었다 —
+ * 2504×3531 짜리 포스터를 130px 칸에 그리느라 글 하나에 수 MB 를
+ * 받았다. 2026-09-11 Lighthouse 「Improve image delivery」 가 이것이다.
+ */
+const THUMB_W = 400
 
 /* ── 모집글 카드 ──────────────────────────────────────── */
 
@@ -44,7 +55,7 @@ export function PostCard({ title, state, reason, when, where, image, comments }:
     <article className={`pcard${isClosed(state) ? ' is-done' : ''}`}>
       <div className="pcard__thumb">
         {image ? (
-          <img className="pcard__photo" src={image} alt="" loading="lazy" />
+          <img className="pcard__photo" src={posterSrc(image, THUMB_W)} alt="" loading="lazy" />
         ) : (
           <span
             className="pcard__photo pcard__photo--none"

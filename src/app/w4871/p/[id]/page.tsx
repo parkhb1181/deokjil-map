@@ -8,7 +8,7 @@ import { fetchPost } from '@/lib/api/posts'
 import { fetchComments } from '@/lib/api/comments'
 import { ApiFailure } from '@/lib/api/http'
 import PostDetail from './PostDetail'
-import { FIXTURE_ON, fixturePost, isFixtureId } from '@/lib/fixture-posts'
+import { FIXTURE_ON, fixturePost, isFixtureId, isHiddenPostId } from '@/lib/fixture-posts'
 
 /**
  * 모집글 상세.
@@ -93,6 +93,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     if (!hit) notFound()
     return <PostDetail post={hit.post} comments={hit.comments} hostId={hit.post.author.id} noReport />
   }
+
+  /* 목록에서 뺀 글은 주소로 들어와도 없는 것으로 본다. 한쪽만 막으면 링크가 남는다 */
+  if (isHiddenPostId(id)) notFound()
 
   /*
    * **글과 댓글을 동시에 부른다.**

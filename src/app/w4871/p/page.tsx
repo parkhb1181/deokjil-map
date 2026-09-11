@@ -4,7 +4,7 @@ import { USE_API } from '@/lib/api/config'
 import { fetchPosts } from '@/lib/api/posts'
 import PostList from './PostList'
 import { toListItem, type ListItem } from '@/lib/list-item'
-import { FIXTURE_ON, fixtureListItems } from '@/lib/fixture-posts'
+import { FIXTURE_ON, fixtureListItems, isHiddenPostId } from '@/lib/fixture-posts'
 
 /**
  * 모집글 목록.
@@ -52,7 +52,7 @@ export default async function Page() {
    * 정렬(만남시각 오름차순)에서도 앞자리다. 커서는 서버 글 기준이라
    * 이어지는 장에 다시 나오지 않는다. 왜 있는지는 lib/fixture-posts 에
    */
-  const items = page.items.map(toListItem)
+  const items = page.items.filter((p) => !isHiddenPostId(p.id)).map(toListItem)
   const posts = FIXTURE_ON ? [...fixtureListItems(), ...items] : items
 
   return <PostList posts={posts} nextCursor={page.nextCursor} />
