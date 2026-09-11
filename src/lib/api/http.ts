@@ -113,21 +113,42 @@ export async function apiGet<T>(
 ): Promise<T> {
   /* 주소 조립은 try 밖이다. 안에 두면 NO_API_BASE 가 NETWORK 로 감싸진다 */
   const target = url(path, params)
+  const init: RequestInit = {
+    headers: {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    ...(token || cache === 'fresh'
+      ? { cache: 'no-store' as const }
+      : { next: { revalidate: REVALIDATE_SECONDS } }),
+  }
+
   let res: Response
   try {
-    res = await fetch(target, {
-      headers: {
-        Accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      signal: cutoff(READ_TIMEOUT),
-      ...(token || cache === 'fresh'
-        ? { cache: 'no-store' as const }
-        : { next: { revalidate: REVALIDATE_SECONDS } }),
-    })
-  } catch (e) {
-    /* 여기 오는 것은 DNS·TLS·타임아웃이다. 서버는 아무 말도 안 했다 */
-    throw new ApiFailure('NETWORK', e instanceof Error ? e.message : '서버에 닿지 못했습니다', 0)
+    res = await fetch(target, { ...init, signal: cutoff(READ_TIMEOUT) })
+  } catch (first) {
+    /*
+     * 여기 오는 것은 DNS·TLS·타임아웃이다. 서버는 아무 말도 안 했다.
+     *
+     * **읽기는 한 번 더 시도한다.** 빌드가 정적 페이지 300장을 만들며
+     * 같은 서버를 수백 번 부르는데, 그중 하나가 연결 단계에서 미끄러지면
+     * 빌드 전체가 죽었다 (2026-09-11, 두 번 연속 다른 페이지에서). 읽기는
+     * 두 번 가도 같은 결과라 되풀이해도 안전하다. 쓰기(apiSend)는 안 한다.
+     *
+     * 캐시 없는 읽기(fresh · 토큰)도 같이 되풀이한다 — 읽기라는 성질은
+     * 같고, 화면이 뜨다 마는 것보다 0.5초 늦는 편이 낫다.
+     */
+    await new Promise((r) => setTimeout(r, 500))
+    try {
+      res = await fetch(target, { ...init, signal: cutoff(READ_TIMEOUT) })
+    } catch {
+      const e = first
+      /* fetch 는 「fetch failed」 만 말하고 진짜 이유(ECONNRESET · ENOTFOUND 등)는
+         cause 에 숨긴다. 그걸 안 실으면 로그를 봐도 무엇이 끊겼는지 모른다 */
+      const inner = e instanceof Error ? e.cause : undefined
+      const cause = inner ? ` (${inner instanceof Error ? inner.message : String(inner)})` : ''
+      throw new ApiFailure('NETWORK', (e instanceof Error ? e.message : '서버에 닿지 못했습니다') + cause, 0)
+    }
   }
 
   if (!res.ok) {

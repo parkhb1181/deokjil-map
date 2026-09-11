@@ -94,9 +94,24 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     return <PostDetail post={hit.post} comments={hit.comments} hostId={hit.post.author.id} noReport />
   }
 
+  /*
+   * **글과 댓글을 동시에 부른다.**
+   *
+   * 차례로 기다렸더니 상세가 뜨기까지 1.4초가 걸렸다 (2026-09-11 실측,
+   * 서버 응답 자체는 둘 합쳐 250ms). 이 함수는 Vercel 이 미국에서
+   * 돌리고 API 는 서울에 있어서 왕복 하나가 200ms 안팎이다. 둘을 차례로
+   * 기다리면 그 왕복이 두 번 쌓인다.
+   *
+   * 댓글 약속은 미리 붙잡아 둔다. 글이 404 로 먼저 던져 `notFound()` 로
+   * 나가면 댓글 쪽 거부가 아무도 안 받은 채 남아 경고가 뜬다.
+   */
+  const postP = fetchPost(id)
+  const commentsP = fetchComments(id)
+  commentsP.catch(() => undefined)
+
   let post: CompanionPost
   try {
-    post = await fetchPost(id)
+    post = await postP
   } catch (e) {
     /*
      * 없는 글이면 404 화면으로 보낸다. 다른 실패는 그대로 던져 에러
@@ -108,7 +123,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   }
 
   /* 첫 장만 받는다. 이어지는 장은 화면이 부른다 (목록과 같은 이유) */
-  const comments = await fetchComments(id)
+  const comments = await commentsP
 
   return <PostDetail post={post} comments={comments.items} hostId={post.author.id} />
 }
