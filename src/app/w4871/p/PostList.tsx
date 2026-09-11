@@ -29,15 +29,6 @@ import { toListItem, type ListItem } from '@/lib/list-item'
    Next 가 막는다 — 이유는 그 파일에 적어 뒀다 */
 export type { ListItem }
 
-/* 상태 필터. 기본은 모집중만 본다. 끝난 글까지 섞으면
-   목록이 두 배가 되고 정작 갈 수 있는 글이 묻힌다 */
-
-
-const TABS = [
-  { key: 'OPEN', label: '모집중' },
-  { key: 'all', label: '전체' },
-] as const
-
 /* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
    API 가 붙으면 이 상태와 아래 whoami 막대를 지운다 */
 const VIEWS = ['정상', '비었음', '실패', '기다리는 중'] as const
@@ -57,7 +48,6 @@ export default function PostList({
    */
   nextCursor?: string | null
 }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('OPEN')
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
   const [ask, setAsk] = useState(false)
@@ -76,7 +66,7 @@ export default function PostList({
   const hold = USE_API ? !canWrite(viewer.sanction) : devHold
 
   /**
-   * 상태 탭 + 검색.
+   * 검색.
    *
    * **브라우저에서 거른다.** 목록이 이미 다 내려와 있어서 타자 칠 때마다
    * 바로 좁혀진다. 서버로 보내면 글자 하나에 한 번씩 왕복한다.
@@ -131,13 +121,33 @@ export default function PostList({
    * 지금은 그대로 둔다. 글이 스무 건을 넘기 시작하면 그때 옮긴다.
    */
   const list = useMemo(() => {
-    const byState = tab === 'OPEN' ? all.filter((p) => p.status === 'OPEN') : all
     const key = q.trim().toLowerCase()
-    if (!key) return byState
-    return byState.filter((p) =>
-      `${p.title} ${p.meetPoint.place} ${p.eventTitle ?? ''}`.toLowerCase().includes(key),
-    )
-  }, [all, tab, q])
+    const matched = key
+      ? all.filter((p) =>
+          `${p.title} ${p.meetPoint.place} ${p.eventTitle ?? ''}`.toLowerCase().includes(key),
+        )
+      : all
+
+    /*
+     * **끝난 글은 맨 아래로 민다.**
+     *
+     * 전에는 「모집중」 과 「전체」 탭으로 갈라 두었다. 섞으면 갈 수 있는
+     * 글이 묻힌다는 이유였는데, 탭을 나눠 두니 이번엔 끝난 글을 보려면
+     * 그런 탭이 있다는 것을 알아야 했다. 대부분은 기본 탭만 보고 나간다.
+     *
+     * 한 줄로 합치되 순서로 가른다. 위에서부터 읽으면 갈 수 있는 글이
+     * 먼저 나오고, 끝까지 내리면 지난 글이 나온다. 끝난 글은 회색에
+     * 「모집 완료」 배지가 붙어 있어(`PostCard`) 줄이 바뀌는 지점이
+     * 눈에 보인다.
+     *
+     * **무리 안에서는 서버가 준 순서를 그대로 둔다.** 여기서 다시 정렬하면
+     * 다음 장을 받을 때 이미 보고 있던 줄의 순서가 바뀐다. 지금은 끝난
+     * 글 묶음이 아래로 내려갈 뿐이라 읽던 자리가 흔들리지 않는다.
+     */
+    const open = matched.filter((p) => p.status === 'OPEN')
+    const done = matched.filter((p) => p.status !== 'OPEN')
+    return [...open, ...done]
+  }, [all, q])
 
   return (
     <PageShell title="동행 모집">
@@ -166,8 +176,7 @@ export default function PostList({
       )}
 
       <div className="plist">
-        {/* 검색은 탭 위에 둔다. 아래에 두면 탭을 바꿀 때마다 검색어가
-            남아 있는지 눈으로 확인하러 내려가야 한다 */}
+        {/* 목록 맨 위에 둔다. 좁히는 일이 한 자리에서만 일어나야 한다 */}
         <div className="psearch">
           <svg viewBox="0 0 16 16" aria-hidden focusable="false">
             <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
@@ -180,19 +189,6 @@ export default function PostList({
             placeholder="제목 · 장소 · 행사로 찾기"
             aria-label="모집글 검색"
           />
-        </div>
-
-        <div className="tabs">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              className={`tabs__item${t.key === tab ? ' tabs__item--on' : ''}`}
-              onClick={() => setTab(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
         </div>
 
         {view === '기다리는 중' && (
@@ -241,30 +237,22 @@ export default function PostList({
           **진짜로 한 건도 없을 때.**
 
           이 분기가 없었다. 목데이터에는 늘 글이 있었고 빈 화면은 위의
-          개발용 토글로만 볼 수 있어서, 서버가 0건을 주면 머리말과 탭만
+          개발용 토글로만 볼 수 있어서, 서버가 0건을 주면 머리말만
           남고 **아무 말도 없는 화면**이 됐다. 실제로 그 상태를 봤다
           (2026-09-09, 배포된 API 의 모집글이 0건이었다).
 
-          모집중 탭에서 비었을 때는 전체를 권한다. 끝난 글이라도 있으면
-          「이 서비스에 글이 있긴 하구나」 가 보이고, 그것도 없으면 아래
-          문구가 그대로 맞다.
+          문구가 하나다. 전에는 「모집중」 탭이 비었을 때 「전체 보기」 를
+          권했는데, 탭을 없애면서 권할 곳이 사라졌다 — 끝난 글이 있으면
+          그것이 이미 아래에 보인다.
         */}
         {view === '정상' && list.length === 0 && !q.trim() && (
           <Blank
-            title={tab === 'OPEN' ? '지금 모집중인 글이 없어요' : '아직 모집글이 없어요'}
-            desc={
-              tab === 'OPEN' ? '끝난 글까지 보거나 직접 써보세요' : '처음으로 동행을 구해보세요'
-            }
+            title="아직 모집글이 없어요"
+            desc="처음으로 동행을 구해보세요"
             action={
-              tab === 'OPEN' ? (
-                <Button size="sm" tone="ghost" onClick={() => setTab('all')}>
-                  전체 보기
-                </Button>
-              ) : (
-                <Button size="sm" onClick={() => setAsk(true)}>
-                  글쓰기
-                </Button>
-              )
+              <Button size="sm" onClick={() => setAsk(true)}>
+                글쓰기
+              </Button>
             }
           />
         )}
