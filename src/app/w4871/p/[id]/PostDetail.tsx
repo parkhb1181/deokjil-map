@@ -414,7 +414,7 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
 
       <article className="post">
         <div className="post__tags">
-          <Badge state={post.status} />
+          <Badge state={post.status} reason={post.closedReason} />
           {post.eventId && post.eventTitle && (
             <a className="post__event" href={`/e/${post.eventId}`}>
               {post.eventTitle}

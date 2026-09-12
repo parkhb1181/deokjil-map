@@ -1,5 +1,5 @@
 import raw from '@/data/closed-posts.fixture.json'
-import type { CompanionPost, LastSeen, PostAuthor, PostComment } from '@/types'
+import type { ClosedReason, CompanionPost, LastSeen, PostAuthor, PostComment } from '@/types'
 import type { ListItem } from './list-item'
 import type { ProfileData } from '@/components/ProfileView'
 
@@ -94,6 +94,12 @@ type RawPost = {
   meetAt: string
   createdAt: string
   meetPoint: { place: string; lat: number; lng: number }
+  /**
+   * 없으면 MANUAL — 방장이 사람을 다 모아 닫은 글. MEET_TIME_PASSED 는
+   * 아무도 안 와서 시간이 지나 닫힌 글이라 댓글이 0개다. 여섯 글 전부에
+   * 댓글이 달려 있으면 그것대로 꾸민 티가 나서, 둘은 빈 채로 둔다.
+   */
+  closedReason?: ClosedReason
   comments: RawComment[]
 }
 
@@ -121,7 +127,7 @@ function toPost(p: RawPost): CompanionPost {
     title: p.title,
     content: p.content,
     status: 'CLOSED',
-    closedReason: 'MANUAL',
+    closedReason: p.closedReason ?? 'MANUAL',
     capacity: p.capacity,
     meetAt: p.meetAt,
     meetPoint: p.meetPoint,
@@ -192,7 +198,7 @@ export function fixtureProfile(id: string): ProfileData | null {
         id: p.id,
         title: p.title,
         status: 'CLOSED' as const,
-        closedReason: 'MANUAL' as const,
+        closedReason: p.closedReason ?? 'MANUAL',
         meetAt: p.meetAt,
         district: p.district,
         imageUrl: p.eventImageUrl,
