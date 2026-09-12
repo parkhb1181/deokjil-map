@@ -1880,6 +1880,20 @@
 }
 
 .mymenu__caret { width: 16px; height: 16px; margin-left: auto; color: var(--text-mute); }
+
+/* 「알림」 줄의 안 읽은 수. 캐럿 바로 왼쪽에 서고, 하단 탭 배지와 같은 색이다 */
+.mymenu__count {
+  margin-left: 8px;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+}
 .mymenu__note { margin-left: auto; font-size: var(--t-sub); color: var(--text-mute); }
 
 /* 입력칸 오른쪽에 붙는 버튼. 지금 친 값을 두고 누르는 것이라
@@ -3759,6 +3773,10 @@
 .alr__icon--closed   { background: var(--gone-soft);   color: var(--gone); }
 .alr__icon--report   { background: var(--ok-soft);     color: var(--ok); }
 .alr__icon--sanction { background: var(--danger-soft); color: var(--danger); }
+/* 서버 알림은 상대가 안 와서 댓글·답글도 원 아이콘으로 선다 (Face). 사람 일이라 accent 다 */
+.alr__icon--comment,
+.alr__icon--reply    { background: var(--accent-soft); color: var(--accent-ink); }
+.alr__more { display: flex; justify-content: center; padding: 12px 0 4px; }
 .alr__mark { width: 22px; height: 22px; }
 
 /* ── 본문 ───────────────────────────────────────────────── */

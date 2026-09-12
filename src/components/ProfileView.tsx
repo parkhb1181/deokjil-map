@@ -23,6 +23,7 @@
  */
 import { useMemo, useState } from 'react'
 import { useViewer } from '@/lib/auth/useViewer'
+import { useUnreadCount } from '@/lib/auth/unread'
 import { signOut } from '@/lib/auth/signout'
 import { USE_API } from '@/lib/api/config'
 import Link from 'next/link'
@@ -220,6 +221,8 @@ export default function ProfileView({
    */
   const [devMine, setDevMine] = useState(isMe)
   const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
+  /* 「알림」 줄에 다는 수. 남의 프로필에서는 안 그리지만 훅은 조건 없이 부른다 */
+  const unread = useUnreadCount()
   const mine = USE_API ? viewer.userId === user.id : devMine
   const [ask, setAsk] = useState<null | 'report' | 'logout'>(null)
   const [leaving, setLeaving] = useState(false)
@@ -404,6 +407,8 @@ export default function ProfileView({
                   1차 화면이라 그 브랜치에 있다 */}
               <Link className="mymenu__row" href={wf('/alerts')}>
                 <span>알림</span>
+                {/* 하단 탭 배지와 같은 수다 (unread.ts). 0 이면 안 그린다 */}
+                {unread > 0 && <span className="mymenu__count">{unread}</span>}
                 <Caret />
               </Link>
               {/* 로그아웃은 맨 아래다. 위에 두면 다른 것을 누르러 왔다가

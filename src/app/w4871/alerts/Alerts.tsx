@@ -32,16 +32,22 @@
  * **보였다고 읽음이 되지 않는다.** 눌러야 읽음이다. 화면에 스치기만 해도
  * 지워지면 스크롤로 지나친 것이 사라지고, 그건 알림을 못 믿게 만든다.
  *
- * 서버가 아직 없다. 목데이터를 읽는다.
+ * 서버가 있으면 서버를 읽고 (NT-08 ~ NT-10), 없으면 목데이터를 읽는다.
  */
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank, Button } from '@/components/ui/Basics'
 import { listTime } from '@/lib/when'
 import { wf } from '@/lib/wireframe'
 import { USE_API } from '@/lib/api/config'
+import { ApiFailure } from '@/lib/api/http'
+import { fetchNotifications, markAllRead, markRead, type Notification, type NotificationKind } from '@/lib/api/notifications'
+import { fetchPost } from '@/lib/api/posts'
+import { authed } from '@/lib/auth/authed'
+import { setUnread } from '@/lib/auth/unread'
+import { todayKey } from '@/lib/filters'
 
 /**
  * 알림 종류.
@@ -211,6 +217,20 @@ function byPerson(k: Kind): k is ByPerson {
  * 지름은 둘 다 48px 이다. 다르면 왼쪽 선이 줄마다 흔들린다.
  */
 function Face({ a }: { a: Alert }) {
+  /*
+   * 사람이 일으킨 것인데 상대가 안 왔다 — 서버 알림이 그렇다 (계약에
+   * actor 가 없다). 빈 아바타를 세우면 「누군지 못 불러온 것」 으로 읽혀서
+   * 종류 아이콘을 원 안에 크게 그린다. 뱃지용 면 그림을 그대로 키운다.
+   */
+  if (byPerson(a.kind) && !a.actor) {
+    return (
+      <span className={`alr__icon alr__icon--${a.kind.toLowerCase()}`}>
+        <svg className="alr__mark" viewBox="0 0 20 20" fill="currentColor" aria-hidden focusable="false">
+          {PIP[a.kind]}
+        </svg>
+      </span>
+    )
+  }
   if (byPerson(a.kind)) {
     return (
       <span className="alr__face">
@@ -248,55 +268,30 @@ function Face({ a }: { a: Alert }) {
   )
 }
 
-/* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
-   서버가 붙으면 이 막대를 지운다 */
-const VIEWS = ['정상', '비었음'] as const
+/* ── 목록 ───────────────────────────────────────────────── */
 
-export default function Alerts() {
-  const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
-  const [list, setList] = useState(MOCK)
+interface ScreenProps {
+  rows: Alert[]
+  /** 'YYYY-MM-DD'. listTime 이 「오늘」 을 가른다 */
+  today: string
+  unread: number
+  onRead: (id: string) => void
+  onReadAll: () => void
+  /** 목록 위. 개발용 화면 전환 막대가 여기 선다 (목데이터 경로만) */
+  head?: ReactNode
+  /** 목록 아래, 「30일」 안내 위. 「더 보기」 가 여기 선다 (API 경로만) */
+  tail?: ReactNode
+  /** 목록 대신 띄울 것. 로딩·오류·로그인 안내 */
+  instead?: ReactNode
+}
 
-  /*
-   * **서버에 알림이 없으면 목데이터를 보여주지 않는다.**
-   *
-   * 이 화면은 2차 몫이라 아직 받아올 곳이 없다. 그런데 내 활동에서
-   * 들어오는 자리라, 실서비스에서 열면 「덕질하는오리 님이 메시지를
-   * 보냈어요」 같은 가짜 알림을 진짜로 읽게 된다. 있지도 않은 채팅
-   * 이야기라 더 나쁘다.
-   *
-   * 화면을 지우지는 않는다. 자리를 비워두면 알림이 없는 줄 알고 찾아
-   * 헤매고, 팀은 목데이터로 이 화면을 계속 봐야 한다.
-   */
-  if (USE_API) {
-    return (
-      <PageShell title="알림">
-        <Blank
-          title="알림은 준비 중이에요"
-          desc="댓글과 답글이 오면 여기로 모을 예정이에요. 지금은 내 활동에서 확인할 수 있어요"
-          action={
-            <Link className="btn btn--ghost btn--sm" href={wf('/me')}>
-              내 활동 보기
-            </Link>
-          }
-        />
-      </PageShell>
-    )
-  }
-
-  /* 목데이터 시각을 그대로 쓰면 「오늘」 판정이 배포 다음날 어긋난다.
-     렌더 중에 new Date() 를 부르지 않는 것이 규칙이라(CLAUDE.md) 여기서는
-     목데이터의 가장 최근 날짜를 오늘로 본다 — 서버가 붙으면 useEffect
-     에서 확정한다 */
-  const today = list.reduce((a, n) => (n.at > a ? n.at : a), '').split('T')[0]
-
-  const rows = view === '비었음' ? [] : list
-  /* 비었음 화면에서도 헤더에 「전부 읽음」 이 남아 있었다. 개발용 막대
-     때문에 생긴 어긋남이지만, 팀이 보는 것은 그 화면이다 */
-  const unread = rows.filter((n) => !n.read).length
-
-  const read = (id: string) => setList((v) => v.map((n) => (n.id === id ? { ...n, read: true } : n)))
-  const readAll = () => setList((v) => v.map((n) => ({ ...n, read: true })))
-
+/**
+ * 그리는 부분. 데이터가 목데이터인지 서버인지 모른다.
+ *
+ * 두 경로가 같은 화면을 그려야 팀이 목데이터로 본 것과 실제가 어긋나지
+ * 않는다. 다른 것은 데이터를 어디서 가져오느냐뿐이라 그 차이는 바깥에 둔다.
+ */
+function AlertsScreen({ rows, today, unread, onRead, onReadAll, head, tail, instead }: ScreenProps) {
   return (
     <PageShell
       title="알림"
@@ -304,88 +299,303 @@ export default function Alerts() {
         /* 안 읽은 것이 없으면 안 그린다. 눌러도 아무 일이 없는 버튼이
            헤더에 늘 서 있으면 그 자리를 안 믿게 된다 */
         unread > 0 ? (
-          <Button size="sm" tone="ghost" onClick={readAll}>
+          <Button size="sm" tone="ghost" onClick={onReadAll}>
             전부 읽음
           </Button>
         ) : undefined
       }
     >
-      <div className="whoami">
-        <b>화면</b>
-        {VIEWS.map((v) => (
-          <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
-            {v}
-          </button>
-        ))}
-      </div>
+      {head}
 
-      {rows.length === 0 ? (
-        <Blank
-          title="아직 알림이 없어요"
-          desc="댓글과 메시지가 오면 여기에 모입니다"
-          action={
-            /* Button 은 button 이라 이동에 못 쓴다. 404 와 같이 클래스만 빌린다 */
-            <Link className="btn btn--primary btn--sm" href={wf('/p')}>
-              모집글 보러 가기
-            </Link>
-          }
-        />
-      ) : (
-        <>
-          {/* 푸시가 아니라는 것을 목록 위에 한 줄로 둔다. 「알림」 이라고
-              적힌 화면이 있으면 켜 두면 오는 줄 알고 기다리는 사람이 생긴다 */}
-          <p className="alr__lead">앱을 닫으면 오지 않아요. 들어와서 확인하는 목록입니다.</p>
+      {instead ??
+        (rows.length === 0 ? (
+          <Blank
+            title="아직 알림이 없어요"
+            desc="댓글과 답글이 오면 여기에 모입니다"
+            action={
+              /* Button 은 button 이라 이동에 못 쓴다. 404 와 같이 클래스만 빌린다 */
+              <Link className="btn btn--primary btn--sm" href={wf('/p')}>
+                모집글 보러 가기
+              </Link>
+            }
+          />
+        ) : (
+          <>
+            {/* 푸시가 아니라는 것을 목록 위에 한 줄로 둔다. 「알림」 이라고
+                적힌 화면이 있으면 켜 두면 오는 줄 알고 기다리는 사람이 생긴다 */}
+            <p className="alr__lead">앱을 닫으면 오지 않아요. 들어와서 확인하는 목록입니다.</p>
 
-          <ul className="alr">
-            {rows.map((n) => {
-              const body = (
-                <>
-                  <Face a={n} />
+            <ul className="alr">
+              {rows.map((n) => {
+                const body = (
+                  <>
+                    <Face a={n} />
 
-                  <span className="alr__main">
-                    <span className="alr__top">
-                      <b className="alr__text">{n.text}</b>
-                      {/* 묶인 개수는 문장 옆이다. 오른쪽 끝에 두면 안 읽음
-                          점과 자리를 다투고 둘 다 같은 표시로 읽힌다 */}
-                      {n.count > 1 && <span className="alr__count">{n.count}</span>}
+                    <span className="alr__main">
+                      <span className="alr__top">
+                        <b className="alr__text">{n.text}</b>
+                        {/* 묶인 개수는 문장 옆이다. 오른쪽 끝에 두면 안 읽음
+                            점과 자리를 다투고 둘 다 같은 표시로 읽힌다 */}
+                        {n.count > 1 && <span className="alr__count">{n.count}</span>}
+                      </span>
+                      <span className="alr__on">{n.on}</span>
+                      <span className="alr__when">{listTime(n.at, today)}</span>
                     </span>
-                    <span className="alr__on">{n.on}</span>
-                    <span className="alr__when">{listTime(n.at, today)}</span>
-                  </span>
 
-                  {!n.read && <span className="alr__dot" aria-label="안 읽음" />}
-                </>
-              )
+                    {!n.read && <span className="alr__dot" aria-label="안 읽음" />}
+                  </>
+                )
 
-              const cls = `alr__row${n.read ? '' : ' alr__row--new'}`
+                const cls = `alr__row${n.read ? '' : ' alr__row--new'}`
 
-              /* 갈 곳이 없는 알림(신고 결과)은 링크로 두지 않는다. 눌러서
-                 제자리면 「눌리는 것 같은데 안 눌린다」 로 읽힌다 */
-              return (
-                <li key={n.id}>
-                  {n.href ? (
-                    <Link className={cls} href={n.href} onClick={() => read(n.id)}>
-                      {body}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      className={`${cls} alr__row--flat`}
-                      onClick={() => read(n.id)}
-                    >
-                      {body}
-                    </button>
-                  )}
-                </li>
-              )
-            })}
-          </ul>
+                /* 갈 곳이 없는 알림(신고 결과)은 링크로 두지 않는다. 눌러서
+                   제자리면 「눌리는 것 같은데 안 눌린다」 로 읽힌다 */
+                return (
+                  <li key={n.id}>
+                    {n.href ? (
+                      <Link className={cls} href={n.href} onClick={() => onRead(n.id)}>
+                        {body}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        className={`${cls} alr__row--flat`}
+                        onClick={() => onRead(n.id)}
+                      >
+                        {body}
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
 
-          {/* 서버가 지운다. 안 적어두면 지난달 것을 찾다가 「알림이
-              사라졌다」 로 문의가 들어온다 */}
-          <p className="alr__foot">알림은 30일이 지나면 사라져요</p>
-        </>
-      )}
+            {tail}
+
+            {/* 서버가 지운다 (NT-11a). 안 적어두면 지난달 것을 찾다가 「알림이
+                사라졌다」 로 문의가 들어온다 */}
+            <p className="alr__foot">알림은 30일이 지나면 사라져요</p>
+          </>
+        ))}
     </PageShell>
   )
+}
+
+/* ── 서버 ───────────────────────────────────────────────── */
+
+/**
+ * 서버가 주는 것은 `kind` 와 글·댓글 번호뿐이다. 문장은 여기서 만든다.
+ *
+ * **글 제목은 따로 채운다.** 계약이 제목을 안 실어서 (API 설계 2-10)
+ * 화면이 `fetchPost` 로 받아온다. 같은 글에서 온 알림이 여럿이면 한 번만
+ * 부른다. 글이 사라졌으면(404) 링크를 떼고 그렇게 말한다 — 눌러서 404
+ * 를 보는 것보다 낫다.
+ *
+ * 상대 닉네임은 안 온다. 그래서 「누가」 없이 「무슨 일」 만 적는다.
+ * 아바타 자리에는 종류 아이콘이 선다 (Face 의 두 번째 갈래).
+ */
+const TEXT: Record<NotificationKind, string> = {
+  POST_COMMENTED: '내 모집글에 댓글이 달렸어요',
+  COMMENT_REPLIED: '내 댓글에 답글이 달렸어요',
+}
+
+const KIND: Record<NotificationKind, Kind> = {
+  POST_COMMENTED: 'COMMENT',
+  COMMENT_REPLIED: 'REPLY',
+}
+
+/** 글 제목. `null` 은 「지금 볼 수 없는 글」, `undefined` 는 아직 안 받음 */
+type Titles = Record<string, string | null | undefined>
+
+function toAlert(n: Notification, titles: Titles): Alert {
+  const title = titles[n.postId]
+  const gone = title === null
+  return {
+    id: n.id,
+    kind: KIND[n.kind],
+    actor: null,
+    text: TEXT[n.kind],
+    on: gone ? '지금은 볼 수 없는 글이에요' : (title ?? ' '),
+    href: gone ? null : wf(`/p/${n.postId}`),
+    count: 1,
+    at: n.createdAt,
+    read: n.read,
+  }
+}
+
+function ApiAlerts() {
+  const [items, setItems] = useState<Notification[]>([])
+  const [titles, setTitles] = useState<Titles>({})
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [hasNext, setHasNext] = useState(false)
+  const [state, setState] = useState<'loading' | 'ready' | 'guest' | 'error'>('loading')
+  const [more, setMore] = useState(false)
+  /* 오늘은 useEffect 에서 확정한다 (CLAUDE.md) */
+  const [today, setToday] = useState('')
+
+  useEffect(() => {
+    setToday(todayKey())
+  }, [])
+
+  /** 한 장 받아 붙인다. 처음은 비우고, 이어 받을 때는 뒤에 단다 */
+  const load = useCallback(async (after: string | null) => {
+    const page = await authed((token) => fetchNotifications(token, { cursor: after }))
+    setItems((v) => (after ? [...v, ...page.items] : page.items))
+    setCursor(page.nextCursor)
+    setHasNext(page.hasNext)
+    return page.items
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    load(null)
+      .then(() => alive && setState('ready'))
+      .catch((e: unknown) => {
+        if (!alive) return
+        setState(e instanceof ApiFailure && e.code === 'NOT_SIGNED_IN' ? 'guest' : 'error')
+      })
+    return () => {
+      alive = false
+    }
+  }, [load])
+
+  /* 아직 제목을 안 받은 글만 묻는다. 실패한 글은 null 로 남겨 다시 안 묻는다 */
+  useEffect(() => {
+    const want = [...new Set(items.map((n) => n.postId))].filter((id) => !(id in titles))
+    if (want.length === 0) return
+    /* 묻기 전에 자리를 잡아 둔다. 안 그러면 응답 전에 또 묻는다 */
+    setTitles((t) => Object.fromEntries([...Object.entries(t), ...want.map((id) => [id, undefined])]))
+    for (const id of want) {
+      fetchPost(id)
+        .then((p) => setTitles((t) => ({ ...t, [id]: p.title })))
+        .catch(() => setTitles((t) => ({ ...t, [id]: null })))
+    }
+  }, [items, titles])
+
+  const unread = items.filter((n) => !n.read).length
+
+  /**
+   * 읽음은 화면부터 바꾼다. 서버가 늦어도 점이 바로 꺼져야 「눌렀는데
+   * 안 된다」 가 안 생긴다. 실패하면 조용히 둔다 — 다음에 열면 서버
+   * 기준으로 다시 그려진다.
+   */
+  const read = (id: string) => {
+    const target = items.find((n) => n.id === id)
+    if (!target || target.read) return
+    setItems((v) => v.map((n) => (n.id === id ? { ...n, read: true } : n)))
+    setUnread(Math.max(0, unread - 1))
+    authed((token) => markRead(id, token)).catch(() => undefined)
+  }
+
+  const readAll = () => {
+    setItems((v) => v.map((n) => ({ ...n, read: true })))
+    setUnread(0)
+    authed((token) => markAllRead(token)).catch(() => undefined)
+  }
+
+  const loadMore = () => {
+    setMore(true)
+    load(cursor)
+      .catch(() => undefined)
+      .finally(() => setMore(false))
+  }
+
+  let instead: ReactNode
+  if (state === 'loading') {
+    instead = <p className="alr__lead">불러오는 중…</p>
+  } else if (state === 'guest') {
+    instead = (
+      <Blank
+        title="로그인하면 알림을 볼 수 있어요"
+        desc="내 모집글에 댓글이 달리면 여기로 모입니다"
+        action={
+          <Link className="btn btn--primary btn--sm" href={wf('/login')}>
+            로그인
+          </Link>
+        }
+      />
+    )
+  } else if (state === 'error') {
+    instead = (
+      <Blank
+        title="알림을 불러오지 못했어요"
+        desc="연결이 불안정해요. 잠시 뒤 다시 열어주세요"
+        action={
+          <Button size="sm" tone="ghost" onClick={() => location.reload()}>
+            다시 시도
+          </Button>
+        }
+      />
+    )
+  }
+
+  return (
+    <AlertsScreen
+      rows={items.map((n) => toAlert(n, titles))}
+      today={today}
+      unread={unread}
+      onRead={read}
+      onReadAll={readAll}
+      instead={instead}
+      tail={
+        hasNext ? (
+          <div className="alr__more">
+            <Button size="sm" tone="ghost" onClick={loadMore} disabled={more}>
+              {more ? '불러오는 중…' : '더 보기'}
+            </Button>
+          </div>
+        ) : undefined
+      }
+    />
+  )
+}
+
+/* ── 목데이터 ───────────────────────────────────────────── */
+
+/* 화면 상태를 눈으로 확인할 방법이 없어 개발용으로 바꿔본다.
+   서버가 붙은 경로에는 이 막대가 없다 */
+const VIEWS = ['정상', '비었음'] as const
+
+function MockAlerts() {
+  const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
+  const [list, setList] = useState(MOCK)
+
+  /* 목데이터 시각을 그대로 쓰면 「오늘」 판정이 배포 다음날 어긋난다.
+     렌더 중에 new Date() 를 부르지 않는 것이 규칙이라(CLAUDE.md) 여기서는
+     목데이터의 가장 최근 날짜를 오늘로 본다 */
+  const today = list.reduce((a, n) => (n.at > a ? n.at : a), '').split('T')[0]
+
+  const rows = view === '비었음' ? [] : list
+  /* 비었음 화면에서도 헤더에 「전부 읽음」 이 남아 있었다. 개발용 막대
+     때문에 생긴 어긋남이지만, 팀이 보는 것은 그 화면이다 */
+  const unread = rows.filter((n) => !n.read).length
+
+  return (
+    <AlertsScreen
+      rows={rows}
+      today={today}
+      unread={unread}
+      onRead={(id) => setList((v) => v.map((n) => (n.id === id ? { ...n, read: true } : n)))}
+      onReadAll={() => setList((v) => v.map((n) => ({ ...n, read: true })))}
+      head={
+        <div className="whoami">
+          <b>화면</b>
+          {VIEWS.map((v) => (
+            <button key={v} aria-pressed={v === view} onClick={() => setView(v)}>
+              {v}
+            </button>
+          ))}
+        </div>
+      }
+    />
+  )
+}
+
+/**
+ * **서버가 있으면 서버, 없으면 목데이터.** 목데이터에는 채팅·마감·신고·
+ * 제재 종류까지 여섯 줄이 있는데 서버는 지금 댓글·답글 둘만 만든다.
+ * 나머지 넷은 NT-06 이후 몫이라 목데이터가 앞서 그려 둔 것이다.
+ */
+export default function Alerts() {
+  return USE_API ? <ApiAlerts /> : <MockAlerts />
 }

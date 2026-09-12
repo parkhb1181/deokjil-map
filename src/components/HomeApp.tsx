@@ -14,6 +14,7 @@ import { isSignedIn } from '@/lib/auth/session'
 import { authed } from '@/lib/auth/authed'
 import { loadMe, saveMe, type MeBrief } from '@/lib/auth/me-cache'
 import { fetchMe } from '@/lib/api/users'
+import { useUnreadCount } from '@/lib/auth/unread'
 import { USE_API } from '@/lib/api/config'
 import Logo from '@/components/Logo'
 import { KakaoMark } from '@/components/ui/Basics'
@@ -71,6 +72,8 @@ export default function HomeApp({
    * 로그인한 사람이 첫 프레임에 「로그인」 을 한 번 보고 지나가기 때문이다.
    */
   const [signedIn, setSignedIn] = useState<boolean | null>(null)
+  /* 로그인 안 했으면 0 이고 서버를 안 부른다 (unread.ts) */
+  const unread = useUnreadCount()
   /**
    * 헤더에 그릴 내 이름·사진. `null` 이면 아직 없다.
    *
@@ -326,7 +329,7 @@ export default function HomeApp({
           <p className="footer__who">덕모임 운영팀 · parkhb1181@gmail.com</p>
         </footer>
 
-        <BottomNav companion={wireframe} active={tab} savedCount={saved.length} onChange={setTab} />
+        <BottomNav companion={wireframe} active={tab} savedCount={saved.length} onChange={setTab} unread={wireframe ? unread : 0} />
 
         {detailEvent && today && (
           <EventDetail

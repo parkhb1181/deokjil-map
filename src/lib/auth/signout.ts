@@ -1,6 +1,7 @@
 import { logout } from '@/lib/api/auth'
 import { USE_API } from '@/lib/api/config'
 import { clearTokens, getAccessToken } from './session'
+import { setUnread } from './unread'
 
 /**
  * 로그아웃.
@@ -31,4 +32,6 @@ export async function signOut(): Promise<void> {
   }
 
   clearTokens()
+  /* 배지도 같이 내린다. 남겨 두면 다음 사람이 로그인 화면에서 남의 숫자를 본다 */
+  setUnread(0)
 }

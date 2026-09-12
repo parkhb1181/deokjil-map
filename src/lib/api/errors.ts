@@ -224,6 +224,9 @@ const RULES: Record<string, Rule> = {
   /* 기간 정지인데 종료 시각이 없거나, 아닌데 있을 때 */
   SANCTION_UNTIL_MISMATCH: { at: 'banner', text: '기간 정지는 종료 시각이 있어야 해요' },
 
+  /* ── 알림 (NT-09). 남의 것과 없는 것이 같은 404 다 — 배치가 지웠을 수도 있다 */
+  NOTIFICATION_NOT_FOUND: { at: 'reload', text: '이미 사라진 알림이에요' },
+
   /* 지워졌거나 가려진 댓글이다. 고치거나 답글을 달 수 없다 */
   COMMENT_NOT_ACTIVE: { at: 'reload', text: '이미 지워졌거나 가려진 댓글이에요' },
 
