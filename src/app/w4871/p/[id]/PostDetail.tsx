@@ -32,6 +32,8 @@ import { deleteComment, editComment, fetchComments, writeComment } from '@/lib/a
 import { getAccessToken } from '@/lib/auth/session'
 import { takeAfterAuth } from '@/lib/auth/after-auth'
 import { closePost } from '@/lib/api/posts'
+import { fetchRooms, inviteToRoom } from '@/lib/api/chat'
+import { ApiFailure } from '@/lib/api/http'
 import { slotFor } from '@/lib/api/errors'
 import { authed } from '@/lib/auth/authed'
 import { whenText, dateOnly, shortTime } from '@/lib/when'
@@ -76,7 +78,7 @@ type Ask =
   | { k: 'delete'; id: string }
   /* 채팅을 열기 전에 한 번 묻는다. 방이 생기면 상대에게 알림이 가고,
      잘못 누른 것을 되돌릴 자리가 없다 */
-  | { k: 'chat'; id: string }
+  | { k: 'chat'; id: string; userId: string; nickname: string }
   /* 아바타를 눌러 연 사람 시트. 누구인지 같이 들고 다녀야 시트가
      열린 것과 보고 있는 사람이 어긋나지 않는다 */
   | { k: 'person'; user: PostAuthor; isMe: boolean }
@@ -599,19 +601,19 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
                       서버가 판정을 내려주기 전까지는 방장인지만 본다. 붙을
                       때 availableActions 의 CHAT 으로 옮긴다.
                     */}
-                      {/*
-                        **서버가 붙은 곳에서는 아직 안 그린다.** 눌러도
-                        가는 곳이 목데이터 방(/chat/r0·r1)이라, 실제로
-                        쓰는 사람에게는 없는 사람과의 없는 대화가 열린다.
-                        1차에 알림 화면을 준비 중 안내로 막아둔 것과 같은
-                        이유다 (alerts/Alerts.tsx). 채팅 API 가 붙으면
-                        이 조건을 지운다
-                      */}
                       {/* 자기 자신은 부를 수 없다. EDIT 이 온다는 것이 곧 내
-                          댓글이라는 뜻이다 — 서버가 CHAT 을 내려주면 그쪽으로
-                          판정이 넘어간다 */}
-                      {!USE_API && isHost && !c.availableActions.includes('EDIT') && (
-                        <button onClick={() => setAsk({ k: 'chat', id: c.id })}>초대</button>
+                          댓글이라는 뜻이다. 서버가 availableActions 에 CHAT 을
+                          내려주면 그쪽으로 판정이 넘어간다 — 지금은 방장인지만
+                          보고, 못 부르는 사람(이미 멤버 · 나간 사람)은 서버의
+                          409 를 그대로 보여준다 */}
+                      {isHost && !c.availableActions.includes('EDIT') && !isPlaceholder(c.status) && (
+                        <button
+                          onClick={() =>
+                            setAsk({ k: 'chat', id: c.id, userId: c.author.id, nickname: c.author.nickname })
+                          }
+                        >
+                          초대
+                        </button>
                       )}
                     </span>
                   </>
@@ -782,11 +784,11 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
         누르면 방에 사람이 들어오고 상대에게 알림이 간다. 내보내는 자리를
         따로 만들지 않아서 한 번 묻는다 — 삭제와 같은 이유다.
 
-        와이어프레임이라 실제로는 부르지 않고 목데이터 방(r0)으로 보낸다.
+        목데이터 경로는 실제로 부르지 않고 목데이터 방(r0)으로 보낸다.
       */}
       {ask?.k === 'chat' && (
         <Sheet
-          title="이 분을 채팅에 부를까요?"
+          title={`${ask.nickname} 님을 채팅에 부를까요?`}
           desc="이 글의 채팅방으로 초대합니다. 방은 글 하나에 하나라, 이미 부른 분들과 같은 방에서 이야기하게 됩니다."
           foot={
             <>
@@ -795,11 +797,31 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
               </Button>
               <Button
                 onClick={() => {
-                  /* API 자리. POST /api/v1/chat/rooms/{postId}/members
-                     { targetUserId }. 방은 글마다 하나라 두 번 불러도
-                     같은 방이다 (CH-01) */
+                  const target = ask
                   setAsk(null)
-                  router.push(wf('/chat/r0'))
+                  if (!USE_API) {
+                    router.push(wf('/chat/r0'))
+                    return
+                  }
+                  setFailed(null)
+                  /* 방은 글마다 하나라 두 번 불러도 같은 방이다 (CH-01).
+                     이미 들어와 있는 사람이면 서버가 409 를 주는데, 그건
+                     실패가 아니라 「그 방으로 가면 된다」 다 — 목록에서
+                     이 글의 방을 찾아 들어간다 */
+                  authed((t) => inviteToRoom(post.id, target.userId, t))
+                    .then((r) => router.push(wf(`/chat/${r.roomId}`)))
+                    .catch(async (e: unknown) => {
+                      if (e instanceof ApiFailure && e.code === 'CHAT_ALREADY_MEMBER') {
+                        const room = await authed((t) => fetchRooms(t))
+                          .then((rooms) => rooms.find((x) => x.postId === post.id))
+                          .catch(() => undefined)
+                        if (room) {
+                          router.push(wf(`/chat/${room.roomId}`))
+                          return
+                        }
+                      }
+                      fail(e)
+                    })
                 }}
               >
                 초대

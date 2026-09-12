@@ -3534,6 +3534,46 @@
   color: var(--text-mute);
   white-space: nowrap;
 }
+/* 시각과 「삭제」 가 한 묶음이다. 세로로 세워 말풍선 옆에 붙는다 */
+.bub__meta {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.bub--mine .bub__meta { align-items: flex-start; }
+.bub__del {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--text-mute);
+  text-decoration: underline;
+  cursor: pointer;
+}
+/* 지운 자리. 본문 대신 자리표시자가 흐리게 선다 (CH-12) */
+.bub--deleted .bub__text { background: transparent; border: 1px dashed var(--border); color: var(--text-mute); }
+/* 서버 답을 기다리는 중 */
+.bub--pending .bub__text { opacity: 0.55; }
+
+/* 방 위쪽 「이전 메시지」 · 상태 줄 */
+.croom__more { display: flex; justify-content: center; padding: 4px 0 10px; }
+.croom__state {
+  margin: 0;
+  padding: 12px var(--gutter);
+  font-size: var(--t-sub);
+  line-height: 1.6;
+  color: var(--text-mute);
+  text-align: center;
+}
+/* 쓸 수 없는 방 (CH-08 · 제재). 입력칸 자리에 한 줄로 선다 */
+.cwrite--off {
+  justify-content: center;
+  font-size: var(--t-sub);
+  color: var(--text-mute);
+}
 
 /* ── 채팅 입력 ────────────────────────────────────────────
    댓글과 다른 자리다. 댓글은 읽는 글의 끝이지만 채팅은 읽는 내내

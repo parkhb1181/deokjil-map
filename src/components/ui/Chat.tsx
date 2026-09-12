@@ -39,10 +39,16 @@ export function dayLabel(iso: string) {
   return `${m}월 ${d}일 (${dow})`
 }
 
-export function ChatBubble({ text, mine, time, tail, who }: {
+export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete }: {
   text: string
   mine: boolean
   time: string
+  /** 지운 자리다 (CH-12). 본문 대신 자리표시자를 흐리게 둔다 — 빈 칸이면 대화가 중간에 끊긴 것처럼 읽힌다 */
+  deleted?: boolean
+  /** 서버 답을 기다리는 중. 흐리게 둔다 — 보냈는지 못 보냈는지가 안 보이면 두 번 누른다 */
+  pending?: boolean
+  /** 내 말풍선 묶음 끝에 「삭제」 를 단다. 지울 수 있는 것(내 것 · 안 지운 것)에만 준다 */
+  onDelete?: () => void
   /**
    * 보낸 사람 이름. **남의 말풍선에만** 준다.
    *
@@ -72,9 +78,18 @@ export function ChatBubble({ text, mine, time, tail, who }: {
      */
     <div className={`bubwrap${mine ? ' bubwrap--mine' : ''}${tail ? ' bub--tail' : ''}`}>
       {who && <span className="bub__who">{who}</span>}
-      <div className={`bub${mine ? ' bub--mine' : ''}`}>
-        <p className="bub__text">{text}</p>
-        {tail && <span className="bub__time">{time}</span>}
+      <div className={`bub${mine ? ' bub--mine' : ''}${deleted ? ' bub--deleted' : ''}${pending ? ' bub--pending' : ''}`}>
+        <p className="bub__text">{deleted ? '삭제된 메시지예요' : text}</p>
+        {tail && (
+          <span className="bub__meta">
+            {onDelete && !deleted && !pending && (
+              <button type="button" className="bub__del" onClick={onDelete}>
+                삭제
+              </button>
+            )}
+            <span className="bub__time">{pending ? '보내는 중' : time}</span>
+          </span>
+        )}
       </div>
     </div>
   )

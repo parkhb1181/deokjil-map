@@ -227,6 +227,22 @@ const RULES: Record<string, Rule> = {
   /* ── 알림 (NT-09). 남의 것과 없는 것이 같은 404 다 — 배치가 지웠을 수도 있다 */
   NOTIFICATION_NOT_FOUND: { at: 'reload', text: '이미 사라진 알림이에요' },
 
+  /* ── 채팅 (CH-02 ~ CH-12). 서버 문구가 있지만 화면 말투로 다시 적는다 */
+  CHAT_ROOM_NOT_FOUND: { at: 'reload', text: '없는 채팅방이에요' },
+  CHAT_ROOM_ACCESS_DENIED: { at: 'reload', text: '이 방의 멤버가 아니에요' },
+  CHAT_ROOM_NOT_HOST: { at: 'banner', text: '방장만 부를 수 있어요' },
+  CHAT_INVITEE_NOT_COMMENTER: { at: 'banner', text: '댓글을 쓴 분만 부를 수 있어요' },
+  CHAT_ALREADY_MEMBER: { at: 'banner', text: '이미 방에 있는 분이에요' },
+  /* 스스로 나간 사람은 다시 못 부른다 (CH-02a). 강퇴가 없어 나가기가 곧 최종이다 */
+  CHAT_MEMBER_LEFT: { at: 'banner', text: '방을 나간 분은 다시 부를 수 없어요' },
+  CHAT_ROOM_MEMBER_LIMIT_EXCEEDED: { at: 'banner', text: '방 인원이 다 찼어요' },
+  CHAT_ROOM_HOST_CANNOT_LEAVE: { at: 'banner', text: '방장은 방을 나갈 수 없어요' },
+  /* 만남시각 기준 구간 밖이다 (CH-08). 글 상태가 아니라 시각으로 판정한다 */
+  CHAT_ROOM_READ_ONLY: { at: 'banner', text: '만남 후 7일이 지나 더 보낼 수 없어요' },
+  CHAT_CLIENT_MESSAGE_ID_REUSED: { at: 'banner', text: '전송이 꼬였어요. 다시 보내주세요' },
+  CHAT_MESSAGE_NOT_FOUND: { at: 'reload', text: '이미 없는 메시지예요' },
+  CHAT_MESSAGE_NOT_SENDER: { at: 'banner', text: '보낸 사람만 지울 수 있어요' },
+
   /* 지워졌거나 가려진 댓글이다. 고치거나 답글을 달 수 없다 */
   COMMENT_NOT_ACTIVE: { at: 'reload', text: '이미 지워졌거나 가려진 댓글이에요' },
 
