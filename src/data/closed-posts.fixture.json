@@ -168,31 +168,8 @@
         "lat": 37.5544453,
         "lng": 126.926069
       },
-      "comments": [
-        {
-          "id": "fx_c7",
-          "parentId": null,
-          "author": "fx_u8",
-          "secret": false,
-          "createdAt": "2026-09-05T23:15:00+09:00",
-          "content": "저도 처음이에요 같이 가면 덜 어색할 것 같아서요 3시 괜찮아요"
-        },
-        {
-          "id": "fx_c8",
-          "parentId": "fx_c7",
-          "author": "fx_u2",
-          "secret": true,
-          "createdAt": "2026-09-06T07:52:00+09:00"
-        },
-        {
-          "id": "fx_c9",
-          "parentId": null,
-          "author": "fx_u10",
-          "secret": false,
-          "createdAt": "2026-09-06T09:30:00+09:00",
-          "content": "홍대 5곳은 다 걸어서 15분 안이라 금방 도실 거예요"
-        }
-      ]
+      "closedReason": "MEET_TIME_PASSED",
+      "comments": []
     },
     {
       "id": "fx_p3",
@@ -282,31 +259,8 @@
         "lat": 37.5549328,
         "lng": 126.9267345
       },
-      "comments": [
-        {
-          "id": "fx_c17",
-          "parentId": null,
-          "author": "fx_u6",
-          "secret": false,
-          "createdAt": "2026-09-09T12:44:00+09:00",
-          "content": "저도 조용한 편이라 좋습니다 7시에 맞춰 가겠습니다"
-        },
-        {
-          "id": "fx_c18",
-          "parentId": "fx_c17",
-          "author": "fx_u4",
-          "secret": true,
-          "createdAt": "2026-09-09T13:10:00+09:00"
-        },
-        {
-          "id": "fx_c19",
-          "parentId": null,
-          "author": "fx_u9",
-          "secret": false,
-          "createdAt": "2026-09-10T09:05:00+09:00",
-          "content": "악센트 와우 오늘 특전 4종이라고 하네요 참고하세요"
-        }
-      ]
+      "closedReason": "MEET_TIME_PASSED",
+      "comments": []
     },
     {
       "id": "fx_p5",
