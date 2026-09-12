@@ -3638,6 +3638,22 @@
 
 /* 푸시가 아니라는 것. 「알림」 이라고 적힌 화면이 있으면 켜 두면
    오는 줄 알고 기다리는 사람이 생긴다 */
+/* 알림 켜기 카드 (PushCard). 방 첫 안내(.chat__first)와 같은 톤이다 — 둘 다 「한 번 보고 지나가는 부탁」 */
+.pushcard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px var(--gutter) 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--accent-ink);
+}
+.pushcard p { flex: 1; min-width: 0; margin: 0; }
+.pushcard b { font-weight: 700; }
+
 .alr__lead {
   padding: 12px var(--gutter);
   background: var(--bg-sunk);

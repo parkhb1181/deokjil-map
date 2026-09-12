@@ -26,10 +26,15 @@
  *
  * 이게 있어야 크롬이 「앱 설치」 를 권한다. 매니페스트만으로는 메뉴에서
  * 직접 추가해야 하고, 대부분은 그 메뉴를 열지 않는다.
+ *
+ * ─────────────────────────────────────────────────────────
+ * **푸시는 맨 아래 두 핸들러다** (NT-13 · NT-15). 서버가 보낸 것을 알림으로
+ * 띄우고, 누르면 그 글로 간다. 구독을 만들어 서버에 등록하는 쪽은
+ * 화면이 한다 (`lib/push.ts`) — 서비스워커는 받기만 한다.
  */
 
 /* 올릴 때마다 올린다. 낡은 캐시는 activate 에서 통째로 지운다 */
-const VERSION = 'v1'
+const VERSION = 'v2'
 const SHELL = `shell-${VERSION}`
 const ASSETS = `assets-${VERSION}`
 
@@ -113,4 +118,49 @@ self.addEventListener('fetch', (e) => {
         .catch(() => caches.match(FALLBACK).then((hit) => hit ?? Response.error())),
     )
   }
+})
+
+/* ── 푸시 ──────────────────────────────────────────────────
+   서버(NT-13)가 보내는 본문은 JSON 하나다:
+     { "title": "댓글이 달렸어요", "body": "승민 생카 21일…", "url": "/w4871/p/14", "tag": "post-14" }
+   url 은 누르면 갈 곳(우리 출처의 경로). tag 가 같으면 먼저 뜬 알림을
+   갈아끼운다 — 한 글에 댓글이 다섯 개 달려도 알림은 하나다.
+   ------------------------------------------------------- */
+self.addEventListener('push', (e) => {
+  /* 본문이 없거나 깨졌어도 무언가는 띄운다. 조용히 버리면 권한을 준
+     사람이 아무것도 못 받고, 왜 안 오는지도 모른다 */
+  let data = {}
+  try {
+    data = e.data ? e.data.json() : {}
+  } catch {
+    data = { body: e.data ? e.data.text() : '' }
+  }
+  const url = typeof data.url === 'string' ? data.url : '/'
+  e.waitUntil(
+    self.registration.showNotification(data.title || '덕모임', {
+      body: data.body || '',
+      icon: '/icon-192.png',
+      /* 안드로이드 상태줄의 작은 아이콘. 단색 전용 그림이 없어 앱 아이콘을 쓴다 */
+      badge: '/icon-192.png',
+      tag: typeof data.tag === 'string' ? data.tag : undefined,
+      renotify: typeof data.tag === 'string',
+      data: { url },
+    }),
+  )
+})
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  const url = new URL((e.notification.data && e.notification.data.url) || '/', self.location.origin).href
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      /* 이미 열린 탭이 있으면 새 탭을 만들지 않는다. 같은 글이면 그대로
+         올리고, 다른 화면이면 그 탭을 그 글로 보낸다 */
+      const same = list.find((c) => c.url === url)
+      if (same) return same.focus()
+      const any = list.find((c) => 'navigate' in c)
+      if (any) return any.navigate(url).then((c) => (c ? c.focus() : undefined))
+      return self.clients.openWindow(url)
+    }),
+  )
 })

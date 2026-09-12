@@ -48,6 +48,8 @@ import { fetchPost } from '@/lib/api/posts'
 import { authed } from '@/lib/auth/authed'
 import { setUnread } from '@/lib/auth/unread'
 import { todayKey } from '@/lib/filters'
+import PushCard from '@/components/PushCard'
+import { PUSH_READY } from '@/lib/push'
 
 /**
  * 알림 종류.
@@ -322,8 +324,12 @@ function AlertsScreen({ rows, today, unread, onRead, onReadAll, head, tail, inst
         ) : (
           <>
             {/* 푸시가 아니라는 것을 목록 위에 한 줄로 둔다. 「알림」 이라고
-                적힌 화면이 있으면 켜 두면 오는 줄 알고 기다리는 사람이 생긴다 */}
-            <p className="alr__lead">앱을 닫으면 오지 않아요. 들어와서 확인하는 목록입니다.</p>
+                적힌 화면이 있으면 켜 두면 오는 줄 알고 기다리는 사람이 생긴다.
+                푸시가 준비되면 이 줄은 거짓말이 되니 뺀다 — 그때는 위의 켜기
+                카드가 대신 말한다 (PushCard) */}
+            {!PUSH_READY && (
+              <p className="alr__lead">앱을 닫으면 오지 않아요. 들어와서 확인하는 목록입니다.</p>
+            )}
 
             <ul className="alr">
               {rows.map((n) => {
@@ -537,6 +543,8 @@ function ApiAlerts() {
       onRead={read}
       onReadAll={readAll}
       instead={instead}
+      /* 권한 요청 흐름 (NT-15). 서버가 준비되기 전에는 카드가 안 그려진다 */
+      head={state === 'ready' ? <PushCard /> : undefined}
       tail={
         hasNext ? (
           <div className="alr__more">
