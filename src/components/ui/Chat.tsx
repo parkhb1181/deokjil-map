@@ -11,8 +11,6 @@
  * 적으면 같은 이름이 스무 번 반복된다. 좌우로 갈라 두면 이름이
  * 없어도 누가 말했는지 알 수 있다.
  */
-import type { ReactNode } from 'react'
-import Link from 'next/link'
 import { Button } from './Basics'
 
 /* ── 말풍선 ───────────────────────────────────────────── */
@@ -92,27 +90,6 @@ export function ChatDay({ label }: { label: string }) {
 }
 
 /* ── 인증 게이트 ──────────────────────────────────────── */
-
-/**
- * 미인증 회원이 채팅을 누르면 나오는 자리.
- *
- * **막는 것이 아니라 다음 걸음을 보여준다.** 「권한이 없습니다」 로
- * 끝내면 무엇을 해야 하는지 알 수 없다. 왜 필요한지 한 줄과 인증으로
- * 가는 버튼을 같이 둔다 (AU-14).
- */
-export function VerifyGate({ next, children }: { next: string; children?: ReactNode }) {
-  return (
-    <div className="vgate">
-      <p className="vgate__title">채팅은 번호 확인 후에 쓸 수 있어요</p>
-      <p className="vgate__desc">
-        {children ?? '낯선 사람과 만나는 자리라 한 번만 확인합니다. 번호는 상대에게 보이지 않아요.'}
-      </p>
-      <Link className="btn btn--primary" href={`/w4871/verify?next=${encodeURIComponent(next)}`}>
-        번호 확인하기
-      </Link>
-    </div>
-  )
-}
 
 /* ── 저장 고지 (CH-09) ────────────────────────────────── */
 
