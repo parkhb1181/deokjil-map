@@ -40,7 +40,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { PageShell } from '@/components/ui/PageShell'
 import { Avatar, Blank, Button, Sheet } from '@/components/ui/Basics'
-import { ReportSheet, type ReportTarget } from '@/components/ui/ReportSheet'
+import { ReportSheet } from '@/components/ui/ReportSheet'
 import { ChatBubble, ChatDay, ChatFirst, ChatNotice, clock, dayLabel, type ChatMessage } from '@/components/ui/Chat'
 import { wf } from '@/lib/wireframe'
 import { USE_API } from '@/lib/api/config'
@@ -90,6 +90,7 @@ type Line = ChatMessage & {
 /* ── 그리기 ───────────────────────────────────────────── */
 
 interface ScreenProps {
+  roomId: string
   title: string
   postId: string
   meetAt: string
@@ -109,8 +110,6 @@ interface ScreenProps {
   /** 지금 쓸 수 있는가 (CH-08). 아니면 입력칸 자리에 이유가 선다 */
   writable: boolean
   offReason?: string
-  /** 사람 신고의 대상 종류. 서버가 채팅 신고(CH-21)를 아직 안 받아 API 경로는 사람 신고로 간다 */
-  reportTarget: ReportTarget
   /** 위쪽 띠. 전송 실패 같은 것 */
   failed: string | null
   /** 목록 위. 「이전 메시지」 */
@@ -121,10 +120,13 @@ interface ScreenProps {
 
 function RoomScreen(p: ScreenProps) {
   const [first, setFirst] = useState(false)
-  const [ask, setAsk] = useState<null | 'report' | 'leave'>(null)
+  /**
+   * 신고는 셋이다 (CH-21). 사람(더보기에서 고른 멤버) · 방 전체 · 메시지 한 건.
+   * 더보기에서 **누구인지 먼저 고르고** 그다음으로 간다.
+   */
+  type Ask = null | 'leave' | { k: 'user'; id: string; name: string } | { k: 'room' } | { k: 'message'; id: string }
+  const [ask, setAsk] = useState<Ask>(null)
   const [menu, setMenu] = useState(false)
-  /** 신고 대상. 더보기에서 **누구인지 먼저 고르고** 그다음으로 간다 */
-  const [who, setWho] = useState<Member | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const seen = useRef(false)
 
@@ -205,6 +207,8 @@ function RoomScreen(p: ScreenProps) {
                     deleted={m.deleted}
                     pending={m.pending}
                     onDelete={mine && p.onDelete ? () => p.onDelete?.(m.id) : undefined}
+                    /* 지운 메시지도 신고할 수 있다 — 본문이 남아 관리자가 본다. 아직 안 올라간 내 말은 번호가 없다 */
+                    onReport={!mine && !m.pending ? () => setAsk({ k: 'message', id: m.id }) : undefined}
                   />
                 </div>
               )
@@ -259,6 +263,16 @@ function RoomScreen(p: ScreenProps) {
           desc="신고할 사람을 고르세요. 상대에게는 알리지 않아요."
           foot={
             <>
+              {/* 방 자체를 신고한다 (CH-21). 나간 사람도 할 수 있다 */}
+              <Button
+                tone="ghost"
+                onClick={() => {
+                  setMenu(false)
+                  setAsk({ k: 'room' })
+                }}
+              >
+                이 방 신고
+              </Button>
               {/* 나가기는 방장이 아닐 때만 뜻이 있는데, 서버가 방장을
                   안 알려줘서 (chat.ts) 눌러 보고 409 를 받는다 */}
               {p.onLeave && (
@@ -293,8 +307,7 @@ function RoomScreen(p: ScreenProps) {
                     tone="ghost"
                     onClick={() => {
                       setMenu(false)
-                      setWho(m)
-                      setAsk('report')
+                      setAsk({ k: 'user', id: m.id, name: m.nickname })
                     }}
                   >
                     신고
@@ -306,15 +319,12 @@ function RoomScreen(p: ScreenProps) {
         </Sheet>
       )}
 
-      {ask === 'report' && (
+      {ask && ask !== 'leave' && (
         <ReportSheet
-          target={p.reportTarget}
-          targetId={who?.id}
-          name={who?.nickname}
-          onClose={() => {
-            setAsk(null)
-            setWho(null)
-          }}
+          target={ask.k}
+          targetId={ask.k === 'room' ? p.roomId : ask.id}
+          name={ask.k === 'user' ? ask.name : undefined}
+          onClose={() => setAsk(null)}
         />
       )}
 
@@ -546,6 +556,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
 
   return (
     <RoomScreen
+      roomId={roomId}
       title={room?.post.title ?? '채팅'}
       postId={room?.post.id ?? ''}
       meetAt={room?.post.meetAt ?? ''}
@@ -560,7 +571,6 @@ function ApiRoom({ roomId }: { roomId: string }) {
       onLeave={leave}
       writable={Boolean(room?.writable) && state === 'ready'}
       offReason="만남 후 7일이 지나 읽기만 할 수 있어요"
-      reportTarget="user"
       failed={failed}
       instead={instead}
       head={
@@ -594,6 +604,7 @@ function MockRoom({ roomId }: { roomId: string }) {
 
   return (
     <RoomScreen
+      roomId={roomId}
       title={room.postTitle}
       postId={room.postId}
       meetAt={room.meetAt}
@@ -605,7 +616,6 @@ function MockRoom({ roomId }: { roomId: string }) {
       onDraft={setDraft}
       onSend={send}
       writable
-      reportTarget="chat"
       failed={null}
     />
   )

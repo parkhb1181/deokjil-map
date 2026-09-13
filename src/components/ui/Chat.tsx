@@ -39,7 +39,7 @@ export function dayLabel(iso: string) {
   return `${m}월 ${d}일 (${dow})`
 }
 
-export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete }: {
+export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete, onReport }: {
   text: string
   mine: boolean
   time: string
@@ -49,6 +49,8 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
   pending?: boolean
   /** 내 말풍선 묶음 끝에 「삭제」 를 단다. 지울 수 있는 것(내 것 · 안 지운 것)에만 준다 */
   onDelete?: () => void
+  /** 남의 말풍선 묶음 끝에 「신고」 를 단다 (CH-21). 지운 메시지도 신고할 수 있다 */
+  onReport?: () => void
   /**
    * 보낸 사람 이름. **남의 말풍선에만** 준다.
    *
@@ -85,6 +87,11 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
             {onDelete && !deleted && !pending && (
               <button type="button" className="bub__del" onClick={onDelete}>
                 삭제
+              </button>
+            )}
+            {onReport && !pending && (
+              <button type="button" className="bub__del" onClick={onReport}>
+                신고
               </button>
             )}
             <span className="bub__time">{pending ? '보내는 중' : time}</span>
