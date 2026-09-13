@@ -224,6 +224,30 @@ const RULES: Record<string, Rule> = {
   /* 기간 정지인데 종료 시각이 없거나, 아닌데 있을 때 */
   SANCTION_UNTIL_MISMATCH: { at: 'banner', text: '기간 정지는 종료 시각이 있어야 해요' },
 
+  /* ── 알림 (NT-09). 남의 것과 없는 것이 같은 404 다 — 배치가 지웠을 수도 있다 */
+  NOTIFICATION_NOT_FOUND: { at: 'reload', text: '이미 사라진 알림이에요' },
+
+  /* ── 채팅 (CH-02 ~ CH-12). 서버 문구가 있지만 화면 말투로 다시 적는다 */
+  CHAT_ROOM_NOT_FOUND: { at: 'reload', text: '없는 채팅방이에요' },
+  CHAT_ROOM_ACCESS_DENIED: { at: 'reload', text: '이 방의 멤버가 아니에요' },
+  CHAT_ROOM_NOT_HOST: { at: 'banner', text: '방장만 부를 수 있어요' },
+  CHAT_INVITEE_NOT_COMMENTER: { at: 'banner', text: '댓글을 쓴 분만 부를 수 있어요' },
+  CHAT_ALREADY_MEMBER: { at: 'banner', text: '이미 방에 있는 분이에요' },
+  /* 스스로 나간 사람은 다시 못 부른다 (CH-02a). 강퇴가 없어 나가기가 곧 최종이다 */
+  CHAT_MEMBER_LEFT: { at: 'banner', text: '방을 나간 분은 다시 부를 수 없어요' },
+  CHAT_ROOM_MEMBER_LIMIT_EXCEEDED: { at: 'banner', text: '방 인원이 다 찼어요' },
+  CHAT_ROOM_HOST_CANNOT_LEAVE: { at: 'banner', text: '방장은 방을 나갈 수 없어요' },
+  /* 만남시각 기준 구간 밖이다 (CH-08). 글 상태가 아니라 시각으로 판정한다 */
+  CHAT_ROOM_READ_ONLY: { at: 'banner', text: '만남 후 7일이 지나 더 보낼 수 없어요' },
+  CHAT_CLIENT_MESSAGE_ID_REUSED: { at: 'banner', text: '전송이 꼬였어요. 다시 보내주세요' },
+  CHAT_MESSAGE_NOT_FOUND: { at: 'reload', text: '이미 없는 메시지예요' },
+  CHAT_MESSAGE_NOT_SENDER: { at: 'banner', text: '보낸 사람만 지울 수 있어요' },
+  /* 사진 (CH-14). 형식·크기는 화면이 먼저 거르지만 서버가 저장소에서 다시 본다 */
+  CHAT_IMAGE_TYPE_NOT_ALLOWED: { at: 'banner', text: 'JPG · PNG · WEBP 사진만 보낼 수 있어요' },
+  CHAT_IMAGE_TOO_LARGE: { at: 'banner', text: '사진이 너무 커요 (10MB 까지)' },
+  CHAT_IMAGE_NOT_UPLOADED: { at: 'banner', text: '사진이 올라가지 않았어요. 다시 골라주세요' },
+  CHAT_IMAGE_NOT_CONFIRMED: { at: 'banner', text: '사진 확인이 안 끝났어요. 다시 보내주세요' },
+
   /* 지워졌거나 가려진 댓글이다. 고치거나 답글을 달 수 없다 */
   COMMENT_NOT_ACTIVE: { at: 'reload', text: '이미 지워졌거나 가려진 댓글이에요' },
 

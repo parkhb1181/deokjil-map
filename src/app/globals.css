@@ -435,6 +435,8 @@ a { color: inherit; }
   z-index: 20;
 }
 .bottomnav__item {
+  /* 배지의 기준점. 없으면 배지가 nav 가운데(동행 칸)로 간다 — 실제로 그랬다 */
+  position: relative;
   flex: 1;
   min-height: 56px;
   display: flex;

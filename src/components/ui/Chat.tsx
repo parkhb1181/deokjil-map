@@ -11,8 +11,6 @@
  * 적으면 같은 이름이 스무 번 반복된다. 좌우로 갈라 두면 이름이
  * 없어도 누가 말했는지 알 수 있다.
  */
-import type { ReactNode } from 'react'
-import Link from 'next/link'
 import { Button } from './Basics'
 
 /* ── 말풍선 ───────────────────────────────────────────── */
@@ -41,10 +39,20 @@ export function dayLabel(iso: string) {
   return `${m}월 ${d}일 (${dow})`
 }
 
-export function ChatBubble({ text, mine, time, tail, who }: {
+export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete, onReport, image }: {
   text: string
   mine: boolean
   time: string
+  /** 지운 자리다 (CH-12). 본문 대신 자리표시자를 흐리게 둔다 — 빈 칸이면 대화가 중간에 끊긴 것처럼 읽힌다 */
+  deleted?: boolean
+  /** 서버 답을 기다리는 중. 흐리게 둔다 — 보냈는지 못 보냈는지가 안 보이면 두 번 누른다 */
+  pending?: boolean
+  /** 내 말풍선 묶음 끝에 「삭제」 를 단다. 지울 수 있는 것(내 것 · 안 지운 것)에만 준다 */
+  onDelete?: () => void
+  /** 남의 말풍선 묶음 끝에 「신고」 를 단다 (CH-21). 지운 메시지도 신고할 수 있다 */
+  onReport?: () => void
+  /** 사진 (CH-14). 주소가 아직 없으면 회색 자리, 있으면 그린다. 지운 메시지는 사진도 안 온다 */
+  image?: { url: string | null }
   /**
    * 보낸 사람 이름. **남의 말풍선에만** 준다.
    *
@@ -74,9 +82,33 @@ export function ChatBubble({ text, mine, time, tail, who }: {
      */
     <div className={`bubwrap${mine ? ' bubwrap--mine' : ''}${tail ? ' bub--tail' : ''}`}>
       {who && <span className="bub__who">{who}</span>}
-      <div className={`bub${mine ? ' bub--mine' : ''}`}>
-        <p className="bub__text">{text}</p>
-        {tail && <span className="bub__time">{time}</span>}
+      <div className={`bub${mine ? ' bub--mine' : ''}${deleted ? ' bub--deleted' : ''}${pending ? ' bub--pending' : ''}`}>
+        <span className="bub__body">
+          {image && !deleted && (
+            /* 공개 주소가 없어 60초마다 새 주소를 받는다 (CH-15). 그 사이는 회색 자리 */
+            image.url ? (
+              <img className="bub__img" src={image.url} alt="보낸 사진" loading="lazy" />
+            ) : (
+              <span className="bub__img bub__img--wait" aria-label="사진 불러오는 중" />
+            )
+          )}
+          {(deleted || text) && <p className="bub__text">{deleted ? '삭제된 메시지예요' : text}</p>}
+        </span>
+        {tail && (
+          <span className="bub__meta">
+            {onDelete && !deleted && !pending && (
+              <button type="button" className="bub__del" onClick={onDelete}>
+                삭제
+              </button>
+            )}
+            {onReport && !pending && (
+              <button type="button" className="bub__del" onClick={onReport}>
+                신고
+              </button>
+            )}
+            <span className="bub__time">{pending ? '보내는 중' : time}</span>
+          </span>
+        )}
       </div>
     </div>
   )
@@ -92,27 +124,6 @@ export function ChatDay({ label }: { label: string }) {
 }
 
 /* ── 인증 게이트 ──────────────────────────────────────── */
-
-/**
- * 미인증 회원이 채팅을 누르면 나오는 자리.
- *
- * **막는 것이 아니라 다음 걸음을 보여준다.** 「권한이 없습니다」 로
- * 끝내면 무엇을 해야 하는지 알 수 없다. 왜 필요한지 한 줄과 인증으로
- * 가는 버튼을 같이 둔다 (AU-14).
- */
-export function VerifyGate({ next, children }: { next: string; children?: ReactNode }) {
-  return (
-    <div className="vgate">
-      <p className="vgate__title">채팅은 번호 확인 후에 쓸 수 있어요</p>
-      <p className="vgate__desc">
-        {children ?? '낯선 사람과 만나는 자리라 한 번만 확인합니다. 번호는 상대에게 보이지 않아요.'}
-      </p>
-      <Link className="btn btn--primary" href={`/w4871/verify?next=${encodeURIComponent(next)}`}>
-        번호 확인하기
-      </Link>
-    </div>
-  )
-}
 
 /* ── 저장 고지 (CH-09) ────────────────────────────────── */
 

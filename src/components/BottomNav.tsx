@@ -87,6 +87,8 @@ interface Props {
   onChange: (tab: Tab) => void
   /** 동행 칸을 넣을지. 와이어프레임 주소에서만 켠다 */
   companion?: boolean
+  /** 안 읽은 알림 수. 프로필 칸에 단다 — 알림함이 그 밑에 있다. 0 이면 없다 */
+  unread?: number
 }
 
 /**
@@ -95,7 +97,7 @@ interface Props {
  * 레퍼런스 세 서비스(오프메이트·팝플리·팝가)가 모두 쓰는 구조.
  * 이 카테고리의 표준 문법이라 여기서 벗어나면 학습 비용만 생긴다.
  */
-export default function BottomNav({ active, savedCount, onChange, companion = false }: Props) {
+export default function BottomNav({ active, savedCount, onChange, companion = false, unread = 0 }: Props) {
   return (
     <nav className="bottomnav" aria-label="주요 화면">
       {TABS.map((tab) => (
@@ -161,6 +163,8 @@ export default function BottomNav({ active, savedCount, onChange, companion = fa
             {PROFILE.icon}
           </svg>
           {PROFILE.label}
+          {/* 알림함 입구가 프로필 안이라 배지가 여기 선다 (Alerts.tsx 머리말) */}
+          {unread > 0 && <span className="bottomnav__badge">{unread > 99 ? "99+" : unread}</span>}
         </a>
       )}
     </nav>

@@ -173,6 +173,8 @@ export type CommentProps = {
   edited?: boolean
   /** 아바타·이름을 누르면 사람 시트를 연다. 지운 댓글에는 없다 */
   onAuthor?: () => void
+  /** DOM id. 푸시 알림이 `#comment-{id}` 로 이 댓글까지 내려온다 (NT-15) */
+  id?: string
 }
 
 export function Comment({
@@ -189,13 +191,14 @@ export function Comment({
   edit,
   edited,
   onAuthor,
+  id,
 }: CommentProps) {
   const placeholder = isPlaceholder(state)
   const cls = ['cmt', reply && 'cmt--reply', placeholder && 'cmt--gone'].filter(Boolean).join(' ')
 
   if (placeholder) {
     return (
-      <div className={cls}>
+      <div className={cls} id={id}>
         <div className="cmt__main">
           {/* 누가 무엇을 했는지 그대로 적는다. 블라인드에 「삭제」 라고
               쓰면 본인이 지운 것처럼 보이고, 삭제에 「신고」 라고 쓰면
@@ -212,7 +215,7 @@ export function Comment({
   }
 
   return (
-    <div className={cls}>
+    <div className={cls} id={id}>
       {/* 아바타와 이름이 한 버튼이다. 둘을 따로 두면 이름을 누른 사람과
           그림을 누른 사람이 다른 결과를 얻는다 */}
       {onAuthor ? (

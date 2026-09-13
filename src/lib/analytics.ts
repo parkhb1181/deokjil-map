@@ -41,6 +41,10 @@ export type EventName =
   | 'arrive_query'
   /** 홈 순위 레일에서 대상을 눌렀다 */
   | 'rank_open'
+  /** 홈 화면에 추가됐다 (appinstalled). 안드로이드만 쏜다 — iOS 는 그 순간을 안 알려준다 */
+  | 'install_app'
+  /** 홈 화면 아이콘으로 열었다. 세션당 한 번. iOS 설치는 이것으로만 잡힌다 */
+  | 'launch_installed'
 
 type Params = Record<string, string | number | boolean | undefined>
 
