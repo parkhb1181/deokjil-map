@@ -13,9 +13,10 @@ import { contractError, guards, type Guards } from './wire'
  * 다시 묻는다 (ChatRoom.tsx). 붙으면 그쪽만 바꾸면 되고 여기 함수는
  * 그대로다.
  *
- * **방 목록에 마지막 메시지와 안 읽은 수가 안 온다.** CH-05 · CH-13 이
- * 그것을 약속했는데 지금 응답은 방 이름·약속 시각·인원뿐이다. 목록 화면이
- * 그 두 줄을 비워 둔다 — 서버에 더해 달라고 할 지점이다.
+ * **방 목록에 마지막 메시지가 안 온다.** CH-05 가 약속한 칸인데 아직 없다.
+ * 안 읽은 수(CH-13)는 STAR-117 이 더한다 — 그 PR 이 머지되기 전 서버는 그
+ * 칸 없이 주므로 없으면 0 으로 든다. 읽음 표시(`markRead`)도 그 PR 의 것이라
+ * 404 가 오면 조용히 넘긴다.
  *
  * **방장이 누구인지 안 온다.** 방 상세의 멤버 목록에 표시가 없다. 화면은
  * 「방장」 뱃지를 못 달고, 나가기가 방장이라 막히면 서버의 409 를 그대로
@@ -46,6 +47,8 @@ export interface ChatRoomSummary {
   /** KST 오프셋 ISO */
   meetAt: string
   memberCount: number
+  /** 내가 안 읽은 메시지 수 (CH-13). 서버가 아직 안 주면 0 */
+  unreadCount: number
 }
 
 export interface ChatMember {
@@ -98,6 +101,7 @@ function toSummary(raw: unknown): ChatRoomSummary {
     postTitle: str(w.postTitle, 'postTitle'),
     meetAt: str(w.meetAt, 'meetAt'),
     memberCount: num(w.memberCount, 'memberCount'),
+    unreadCount: w.unreadCount === undefined || w.unreadCount === null ? 0 : num(w.unreadCount, 'unreadCount'),
   }
 }
 
@@ -214,6 +218,15 @@ export async function deleteMessage(roomId: string, messageId: string, token: st
     undefined,
     token,
   )
+}
+
+/**
+ * 읽은 지점을 올린다 (CH-13). 화면에서 마지막으로 본 메시지 번호를 보낸다.
+ * 뒤로는 안 간다 — 옛 메시지를 보다가 그 번호를 보내도 배지가 되살아나지 않는다.
+ * 아직 서버에 없을 수 있어(STAR-117) 부르는 쪽이 실패를 삼킨다.
+ */
+export async function markRead(roomId: string, lastReadMessageId: string, token: string): Promise<void> {
+  await apiSend<void>('POST', `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/read`, { lastReadMessageId: Number(lastReadMessageId) }, token)
 }
 
 /** 스스로 나간다 (CH-04). 방장은 못 나간다 — 409 CHAT_ROOM_HOST_CANNOT_LEAVE. 나가면 다시 초대받지 못한다 */

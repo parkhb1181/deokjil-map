@@ -53,6 +53,7 @@ import {
   fetchMessages,
   fetchRoom,
   leaveRoom,
+  markRead,
   sendMessage,
   toMsg,
   MESSAGE_MAX,
@@ -164,11 +165,14 @@ function RoomScreen(p: ScreenProps) {
         </Button>
       }
     >
-      {/* 어느 약속인지. 시각을 확인하려고 뒤로 나갔다 오지 않게 한다 */}
-      <Link className="croom__on" href={wf(`/p/${p.postId}`)}>
-        <span className="croom__ontitle">{p.title}</span>
-        <span className="croom__onwhen">{whenText(p.meetAt)}</span>
-      </Link>
+      {/* 어느 약속인지. 시각을 확인하려고 뒤로 나갔다 오지 않게 한다.
+          아직 방을 못 받았으면(불러오는 중) 빈 값이라 안 그린다 */}
+      {p.postId && p.meetAt && (
+        <Link className="croom__on" href={wf(`/p/${p.postId}`)}>
+          <span className="croom__ontitle">{p.title}</span>
+          <span className="croom__onwhen">{whenText(p.meetAt)}</span>
+        </Link>
+      )}
 
       {/* 저장 고지 (CH-22). 방 위에 늘 있다 */}
       <ChatNotice />
@@ -441,6 +445,29 @@ function ApiRoom({ roomId }: { roomId: string }) {
 
   /* 스트림이 살아 있는가. 죽어 있으면 아래 예비 폴링이 돈다 */
   const [live, setLive] = useState(false)
+
+  /*
+   * 읽은 지점 (CH-13). 방을 보고 있는 동안 가장 큰 번호를 서버에 올린다.
+   * 화면이 안 보이면 안 올린다 — 안 본 것을 읽었다고 하면 배지가 거짓이 된다.
+   * 같은 번호는 한 번만. 서버에 아직 없으면(404) 조용히 넘긴다.
+   */
+  const readUpTo = useRef<string | null>(null)
+  const topId = lines.reduce<string | null>((a, l) => {
+    const n = Number(l.id)
+    return Number.isFinite(n) && (a === null || n > Number(a)) ? l.id : a
+  }, null)
+  useEffect(() => {
+    if (state !== 'ready' || !topId) return
+    const send = () => {
+      if (readUpTo.current === topId || document.visibilityState === 'hidden') return
+      readUpTo.current = topId
+      authed((token) => markRead(roomId, topId, token)).catch(() => undefined)
+    }
+    send()
+    /* 숨긴 채 받은 것은 다시 보일 때 올린다 */
+    document.addEventListener('visibilitychange', send)
+    return () => document.removeEventListener('visibilitychange', send)
+  }, [roomId, state, topId])
 
   /*
    * 실시간 (CH-10 · CH-11). 첫 장을 받은 뒤에 연다 — 그래야 마지막 번호를
