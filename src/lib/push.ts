@@ -128,7 +128,8 @@ export async function unsubscribe(): Promise<void> {
   const reg = await navigator.serviceWorker.getRegistration()
   const sub = reg ? await reg.pushManager.getSubscription() : null
   if (sub) {
-    await authed((token) => apiSend<void>('DELETE', '/api/v1/push-subscriptions', wire(sub), token)).catch(() => undefined)
+    /* 해제는 주소만 보낸다 (PushSubscriptionUnregisterRequest). 없는 구독을 지워도 성공이다 */
+    await authed((token) => apiSend<void>('DELETE', '/api/v1/push-subscriptions', { endpoint: sub.endpoint }, token)).catch(() => undefined)
     await sub.unsubscribe().catch(() => undefined)
   }
   try {
