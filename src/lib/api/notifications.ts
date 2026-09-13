@@ -25,17 +25,25 @@ function fail(field: string, why: string): never {
 
 const { num, bool, str }: Guards = guards(SUBJECT, HINT)
 
-/** 지금 둘이다. 채팅 종류는 NT-07 이 더한다 — 그때 여기와 Alerts 의 문구 표를 같이 늘린다 */
-export type NotificationKind = 'POST_COMMENTED' | 'COMMENT_REPLIED'
-const KINDS: readonly NotificationKind[] = ['POST_COMMENTED', 'COMMENT_REPLIED']
+/**
+ * 셋이다 (NT-06 · NT-07). 서버가 종류를 더하면 여기와 Alerts 의 문구 표를 같이 늘린다.
+ *
+ * **모르는 종류는 버리지 않고 `UNKNOWN` 으로 든다.** 서버가 종류를 먼저 더하고 화면이
+ * 뒤따르는 사이에 알림함이 통째로 죽으면 안 된다 — 그 줄만 「새 알림」 으로 뜬다.
+ */
+export type NotificationKind = 'POST_COMMENTED' | 'COMMENT_REPLIED' | 'ROOM_MESSAGED' | 'UNKNOWN'
+const KINDS: readonly NotificationKind[] = ['POST_COMMENTED', 'COMMENT_REPLIED', 'ROOM_MESSAGED']
 
 export interface Notification {
   id: string
   kind: NotificationKind
-  /** 눌렀을 때 갈 모집글 */
-  postId: string
-  /** 그 글에서 가리킬 댓글. 지금은 항상 오지만 계약상 nullable 로 둔다 */
+  /** 눌렀을 때 갈 모집글. 채팅 알림은 null */
+  postId: string | null
+  /** 그 글에서 가리킬 댓글 */
   commentId: string | null
+  /** 채팅 알림이 가리키는 방·메시지 (NT-07). 글 알림은 null */
+  roomId: string | null
+  messageId: string | null
   read: boolean
   /** KST 오프셋이 붙은 ISO. `when.ts` 의 parts 가 그대로 읽는다 */
   createdAt: string
@@ -46,6 +54,8 @@ interface Wire {
   kind?: unknown
   postId?: unknown
   commentId?: unknown
+  roomId?: unknown
+  messageId?: unknown
   read?: unknown
   createdAt?: unknown
 }
@@ -54,13 +64,15 @@ function toNotification(raw: unknown): Notification {
   if (!raw || typeof raw !== 'object') fail('item', '객체가 아닙니다')
   const w = raw as Wire
   const kind = str(w.kind, 'kind')
-  if (!(KINDS as readonly string[]).includes(kind)) fail('kind', `모르는 값 ${kind}`)
+  const idOrNull = (v: unknown, field: string) => (v === null || v === undefined ? null : String(num(v, field)))
   return {
     /* 숫자 ID 는 문자열로 든다. 화면의 다른 ID 와 같은 규칙이다 (posts.ts) */
     id: String(num(w.id, 'id')),
-    kind: kind as NotificationKind,
-    postId: String(num(w.postId, 'postId')),
-    commentId: w.commentId === null || w.commentId === undefined ? null : String(num(w.commentId, 'commentId')),
+    kind: (KINDS as readonly string[]).includes(kind) ? (kind as NotificationKind) : 'UNKNOWN',
+    postId: idOrNull(w.postId, 'postId'),
+    commentId: idOrNull(w.commentId, 'commentId'),
+    roomId: idOrNull(w.roomId, 'roomId'),
+    messageId: idOrNull(w.messageId, 'messageId'),
     read: bool(w.read, 'read'),
     createdAt: str(w.createdAt, 'createdAt'),
   }

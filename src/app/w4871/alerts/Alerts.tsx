@@ -45,6 +45,7 @@ import { USE_API } from '@/lib/api/config'
 import { ApiFailure } from '@/lib/api/http'
 import { fetchNotifications, markAllRead, markRead, type Notification, type NotificationKind } from '@/lib/api/notifications'
 import { fetchPost } from '@/lib/api/posts'
+import { fetchRoom } from '@/lib/api/chat'
 import { authed } from '@/lib/auth/authed'
 import { setUnread } from '@/lib/auth/unread'
 import { todayKey } from '@/lib/filters'
@@ -403,26 +404,41 @@ function AlertsScreen({ rows, today, unread, onRead, onReadAll, head, tail, inst
 const TEXT: Record<NotificationKind, string> = {
   POST_COMMENTED: '내 모집글에 댓글이 달렸어요',
   COMMENT_REPLIED: '내 댓글에 답글이 달렸어요',
+  ROOM_MESSAGED: '채팅방에 새 메시지가 있어요',
+  /* 서버가 먼저 더한 종류. 문구가 생길 때까지 이렇게 뜬다 */
+  UNKNOWN: '새 알림이 있어요',
 }
 
 const KIND: Record<NotificationKind, Kind> = {
   POST_COMMENTED: 'COMMENT',
   COMMENT_REPLIED: 'REPLY',
+  ROOM_MESSAGED: 'CHAT',
+  UNKNOWN: 'COMMENT',
 }
 
-/** 글 제목. `null` 은 「지금 볼 수 없는 글」, `undefined` 는 아직 안 받음 */
+/**
+ * 제목 캐시. 키는 `p:글번호` · `r:방번호`.
+ * `null` 은 「지금 볼 수 없는 것」, `undefined` 는 아직 안 받음
+ */
 type Titles = Record<string, string | null | undefined>
 
+/** 알림이 가리키는 곳. 채팅 알림은 방, 나머지는 글 */
+function targetOf(n: Notification): { key: string; href: string } | null {
+  if (n.kind === 'ROOM_MESSAGED') return n.roomId ? { key: `r:${n.roomId}`, href: wf(`/chat/${n.roomId}`) } : null
+  return n.postId ? { key: `p:${n.postId}`, href: wf(`/p/${n.postId}`) } : null
+}
+
 function toAlert(n: Notification, titles: Titles): Alert {
-  const title = titles[n.postId]
+  const t = targetOf(n)
+  const title = t ? titles[t.key] : null
   const gone = title === null
   return {
     id: n.id,
     kind: KIND[n.kind],
     actor: null,
     text: TEXT[n.kind],
-    on: gone ? '지금은 볼 수 없는 글이에요' : (title ?? ' '),
-    href: gone ? null : wf(`/p/${n.postId}`),
+    on: gone ? (n.kind === 'ROOM_MESSAGED' ? '지금은 볼 수 없는 방이에요' : '지금은 볼 수 없는 글이에요') : (title ?? ' '),
+    href: gone || !t ? null : t.href,
     count: 1,
     at: n.createdAt,
     read: n.read,
@@ -465,16 +481,23 @@ function ApiAlerts() {
     }
   }, [load])
 
-  /* 아직 제목을 안 받은 글만 묻는다. 실패한 글은 null 로 남겨 다시 안 묻는다 */
+  /* 아직 제목을 안 받은 글·방만 묻는다. 실패한 것은 null 로 남겨 다시 안 묻는다.
+     방 제목은 방 상세에서 온다 (멤버만 볼 수 있어 토큰이 든다) */
   useEffect(() => {
-    const want = [...new Set(items.map((n) => n.postId))].filter((id) => !(id in titles))
+    const want = [...new Set(items.map(targetOf).filter((t): t is NonNullable<typeof t> => t !== null).map((t) => t.key))].filter(
+      (k) => !(k in titles),
+    )
     if (want.length === 0) return
     /* 묻기 전에 자리를 잡아 둔다. 안 그러면 응답 전에 또 묻는다 */
-    setTitles((t) => Object.fromEntries([...Object.entries(t), ...want.map((id) => [id, undefined])]))
-    for (const id of want) {
-      fetchPost(id)
-        .then((p) => setTitles((t) => ({ ...t, [id]: p.title })))
-        .catch(() => setTitles((t) => ({ ...t, [id]: null })))
+    setTitles((t) => Object.fromEntries([...Object.entries(t), ...want.map((k) => [k, undefined])]))
+    for (const key of want) {
+      const id = key.slice(2)
+      const ask = key.startsWith('r:')
+        ? authed((token) => fetchRoom(id, token)).then((r) => r.post.title)
+        : fetchPost(id).then((p) => p.title)
+      ask
+        .then((title) => setTitles((t) => ({ ...t, [key]: title })))
+        .catch(() => setTitles((t) => ({ ...t, [key]: null })))
     }
   }, [items, titles])
 
