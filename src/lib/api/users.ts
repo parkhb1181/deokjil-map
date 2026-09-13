@@ -282,12 +282,18 @@ export async function requestImageUpload(
  * 실패하면 S3 가 XML 을 돌려준다. 우리 에러 모양이 아니라 화면이 못 읽으므로
  * 여기서 우리 실패로 바꾼다.
  */
-export async function putToStorage(uploadUrl: string, file: File): Promise<void> {
+export async function putToStorage(uploadUrl: string, file: Blob, opts?: { once?: boolean }): Promise<void> {
   let res: Response
   try {
     res = await fetch(uploadUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': file.type },
+      /*
+       * `once` — 채팅 사진 서명은 `If-None-Match: *` 까지 서명에 묶여 있다
+       * (S3ChatImageStorage, CH-16 리뷰: 같은 주소로 두 번 못 올린다). 그
+       * 헤더를 안 보내면 서명이 안 맞아 403 이다. 프로필 서명에는 없어서
+       * 거기서 보내면 반대로 안 맞는다 — 부르는 쪽이 고른다.
+       */
+      headers: { 'Content-Type': file.type, ...(opts?.once ? { 'If-None-Match': '*' } : {}) },
       body: file,
       /*
        * **끊는 시각이 있어야 한다.** 우리 서버가 아니라 S3 로 직접

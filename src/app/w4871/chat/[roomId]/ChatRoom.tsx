@@ -517,8 +517,10 @@ function ApiRoom({ roomId }: { roomId: string }) {
     if (state !== 'ready') return
     const numeric = lines.map((l) => Number(l.id)).filter((n) => Number.isFinite(n))
     const lastId = numeric.length ? String(Math.max(...numeric)) : null
-    setLive(true)
+    /* 붙기 전까지는 예비 폴링이 돈다. 붙으면(onUp) 쉬고, 떨어지면(onDown) 다시 돈다 */
     const close = openStream<unknown>(roomId, lastId, {
+      onUp: () => setLive(true),
+      onDown: () => setLive(false),
       onMessage: (raw) => {
         try {
           const m = toMsg(raw)
@@ -543,8 +545,9 @@ function ApiRoom({ roomId }: { roomId: string }) {
   }, [roomId, state])
 
   /*
-   * 예비 폴링. 스트림이 못 붙는 동안만 (403 · 404 · 계약 어긋남) 30초마다
-   * 최근 장을 받는다. 화면이 안 보이면 쉰다.
+   * 예비 폴링. 스트림이 안 붙어 있는 동안만 (아직 안 열림 · 5xx 로 재시도 중 ·
+   * 403 · 404) 30초마다 최근 장을 받는다. 화면이 안 보이면 쉰다.
+   * 프로덕션에서 스트림이 500 을 내던 날 이것이 없어서 새 글이 안 왔다.
    */
   useEffect(() => {
     if (state !== 'ready' || live) return
@@ -642,7 +645,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
       setDraft('')
       const sent = await authed(async (token) => {
         const issued = await issueImageUpload(roomId, small, token)
-        await putToStorage(issued.uploadUrl, small)
+        await putToStorage(issued.uploadUrl, small, { once: true })
         await confirmImageUpload(roomId, issued.imageId, token)
         return sendMessage(roomId, { clientMessageId: cid, content: text, imageId: issued.imageId }, token)
       })

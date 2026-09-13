@@ -35,6 +35,14 @@ export interface StreamHandlers<T> {
   onGap: () => void
   /** 다시 열어도 같은 실패. 스트림은 멈췄다 */
   onDead: (e: ApiFailure) => void
+  /** 붙었다 (응답이 열렸다). 예비 폴링을 쉬어도 된다 */
+  onUp?: () => void
+  /**
+   * 못 붙었다 (5xx · 네트워크). 곧 다시 열지만 그동안은 아무것도 안 온다 —
+   * 부르는 쪽이 예비 폴링을 켜야 한다. 서버가 5분마다 곱게 닫는 것은
+   * 실패가 아니라서 여기 안 온다
+   */
+  onDown?: () => void
 }
 
 const RETRY_MS = [1_000, 2_000, 5_000, 10_000]
@@ -88,6 +96,7 @@ export function openStream<T>(roomId: string, lastId: string | null, h: StreamHa
     if (!res.body) throw new ApiFailure('NETWORK', '스트림 본문이 없습니다', 0)
 
     fails = 0
+    h.onUp?.()
     const reader = res.body.getReader()
     const dec = new TextDecoder()
     let buf = ''
@@ -142,7 +151,9 @@ export function openStream<T>(roomId: string, lastId: string | null, h: StreamHa
           h.onDead(e)
           return
         }
-        /* 네트워크가 흔들렸다. 조금씩 더 기다렸다 다시 연다 */
+        /* 네트워크가 흔들렸거나 서버가 5xx 를 냈다. 조금씩 더 기다렸다
+           다시 열되, 그동안 새 글이 끊기지 않게 부르는 쪽에 알린다 */
+        h.onDown?.()
         const wait = RETRY_MS[Math.min(fails, RETRY_MS.length - 1)]
         fails += 1
         await new Promise((r) => setTimeout(r, wait))
