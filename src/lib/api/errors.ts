@@ -242,6 +242,11 @@ const RULES: Record<string, Rule> = {
   CHAT_CLIENT_MESSAGE_ID_REUSED: { at: 'banner', text: '전송이 꼬였어요. 다시 보내주세요' },
   CHAT_MESSAGE_NOT_FOUND: { at: 'reload', text: '이미 없는 메시지예요' },
   CHAT_MESSAGE_NOT_SENDER: { at: 'banner', text: '보낸 사람만 지울 수 있어요' },
+  /* 사진 (CH-14). 형식·크기는 화면이 먼저 거르지만 서버가 저장소에서 다시 본다 */
+  CHAT_IMAGE_TYPE_NOT_ALLOWED: { at: 'banner', text: 'JPG · PNG · WEBP 사진만 보낼 수 있어요' },
+  CHAT_IMAGE_TOO_LARGE: { at: 'banner', text: '사진이 너무 커요 (10MB 까지)' },
+  CHAT_IMAGE_NOT_UPLOADED: { at: 'banner', text: '사진이 올라가지 않았어요. 다시 골라주세요' },
+  CHAT_IMAGE_NOT_CONFIRMED: { at: 'banner', text: '사진 확인이 안 끝났어요. 다시 보내주세요' },
 
   /* 지워졌거나 가려진 댓글이다. 고치거나 답글을 달 수 없다 */
   COMMENT_NOT_ACTIVE: { at: 'reload', text: '이미 지워졌거나 가려진 댓글이에요' },

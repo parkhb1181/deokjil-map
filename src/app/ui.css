@@ -3526,6 +3526,34 @@
    accent 는 대비가 모자란다 (docs/design/SCALE.md) */
 .bub--mine .bub__text { background: var(--accent-soft); color: var(--accent-ink); }
 
+/* 사진과 글이 세로로 선다. 사진만 있으면 글 자리는 없다 */
+.bub__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.bub__img {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.bub__img--wait { height: 160px; background: var(--bg-sunk); }
+.bub--mine .bub__body { align-items: flex-end; }
+
+/* 입력칸 옆 사진 버튼. 텍스트 대신 아이콘 하나 — 글자면 입력칸이 좁아진다 */
+.cwrite__attach {
+  flex: 0 0 auto;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-dim);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.cwrite__attach[disabled] { opacity: 0.5; cursor: default; }
+
 .bub__time {
   flex: 0 0 auto;
   padding-bottom: 2px;

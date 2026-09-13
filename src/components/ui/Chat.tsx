@@ -39,7 +39,7 @@ export function dayLabel(iso: string) {
   return `${m}월 ${d}일 (${dow})`
 }
 
-export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete, onReport }: {
+export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDelete, onReport, image }: {
   text: string
   mine: boolean
   time: string
@@ -51,6 +51,8 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
   onDelete?: () => void
   /** 남의 말풍선 묶음 끝에 「신고」 를 단다 (CH-21). 지운 메시지도 신고할 수 있다 */
   onReport?: () => void
+  /** 사진 (CH-14). 주소가 아직 없으면 회색 자리, 있으면 그린다. 지운 메시지는 사진도 안 온다 */
+  image?: { url: string | null }
   /**
    * 보낸 사람 이름. **남의 말풍선에만** 준다.
    *
@@ -81,7 +83,17 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
     <div className={`bubwrap${mine ? ' bubwrap--mine' : ''}${tail ? ' bub--tail' : ''}`}>
       {who && <span className="bub__who">{who}</span>}
       <div className={`bub${mine ? ' bub--mine' : ''}${deleted ? ' bub--deleted' : ''}${pending ? ' bub--pending' : ''}`}>
-        <p className="bub__text">{deleted ? '삭제된 메시지예요' : text}</p>
+        <span className="bub__body">
+          {image && !deleted && (
+            /* 공개 주소가 없어 60초마다 새 주소를 받는다 (CH-15). 그 사이는 회색 자리 */
+            image.url ? (
+              <img className="bub__img" src={image.url} alt="보낸 사진" loading="lazy" />
+            ) : (
+              <span className="bub__img bub__img--wait" aria-label="사진 불러오는 중" />
+            )
+          )}
+          {(deleted || text) && <p className="bub__text">{deleted ? '삭제된 메시지예요' : text}</p>}
+        </span>
         {tail && (
           <span className="bub__meta">
             {onDelete && !deleted && !pending && (

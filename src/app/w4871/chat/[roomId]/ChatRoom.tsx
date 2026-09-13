@@ -56,12 +56,19 @@ import {
   markRead,
   sendMessage,
   toMsg,
+  confirmImageUpload,
+  fetchImageUrls,
+  issueImageUpload,
+  IMAGE_MAX_BYTES,
+  IMAGE_TYPES,
   MESSAGE_MAX,
   type ChatMember,
   type ChatMsg,
   type ChatRoomDetail,
 } from '@/lib/api/chat'
 import { openStream } from '@/lib/api/chat-stream'
+import { putToStorage } from '@/lib/api/users'
+import { shrinkImage } from '@/lib/image-shrink'
 import { authed } from '@/lib/auth/authed'
 import { useViewer } from '@/lib/auth/useViewer'
 import { stamp } from '@/lib/when'
@@ -88,6 +95,10 @@ type Member = { id: string; nickname: string; imageUrl?: string | null }
 type Line = ChatMessage & {
   deleted?: boolean
   pending?: boolean
+  /** 사진 번호 (CH-14). 볼 주소는 따로 받는다 */
+  imageId?: string | null
+  /** 올리는 중인 내 사진의 미리보기. 서버 주소가 오면 버린다 */
+  localUrl?: string
   /** 보낸 사람 이름. 서버 메시지에는 붙어 온다 — 나간 사람의 말도 이름이 남아야 한다 */
   who?: string
 }
@@ -109,6 +120,10 @@ interface ScreenProps {
   draft: string
   onDraft: (v: string) => void
   onSend: () => void
+  /** 사진을 골랐다 (CH-14). 없으면 사진 버튼이 안 선다 (목데이터) */
+  onAttach?: (file: File) => void
+  /** 메시지 번호 → 볼 주소. 없거나 만료된 것은 회색 자리로 그린다 */
+  imageUrls?: Record<string, string>
   /** 내 말풍선에 「삭제」 를 단다. 목데이터에는 없다 */
   onDelete?: (id: string) => void
   onLeave?: () => void
@@ -133,6 +148,7 @@ function RoomScreen(p: ScreenProps) {
   const [ask, setAsk] = useState<Ask>(null)
   const [menu, setMenu] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
   const seen = useRef(false)
 
   /* 메시지에 이름이 붙어 오면 그것을 쓴다 (나간 사람도 이름이 남는다). 목데이터는 멤버에서 찾는다 */
@@ -217,6 +233,9 @@ function RoomScreen(p: ScreenProps) {
                     onDelete={mine && p.onDelete ? () => p.onDelete?.(m.id) : undefined}
                     /* 지운 메시지도 신고할 수 있다 — 본문이 남아 관리자가 본다. 아직 안 올라간 내 말은 번호가 없다 */
                     onReport={!mine && !m.pending ? () => setAsk({ k: 'message', id: m.id }) : undefined}
+                    image={
+                      m.imageId || m.localUrl ? { url: m.localUrl ?? p.imageUrls?.[m.id] ?? null } : undefined
+                    }
                   />
                 </div>
               )
@@ -231,6 +250,25 @@ function RoomScreen(p: ScreenProps) {
           글의 끝이지만 채팅은 읽는 내내 쓰는 자리라 따라다녀야 한다 */}
       {p.writable ? (
         <div className="cwrite">
+          {p.onAttach && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept={IMAGE_TYPES.join(',')}
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0]
+                  e.target.value = ''
+                  if (f) p.onAttach?.(f)
+                }}
+              />
+              {/* 사진 하나. 여러 장은 한 장씩 — 메시지 하나에 사진 하나가 계약이다 (CH-14) */}
+              <button type="button" className="cwrite__attach" aria-label="사진 보내기" onClick={() => fileRef.current?.click()}>
+                +
+              </button>
+            </>
+          )}
           <textarea
             className="cwrite__box"
             rows={1}
@@ -374,6 +412,7 @@ function toLine(m: ChatMsg): Line {
     text: m.content ?? '',
     at: m.createdAt,
     deleted: m.status === 'DELETED',
+    imageId: m.imageId,
   }
 }
 
@@ -543,6 +582,84 @@ function ApiRoom({ roomId }: { roomId: string }) {
 
   const me = viewer.userId
 
+  /*
+   * 사진 주소 (CH-15). 공개 주소가 없어 볼 때마다 60초짜리를 받는다.
+   * 사진이 실린 줄 중 주소가 없거나 곧 만료되는 것을 모아 한 번에 묻고,
+   * 45초마다 다시 본다 — 만료 뒤 회색으로 돌아가는 것보다 미리 갈아끼운다.
+   */
+  const [imgs, setImgs] = useState<Record<string, { url: string; until: number }>>({})
+  const imgWant = lines
+    .filter((l) => l.imageId && !l.localUrl && !Number.isNaN(Number(l.id)))
+    .map((l) => l.id)
+    .filter((id) => !imgs[id] || imgs[id].until - Date.now() < 5_000)
+    .join(',')
+  useEffect(() => {
+    if (state !== 'ready') return
+    let alive = true
+    const tick = () => {
+      const ids = imgWant ? imgWant.split(',') : []
+      if (ids.length === 0) return
+      authed((token) => fetchImageUrls(roomId, ids, token))
+        .then((got) => {
+          if (!alive) return
+          const now = Date.now()
+          setImgs((v) => ({
+            ...v,
+            ...Object.fromEntries(Object.entries(got).map(([id, g]) => [id, { url: g.url, until: now + g.expiresInSeconds * 1000 }])),
+          }))
+        })
+        .catch(() => undefined)
+    }
+    tick()
+    const id = window.setInterval(tick, 45_000)
+    return () => {
+      alive = false
+      window.clearInterval(id)
+    }
+  }, [roomId, state, imgWant])
+  const imageUrls = Object.fromEntries(Object.entries(imgs).map(([id, g]) => [id, g.url]))
+
+  /*
+   * 사진 보내기 (CH-14 · CH-16). 브라우저에서 줄여(1280px jpeg) 서명을 받고
+   * 저장소에 바로 올린 뒤 확정하고, 그 번호를 실어 메시지를 보낸다. EXIF 는
+   * 캔버스를 거치며 이미 떨어지고, 서버 워커가 한 번 더 벗긴다. 올리는 동안
+   * 미리보기가 흐리게 서고, 어디서든 실패하면 거둔다.
+   */
+  const attach = async (file: File) => {
+    if (!me) return
+    setFailed(null)
+    const cid = crypto.randomUUID()
+    const tmp = `tmp:${cid}`
+    const text = draft.trim()
+    let localUrl: string | null = null
+    try {
+      const small = await shrinkImage(file, { maxEdge: 1280 }).catch(() => {
+        throw new ApiFailure('CHAT_IMAGE_TYPE_NOT_ALLOWED', '읽을 수 없는 사진이에요. JPG · PNG · WEBP 만 보낼 수 있어요', 400)
+      })
+      if (small.size > IMAGE_MAX_BYTES) throw new ApiFailure('CHAT_IMAGE_TOO_LARGE', '사진이 너무 커요', 400)
+      localUrl = URL.createObjectURL(small)
+      setLines((v) => [...v, { id: tmp, from: me, text, at: stamp(), pending: true, localUrl: localUrl ?? undefined }])
+      setDraft('')
+      const sent = await authed(async (token) => {
+        const issued = await issueImageUpload(roomId, small, token)
+        await putToStorage(issued.uploadUrl, small)
+        await confirmImageUpload(roomId, issued.imageId, token)
+        return sendMessage(roomId, { clientMessageId: cid, content: text, imageId: issued.imageId }, token)
+      })
+      setLines((v) =>
+        v.map((l) =>
+          l.id === tmp
+            ? { id: sent.id, from: sent.senderId, text: sent.content, at: sent.createdAt, imageId: sent.imageId, localUrl: localUrl ?? undefined }
+            : l,
+        ),
+      )
+    } catch (e: unknown) {
+      setLines((v) => v.filter((l) => l.id !== tmp))
+      if (!draftRef.current) setDraft(text)
+      fail(e)
+    }
+  }
+
   const send = () => {
     const text = draft.trim()
     if (!text || text.length > MAX || !me) return
@@ -635,6 +752,8 @@ function ApiRoom({ roomId }: { roomId: string }) {
       draft={draft}
       onDraft={setDraft}
       onSend={send}
+      onAttach={attach}
+      imageUrls={imageUrls}
       onDelete={remove}
       onLeave={leave}
       writable={Boolean(room?.writable) && state === 'ready'}

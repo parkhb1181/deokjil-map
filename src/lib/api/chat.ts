@@ -75,6 +75,8 @@ export interface ChatMsg {
   sender: { id: string; nickname: string; imageUrl: string | null }
   /** DELETED 면 null */
   content: string | null
+  /** 함께 보낸 사진 번호 (CH-14). 없으면 null. 볼 주소는 `fetchImageUrls` 가 발급한다 */
+  imageId: string | null
   status: ChatMessageStatus
   createdAt: string
 }
@@ -132,6 +134,7 @@ export function toMsg(raw: unknown): ChatMsg {
     },
     /* 지운 메시지는 content 키가 없다 (CH-12). 없는 것과 빈 문자열을 가르지 않는다 */
     content: status === 'DELETED' ? null : strOrNull(w.content, 'message.content'),
+    imageId: status === 'DELETED' || w.imageId === null || w.imageId === undefined ? null : String(num(w.imageId, 'message.imageId')),
     status,
     createdAt: str(w.createdAt, 'message.createdAt'),
   }
@@ -181,6 +184,7 @@ export interface SentMessage {
   roomId: string
   senderId: string
   content: string
+  imageId: string | null
   createdAt: string
 }
 
@@ -194,18 +198,24 @@ export interface SentMessage {
  */
 export async function sendMessage(
   roomId: string,
-  body: { clientMessageId: string; content: string },
+  body: { clientMessageId: string; content: string; imageId?: string | null },
   token: string,
 ): Promise<SentMessage> {
   const w = obj(
-    await apiSend<unknown>('POST', `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/messages`, body, token),
+    await apiSend<unknown>(
+      'POST',
+      `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/messages`,
+      { clientMessageId: body.clientMessageId, content: body.content, imageId: body.imageId ? Number(body.imageId) : null },
+      token,
+    ),
     'sent',
   )
   return {
     id: str(w.messageId, 'sent.messageId'),
     roomId: str(w.roomId, 'sent.roomId'),
     senderId: str(w.senderId, 'sent.senderId'),
-    content: str(w.content, 'sent.content'),
+    content: strOrNull(w.content, 'sent.content') ?? '',
+    imageId: w.imageId === null || w.imageId === undefined ? null : String(num(w.imageId, 'sent.imageId')),
     createdAt: str(w.createdAt, 'sent.createdAt'),
   }
 }
@@ -248,4 +258,72 @@ export async function inviteToRoom(
     'invite',
   )
   return { roomId: str(w.roomId, 'invite.roomId'), memberCount: num(w.memberCount, 'invite.memberCount') }
+}
+
+/* ── 사진 (CH-14 · CH-15) ─────────────────────────────── */
+
+/** 서버가 받는 형식과 상한. 서버의 chat.image 설정과 같아야 한다 */
+export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+export const IMAGE_MAX_BYTES = 10 * 1024 * 1024
+
+/**
+ * 업로드 서명 발급 (CH-14). 바이트는 서버를 거치지 않고 저장소로 바로 간다.
+ * 서명에 형식과 크기가 묶여 있어 실제 파일이 다르면 저장소가 거부한다.
+ */
+export async function issueImageUpload(
+  roomId: string,
+  file: { type: string; size: number },
+  token: string,
+): Promise<{ imageId: string; uploadUrl: string; expiresInSeconds: number }> {
+  const w = obj(
+    await apiSend<unknown>(
+      'POST',
+      `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/images`,
+      { contentType: file.type, contentLength: file.size },
+      token,
+    ),
+    'image',
+  )
+  return {
+    imageId: str(w.imageId, 'image.imageId'),
+    uploadUrl: str(w.uploadUrl, 'image.uploadUrl'),
+    expiresInSeconds: num(w.expiresInSeconds, 'image.expiresInSeconds'),
+  }
+}
+
+/** 올린 뒤 확정 (CH-14). 서버가 저장소에서 실제 형식·크기를 다시 본다. 확정한 것만 메시지에 실을 수 있다 */
+export async function confirmImageUpload(roomId: string, imageId: string, token: string): Promise<void> {
+  await apiSend<void>(
+    'PUT',
+    `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/images/${encodeURIComponent(imageId)}`,
+    undefined,
+    token,
+  )
+}
+
+/**
+ * 볼 주소 발급 (CH-15). 공개 주소가 없다 — 볼 때마다 멤버인지 보고 60초짜리
+ * 서명 주소를 준다. 메시지 번호를 최대 50개 한 번에 묻는다.
+ */
+export async function fetchImageUrls(
+  roomId: string,
+  messageIds: string[],
+  token: string,
+): Promise<Record<string, { url: string; expiresInSeconds: number }>> {
+  if (messageIds.length === 0) return {}
+  const raw = await apiGet<unknown>(
+    `/api/v1/chat-rooms/${encodeURIComponent(roomId)}/images`,
+    { messageIds: messageIds.slice(0, 50).join(',') },
+    token,
+  )
+  if (!Array.isArray(raw)) fail('images', '배열이 아닙니다')
+  const out: Record<string, { url: string; expiresInSeconds: number }> = {}
+  for (const item of raw) {
+    const w = obj(item, 'image')
+    out[str(w.messageId, 'image.messageId')] = {
+      url: str(w.viewUrl, 'image.viewUrl'),
+      expiresInSeconds: num(w.expiresInSeconds, 'image.expiresInSeconds'),
+    }
+  }
+  return out
 }

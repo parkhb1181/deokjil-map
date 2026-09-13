@@ -26,7 +26,7 @@
  * 자리에서 더 어려운 말이 나온다.
  */
 
-/** 긴 변 최대 픽셀 */
+/** 긴 변 최대 픽셀 (기본값 · 아바타). 채팅 사진은 부르는 쪽이 더 크게 준다 */
 const MAX_EDGE = 512
 
 /** 캔버스에서 뽑을 형식. 사진이라 jpeg 가 png 보다 훨씬 작다 */
@@ -77,11 +77,13 @@ async function decode(file: File): Promise<ImageBitmap | HTMLImageElement> {
 }
 
 /**
- * 사진을 512px jpeg 로 줄인다.
+ * 사진을 jpeg 로 줄인다. 긴 변 기본 512px (아바타). 채팅 사진은 1280 을 준다 —
+ * 말풍선에서 두 배 화면까지 선명하고, 원본을 그대로 올리면 10MB 상한에 걸린다.
  *
  * 읽지 못하면 던진다. 부르는 쪽이 형식 안내를 띄운다.
  */
-export async function shrinkImage(file: File): Promise<File> {
+export async function shrinkImage(file: File, opts: { maxEdge?: number } = {}): Promise<File> {
+  const maxEdge = opts.maxEdge ?? MAX_EDGE
   if (file.size > DECODE_MAX) throw new Error('too large to decode')
 
   const src = await decode(file)
@@ -89,7 +91,7 @@ export async function shrinkImage(file: File): Promise<File> {
   const h = 'height' in src ? src.height : 0
   if (!w || !h) throw new Error('empty image')
 
-  const scale = Math.min(1, MAX_EDGE / Math.max(w, h))
+  const scale = Math.min(1, maxEdge / Math.max(w, h))
   const canvas = document.createElement('canvas')
   canvas.width = Math.max(1, Math.round(w * scale))
   canvas.height = Math.max(1, Math.round(h * scale))
