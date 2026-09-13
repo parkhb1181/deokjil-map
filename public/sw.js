@@ -34,7 +34,7 @@
  */
 
 /* 올릴 때마다 올린다. 낡은 캐시는 activate 에서 통째로 지운다 */
-const VERSION = 'v2'
+const VERSION = 'v3'
 const SHELL = `shell-${VERSION}`
 const ASSETS = `assets-${VERSION}`
 
@@ -121,11 +121,27 @@ self.addEventListener('fetch', (e) => {
 })
 
 /* ── 푸시 ──────────────────────────────────────────────────
-   서버(NT-13)가 보내는 본문은 JSON 하나다:
-     { "title": "댓글이 달렸어요", "body": "승민 생카 21일…", "url": "/w4871/p/14", "tag": "post-14" }
-   url 은 누르면 갈 곳(우리 출처의 경로). tag 가 같으면 먼저 뜬 알림을
-   갈아끼운다 — 한 글에 댓글이 다섯 개 달려도 알림은 하나다.
+   서버(NT-13)는 문구를 만들지 않는다. 종류와 번호만 보낸다 — 알림함과
+   같은 규칙이다 (API 설계 2-10). 문장과 갈 곳은 여기서 조립한다.
+     { "notificationId": 42, "kind": "POST_COMMENTED", "postId": 10, "commentId": 100,
+       "roomId": null, "messageId": null, "tag": "post-10" }
+   tag 가 같으면 먼저 뜬 알림을 갈아끼운다 — 한 글에 댓글이 다섯 개
+   달려도 알림은 하나다. 서버가 url 을 실어도 안 쓴다. 주소는 화면 쪽
+   규칙이라 서버가 만들면 어긋난다.
    ------------------------------------------------------- */
+const TEXT = {
+  POST_COMMENTED: '내 모집글에 댓글이 달렸어요',
+  COMMENT_REPLIED: '내 댓글에 답글이 달렸어요',
+  ROOM_MESSAGED: '채팅방에 새 메시지가 있어요',
+}
+
+/** 알림이 가리키는 우리 화면. 와이어프레임 접두어(/w4871)는 wireframe.ts 와 같다 */
+function whereTo(data) {
+  if (data.kind === 'ROOM_MESSAGED' && data.roomId != null) return `/w4871/chat/${data.roomId}`
+  if (data.postId != null) return `/w4871/p/${data.postId}`
+  return '/w4871/alerts'
+}
+
 self.addEventListener('push', (e) => {
   /* 본문이 없거나 깨졌어도 무언가는 띄운다. 조용히 버리면 권한을 준
      사람이 아무것도 못 받고, 왜 안 오는지도 모른다 */
@@ -133,18 +149,20 @@ self.addEventListener('push', (e) => {
   try {
     data = e.data ? e.data.json() : {}
   } catch {
-    data = { body: e.data ? e.data.text() : '' }
+    data = {}
   }
-  const url = typeof data.url === 'string' ? data.url : '/'
+  /* 서버가 문구를 실어 보내는 날이 오면 그것을 우선한다 */
+  const title = data.title || TEXT[data.kind] || '새 알림이 있어요'
+  const body = data.body || ''
   e.waitUntil(
-    self.registration.showNotification(data.title || '덕모임', {
-      body: data.body || '',
+    self.registration.showNotification(title, {
+      body,
       icon: '/icon-192.png',
       /* 안드로이드 상태줄의 작은 아이콘. 단색 전용 그림이 없어 앱 아이콘을 쓴다 */
       badge: '/icon-192.png',
       tag: typeof data.tag === 'string' ? data.tag : undefined,
       renotify: typeof data.tag === 'string',
-      data: { url },
+      data: { url: whereTo(data), notificationId: data.notificationId ?? null },
     }),
   )
 })
@@ -162,5 +180,25 @@ self.addEventListener('notificationclick', (e) => {
       if (any) return any.navigate(url).then((c) => (c ? c.focus() : undefined))
       return self.clients.openWindow(url)
     }),
+  )
+})
+
+/*
+ * 브라우저가 구독을 갈았다 (NT-12 · ⑤).
+ *
+ * 여기서 서버에 다시 등록하지 못한다 — 서비스워커에는 로그인 토큰이
+ * 없다 (토큰은 화면의 localStorage 에 있다). 그래서 새 구독을 만들어
+ * 두고 열린 화면에 알린다. 화면이 없으면 다음에 앱을 열 때 PushSync 가
+ * 주소가 바뀐 것을 보고 다시 등록한다. 옛 주소로 보낸 푸시는 410 이
+ * 나고 서버가 그 줄을 지운다.
+ */
+self.addEventListener('pushsubscriptionchange', (e) => {
+  const old = e.oldSubscription
+  const key = old && old.options ? old.options.applicationServerKey : null
+  e.waitUntil(
+    (key ? self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key }) : Promise.resolve(null))
+      .catch(() => null)
+      .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .then((list) => list.forEach((c) => c.postMessage({ type: 'push-subscription-changed' }))),
   )
 })

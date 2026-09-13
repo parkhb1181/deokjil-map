@@ -24,7 +24,14 @@
  * 켜기 대신 「홈 화면에 추가하세요」 를 보여준다.
  */
 
+import { apiSend } from '@/lib/api/http'
+import { authed } from '@/lib/auth/authed'
+import { isSignedIn } from '@/lib/auth/session'
+
 export const PUSH_READY = Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)
+
+/** 서버에 마지막으로 등록한 구독 주소. 바뀌었는지 볼 때 쓴다 (⑤) */
+const ENDPOINT_KEY = 'duckmoim.push.endpoint'
 
 export type PushSupport = 'ok' | 'unsupported' | 'ios-not-installed'
 
@@ -76,7 +83,7 @@ function keyBytes(b64url: string): ArrayBuffer {
  * 브라우저 구독을 만든다 (NT-12 의 앞 절반).
  *
  * 이미 있으면 그것을 돌려준다 — 두 번 만들면 서버에 같은 기기가 두 줄
- * 생긴다. 서버에 보내는 뒤 절반은 엔드포인트 계약이 오면 여기 붙는다.
+ * 생긴다. 서버 등록은 `register()` 가 한다.
  */
 export async function subscribe(): Promise<PushSubscription | null> {
   const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
@@ -91,4 +98,75 @@ export async function subscribe(): Promise<PushSubscription | null> {
     userVisibleOnly: true,
     applicationServerKey: keyBytes(key),
   })
+}
+
+/** 서버가 받는 모양. 브라우저 JSON 에서 expirationTime 은 뺀다 — 계약에 없는 칸이다 */
+function wire(sub: PushSubscription): { endpoint: string; keys: { p256dh: string; auth: string } } {
+  const j = sub.toJSON()
+  return { endpoint: sub.endpoint, keys: { p256dh: j.keys?.p256dh ?? '', auth: j.keys?.auth ?? '' } }
+}
+
+/**
+ * 서버에 구독을 등록한다 (NT-12 · 뒤 절반). `POST /api/v1/push-subscriptions`.
+ * 같은 endpoint 를 다시 보내도 서버가 한 줄로 둔다. 등록한 주소를 기억해
+ * 두어 다음에 앱을 열 때 바뀌었는지 본다.
+ */
+export async function register(sub: PushSubscription): Promise<void> {
+  await authed((token) => apiSend<void>('POST', '/api/v1/push-subscriptions', wire(sub), token))
+  try {
+    localStorage.setItem(ENDPOINT_KEY, sub.endpoint)
+  } catch {
+    /* 저장소가 막혀 있으면 다음에 한 번 더 등록한다. 서버가 같은 줄로 둔다 */
+  }
+}
+
+/**
+ * 알림을 끈다. 서버 줄을 지우고 브라우저 구독도 푼다 — 한쪽만 하면
+ * 서버는 죽은 주소로 보내다 410 을 받고, 브라우저는 안 오는 구독을 든다.
+ */
+export async function unsubscribe(): Promise<void> {
+  const reg = await navigator.serviceWorker.getRegistration()
+  const sub = reg ? await reg.pushManager.getSubscription() : null
+  if (sub) {
+    await authed((token) => apiSend<void>('DELETE', '/api/v1/push-subscriptions', wire(sub), token)).catch(() => undefined)
+    await sub.unsubscribe().catch(() => undefined)
+  }
+  try {
+    localStorage.removeItem(ENDPOINT_KEY)
+  } catch {
+    /* 무시 */
+  }
+}
+
+/** 지금 이 기기가 서버에 등록돼 있는가 (권한 허용 + 구독 있음 + 등록한 적 있음) */
+export async function isOn(): Promise<boolean> {
+  if (!PUSH_READY || support() !== 'ok' || permission() !== 'granted') return false
+  const reg = await navigator.serviceWorker.getRegistration()
+  const sub = reg ? await reg.pushManager.getSubscription() : null
+  if (!sub) return false
+  try {
+    return localStorage.getItem(ENDPOINT_KEY) === sub.endpoint
+  } catch {
+    return true
+  }
+}
+
+/**
+ * 앱을 열 때 한 번 맞춘다 (⑤ 의 화면 쪽).
+ *
+ * 허용돼 있고 로그인돼 있으면 구독을 보고, 서버에 등록한 주소와 다르면
+ * (브라우저가 갈았거나 아직 한 번도 안 보냈으면) 다시 등록한다.
+ * 서비스워커의 pushsubscriptionchange 가 화면에 알릴 때도 이것을 부른다.
+ */
+export async function sync(): Promise<void> {
+  if (!PUSH_READY || !isSignedIn() || support() !== 'ok' || permission() !== 'granted') return
+  const sub = await subscribe()
+  if (!sub) return
+  let saved: string | null = null
+  try {
+    saved = localStorage.getItem(ENDPOINT_KEY)
+  } catch {
+    /* 무시 */
+  }
+  if (saved !== sub.endpoint) await register(sub)
 }

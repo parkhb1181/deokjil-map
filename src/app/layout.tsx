@@ -6,6 +6,7 @@ import './ui.css'
 import AnalyticsScripts from '@/components/AnalyticsScripts'
 import ServiceWorker from '@/components/ServiceWorker'
 import InstallTrack from '@/components/InstallTrack'
+import PushSync from '@/components/PushSync'
 import { siteUrl } from '@/lib/site'
 
 /**
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AnalyticsScripts />
         <ServiceWorker />
         <InstallTrack />
+        <PushSync />
       </body>
     </html>
   )

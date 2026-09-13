@@ -116,3 +116,34 @@ export async function fetchUnreadCount(token: string): Promise<number> {
   const raw = await apiGet<{ unreadCount?: unknown }>('/api/v1/notifications/unread-count', undefined, token)
   return num(raw?.unreadCount, 'unreadCount')
 }
+
+/* ── 종류별 수신 설정 (NT-11) ─────────────────────────── */
+
+/** 종류마다 끌 수 있다. 전체 끄기 하나만 두지 않는다 (NT-11) */
+export interface NotificationSettings {
+  postCommented: boolean
+  commentReplied: boolean
+  roomMessaged: boolean
+}
+
+function toSettings(raw: unknown): NotificationSettings {
+  if (!raw || typeof raw !== 'object') fail('settings', '객체가 아닙니다')
+  const w = raw as Record<string, unknown>
+  return {
+    postCommented: bool(w.postCommented, 'postCommented'),
+    commentReplied: bool(w.commentReplied, 'commentReplied'),
+    roomMessaged: bool(w.roomMessaged, 'roomMessaged'),
+  }
+}
+
+export async function fetchSettings(token: string): Promise<NotificationSettings> {
+  return toSettings(await apiGet<unknown>('/api/v1/notifications/settings', undefined, token))
+}
+
+/**
+ * 셋을 통째로 바꾼다 (PUT · 전체 교체). 서버는 세 칸 모두 필수라 부르는
+ * 쪽이 현재 값에 바꿀 칸을 덮어 보낸다. 응답 본문은 없다.
+ */
+export async function updateSettings(all: NotificationSettings, token: string): Promise<void> {
+  await apiSend<void>('PUT', '/api/v1/notifications/settings', all, token)
+}

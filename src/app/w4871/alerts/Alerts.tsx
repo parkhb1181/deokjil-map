@@ -299,13 +299,21 @@ function AlertsScreen({ rows, today, unread, onRead, onReadAll, head, tail, inst
     <PageShell
       title="알림"
       right={
-        /* 안 읽은 것이 없으면 안 그린다. 눌러도 아무 일이 없는 버튼이
-           헤더에 늘 서 있으면 그 자리를 안 믿게 된다 */
-        unread > 0 ? (
-          <Button size="sm" tone="ghost" onClick={onReadAll}>
-            전부 읽음
-          </Button>
-        ) : undefined
+        <>
+          {/* 안 읽은 것이 없으면 안 그린다. 눌러도 아무 일이 없는 버튼이
+              헤더에 늘 서 있으면 그 자리를 안 믿게 된다 */}
+          {unread > 0 && (
+            <Button size="sm" tone="ghost" onClick={onReadAll}>
+              전부 읽음
+            </Button>
+          )}
+          {/* 종류별 켜고 끄기와 이 기기 푸시 (NT-11 · NT-15). 서버가 있을 때만 */}
+          {USE_API && (
+            <Link className="btn btn--ghost btn--sm" href={wf('/alerts/settings')}>
+              설정
+            </Link>
+          )}
+        </>
       }
     >
       {head}

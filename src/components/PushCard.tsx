@@ -18,7 +18,7 @@
  */
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Basics'
-import { PUSH_READY, askPermission, permission, subscribe, support, type PushSupport } from '@/lib/push'
+import { PUSH_READY, askPermission, permission, register, subscribe, support, type PushSupport } from '@/lib/push'
 
 type State = { sup: PushSupport; perm: ReturnType<typeof permission> } | null
 
@@ -65,7 +65,8 @@ export default function PushCard() {
         return
       }
       const sub = await subscribe()
-      /* 서버 등록(NT-12 뒤 절반)은 엔드포인트가 오면 여기서 이어진다 */
+      /* 브라우저 구독을 서버에 등록해야 보낼 곳이 생긴다 (NT-12) */
+      if (sub) await register(sub)
       setDone(sub ? '알림을 켰어요. 댓글이 달리면 알려드릴게요' : '알림을 켰어요')
     } catch {
       setDone('지금은 켤 수 없어요. 잠시 뒤 다시 시도해주세요')
