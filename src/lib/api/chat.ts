@@ -113,7 +113,8 @@ function toDetail(raw: unknown): ChatRoomDetail {
   }
 }
 
-function toMsg(raw: unknown): ChatMsg {
+/** 스트림(chat-stream.ts)도 같은 모양을 받는다 — `event: message` 의 data 가 목록의 한 줄과 같다 */
+export function toMsg(raw: unknown): ChatMsg {
   const w = obj(raw, 'message')
   const s = obj(w.sender, 'message.sender')
   const status = str(w.status, 'message.status')

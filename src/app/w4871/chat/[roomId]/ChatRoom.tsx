@@ -25,10 +25,12 @@
  * **서버가 있으면 서버, 없으면 목데이터.** 그리는 부분(`RoomScreen`)은
  * 같고 데이터를 어디서 가져오느냐만 다르다.
  *
- * **실시간이 아직 없다.** CH-10 (SSE) 이 서버에 없어서 5초마다 최근
- * 장을 다시 받아 없는 것만 끼운다. 붙으면 그 폴링 하나만 바꾼다.
- * 화면이 안 보일 때(다른 탭)는 안 묻는다 — 열어 둔 채 잊은 방이 하루
- * 종일 서버를 두드린다.
+ * **실시간은 SSE 다** (CH-10 · lib/api/chat-stream.ts). 방을 여는 동안
+ * 스트림 하나를 열어 두고 오는 대로 끼운다. 끊기면 마지막 번호부터
+ * 다시 받고(CH-11), 서버가 「너무 많다」(gap) 고 하면 목록 한 장을
+ * 다시 받아 메운다. 스트림이 아예 못 붙는 동안(403 · 404)만 30초
+ * 폴링으로 버틴다 — 지운 메시지의 상태 변화도 이쪽으로 따라온다.
+ * 화면이 안 보일 때(다른 탭)는 폴링을 쉰다.
  *
  * **보내기는 화면부터 바꾼다.** 서버 답이 오기 전에 흐린 말풍선이 서고,
  * 오면 진해진다. 안 오면 지우고 입력칸에 되돌려 놓는다 — 사라진 말을
@@ -52,11 +54,13 @@ import {
   fetchRoom,
   leaveRoom,
   sendMessage,
+  toMsg,
   MESSAGE_MAX,
   type ChatMember,
   type ChatMsg,
   type ChatRoomDetail,
 } from '@/lib/api/chat'
+import { openStream } from '@/lib/api/chat-stream'
 import { authed } from '@/lib/auth/authed'
 import { useViewer } from '@/lib/auth/useViewer'
 import { stamp } from '@/lib/when'
@@ -387,7 +391,8 @@ function merge(prev: Line[], incoming: ChatMsg[]): Line[] {
   return [...map.values()].sort(byTime)
 }
 
-const POLL_MS = 5_000
+/* 스트림이 못 붙었을 때만 도는 예비 폴링 */
+const POLL_MS = 30_000
 
 function ApiRoom({ roomId }: { roomId: string }) {
   const router = useRouter()
@@ -434,13 +439,49 @@ function ApiRoom({ roomId }: { roomId: string }) {
     }
   }, [roomId])
 
+  /* 스트림이 살아 있는가. 죽어 있으면 아래 예비 폴링이 돈다 */
+  const [live, setLive] = useState(false)
+
   /*
-   * 폴링. 최근 장을 다시 받아 없는 것만 끼운다 (CH-10 이 오면 이 자리가
-   * SSE 로 바뀐다). 화면이 안 보이면 쉰다. 실패는 조용히 넘긴다 — 5초
-   * 뒤에 다시 묻는다.
+   * 실시간 (CH-10 · CH-11). 첫 장을 받은 뒤에 연다 — 그래야 마지막 번호를
+   * 들고 열어 그 사이에 온 것을 안 놓친다. 오는 것은 목록의 한 줄과 같은
+   * 모양이라 같은 merge 로 끼운다. gap 이 오면 최근 장을 다시 받는다.
    */
   useEffect(() => {
     if (state !== 'ready') return
+    const numeric = lines.map((l) => Number(l.id)).filter((n) => Number.isFinite(n))
+    const lastId = numeric.length ? String(Math.max(...numeric)) : null
+    setLive(true)
+    const close = openStream<unknown>(roomId, lastId, {
+      onMessage: (raw) => {
+        try {
+          const m = toMsg(raw)
+          setLines((v) => merge(v, [m]))
+        } catch {
+          /* 계약과 다른 한 줄. 다음 폴링이나 재접속이 목록으로 메운다 */
+        }
+      },
+      onGap: () => {
+        authed((token) => fetchMessages(roomId, token))
+          .then((page) => setLines((v) => merge(v, page.items)))
+          .catch(() => undefined)
+      },
+      onDead: () => setLive(false),
+    })
+    return () => {
+      close()
+      setLive(false)
+    }
+    /* lines 는 일부러 안 본다 — 줄이 붙을 때마다 스트림을 다시 열면 안 된다 */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, state])
+
+  /*
+   * 예비 폴링. 스트림이 못 붙는 동안만 (403 · 404 · 계약 어긋남) 30초마다
+   * 최근 장을 받는다. 화면이 안 보이면 쉰다.
+   */
+  useEffect(() => {
+    if (state !== 'ready' || live) return
     let busy = false
     const tick = () => {
       if (busy || document.visibilityState === 'hidden') return
@@ -458,7 +499,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
       window.clearInterval(id)
       document.removeEventListener('visibilitychange', tick)
     }
-  }, [roomId, state])
+  }, [roomId, state, live])
 
   const loadOlder = useCallback(() => {
     if (!cursor || older) return
@@ -500,7 +541,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
 
   const remove = (id: string) => {
     setFailed(null)
-    /* 자리표시자로 먼저 바꾼다. 서버가 거절하면 다음 폴링이 되돌린다 */
+    /* 자리표시자로 먼저 바꾼다. 서버가 거절하면 스트림이나 폴링이 되돌린다 */
     setLines((v) => v.map((l) => (l.id === id ? { ...l, deleted: true } : l)))
     authed((token) => deleteMessage(roomId, id, token)).catch(fail)
   }
