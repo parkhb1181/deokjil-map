@@ -34,7 +34,7 @@
  */
 
 /* 올릴 때마다 올린다. 낡은 캐시는 activate 에서 통째로 지운다 */
-const VERSION = 'v3'
+const VERSION = 'v4'
 const SHELL = `shell-${VERSION}`
 const ASSETS = `assets-${VERSION}`
 
@@ -138,7 +138,11 @@ const TEXT = {
 /** 알림이 가리키는 우리 화면. 와이어프레임 접두어(/w4871)는 wireframe.ts 와 같다 */
 function whereTo(data) {
   if (data.kind === 'ROOM_MESSAGED' && data.roomId != null) return `/w4871/chat/${data.roomId}`
-  if (data.postId != null) return `/w4871/p/${data.postId}`
+  if (data.postId != null) {
+    /* 댓글 번호가 있으면 그 댓글까지 내려간다. 글 화면이 목록을 채운 뒤 해시를 본다 (PostDetail) */
+    const anchor = data.commentId != null ? `#comment-${data.commentId}` : ''
+    return `/w4871/p/${data.postId}${anchor}`
+  }
   return '/w4871/alerts'
 }
 

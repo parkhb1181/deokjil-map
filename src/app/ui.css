@@ -420,7 +420,7 @@
 .pcard__talkmark { width: 14px; height: 14px; flex: 0 0 auto; }
 
 
-.cmt { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); }
+.cmt { display: flex; gap: 10px; padding: 12px 0; border-top: 1px solid var(--border); transition: background 1.2s ease; }
 .cmt__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .cmt__head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .cmt__time { font-size: var(--t-small); font-weight: 400; color: var(--text-mute); }
@@ -578,6 +578,9 @@
 
 /* 삭제된 댓글. 하위 대댓글이 고아가 되지 않게 자리만 남긴다 */
 .cmt--gone .cmt__text { color: var(--text-mute); font-style: italic; }
+/* 푸시로 내려온 댓글. 바로 밝아지고, 2초 뒤 클래스가 빠지면 .cmt 의 transition 으로 서서히 돌아온다 */
+.cmt--hit { background: var(--accent-soft); transition: none; }
+.cmt.cmt--reply.cmt--hit { background: var(--accent-soft); }
 
 /* ── 시트 ─────────────────────────────────────────────── */
 

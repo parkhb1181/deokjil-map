@@ -213,6 +213,34 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
     )
   }, [source, viewer.userId, hostId, erased, edited])
 
+  /*
+   * 푸시 알림에서 들어왔다 (NT-15 · 시나리오 A-8). 서비스워커가
+   * `/p/{postId}#comment-{commentId}` 로 보내는데, 댓글은 글보다 늦게
+   * 오므로 브라우저의 기본 해시 스크롤은 빈자리를 본다. 목록이 채워진
+   * 뒤에 한 번 내려가고 잠깐 밝힌다. 같은 탭이 이미 이 글에 있어
+   * 해시만 바뀌는 경우도 받는다.
+   */
+  const jumped = useRef<string | null>(null)
+  useEffect(() => {
+    const go = () => {
+      const m = /^#comment-(.+)$/.exec(location.hash)
+      if (!m || jumped.current === m[1]) return
+      const el = document.getElementById(`comment-${m[1]}`)
+      if (!el) return
+      jumped.current = m[1]
+      el.scrollIntoView({ block: 'center' })
+      el.classList.add('cmt--hit')
+      window.setTimeout(() => el.classList.remove('cmt--hit'), 2_000)
+    }
+    go()
+    const onHash = () => {
+      jumped.current = null
+      go()
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [list])
+
   /* 답글은 입력칸을 따로 열지 않고 맨 아래 칸을 빌려 쓴다. 댓글마다
      칸을 열면 지금 어디에 쓰고 있는지 알기 어렵고, 입력칸이 화면을
      따라다니지 않는다는 규칙과도 어긋난다 */
@@ -501,6 +529,7 @@ export default function PostDetail({ post, comments, hostId, noReport = false }:
           list.map((c) => (
             <Comment
               key={c.id}
+              id={`comment-${c.id}`}
               name={isPlaceholder(c.status) ? '' : c.author.nickname}
               src={c.author.profileImageUrl ?? undefined}
               time={shortTime(c.createdAt)}
