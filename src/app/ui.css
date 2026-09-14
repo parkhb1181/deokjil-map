@@ -669,6 +669,8 @@
   margin-bottom: -1px;
 }
 .tabs__item--on { color: var(--accent-ink); border-bottom-color: var(--accent); }
+/* 동행의 두 칸 (CompanionTabs). 헤더 바로 아래, 좌우는 gutter */
+.ctabs { padding: 0 var(--gutter); background: var(--bg); }
 
 /* ── 페이지 껍데기 ────────────────────────────────────── */
 

@@ -25,6 +25,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { PageShell } from '@/components/ui/PageShell'
+import { CompanionTabs } from '@/components/ui/CompanionTabs'
 import { Avatar, Blank, Button } from '@/components/ui/Basics'
 import { wf } from '@/lib/wireframe'
 import { listTime, whenShort } from '@/lib/when'
@@ -170,7 +171,12 @@ function ApiList() {
     )
   else body = rows.length === 0 ? <Empty /> : <Rows rows={rows} today="" />
 
-  return <PageShell title="채팅">{body}</PageShell>
+  return (
+    <PageShell title="동행">
+      <CompanionTabs />
+      {body}
+    </PageShell>
+  )
 }
 
 /* ── 목데이터 ─────────────────────────────────────────── */
@@ -203,7 +209,8 @@ function MockList() {
   })
 
   return (
-    <PageShell title="채팅">
+    <PageShell title="동행">
+      <CompanionTabs />
       <div className="whoami">
         <b>화면</b>
         {VIEWS.map((v) => (
