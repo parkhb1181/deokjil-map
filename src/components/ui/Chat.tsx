@@ -51,8 +51,11 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
   onDelete?: () => void
   /** 남의 말풍선 묶음 끝에 「신고」 를 단다 (CH-21). 지운 메시지도 신고할 수 있다 */
   onReport?: () => void
-  /** 사진 (CH-14). 주소가 아직 없으면 회색 자리, 있으면 그린다. 지운 메시지는 사진도 안 온다 */
-  image?: { url: string | null }
+  /**
+   * 사진 (CH-14). 주소가 아직 없으면 회색 자리, 있으면 그린다. 지운 메시지는 사진도 안 온다.
+   * 주소가 60초짜리라 그리기 전에 만료될 수 있다 — 깨지면 onError 로 알리고 부르는 쪽이 새 주소를 받는다
+   */
+  image?: { url: string | null; onError?: () => void }
   /**
    * 보낸 사람 이름. **남의 말풍선에만** 준다.
    *
@@ -87,7 +90,8 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
           {image && !deleted && (
             /* 공개 주소가 없어 60초마다 새 주소를 받는다 (CH-15). 그 사이는 회색 자리 */
             image.url ? (
-              <img className="bub__img" src={image.url} alt="보낸 사진" loading="lazy" />
+              /* lazy 를 안 쓴다. 화면 밖에 있다가 60초 뒤에 그리면 그 주소는 이미 만료다 */
+              <img className="bub__img" src={image.url} alt="보낸 사진" onError={image.onError} />
             ) : (
               <span className="bub__img bub__img--wait" aria-label="사진 불러오는 중" />
             )
