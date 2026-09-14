@@ -494,6 +494,10 @@ export type AuditKind =
   | 'SECRET_READ'
   /** 계정을 파기했다 */
   | 'PURGE'
+  /** 신고된 채팅방의 대화를 열어봤다 (AD-08) */
+  | 'CHAT_READ'
+  /** 채팅 메시지를 가렸다 */
+  | 'MESSAGE_BLIND'
 
 export interface AuditEntry {
   id: string

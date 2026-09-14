@@ -59,7 +59,8 @@ export type ReportStatus = 'PENDING' | 'PROCESSING' | 'RESOLVED'
  */
 export type ReportResult = 'NO_ACTION' | 'COMMENT_BLINDED' | 'USER_SANCTIONED'
 
-export type ReportTargetType = 'USER' | 'POST' | 'COMMENT'
+/** 2차에서 채팅방 · 메시지가 더해졌다 (SF-07). 목록 파서가 이 둘을 모르면 신고 탭 전체가 죽는다 */
+export type ReportTargetType = 'USER' | 'POST' | 'COMMENT' | 'ROOM' | 'MESSAGE'
 
 export interface AdminReport {
   id: string
@@ -72,8 +73,14 @@ export interface AdminReport {
    * 제재하려면 작성자를 따로 알아내야 한다 (`Admin.tsx` 의 `whoTo`).
    */
   targetId: string
-  /** 「누가 신고당했나」 축으로 맞춘 표시명. 댓글은 작성자 닉네임이다 */
-  subject: string
+  /**
+   * 「누가 신고당했나」 축으로 맞춘 표시명. 댓글은 작성자 닉네임이다.
+   * **null 이 온다** — 대상 행이 사라졌거나(STAR-60), 채팅방 · 메시지처럼
+   * 서버 목록 쿼리가 이름을 안 붙이는 종류다. 한때 문자열을 강제해서 그런
+   * 신고 한 건이 섞이자 백오피스 신고 탭이 통째로 「잠시 문제가 생겼어요」
+   * 였다 (2026-09-14)
+   */
+  subject: string | null
   reason: ReportReason
   /** 신고자가 적은 상세. 안 적을 수 있다 */
   detail: string | null
@@ -94,7 +101,7 @@ function toReport(raw: unknown): AdminReport {
     id: str(w.id, 'id'),
     targetType: str(w.targetType, 'targetType') as ReportTargetType,
     targetId: str(w.targetId, 'targetId'),
-    subject: str(w.subject, 'subject'),
+    subject: strOrNull(w.subject, 'subject'),
     reason: str(w.reason, 'reason') as ReportReason,
     detail: strOrNull(w.detail, 'detail'),
     reporter: str(w.reporter, 'reporter'),
@@ -102,7 +109,8 @@ function toReport(raw: unknown): AdminReport {
     status: str(w.status, 'status') as ReportStatus,
     result: strOrNull(w.result, 'result') as ReportResult | null,
     memo: strOrNull(w.memo, 'memo'),
-    secret: bool(w.secret, 'secret'),
+    /* 댓글이 아니면 서버가 null 로 둔다 (ReportedTarget) */
+    secret: w.secret === null || w.secret === undefined ? false : bool(w.secret, 'secret'),
   }
 }
 
@@ -282,7 +290,7 @@ export interface AuditRow {
   /** 누가. 서버가 세션에서 채운다 */
   actor: string
   kind: AuditKind
-  targetType: 'USER' | 'COMMENT'
+  targetType: 'USER' | 'COMMENT' | 'CHAT_ROOM' | 'MESSAGE'
   targetId: string
   detail: string
 }

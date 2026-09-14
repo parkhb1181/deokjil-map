@@ -100,6 +100,8 @@ const AUDIT_TEXT: Record<AuditKind, string> = {
   BLIND: '댓글 블라인드',
   SECRET_READ: '비밀 댓글 열람',
   PURGE: '계정 파기',
+  CHAT_READ: '대화 열람',
+  MESSAGE_BLIND: '메시지 블라인드',
 }
 
 /* ── 목데이터 ───────────────────────────────────────────── */
@@ -122,7 +124,7 @@ const STATUS_LABEL: Record<ReportStatus, string> = {
 
 type Report = {
   id: string
-  target: '유저' | '모집글' | '댓글'
+  target: '유저' | '모집글' | '댓글' | '채팅방' | '메시지'
   subject: string
   reason: string
   detail: string
@@ -152,6 +154,8 @@ const TARGET_TEXT: Record<ReportTargetType, Report['target']> = {
   USER: '유저',
   POST: '모집글',
   COMMENT: '댓글',
+  ROOM: '채팅방',
+  MESSAGE: '메시지',
 }
 
 /**
@@ -169,13 +173,16 @@ const RESULT_TEXT: Record<ReportResult, string> = {
 const AUDIT_TARGET: Record<AuditRow['targetType'], string> = {
   USER: '회원',
   COMMENT: '댓글',
+  CHAT_ROOM: '채팅방',
+  MESSAGE: '메시지',
 }
 
 function toRow(r: AdminReport): Report {
   return {
     id: r.id,
-    target: TARGET_TEXT[r.targetType],
-    subject: r.subject,
+    target: TARGET_TEXT[r.targetType] ?? '유저',
+    /* 채팅방 · 메시지는 서버가 이름을 안 붙인다. 번호라도 적어야 어느 건인지 안다 */
+    subject: r.subject ?? (r.targetType === 'ROOM' || r.targetType === 'MESSAGE' ? `${TARGET_TEXT[r.targetType]} #${r.targetId}` : '(사라진 대상)'),
     /* 사유 문구는 신고 시트가 들고 있다. 여기서 한 벌 더 만들면 신고자가
        고른 말과 운영자가 읽는 말이 갈라진다 */
     reason: REASON_LABEL[r.reason] ?? r.reason,
@@ -722,6 +729,10 @@ export default function Admin() {
                                   블라인드
                                 </Button>
                               )}
+                              {/* 채팅방 · 메시지 신고는 아직 누구를 제재할지
+                                  화면이 모른다 (대화 열람 AD-08 이 안 붙었다).
+                                  맡기 · 문제 없음만 된다 */}
+                              {r.targetType !== 'ROOM' && r.targetType !== 'MESSAGE' && (
                               <Button
                                 size="sm"
                                 tone="danger"
@@ -737,6 +748,7 @@ export default function Admin() {
                               >
                                 제재
                               </Button>
+                              )}
                             </span>
                           )}
                         </td>
