@@ -3591,6 +3591,14 @@
 
 /* 방 위쪽 「이전 메시지」 · 상태 줄 */
 .croom__more { display: flex; justify-content: center; padding: 4px 0 10px; }
+/* 위로 올려 읽는 중에 새 말이 왔다. 입력칸 위에 떠 있고 누르면 바닥으로 */
+.croom__jumpwrap { position: relative; height: 0; }
+.croom__jump {
+  position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+  padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--accent-ink); font-size: 13px; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
 .croom__state {
   margin: 0;
   padding: 12px var(--gutter);

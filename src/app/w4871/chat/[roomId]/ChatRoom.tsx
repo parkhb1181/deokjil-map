@@ -148,8 +148,12 @@ function RoomScreen(p: ScreenProps) {
   const [ask, setAsk] = useState<Ask>(null)
   const [menu, setMenu] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const seen = useRef(false)
+  /* 바닥에 붙어 있는가. 위로 올려 읽는 중이면 새 말이 와도 안 끌어내린다 */
+  const stuck = useRef(true)
+  const [unseen, setUnseen] = useState(false)
 
   /* 메시지에 이름이 붙어 오면 그것을 쓴다 (나간 사람도 이름이 남는다). 목데이터는 멤버에서 찾는다 */
   const nameOf = (m: Line) => m.who ?? p.others.find((x) => x.id === m.from)?.nickname ?? '나간 사람'
@@ -162,12 +166,38 @@ function RoomScreen(p: ScreenProps) {
     if (p.lines.length === 0) setFirst(true)
   }, [p.lines.length, p.instead])
 
-  /* 들어오면 맨 아래다. 채팅은 마지막 줄이 지금이라 위에서 시작하면
-     매번 끝까지 내려야 한다. 새 줄이 붙어도 따라 내려간다 */
-  const lastId = p.lines.at(-1)?.id
+  /*
+   * 들어오면 맨 아래다. 채팅은 마지막 줄이 지금이라 위에서 시작하면
+   * 매번 끝까지 내려야 한다.
+   *
+   * **새 줄이 붙었을 때는 둘 중 하나다.** 바닥 근처에 있었거나 내가 보낸
+   * 말이면 따라 내려간다. 위로 올려 옛 말을 읽는 중이면 그 자리를 두고
+   * 「새 메시지」 단추만 띄운다 — 읽던 줄이 화면 밖으로 튀는 것이 이
+   * 화면에서 제일 화나는 일이다 (프로덕션 QA).
+   */
+  const last = p.lines.at(-1)
+  const lastId = last?.id
+  const lastMine = last?.from === p.me
   useEffect(() => {
-    endRef.current?.scrollIntoView({ block: 'end' })
+    if (stuck.current || lastMine) {
+      endRef.current?.scrollIntoView({ block: 'end' })
+      setUnseen(false)
+    } else if (lastId) {
+      setUnseen(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastId])
+  const onScroll = () => {
+    const el = boxRef.current
+    if (!el) return
+    stuck.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80
+    if (stuck.current) setUnseen(false)
+  }
+  const jumpDown = () => {
+    stuck.current = true
+    endRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    setUnseen(false)
+  }
 
   return (
     <PageShell
@@ -199,7 +229,7 @@ function RoomScreen(p: ScreenProps) {
         </p>
       )}
 
-      <div className="croom">
+      <div className="croom" ref={boxRef} onScroll={onScroll}>
         {p.instead ?? (
           <>
             {p.head}
@@ -245,6 +275,13 @@ function RoomScreen(p: ScreenProps) {
 
         <div ref={endRef} />
       </div>
+      {unseen && (
+        <div className="croom__jumpwrap">
+          <button type="button" className="croom__jump" onClick={jumpDown}>
+            새 메시지 ↓
+          </button>
+        </div>
+      )}
 
       {/* 입력칸은 화면 아래에 붙인다. 댓글과 다른 자리다 — 댓글은 읽는
           글의 끝이지만 채팅은 읽는 내내 쓰는 자리라 따라다녀야 한다 */}
@@ -432,6 +469,20 @@ function merge(prev: Line[], incoming: ChatMsg[]): Line[] {
   const map = new Map(prev.map((l) => [l.id, l]))
   for (const m of incoming) map.set(m.id, toLine(m))
   return [...map.values()].sort(byTime)
+}
+
+/**
+ * 내 말이 올라갔다 — 흐린 말풍선을 거두고 번호 붙은 줄로 바꾼다.
+ *
+ * **스트림이 먼저 도착해 있을 수 있다.** 서버는 저장하자마자 방에 뿌리고,
+ * 그 한 줄이 POST 응답보다 먼저 오는 일이 흔하다 (프로덕션 QA 에서 연타
+ * 두 번에 말풍선 셋). 그때 tmp 를 번호로 바꾸기만 하면 같은 번호가 둘이
+ * 된다. 번호로 하나만 남기되, 스트림이 준 줄(이름이 붙어 있다)을 우선한다.
+ */
+function settle(prev: Line[], tmp: string, mine: Line): Line[] {
+  const had = prev.find((l) => l.id === mine.id)
+  const rest = prev.filter((l) => l.id !== tmp && l.id !== mine.id)
+  return [...rest, had ? { ...had, localUrl: mine.localUrl ?? had.localUrl } : mine].sort(byTime)
 }
 
 /* 스트림이 못 붙었을 때만 도는 예비 폴링 */
@@ -650,11 +701,14 @@ function ApiRoom({ roomId }: { roomId: string }) {
         return sendMessage(roomId, { clientMessageId: cid, content: text, imageId: issued.imageId }, token)
       })
       setLines((v) =>
-        v.map((l) =>
-          l.id === tmp
-            ? { id: sent.id, from: sent.senderId, text: sent.content, at: sent.createdAt, imageId: sent.imageId, localUrl: localUrl ?? undefined }
-            : l,
-        ),
+        settle(v, tmp, {
+          id: sent.id,
+          from: sent.senderId,
+          text: sent.content,
+          at: sent.createdAt,
+          imageId: sent.imageId,
+          localUrl: localUrl ?? undefined,
+        }),
       )
     } catch (e: unknown) {
       setLines((v) => v.filter((l) => l.id !== tmp))
@@ -673,11 +727,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
     setLines((v) => [...v, { id: tmp, from: me, text, at: stamp(), pending: true }])
     setDraft('')
     authed((token) => sendMessage(roomId, { clientMessageId: cid, content: text }, token))
-      .then((sent) =>
-        setLines((v) =>
-          v.map((l) => (l.id === tmp ? { id: sent.id, from: sent.senderId, text: sent.content, at: sent.createdAt } : l)),
-        ),
-      )
+      .then((sent) => setLines((v) => settle(v, tmp, { id: sent.id, from: sent.senderId, text: sent.content, at: sent.createdAt })))
       .catch((e: unknown) => {
         /* 못 올라갔다. 흐린 말풍선을 거두고 친 것을 입력칸에 되돌린다 */
         setLines((v) => v.filter((l) => l.id !== tmp))
