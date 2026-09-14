@@ -10,7 +10,10 @@
  * 행동에 붙는다. 글쓰기를 누를 때 막힌다.
  */
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useViewer } from '@/lib/auth/useViewer'
+import { isSignedIn } from '@/lib/auth/session'
+import { CompanionTabs } from '@/components/ui/CompanionTabs'
 import { USE_API } from '@/lib/api/config'
 import { fetchPosts, type PostListItem } from '@/lib/api/posts'
 import { canWrite } from '@/types'
@@ -50,7 +53,9 @@ export default function PostList({
 }) {
   const [q, setQ] = useState('')
   const [view, setView] = useState<(typeof VIEWS)[number]>('정상')
-  const [ask, setAsk] = useState(false)
+  /* 글쓰기를 눌렀는데 못 가는 이유. 로그인이 없거나, 나이 확인 중이거나 */
+  const [ask, setAsk] = useState<null | 'login' | 'hold'>(null)
+  const router = useRouter()
   /*
    * 글쓰기가 막혔는가.
    *
@@ -64,6 +69,19 @@ export default function PostList({
   const [devHold, setDevHold] = useState(false)
   const { viewer } = useViewer({ role: 'guest', userId: null, sanction: null })
   const hold = USE_API ? !canWrite(viewer.sanction) : devHold
+
+  /*
+   * 글쓰기. 와이어프레임 때는 시트만 띄우고 끝이었는데 (갈 화면이 없었다)
+   * 그 코드가 그대로 남아 로그인한 사람에게도 「카카오로 시작하기」 를
+   * 보여줬다 (2026-09-14 신고). 토큰이 있으면 쓰기 화면으로 간다.
+   * 로그인 여부는 토큰으로 본다 — viewer 는 /users/me 를 기다리는 동안
+   * guest 라, 그 사이에 누르면 로그인하라고 잘못 말한다.
+   */
+  const write = () => {
+    if (USE_API && !isSignedIn()) return setAsk('login')
+    if (hold) return setAsk('hold')
+    router.push(wf('/p/new'))
+  }
 
   /**
    * 검색.
@@ -150,7 +168,8 @@ export default function PostList({
   }, [all, q])
 
   return (
-    <PageShell title="동행 모집">
+    <PageShell title="동행">
+      <CompanionTabs />
       {/* 개발용이다. 서버가 상태를 정하기 시작하면 안 그린다 — 실제
           사용자가 자기 화면에서 이 막대를 보게 된다 */}
       {!USE_API && (
@@ -214,7 +233,7 @@ export default function PostList({
           <Blank
             title="아직 모집글이 없어요"
             desc="처음으로 동행을 구해보세요"
-            action={<Button size="sm" onClick={() => setAsk(true)}>글쓰기</Button>}
+            action={<Button size="sm" onClick={write}>글쓰기</Button>}
           />
         )}
 
@@ -250,7 +269,7 @@ export default function PostList({
             title="아직 모집글이 없어요"
             desc="처음으로 동행을 구해보세요"
             action={
-              <Button size="sm" onClick={() => setAsk(true)}>
+              <Button size="sm" onClick={write}>
                 글쓰기
               </Button>
             }
@@ -304,7 +323,7 @@ export default function PostList({
       {/* 글쓰기는 헤더가 아니라 오른쪽 아래다. 당근이 그 자리에 둔다.
           헤더 오른쪽은 한 손으로 쥔 엄지에서 가장 먼 자리라, 가장 자주
           누를 것을 거기 두면 매번 손을 고쳐 잡아야 한다 */}
-      <button type="button" className="fab" onClick={() => setAsk(true)}>
+      <button type="button" className="fab" onClick={write}>
         <svg viewBox="0 0 18 18" aria-hidden focusable="false">
           <path
             d="M9 3.5v11M3.5 9h11"
@@ -321,13 +340,13 @@ export default function PostList({
           중이라는 말은 사용자가 할 일이 정반대다. 하나로 뭉뚱그리면
           이미 로그인한 사람에게 또 로그인하라고 하게 된다 */}
       {ask && (
-        hold ? (
+        ask === 'hold' ? (
           <Sheet
             title="나이 확인 중이에요"
             desc="확인이 끝날 때까지 글과 댓글을 쓸 수 없어요. 답을 주시면 바로 풀립니다. 읽는 것은 그대로 하실 수 있어요."
             foot={
               <>
-                <Button tone="ghost" onClick={() => setAsk(false)}>닫기</Button>
+                <Button tone="ghost" onClick={() => setAsk(null)}>닫기</Button>
                 <a className="btn btn--primary" href="mailto:help@duckmoim.com">
                   확인해주기
                 </a>
@@ -340,8 +359,14 @@ export default function PostList({
             desc="모집글을 쓰려면 로그인해주세요. 닉네임만 정하면 바로 쓸 수 있어요."
             foot={
               <>
-                <Button tone="ghost" onClick={() => setAsk(false)}>나중에</Button>
-                <Button tone="kakao" onClick={() => setAsk(false)}>카카오로 시작하기</Button>
+                <Button tone="ghost" onClick={() => setAsk(null)}>나중에</Button>
+                {/* 로그인 뒤 쓰기 화면으로 돌아온다 (login 의 next) */}
+                <Button
+                  tone="kakao"
+                  onClick={() => router.push(wf(`/login?next=${encodeURIComponent(wf('/p/new'))}`))}
+                >
+                  카카오로 시작하기
+                </Button>
               </>
             }
           />
