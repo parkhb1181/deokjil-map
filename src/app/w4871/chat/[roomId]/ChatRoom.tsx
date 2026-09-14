@@ -467,7 +467,13 @@ function byTime(a: Line, b: Line): number {
 /** 서버에서 온 것으로 갈아끼운다. 없던 것은 더하고, 있던 것은 (지워졌을 수 있으니) 새 상태로 */
 function merge(prev: Line[], incoming: ChatMsg[]): Line[] {
   const map = new Map(prev.map((l) => [l.id, l]))
-  for (const m of incoming) map.set(m.id, toLine(m))
+  for (const m of incoming) {
+    /* 내가 올린 사진의 미리보기는 화면에만 있는 값이다. 스트림이 같은
+       메시지를 되돌려줄 때 통째로 갈아끼우면 사라지고, 서버 주소는 워커가
+       EXIF 를 벗길 때까지 안 나와서 그 사이 회색 자리가 된다 (2026-09-14) */
+    const had = map.get(m.id)
+    map.set(m.id, had?.localUrl ? { ...toLine(m), localUrl: had.localUrl } : toLine(m))
+  }
   return [...map.values()].sort(byTime)
 }
 
@@ -650,6 +656,8 @@ function ApiRoom({ roomId }: { roomId: string }) {
   useEffect(() => {
     if (state !== 'ready') return
     let alive = true
+    let soon: number | null = null
+    let misses = 0
     const tick = () => {
       const ids = imgWant ? imgWant.split(',') : []
       if (ids.length === 0) return
@@ -661,6 +669,15 @@ function ApiRoom({ roomId }: { roomId: string }) {
             ...v,
             ...Object.fromEntries(Object.entries(got).map(([id, g]) => [id, { url: g.url, until: now + g.expiresInSeconds * 1000 }])),
           }))
+          /*
+           * 서버는 워커가 EXIF 를 벗긴 사진만 주소를 준다 (ChatImageViewService).
+           * 방금 올라온 사진은 몇 초 동안 목록에서 빠지는데, 45초 주기만
+           * 기다리면 상대 화면에 회색 자리가 그만큼 서 있다. 빠진 것이 있으면
+           * 2·4·8·16초로 다시 묻고, 그래도 없으면(영구 실패) 45초 주기로 돌아간다
+           */
+          const missing = ids.some((id) => !got[id])
+          misses = missing ? misses + 1 : 0
+          if (missing && misses <= 4) soon = window.setTimeout(tick, 1_000 * 2 ** misses)
         })
         .catch(() => undefined)
     }
@@ -669,6 +686,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
     return () => {
       alive = false
       window.clearInterval(id)
+      if (soon !== null) window.clearTimeout(soon)
     }
   }, [roomId, state, imgWant])
   const imageUrls = Object.fromEntries(Object.entries(imgs).map(([id, g]) => [id, g.url]))
