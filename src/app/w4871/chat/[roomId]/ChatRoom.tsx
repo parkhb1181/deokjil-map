@@ -667,7 +667,8 @@ function ApiRoom({ roomId }: { roomId: string }) {
       .map((l) => l.id)
       .filter((id) => {
         const g = imgsRef.current[id]
-        return !g || g.until - Date.now() < 15_000
+        /* 여유는 주기보다 길어야 한다. 15초로 두니 20초 주기가 만료 직전을 건너뛰어 딱 만료 시각에 갈아끼웠다 */
+        return !g || g.until - Date.now() < 25_000
       })
   /* 새 사진 줄이 생기면 바로 묻는다. 만료는 아래 주기가 본다 */
   const imgWant = lines.filter((l) => l.imageId && !l.localUrl && !imgs[l.id]).map((l) => l.id).join(',')
@@ -708,7 +709,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
         .catch(() => undefined)
     }
     tick()
-    /* 60초 주소를 15초 남기고 갈아끼우려면 20초마다는 봐야 한다 */
+    /* 60초 주소를 25초 남기고 갈아끼운다. 20초마다 보면 40초 즈음 잡힌다 */
     const id = window.setInterval(tick, 20_000)
     return () => {
       alive = false
