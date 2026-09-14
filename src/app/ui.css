@@ -287,7 +287,8 @@
 .fab {
   position: fixed;
   right: max(var(--gutter), calc(50vw - var(--page-w) / 2 + var(--gutter)));
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  /* 하단 탭이 있는 화면(.shell--nav)은 그 위로 올라간다 */
+  bottom: calc(var(--fab-base, 20px) + env(safe-area-inset-bottom));
   z-index: 30;
   display: inline-flex;
   align-items: center;
@@ -308,6 +309,23 @@
 .fab:active { transform: scale(.97); }
 .fab:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
 .fab svg { width: 18px; height: 18px; }
+/* 글쓰기 위의 채팅 말풍선. 글자 없이 동그라미 하나 */
+.fab--chat {
+  bottom: calc(var(--fab-base, 20px) + 60px + env(safe-area-inset-bottom));
+  width: 48px;
+  padding: 0;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--accent-ink);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+}
+.fab--chat:hover { background: var(--bg-sunk); }
+.fab--chat svg { width: 22px; height: 22px; }
+
+/* 하단 탭이 붙은 화면. 본문 끝이 탭에 가리지 않게 띄우고 FAB 도 올린다 */
+.shell--nav { --fab-base: 76px; }
+.shell--nav .shell__body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
 
 /* ── 모집글 행 ────────────────────────────────────────── */
 

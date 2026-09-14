@@ -193,6 +193,14 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
   const [nick, setNick] = useState(initial.nickname)
   const [bio, setBio] = useState(initial.bio)
   const [tried, setTried] = useState(false)
+  /*
+   * 중복 확인을 눌렀는데 형식이 틀렸다. 전에는 형식이 틀리면 버튼이
+   * 그냥 죽어 있어서 한자를 친 사람이 왜 안 눌리는지 알 수 없었다
+   * (2026-09-14). 버튼은 살려 두고, 누르면 그 자리에서 왜 안 되는지
+   * 말한다. 제출 때의 tried 와 따로 두는 이유는, 여기서 tried 를 켜면
+   * 다른 칸까지 같이 혼나기 때문이다.
+   */
+  const [poked, setPoked] = useState(false)
   const [sending, setSending] = useState(false)
   const [ask, setAsk] = useState(false)
   const [failed, setFailed] = useState<string | null>(null)
@@ -208,7 +216,7 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
 
   const formError = checkNick(nick)
   const takenError = fresh && !fresh.free ? '이미 쓰고 있는 닉네임이에요' : undefined
-  const shownError = (tried ? formError : undefined) ?? takenError
+  const shownError = (tried || poked ? formError : undefined) ?? takenError
 
   const dirty = renamed || bio !== initial.bio
   const ok = !formError && !takenError && (!renamed || !!fresh?.free)
@@ -262,7 +270,8 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
   }
 
   const check = () => {
-    if (formError || checking) return
+    if (checking) return
+    if (formError) return setPoked(true)
     const name = nick.trim()
     setChecking(true)
     setFailed(null)
@@ -417,7 +426,7 @@ function Form({ initial, imageUrl }: { initial: Initial; imageUrl: string | null
               /* 안 바꿨으면 확인할 것이 없다. 버튼을 늘 살려두면
                  누를 이유가 없는데 누르게 된다 */
               renamed ? (
-                <Button size="sm" tone="ghost" disabled={!!formError || checking} onClick={check}>
+                <Button size="sm" tone="ghost" disabled={checking} onClick={check}>
                   {checking ? '확인 중…' : '중복 확인'}
                 </Button>
               ) : undefined

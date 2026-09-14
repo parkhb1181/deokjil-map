@@ -168,7 +168,7 @@ export default function PostList({
   }, [all, q])
 
   return (
-    <PageShell title="동행">
+    <PageShell title="동행" nav="companion">
       <CompanionTabs />
       {/* 개발용이다. 서버가 상태를 정하기 시작하면 안 그린다 — 실제
           사용자가 자기 화면에서 이 막대를 보게 된다 */}
@@ -323,6 +323,18 @@ export default function PostList({
       {/* 글쓰기는 헤더가 아니라 오른쪽 아래다. 당근이 그 자리에 둔다.
           헤더 오른쪽은 한 손으로 쥔 엄지에서 가장 먼 자리라, 가장 자주
           누를 것을 거기 두면 매번 손을 고쳐 잡아야 한다 */}
+      {/* 채팅으로 바로. 위 탭으로도 가지만 목록을 내려 읽다 보면 탭은 화면 밖이다 */}
+      <Link className="fab fab--chat" href={wf('/chat')} aria-label="채팅">
+        <svg viewBox="0 0 24 24" aria-hidden focusable="false">
+          <path
+            d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.4A.6.6 0 0 1 5 19V16H4.5A.5.5 0 0 1 4 15.5z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
       <button type="button" className="fab" onClick={write}>
         <svg viewBox="0 0 18 18" aria-hidden focusable="false">
           <path

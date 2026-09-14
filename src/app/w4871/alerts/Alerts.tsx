@@ -298,6 +298,7 @@ function AlertsScreen({ rows, today, unread, onRead, onReadAll, head, tail, inst
   return (
     <PageShell
       title="알림"
+      nav="profile"
       right={
         <>
           {/* 안 읽은 것이 없으면 안 그린다. 눌러도 아무 일이 없는 버튼이

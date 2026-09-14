@@ -17,6 +17,8 @@ export type Route =
   | { name: 'detail'; id: string }
   /** 질의를 걸고 목록으로 진입한다. 커뮤니티에 아티스트별 링크를 뿌리기 위한 것 */
   | { name: 'query'; q: string }
+  /** 홈 밖 하단 탭에서 지도 · 즐겨찾기를 누르면 홈으로 오며 그 칸을 연다 (SectionNav) */
+  | { name: 'tab'; tab: 'map' | 'bookmark' }
 
 const DETAIL_PREFIX = '#/e/'
 const QUERY_PREFIX = '#/q/'
@@ -30,6 +32,7 @@ export function parseHash(hash: string): Route {
     const q = decodeURIComponent(hash.slice(QUERY_PREFIX.length))
     if (q) return { name: 'query', q }
   }
+  if (hash === '#/map' || hash === '#/bookmark') return { name: 'tab', tab: hash.slice(2) as 'map' | 'bookmark' }
   return { name: 'home' }
 }
 

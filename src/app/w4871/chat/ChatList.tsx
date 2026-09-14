@@ -172,7 +172,7 @@ function ApiList() {
   else body = rows.length === 0 ? <Empty /> : <Rows rows={rows} today="" />
 
   return (
-    <PageShell title="동행">
+    <PageShell title="동행" nav="companion">
       <CompanionTabs />
       {body}
     </PageShell>
@@ -209,7 +209,7 @@ function MockList() {
   })
 
   return (
-    <PageShell title="동행">
+    <PageShell title="동행" nav="companion">
       <CompanionTabs />
       <div className="whoami">
         <b>화면</b>
