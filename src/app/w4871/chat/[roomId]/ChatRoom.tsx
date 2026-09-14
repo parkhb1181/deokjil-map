@@ -124,6 +124,8 @@ interface ScreenProps {
   onAttach?: (file: File) => void
   /** 메시지 번호 → 볼 주소. 없거나 만료된 것은 회색 자리로 그린다 */
   imageUrls?: Record<string, string>
+  /** 사진이 깨졌다 (주소 만료). 그 주소를 버리고 새로 받는다 */
+  onImageError?: (id: string) => void
   /** 내 말풍선에 「삭제」 를 단다. 목데이터에는 없다 */
   onDelete?: (id: string) => void
   onLeave?: () => void
@@ -264,7 +266,9 @@ function RoomScreen(p: ScreenProps) {
                     /* 지운 메시지도 신고할 수 있다 — 본문이 남아 관리자가 본다. 아직 안 올라간 내 말은 번호가 없다 */
                     onReport={!mine && !m.pending ? () => setAsk({ k: 'message', id: m.id }) : undefined}
                     image={
-                      m.imageId || m.localUrl ? { url: m.localUrl ?? p.imageUrls?.[m.id] ?? null } : undefined
+                      m.imageId || m.localUrl
+                        ? { url: m.localUrl ?? p.imageUrls?.[m.id] ?? null, onError: () => p.onImageError?.(m.id) }
+                        : undefined
                     }
                   />
                 </div>
@@ -648,18 +652,40 @@ function ApiRoom({ roomId }: { roomId: string }) {
    * 45초마다 다시 본다 — 만료 뒤 회색으로 돌아가는 것보다 미리 갈아끼운다.
    */
   const [imgs, setImgs] = useState<Record<string, { url: string; until: number }>>({})
-  const imgWant = lines
-    .filter((l) => l.imageId && !l.localUrl && !Number.isNaN(Number(l.id)))
-    .map((l) => l.id)
-    .filter((id) => !imgs[id] || imgs[id].until - Date.now() < 5_000)
-    .join(',')
+  /*
+   * 무엇을 물을지는 그때그때 계산한다 — 렌더 때 계산한 값을 들고 있으면
+   * 새 메시지가 없어 렌더가 안 도는 동안 만료를 못 본다. 그래서 60초 주소가
+   * 조용히 죽고, 화면 밖에 있다 그려지는 사진이 깨졌다 (2026-09-14).
+   */
+  const linesRef = useRef(lines)
+  linesRef.current = lines
+  const imgsRef = useRef(imgs)
+  imgsRef.current = imgs
+  const wantIds = () =>
+    linesRef.current
+      .filter((l) => l.imageId && !l.localUrl && !Number.isNaN(Number(l.id)))
+      .map((l) => l.id)
+      .filter((id) => {
+        const g = imgsRef.current[id]
+        return !g || g.until - Date.now() < 15_000
+      })
+  /* 새 사진 줄이 생기면 바로 묻는다. 만료는 아래 주기가 본다 */
+  const imgWant = lines.filter((l) => l.imageId && !l.localUrl && !imgs[l.id]).map((l) => l.id).join(',')
+  /* 깨진 주소는 버린다. 다음 렌더의 imgWant 가 바로 다시 묻는다 */
+  const dropImage = (id: string) =>
+    setImgs((v) => {
+      if (!v[id]) return v
+      const rest = { ...v }
+      delete rest[id]
+      return rest
+    })
   useEffect(() => {
     if (state !== 'ready') return
     let alive = true
     let soon: number | null = null
     let misses = 0
     const tick = () => {
-      const ids = imgWant ? imgWant.split(',') : []
+      const ids = wantIds()
       if (ids.length === 0) return
       authed((token) => fetchImageUrls(roomId, ids, token))
         .then((got) => {
@@ -682,12 +708,14 @@ function ApiRoom({ roomId }: { roomId: string }) {
         .catch(() => undefined)
     }
     tick()
-    const id = window.setInterval(tick, 45_000)
+    /* 60초 주소를 15초 남기고 갈아끼우려면 20초마다는 봐야 한다 */
+    const id = window.setInterval(tick, 20_000)
     return () => {
       alive = false
       window.clearInterval(id)
       if (soon !== null) window.clearTimeout(soon)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, state, imgWant])
   const imageUrls = Object.fromEntries(Object.entries(imgs).map(([id, g]) => [id, g.url]))
 
@@ -825,6 +853,7 @@ function ApiRoom({ roomId }: { roomId: string }) {
       onSend={send}
       onAttach={attach}
       imageUrls={imageUrls}
+      onImageError={dropImage}
       onDelete={remove}
       onLeave={leave}
       writable={Boolean(room?.writable) && state === 'ready'}
