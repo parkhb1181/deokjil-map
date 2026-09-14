@@ -79,6 +79,14 @@ export default function Welcome() {
   const [nick, setNick] = useState('')
   const [birth, setBirth] = useState('')
   const [tried, setTried] = useState(false)
+  /*
+   * 중복 확인을 눌렀는데 형식이 틀렸다. 전에는 형식이 틀리면 버튼이
+   * 그냥 죽어 있어서 한자를 친 사람이 왜 안 눌리는지 알 수 없었다
+   * (2026-09-14). 버튼은 살려 두고, 누르면 그 자리에서 왜 안 되는지
+   * 말한다. 제출 때의 tried 와 따로 두는 이유는, 여기서 tried 를 켜면
+   * 아직 안 고른 출생연도까지 같이 혼나기 때문이다.
+   */
+  const [poked, setPoked] = useState(false)
   /* 서버가 막았을 때. 폼 맨 위 띠에 띄운다 */
   const [failed, setFailed] = useState<string | null>(null)
 
@@ -117,7 +125,7 @@ export default function Welcome() {
    * 중복은 다르다. **사용자가 확인 버튼을 눌러 물어본 것이라 바로
    * 답해야 한다.** 눌렀는데 아무 변화가 없으면 눌린 건지도 모른다.
    */
-  const shownError = (tried ? formError : undefined) ?? takenError
+  const shownError = (tried || poked ? formError : undefined) ?? takenError
 
   /* 고를 수 있는 연도. 올해부터 거꾸로 편다. 자기 연도가 목록 위쪽에
      있는 사람이 드물어 최근 연도를 앞에 두는 편이 덜 굴린다 */
@@ -156,7 +164,8 @@ export default function Welcome() {
   const ok = !nickError && !birthError && !!fresh?.free
 
   const check = () => {
-    if (formError || checking) return
+    if (checking) return
+    if (formError) return setPoked(true)
     const name = nick.trim()
     setChecking(true)
     setFailed(null)
@@ -257,7 +266,7 @@ export default function Welcome() {
               <Button
                 size="sm"
                 tone="ghost"
-                disabled={!!formError || checking}
+                disabled={checking}
                 onClick={check}
               >
                 {checking ? '확인 중…' : '중복 확인'}
