@@ -11,8 +11,10 @@
  */
 import type { ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import { SectionNav } from '@/components/SectionNav'
+import type { Section } from '@/components/BottomNav'
 
-export function PageShell({ title, right, children, onBack, fill }: {
+export function PageShell({ title, right, children, onBack, fill, nav }: {
   /** 헤더 가운데 줄. 스크롤과 상관없이 계속 보인다 */
   title?: string
   right?: ReactNode
@@ -28,11 +30,17 @@ export function PageShell({ title, right, children, onBack, fill }: {
    * 컨테이너가 문서 자체이기 때문이다.
    */
   fill?: boolean
+  /**
+   * 하단 탭을 붙인다. 묶음의 첫 화면(동행 목록 · 채팅 목록 · 프로필 ·
+   * 알림함)만 준다. 상세 · 쓰기 · 채팅방은 뒤로가기로 돌아가는 화면이라
+   * 안 붙인다 — 채팅방은 입력칸이 그 자리다.
+   */
+  nav?: Section
 }) {
   const router = useRouter()
 
   return (
-    <div className={`shell${fill ? ' shell--fill' : ''}`}>
+    <div className={`shell${fill ? ' shell--fill' : ''}${nav ? ' shell--nav' : ''}`}>
       <header className="shell__bar">
         <button
           type="button"
@@ -55,6 +63,7 @@ export function PageShell({ title, right, children, onBack, fill }: {
         {right && <span className="shell__right">{right}</span>}
       </header>
       <main className="shell__body">{children}</main>
+      {nav && <SectionNav section={nav} />}
     </div>
   )
 }

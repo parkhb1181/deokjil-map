@@ -103,7 +103,7 @@ export default function MyProfile() {
 
   if (state.k === 'loading') {
     return (
-      <PageShell title="내 활동">
+      <PageShell title="내 활동" nav="profile">
         <div className="form">
           <Skeleton h={96} />
           <Skeleton h={130} />
@@ -115,7 +115,7 @@ export default function MyProfile() {
 
   if (state.k === 'guest') {
     return (
-      <PageShell title="내 활동">
+      <PageShell title="내 활동" nav="profile">
         <Blank
           title="로그인하면 내 활동을 볼 수 있어요"
           desc="닉네임만 정하면 바로 쓸 수 있어요"
@@ -135,7 +135,7 @@ export default function MyProfile() {
 
   if (state.k === 'failed') {
     return (
-      <PageShell title="내 활동">
+      <PageShell title="내 활동" nav="profile">
         <Blank
           title="불러오지 못했어요"
           desc={state.text}

@@ -4,6 +4,8 @@ import { Fragment, type ReactNode } from 'react'
 import { wf } from '@/lib/wireframe'
 
 export type Tab = 'browse' | 'map' | 'bookmark'
+/** 홈 밖의 묶음. 그 칸에 켜진 표시가 붙는다 (SectionNav) */
+export type Section = 'companion' | 'profile'
 
 /**
  * 아이콘을 글자(≡ ◎ ♡)로 두지 않는다.
@@ -81,7 +83,10 @@ const PROFILE = {
 }
 
 interface Props {
-  active: Tab
+  /** 홈의 세 칸 중 켜진 것. 홈 밖에서는 null */
+  active: Tab | null
+  /** 홈 밖에서 지금 있는 묶음. 동행 · 프로필 칸에 켜진 표시가 붙는다 */
+  section?: Section
   /** 담은 개수. 0 이면 배지를 달지 않는다. 빈 배지는 노이즈다 */
   savedCount: number
   onChange: (tab: Tab) => void
@@ -97,7 +102,7 @@ interface Props {
  * 레퍼런스 세 서비스(오프메이트·팝플리·팝가)가 모두 쓰는 구조.
  * 이 카테고리의 표준 문법이라 여기서 벗어나면 학습 비용만 생긴다.
  */
-export default function BottomNav({ active, savedCount, onChange, companion = false, unread = 0 }: Props) {
+export default function BottomNav({ active, section, savedCount, onChange, companion = false, unread = 0 }: Props) {
   return (
     <nav className="bottomnav" aria-label="주요 화면">
       {TABS.map((tab) => (
@@ -105,7 +110,11 @@ export default function BottomNav({ active, savedCount, onChange, companion = fa
           {/* 동행은 지도와 즐겨찾기 사이에 낀다. 맨 끝에 두면 즐겨찾기가
               가운데로 밀려 손이 기억한 자리가 바뀐다 */}
           {tab.id === 'bookmark' && companion && (
-            <a className="bottomnav__item" href={wf(COMPANION.href)}>
+            <a
+              className={`bottomnav__item${section === 'companion' ? ' bottomnav__item--on' : ''}`}
+              aria-current={section === 'companion' ? 'page' : undefined}
+              href={wf(COMPANION.href)}
+            >
               <svg
                 className="bottomnav__icon"
                 viewBox="0 0 24 24"
@@ -149,7 +158,11 @@ export default function BottomNav({ active, savedCount, onChange, companion = fa
       ))}
 
       {companion && (
-        <a className="bottomnav__item" href={wf(PROFILE.href)}>
+        <a
+          className={`bottomnav__item${section === 'profile' ? ' bottomnav__item--on' : ''}`}
+          aria-current={section === 'profile' ? 'page' : undefined}
+          href={wf(PROFILE.href)}
+        >
           <svg
             className="bottomnav__icon"
             viewBox="0 0 24 24"

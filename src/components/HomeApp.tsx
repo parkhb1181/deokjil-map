@@ -190,6 +190,14 @@ export default function HomeApp({
   // 커뮤니티에 뿌린 아티스트별 링크(#/q/정국)로 들어온 경우.
   // 링크가 약속한 화면과 도착 화면이 달라지면 애써 만든 유입이 첫 화면에서 샌다
   const routeQuery = route.name === 'query' ? route.q : null
+  /* 홈 밖 하단 탭에서 지도 · 즐겨찾기를 눌러 들어왔다 (SectionNav). 해시는 지운다 —
+     남겨 두면 뒤로가기가 그 칸으로 되돌아온다 */
+  const routeTab = route.name === 'tab' ? route.tab : null
+  useEffect(() => {
+    if (!routeTab) return
+    setTab(routeTab)
+    history.replaceState(null, '', location.pathname + location.search)
+  }, [routeTab])
   useEffect(() => {
     if (!routeQuery) return
     setFilter((f) => ({ ...f, query: routeQuery, district: 'all' }))
