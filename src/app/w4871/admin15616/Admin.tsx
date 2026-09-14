@@ -40,6 +40,9 @@ import {
   blindComment,
   fetchAuditLogs,
   fetchReports,
+  fetchSanctions,
+  releaseSanction,
+  type ActiveSanction,
   handleReport,
   readComment,
   sanctionUser,
@@ -277,8 +280,22 @@ type SanctionRow = {
   kind: SanctionKind
   reason: string
   issuedAt: string
-  /** 기간 정지만 있다 */
+  /** 풀리는 시각. 서버가 계산한 값(expiresAt)이라 경고에도 있다. 영구 · 나이 확인은 없다 */
   until?: string
+  /** API 경로에서만. 푸는 경로가 회원번호를 요구한다 */
+  userId?: string
+}
+
+function toSanctionRow(s: ActiveSanction): SanctionRow {
+  return {
+    id: s.sanctionId,
+    user: s.nickname,
+    kind: s.kind,
+    reason: s.reason,
+    issuedAt: s.issuedAt,
+    until: s.expiresAt ?? undefined,
+    userId: s.userId,
+  }
 }
 
 const SANCTIONS: SanctionRow[] = [
@@ -447,9 +464,20 @@ export default function Admin() {
    * 다른 목록을 보면 앞뒤가 안 맞는다.
    */
   const reload = useCallback(async () => {
-    const [rs, as] = await authed((t) => Promise.all([fetchReports(t), fetchAuditLogs(t)]))
+    const [rs, as, ss] = await authed((t) =>
+      Promise.all([
+        fetchReports(t),
+        fetchAuditLogs(t),
+        /* AD-10 이 아직 안 나간 서버(404)면 제재 탭만 비운다. 신고 탭까지 같이 죽으면 안 된다 */
+        fetchSanctions(t).catch((e: unknown) => {
+          if (e instanceof ApiFailure && e.httpStatus === 404) return { items: [], nextCursor: null, hasNext: false }
+          throw e
+        }),
+      ]),
+    )
     setReports(rs.items.map(toRow))
     setAudit(as.items.map(toAuditEntry))
+    setSanctions(ss.items.map(toSanctionRow))
   }, [])
 
   useEffect(() => {
@@ -773,22 +801,8 @@ export default function Admin() {
               전에 푸는 경우이고, 푼 것도 기록에 남습니다.
             </p>
 
-            {USE_API ? (
-              /*
-               * **이 목록을 받는 경로가 없다.** 서버에 있는 것은 주는
-               * 것과 푸는 것 둘뿐이고 「지금 걸린 사람」 을 묻는 경로가
-               * 없다. 감사 로그로 되짚을 수는 있지만 그건 제재와 해제를
-               * 화면이 짝지어 현재 상태를 만드는 일이라, 한 줄만 놓쳐도
-               * 안 걸린 사람이 걸린 것으로 보인다.
-               *
-               * 푸는 것도 같이 막힌다 — sanctionId 를 목록 없이는 모른다.
-               */
-              <Blank
-                title="제재 목록은 아직 못 받아요"
-                desc="제재를 주고 푸는 길은 있는데 지금 누가 걸려 있는지 묻는 길이 서버에 없습니다. 생기면 여기가 채워집니다"
-                art={false}
-              />
-            ) : sancList.length === 0 ? (
+            {/* 목록은 AD-10 (PR #168) 이 준다. 활성 제재만, 만료 임박순 */}
+            {sancList.length === 0 ? (
               <Blank title="제재 중인 회원이 없어요" art={false} />
             ) : (
               <div className="bo__scroll">
@@ -1171,8 +1185,20 @@ export default function Admin() {
                 /* 사유가 없으면 못 푼다. 제재를 줄 때 사유를 적게
                    해놓고 풀 때는 안 적게 두면, 나중에 왜 풀렸는지
                    아무도 모른다 */
-                disabled={!releaseWhy.trim()}
+                disabled={!releaseWhy.trim() || busy}
                 onClick={() => {
+                  /*
+                   * 서버가 감사 로그를 남긴다 (AD-05). 해제 사유는 서버가
+                   * 받는 칸이 없어 화면에서만 적게 하고 보내지 않는다 —
+                   * 그래도 적게 두는 이유는 푸는 사람이 한 번 더 생각하게
+                   * 하기 위해서다. 목데이터는 예전처럼 화면 장부에 남긴다
+                   */
+                  if (USE_API && release.userId) {
+                    const target = release
+                    setRelease(null)
+                    run(() => authed((t) => releaseSanction(target.userId!, target.id, t)))
+                    return
+                  }
                   log(
                     'RELEASE',
                     release.user,

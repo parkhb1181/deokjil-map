@@ -193,6 +193,55 @@ export async function sanctionUser(
  * 방법이 없다. 목록이 생기면 해제 시트가 이걸 부른다. 그때까지 화면은
  * 목데이터로 돈다.
  */
+/**
+ * 지금 제재 중인 회원 (AD-10, PR #168). `GET /api/v1/admin/sanctions`.
+ *
+ * 활성 제재만, 만료 임박순. `until` 은 관리자가 적은 값이라 기간 정지에만
+ * 있고, `expiresAt` 은 서버가 계산한 해소 시각이라 경고에도 있다. 영구
+ * 정지 · 나이 확인은 둘 다 없다. 화면은 종료 칸에 expiresAt 을 쓴다.
+ */
+export interface ActiveSanction {
+  sanctionId: string
+  userId: string
+  nickname: string
+  kind: Exclude<SanctionKind, 'NONE'>
+  reason: string
+  issuedAt: string
+  until: string | null
+  expiresAt: string | null
+}
+
+function toActiveSanction(raw: unknown): ActiveSanction {
+  if (raw === null || typeof raw !== 'object') fail('sanction', '객체가 아니다')
+  const w = raw as Wire
+  return {
+    sanctionId: str(w.sanctionId, 'sanctionId'),
+    userId: str(w.userId, 'userId'),
+    nickname: str(w.nickname, 'nickname'),
+    kind: str(w.kind, 'kind') as ActiveSanction['kind'],
+    reason: str(w.reason, 'reason'),
+    issuedAt: str(w.issuedAt, 'issuedAt'),
+    until: strOrNull(w.until, 'until'),
+    expiresAt: strOrNull(w.expiresAt, 'expiresAt'),
+  }
+}
+
+export async function fetchSanctions(
+  token: string,
+  opts: { kind?: SanctionKind; cursor?: string | null; size?: number } = {},
+): Promise<{ items: ActiveSanction[]; nextCursor: string | null; hasNext: boolean }> {
+  const page = await apiGet<Page<unknown>>(
+    '/api/v1/admin/sanctions',
+    { kind: opts.kind ?? null, cursor: opts.cursor ?? null, size: opts.size ?? 50 },
+    token,
+  )
+  return {
+    items: page.items.map(toActiveSanction),
+    nextCursor: page.nextCursor,
+    hasNext: page.hasNext,
+  }
+}
+
 export async function releaseSanction(
   userId: string,
   sanctionId: string,
