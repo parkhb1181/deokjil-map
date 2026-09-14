@@ -46,7 +46,14 @@ function toAuthor(v: unknown, at: string): PostAuthor {
     id: str(a.id, `${at}.id`),
     nickname: str(a.nickname, `${at}.nickname`),
     profileImageUrl: strOrNull(a.profileImageUrl, `${at}.profileImageUrl`),
-    lastSeen: a.lastSeen === undefined ? undefined : (str(a.lastSeen, `${at}.lastSeen`) as never),
+    /*
+     * null 이 온다 — 한 번도 접속 기록이 없는 계정(부하테스트 계정 등).
+     * Me · PublicProfile · 채팅 멤버는 이미 null 을 받는데 여기만 문자열을
+     * 강제해서, 그런 글 하나가 목록에 섞이자 동행 화면 전체가 500 이
+     * 났다 (2026-09-14). 없으면 없는 대로 — 화면은 표시를 뺀다
+     */
+    lastSeen:
+      a.lastSeen === undefined || a.lastSeen === null ? undefined : (str(a.lastSeen, `${at}.lastSeen`) as never),
   }
 }
 
