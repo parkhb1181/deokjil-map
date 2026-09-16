@@ -11,6 +11,7 @@
  * 적으면 같은 이름이 스무 번 반복된다. 좌우로 갈라 두면 이름이
  * 없어도 누가 말했는지 알 수 있다.
  */
+import { useState } from 'react'
 import { Button } from './Basics'
 
 /* ── 말풍선 ───────────────────────────────────────────── */
@@ -75,6 +76,14 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
    */
   tail: boolean
 }) {
+  /*
+   * 「삭제」 「신고」 는 말풍선을 눌렀을 때만 편다.
+   *
+   * 줄마다 늘 보이면 대화보다 버튼이 먼저 읽히고, 시연 화면에서도
+   * 눈에 걸린다 (강사 피드백). 카톡처럼 누르면 나오는 쪽이 익숙하다.
+   */
+  const [open, setOpen] = useState(false)
+  const hasActions = tail && !pending && ((onDelete && !deleted) || onReport)
   return (
     /*
      * 이름이 있으면 한 겹 더 감싼다.
@@ -86,7 +95,10 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
     <div className={`bubwrap${mine ? ' bubwrap--mine' : ''}${tail ? ' bub--tail' : ''}`}>
       {who && <span className="bub__who">{who}</span>}
       <div className={`bub${mine ? ' bub--mine' : ''}${deleted ? ' bub--deleted' : ''}${pending ? ' bub--pending' : ''}`}>
-        <span className="bub__body">
+        <span
+          className={`bub__body${hasActions ? ' bub__body--tap' : ''}`}
+          onClick={hasActions ? () => setOpen((v) => !v) : undefined}
+        >
           {image && !deleted && (
             /* 공개 주소가 없어 60초마다 새 주소를 받는다 (CH-15). 그 사이는 회색 자리 */
             image.url ? (
@@ -100,12 +112,12 @@ export function ChatBubble({ text, mine, time, tail, who, deleted, pending, onDe
         </span>
         {tail && (
           <span className="bub__meta">
-            {onDelete && !deleted && !pending && (
+            {open && onDelete && !deleted && !pending && (
               <button type="button" className="bub__del" onClick={onDelete}>
                 삭제
               </button>
             )}
-            {onReport && !pending && (
+            {open && onReport && !pending && (
               <button type="button" className="bub__del" onClick={onReport}>
                 신고
               </button>

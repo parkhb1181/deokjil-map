@@ -3594,6 +3594,8 @@
   gap: 2px;
 }
 .bub--mine .bub__meta { align-items: flex-start; }
+/* 누르면 「삭제」 「신고」 가 펴지는 말풍선. 손가락이 닿는 곳이라는 표시만 */
+.bub__body--tap { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .bub__del {
   padding: 0;
   border: 0;
